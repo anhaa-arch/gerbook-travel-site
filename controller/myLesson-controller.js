@@ -4,10 +4,10 @@ const asyncHandler = require("../middleware/asyncHandler.js");
 
 exports.create = asyncHandler(async (req, res, next) => {
     try {
-        const { item } = req.body;
-        const existingItem = await findModel.findById(item);
+        const { lesson } = req.body;
+        const existingItem = await findModel.find({ _id: lesson });
         if (!existingItem) {
-            return res.status(404).json({ success: false, message: `${item}-id тай item байхгүй байна` });
+            return res.status(404).json({ success: false, message: `${lesson}-id тай хичээл байхгүй байна` });
         }
         const user = req.userId;
         const data = {

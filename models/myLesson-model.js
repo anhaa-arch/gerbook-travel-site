@@ -7,19 +7,11 @@ const myLessonSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User"
     },
-    text: {
-        type: String,
-        maxlength: [150, "Хамгийн дээд тал нь 150 тэмдэгтээс илүү байх ёстой"]
-    },
-    item: {
+    lesson: {
         type: Schema.Types.ObjectId,
-        ref: "Item"
+        ref: "Lesson"
     },
-    status: {
-        type: String,
-        enum: ["pending", "confirmed"],
-        default: "pending"
-    },
+
     createdAt: {
         type: Date,
         default: Date.now
