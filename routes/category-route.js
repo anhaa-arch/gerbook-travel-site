@@ -9,7 +9,7 @@ const {
   getAll
 } = require("../controller/category-controller");
 const router = express.Router();
-const { getCategorySortItem } = require("../controller/lesson-controller")
+const { getCategoyrSortCourse } = require("../controller/course-controller")
 
 router.route("/").post(create).get(getAll);
 
@@ -19,6 +19,6 @@ router
   .delete(findDelete)
   .get(detail);
 
-router.route("/:category_id/item").get(getCategorySortItem)
+router.route("/:category_id/course").get(getCategoyrSortCourse)
 
 module.exports = router;
