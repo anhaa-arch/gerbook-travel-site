@@ -7,9 +7,9 @@ const myLessonSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: "User"
     },
-    lesson: {
+    course: {
         type: Schema.Types.ObjectId,
-        ref: "Lesson"
+        ref: "course"
     },
 
     createdAt: {

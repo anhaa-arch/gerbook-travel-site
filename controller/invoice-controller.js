@@ -1,56 +1,80 @@
 const model = require("../models/invoice-model.js");
-const itemModel = require("../models/lesson-model.js");
+const courseModel = require("../models/course-model.js");
 const asyncHandler = require("../middleware/asyncHandler.js");
 const { addSeconds } = require("../middleware/addTime.js");
+const invoiceModel = require("../models/invoice-model.js");
+
+// exports.create = asyncHandler(async (req, res, next) => {
+//   try {
+//     const { course } = req.body;
+//     const data = [];
+//     const allCourse = await course.find({ _id: course })
+//     console.log(allCourse)
+
+//     // for (const item of course) {
+//     //   if (item.renterUser !== null) {
+//     //     console.log(item._id);
+//     //     const result = await model.create({
+//     //       item: item._id,
+//     //       createdInvoiceDateTime: rentDate,
+//     //     });
+//     //     const populatedResult = await model.populate(result, {
+//     //       path: "item",
+//     //       select: "price",
+//     //       populate: [
+//     //         {
+//     //           path: "createUser",
+//     //           select: "name phone",
+//     //         },
+//     //         {
+//     //           path: "renterUser",
+//     //           select: "name phone",
+//     //         },
+//     //       ],
+//     //     });
+//     //     data.push(populatedResult);
+//     //   }
+//     // }
+//     // const numberOfMonths = 12; // Replace this with your variable
+//     // setTimeout(async () => {
+//     //   const deletePhoneDelay = await user_verify.findOneAndDelete({
+//     //     phone: response.phone,
+//     //   });
+//     //   console.log("deleted", deletePhoneDelay);
+//     // }, numberOfMonths * 30 * 24 * 60 * 60 * 1000);
+//     return res.status(200).json({ success: true, data });
+//   } catch (error) {
+//     res.status(500).json({ success: false, error: error.message });
+//   }
+// });
+
 
 exports.create = asyncHandler(async (req, res, next) => {
   try {
-    // const { days } = req.body // garaas hugatsaag oruulna
-    const rentDate = addSeconds(new Date(), 100);
-    const rentDateStr = rentDate.toISOString().slice(0, 19);
-    const nowDate = addSeconds(new Date(), 0);
-    const nowDateStr = nowDate.toISOString().slice(0, 19);
-    console.log("Одоогийн он сар өдөр ", nowDateStr);
-    console.log("Түрээс төлөх он сар ", rentDateStr);
-
+    const { Course } = req.body;
+    console.log(req.body)
     const data = [];
-    const items = await itemModel.find().select("createUser renterUser price");
-    for (const item of items) {
-      if (item.renterUser !== null) {
-        console.log(item._id);
-        const result = await model.create({
-          item: item._id,
-          createdInvoiceDateTime: rentDate,
-        });
-        const populatedResult = await model.populate(result, {
-          path: "item",
-          select: "price",
-          populate: [
-            {
-              path: "createUser",
-              select: "name phone",
-            },
-            {
-              path: "renterUser",
-              select: "name phone",
-            },
-          ],
-        });
-        data.push(populatedResult);
-      }
+    let priceTotal = 0
+    for (let index = 0; index < Course.length; index++) {
+      let res = await courseModel.find({ _id: Course[index]._id });
+      priceTotal += res[0].price;
+      data.push(res);
     }
-    // const numberOfMonths = 12; // Replace this with your variable
-    // setTimeout(async () => {
-    //   const deletePhoneDelay = await user_verify.findOneAndDelete({
-    //     phone: response.phone,
-    //   });
-    //   console.log("deleted", deletePhoneDelay);
-    // }, numberOfMonths * 30 * 24 * 60 * 60 * 1000);
-    return res.status(200).json({ success: true, data });
+    const invoiceCreate = await invoiceModel.create({
+      course: data,
+      totalPrice: priceTotal
+    });
+
+    return res.status(200).json({ success: true, price: priceTotal, data: invoiceCreate })
+
   } catch (error) {
+    console.error(error);
     res.status(500).json({ success: false, error: error.message });
   }
+
 });
+
+
 
 exports.update = asyncHandler(async (req, res, next) => {
   try {

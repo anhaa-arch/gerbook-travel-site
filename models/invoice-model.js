@@ -1,15 +1,20 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const invoiceSchema = new Schema({
-  lesson: {
+const courseSchema = new Schema({
+  course: {
     type: Schema.Types.ObjectId,
-    ref: "Lesson"
+    ref: "Course"
   },
+})
+
+const invoiceSchema = new Schema({
+  course: [courseSchema],
   createdAt: {
     type: Date,
     default: Date.now
   },
+  totalPrice: Number,
   sender_invoice_id: {
     type: String
   },
