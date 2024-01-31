@@ -73,30 +73,45 @@ exports.createqpay = asyncHandler(async (req, res) => {
                 qpay_invoice_id: response.data?.invoice_id,
             });
             console.log(invoiceUpdate)
+            return res.status(200).json({ success: true, data: response.data, invoice: invoiceUpdate });
+
         }
 
-        return res.status(200).json({ success: true, data: response.data });
     } catch (error) {
         console.error(error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
+
+
+
 exports.callback = asyncHandler(async (req, res, next) => {
     try {
         const qpay_token = await qpay.makeRequest();
         const { access_token } = qpay_token;
         var sender_invoice_no = req.params.id;
         console.log(sender_invoice_no);
+
         const record = await invoiceModel.find({
             sender_invoice_id: sender_invoice_no,
         });
+
+        if (record.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: "Invoice not found",
+            });
+        }
+
         const { qpay_invoice_id, _id, course } = record[0];
-        console.log("course array  :", course)
-        console.log(record[0])
+        console.log("course array  :", course);
+        console.log(record[0]);
+
         const rentId = _id;
         console.log("rent id : " + rentId);
         console.log(" invoice object id : ", qpay_invoice_id);
         console.log(" qpay token : ", access_token);
+
         var request = {
             object_type: "INVOICE",
             object_id: qpay_invoice_id,
@@ -105,35 +120,40 @@ exports.callback = asyncHandler(async (req, res, next) => {
                 page_limit: 100,
             },
         };
+
         const header = {
             headers: { Authorization: `Bearer ${access_token}` },
         };
+
         //  төлбөр төлөглдөж байгааа
         const result = await axios.post(
             process.env.qpayUrl + "payment/check",
             request,
             header
         );
+
         if (result.data.count == 1 && result.data.rows[0].payment_status == "PAID") {
             const updateStatusInvoice = await invoiceModel.findByIdAndUpdate(
                 rentId,
                 { status: "paid" },
                 { new: true }
             );
+
             course.map(async (item, i) => {
                 let myLessAddCourse = await myLessonModel.create({
                     createUser: req.userId,
                     course: item._id
-                })
-            })
+                });
+            });
+
             return res.status(200).json({
                 success: true,
-                messeage: "Төлөлт амжилттай",
+                message: "Төлөлт амжилттай",
             });
         } else {
             return res.status(401).json({
                 success: false,
-                messeage: "Төлөлт амжилтгүй",
+                message: "Төлөлт амжилтгүй",
             });
         }
     } catch (error) {
