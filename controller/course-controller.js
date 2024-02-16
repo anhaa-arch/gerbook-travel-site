@@ -51,9 +51,11 @@ exports.detail = asyncHandler(async (req, res, next) => {
       .findById(req.params.id)
       .populate("employee")
       .populate("category");
-    const lessons = await lesson.find({
-      course: id,
-    });
+    const lessons = await lesson
+      .find({
+        course: id,
+      })
+      .populate("course");
     text = {
       ...text.toObject(),
       lessons,
