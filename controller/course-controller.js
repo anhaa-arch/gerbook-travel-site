@@ -47,16 +47,18 @@ exports.findDelete = asyncHandler(async (req, res, next) => {
 exports.detail = asyncHandler(async (req, res, next) => {
   try {
     const id = req.params.id;
-    const text = await model
+    let text = await model
       .findById(req.params.id)
       .populate("employee")
       .populate("category");
     const lessons = await lesson.find({
       course: id,
     });
-    return res
-      .status(200)
-      .json({ success: true, data: text, lessons: lessons });
+    text = {
+      ...text.toObject(),
+      lessons,
+    };
+    return res.status(200).json({ success: true, data: text });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
