@@ -158,7 +158,7 @@ exports.getAll = asyncHandler(async (req, res) => {
     if (!isNaN(maxPrice)) {
       query.price.$lte = maxPrice;
     }
-    const pure = await model.find();
+    const pure = await model.find().populate("course");
     const text = await model
       .find(query, select)
       .populate({
