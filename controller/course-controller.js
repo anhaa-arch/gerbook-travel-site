@@ -1,13 +1,13 @@
 const model = require("../models/course-model");
 const asyncHandler = require("../middleware/asyncHandler");
-const paginate = require("../utils/pagination")
+const paginate = require("../utils/pagination");
 
 exports.create = asyncHandler(async (req, res, next) => {
   try {
     const data = {
       ...req.body,
       photo: req.file?.filename,
-      employee: req.userId
+      employee: req.userId,
     };
     const text = await model.create(data);
     return res.status(200).json({ success: true, data: text });
@@ -16,16 +16,15 @@ exports.create = asyncHandler(async (req, res, next) => {
   }
 });
 
-
 exports.update = asyncHandler(async (req, res, next) => {
   try {
     const updatedData = {
       ...req.body,
       photo: req.file?.filename,
-      employee: req.userId
+      employee: req.userId,
     };
     const text = await model.findByIdAndUpdate(req.params.id, updatedData, {
-      new: true
+      new: true,
     });
     return res.status(200).json({ success: true, data: text });
   } catch (error) {
@@ -36,7 +35,7 @@ exports.update = asyncHandler(async (req, res, next) => {
 exports.findDelete = asyncHandler(async (req, res, next) => {
   try {
     const text = await model.findByIdAndDelete(req.params.id, {
-      new: true
+      new: true,
     });
     return res.status(200).json({ success: true, data: text });
   } catch (error) {
@@ -56,7 +55,8 @@ exports.detail = asyncHandler(async (req, res, next) => {
 exports.getAll = asyncHandler(async (req, res, next) => {
   try {
     const total = await model.countDocuments();
-    const text = await model.find();
+    const text = await model.find().populate("employee").populate("category");
+
     return res.status(200).json({ success: true, total: total, data: text });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -73,9 +73,15 @@ exports.getCategoyrSortCourse = asyncHandler(async (req, res, next) => {
     const select = req.query.select;
     let search = req.query.search;
 
-    ["select", "sort", "page", "limit", "search", "maxPrice", "minPrice"].forEach(
-      el => delete req.query[el]
-    );
+    [
+      "select",
+      "sort",
+      "page",
+      "limit",
+      "search",
+      "maxPrice",
+      "minPrice",
+    ].forEach((el) => delete req.query[el]);
     const pagination = await paginate(page, limit, model);
     if (!search) search = "";
 
@@ -86,17 +92,17 @@ exports.getCategoyrSortCourse = asyncHandler(async (req, res, next) => {
     if (!isNaN(maxPrice)) {
       query.price.$lte = maxPrice;
     }
-    const text = await model.find(query, select).sort(sort)
+    const text = await model
+      .find(query, select)
+      .sort(sort)
       .skip(pagination.start - 1)
       .limit(limit);
-    return res
-      .status(200)
-      .json({
-        success: true,
-        pagination,
-        count: text.length,
-        data: text,
-      });
+    return res.status(200).json({
+      success: true,
+      pagination,
+      count: text.length,
+      data: text,
+    });
   } catch (error) {
     res
       .status(500)

@@ -2,17 +2,17 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const catergorySchema = new Schema({
-  catergoryName: {
-    type: String
+  categoryName: {
+    type: String,
   },
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
 module.exports = mongoose.model("Category", catergorySchema);
