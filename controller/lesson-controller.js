@@ -20,6 +20,8 @@ exports.create = asyncHandler(async (req, res) => {
     res.status(500).json({ success: false, error: error.message });
   }
 });
+
+
 exports.update = asyncHandler(async (req, res) => {
   try {
     const user = req.userId
@@ -43,6 +45,7 @@ exports.update = asyncHandler(async (req, res) => {
   }
 });
 
+
 exports.getCategorySortItem = asyncHandler(async (req, res, next) => {
   try {
     const page = parseInt(req.query.page) || 1;
@@ -53,9 +56,11 @@ exports.getCategorySortItem = asyncHandler(async (req, res, next) => {
     const select = req.query.select;
     let search = req.query.search;
 
+    // Remove unnecessary properties from req.query
     ["select", "sort", "page", "limit", "search", "maxPrice", "minPrice"].forEach(
       el => delete req.query[el]
     );
+
     const pagination = await paginate(page, limit, model);
     if (!search) search = "";
 
@@ -64,7 +69,7 @@ exports.getCategorySortItem = asyncHandler(async (req, res, next) => {
       course: req.params.course_id,
     };
     if (!isNaN(maxPrice)) {
-      query.price.$lte = maxPrice;
+      query.price = { $lte: maxPrice };
     }
     const text = await model.find(query, select).sort(sort)
       .skip(pagination.start - 1)
@@ -78,63 +83,34 @@ exports.getCategorySortItem = asyncHandler(async (req, res, next) => {
         data: text,
       });
   } catch (error) {
-    res
-      .status(500)
-      .json({ success: false, count: text.length, error: error.message });
-  }
-});
-
-
-exports.getSubcategorySortItem = asyncHandler(async (req, res, next) => {
-  try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 20;
-    const sort = req.query.sort;
-    const minPrice = req.query.minPrice || 0;
-    const maxPrice = req.query.maxPrice;
-    const select = req.query.select;
-    let search = req.query.search;
-
-    ["select", "sort", "page", "limit", "search", "maxPrice", "minPrice"].forEach(
-      el => delete req.query[el]
-    );
-
-    const pagination = await paginate(page, limit, model);
-    if (!search) search = "";
-
-    // Create the query object
-    const query = {
-      ...req.query,
-      SubCategory: req.params.subcategory_id, // Updated this line
-      title: { $regex: search, $options: "i" },
-      price: { $gte: minPrice },
-    };
-
-    // Include price condition if minPrice and maxPrice are provided and valid numbers
-    if (!isNaN(maxPrice)) {
-      query.price.$lte = maxPrice;
-    }
-
-    const text = await model.find(query, select).populate({
-      path: "createUser",
-      select: "name , phone , email , photo "
-    })
-      .sort(sort)
-      .skip(pagination.start - 1)
-      .limit(limit);
-
-    res.status(200).json({
-      success: true,
-      pagination,
-      count: text.length,
-      data: text,
-    });
-  } catch (error) {
-    res
+    // Handling errors
+    return res
       .status(500)
       .json({ success: false, error: error.message });
   }
 });
+
+
+// exports.getCategorySortItem = asyncHandler(async (req, res, next) => {
+//   try {
+//     const { course_id } = req.params
+//     const query = {
+//       ...req.query,
+//       course: course_id
+//     };
+//     const text = await model.find(query);
+//     return res.status(200).json({
+//       success: true,
+//       count: text.length,
+//       data: text,
+//     });
+//   } catch (error) {
+//     return res.status(500).json({ success: false, error: error.message });
+//   }
+// });
+
+
+
 
 
 

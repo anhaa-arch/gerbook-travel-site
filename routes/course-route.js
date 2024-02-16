@@ -14,12 +14,16 @@ const { getCategorySortItem } = require("../controller/lesson-controller")
 
 router.route("/").post(protect, upload.single("file"), create).get(getAll);
 
+
+
+
+
 router
   .route("/:id")
   .put(upload.single("file"), update)
   .delete(findDelete)
   .get(detail);
 
-router.route("/:course_id/lesson").get(getCategorySortItem)
+router.route("/:course_id/lesson").get(getCategorySortItem);
 
 module.exports = router;

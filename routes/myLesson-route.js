@@ -10,6 +10,7 @@ const {
 const router = express.Router();
 // const { getCategorySortItem } = require("../controller/itemController")
 router.route("/").post(protect, create).get(protect, getAll);
+
 router
   .route("/:id")
   .put(update).delete(findDelete)
