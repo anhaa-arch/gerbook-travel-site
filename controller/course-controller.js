@@ -1,4 +1,5 @@
 const model = require("../models/course-model");
+const lesson = require("../models/lesson-model");
 const asyncHandler = require("../middleware/asyncHandler");
 const paginate = require("../utils/pagination");
 
@@ -45,8 +46,17 @@ exports.findDelete = asyncHandler(async (req, res, next) => {
 
 exports.detail = asyncHandler(async (req, res, next) => {
   try {
-    const text = await model.findById(req.params.id).populate("employee").populate("category");
-    return res.status(200).json({ success: true, data: text });
+    const id = req.params.id;
+    const text = await model
+      .findById(req.params.id)
+      .populate("employee")
+      .populate("category");
+    const lessons = await lesson.find({
+      course: id,
+    });
+    return res
+      .status(200)
+      .json({ success: true, data: text, lessons: lessons });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
