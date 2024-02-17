@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 
 // router routes import
 const userRoutes = require("./routes/user");
+const customerRoute = require("./routes/customer-route");
 const lessonRoute = require("./routes/lesson-route.js");
 const categoryRoute = require("./routes/category-route.js");
 const myLessonRoute = require("./routes/myLesson-route.js");
@@ -25,6 +26,7 @@ app.use(express.urlencoded({ extended: true })); // Using built-in express.urlen
 
 // api handlers
 app.use("/api/v1/user", userRoutes);
+app.use("/api/v1/customer", customerRoute);
 app.use("/api/v1/lesson", lessonRoute);
 app.use("/api/v1/category", categoryRoute);
 app.use("/api/v1/myLesson", myLessonRoute);
