@@ -114,7 +114,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
 
 exports.userDetail = asyncHandler(async (req, res, next) => {
     try {
-        const allText = await User.findById(req.params.id);
+        const allText = await Customer.findById(req.params.id);
         return res.status(200).json({
             success: true,
             data: allText,
