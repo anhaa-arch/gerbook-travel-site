@@ -2,7 +2,7 @@ const axios = require("axios");
 const asyncHandler = require("../middleware/asyncHandler.js");
 const invoiceModel = require("../models/invoice-model.js");
 const qpay = require("../middleware/qpay");
-const userModel = require("../models/user.js");
+const userModel = require("../models/customer-model.js");
 const myLessonModel = require("../models/myLesson-model.js");
 
 exports.createqpay = asyncHandler(async (req, res) => {
