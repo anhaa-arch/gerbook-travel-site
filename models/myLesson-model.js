@@ -5,13 +5,12 @@ const { Schema } = mongoose;
 const myLessonSchema = new Schema({
     createUser: {
         type: Schema.Types.ObjectId,
-        ref: "User"
+        ref: "Customer"
     },
     course: {
         type: Schema.Types.ObjectId,
-        ref: "course"
+        ref: "Course"
     },
-
     createdAt: {
         type: Date,
         default: Date.now

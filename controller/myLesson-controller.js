@@ -1,5 +1,5 @@
 const model = require("../models/myLesson-model.js");
-const findModel = require("../models/lesson-model.js")
+const findModel = require("../models/course-model.js")
 const asyncHandler = require("../middleware/asyncHandler.js");
 
 exports.create = asyncHandler(async (req, res, next) => {
@@ -12,7 +12,8 @@ exports.create = asyncHandler(async (req, res, next) => {
         const user = req.userId;
         const data = {
             ...req.body,
-            createUser: user
+            createUser: user,
+            course: lesson
         };
         const newItem = await model.create(data);
         return res.status(200).json({ success: true, data: newItem });
@@ -73,18 +74,17 @@ exports.detail = asyncHandler(async (req, res, next) => {
     }
 });
 
-exports.getAll = asyncHandler(async (req, res, next) => {
+
+exports.getAll = asyncHandler(async (req, res) => {
     try {
-        const total = await model.countDocuments();
-        const text = await model.find(
-            {
-                createUser: req.userId
-            }
-        );
+        const total = await model.countDocuments({ createUser: req.userId });
+        const data = await model.find({ createUser: req.userId }).populate("course");
+
         return res.status(200).json({
             success: true,
-            message: "Хүсэлт илгээсэн үл хөдлөхүүд",
-            total: total, data: text
+            message: "Миний сургалтууд",
+            total: total,
+            data: data
         });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
