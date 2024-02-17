@@ -69,7 +69,10 @@ exports.detail = asyncHandler(async (req, res, next) => {
 exports.getAll = asyncHandler(async (req, res, next) => {
   try {
     const total = await model.countDocuments();
-    const text = await model.find().populate("employee").populate("category");
+    const text = await model.find().populate({
+      path: "employee",
+      select: "name"
+    }).populate("category");
 
     return res.status(200).json({ success: true, total: total, data: text });
   } catch (error) {
