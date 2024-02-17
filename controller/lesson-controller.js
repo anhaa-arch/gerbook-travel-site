@@ -24,13 +24,11 @@ exports.create = asyncHandler(async (req, res) => {
 exports.update = asyncHandler(async (req, res) => {
   try {
     const user = req.userId;
-    const fileName1 = req.files["video"]
-      ? req.files["video"][0].filename
-      : "no video ?";
 
+    const fileName1 = req.file?.filename;
     const input = {
       ...req.body,
-      video: req.files?.["video"]?.[0]?.filename || null,
+      video: fileName1,
     };
 
     const newItem = await model.findByIdAndUpdate(req.params.id, input, {
