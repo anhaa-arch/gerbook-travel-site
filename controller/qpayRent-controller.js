@@ -96,7 +96,7 @@ exports.callback = asyncHandler(async (req, res, next) => {
     const record = await invoiceModel.find({
       sender_invoice_id: sender_invoice_no,
     });
-
+    console.log("recorded", record);
     if (record.length === 0) {
       return res.status(404).json({
         success: false,
@@ -104,8 +104,8 @@ exports.callback = asyncHandler(async (req, res, next) => {
       });
     }
 
-    const { qpay_invoice_id, _id, course } = record[0];
-    console.log("course array  :", course);
+    const { qpay_invoice_id, _id, courseId } = record[0];
+    console.log("course array  :", courseId);
     console.log(record[0]);
 
     const rentId = _id;
@@ -143,11 +143,14 @@ exports.callback = asyncHandler(async (req, res, next) => {
         { new: true }
       );
 
-      course.map(async (item, i) => {
+      console.log("cours id nuud");
+
+      record[0].courseId.map(async (item, i) => {
         let myLessAddCourse = await myLessonModel.create({
           createUser: req.userId,
-          course: item._id,
+          courseId: item?._id, // No need for mapping
         });
+        console.log("created my course", myLessAddCourse);
       });
 
       return res.status(200).json({

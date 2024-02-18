@@ -1,22 +1,20 @@
 const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
-const courseSchema = new Schema({
-  course: {
-    type: Schema.Types.ObjectId,
-    ref: "Course"
-  },
-})
-
 const invoiceSchema = new Schema({
-  course: [courseSchema],
+  courseId: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Course",
+    },
+  ],
   createdAt: {
     type: Date,
-    default: Date.now
+    default: Date.now,
   },
   totalPrice: Number,
   sender_invoice_id: {
-    type: String
+    type: String,
   },
   qpay_invoice_id: {
     type: String,
@@ -24,14 +22,15 @@ const invoiceSchema = new Schema({
   status: {
     type: String,
     enum: ["paid", "pending"],
-    default: "pending"
-
+    default: "pending",
   },
   createdInvoiceDateTime: { type: Date },
   updatedAt: {
     type: Date,
-    default: Date.now
-  }
+    default: Date.now,
+  },
 });
 
-module.exports = mongoose.model("Invoice", invoiceSchema);
+const Invoice = mongoose.model("Invoice", invoiceSchema);
+
+module.exports = Invoice;

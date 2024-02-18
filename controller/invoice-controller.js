@@ -4,77 +4,31 @@ const asyncHandler = require("../middleware/asyncHandler.js");
 const { addSeconds } = require("../middleware/addTime.js");
 const invoiceModel = require("../models/invoice-model.js");
 
-// exports.create = asyncHandler(async (req, res, next) => {
-//   try {
-//     const { course } = req.body;
-//     const data = [];
-//     const allCourse = await course.find({ _id: course })
-//     console.log(allCourse)
-
-//     // for (const item of course) {
-//     //   if (item.renterUser !== null) {
-//     //     console.log(item._id);
-//     //     const result = await model.create({
-//     //       item: item._id,
-//     //       createdInvoiceDateTime: rentDate,
-//     //     });
-//     //     const populatedResult = await model.populate(result, {
-//     //       path: "item",
-//     //       select: "price",
-//     //       populate: [
-//     //         {
-//     //           path: "createUser",
-//     //           select: "name phone",
-//     //         },
-//     //         {
-//     //           path: "renterUser",
-//     //           select: "name phone",
-//     //         },
-//     //       ],
-//     //     });
-//     //     data.push(populatedResult);
-//     //   }
-//     // }
-//     // const numberOfMonths = 12; // Replace this with your variable
-//     // setTimeout(async () => {
-//     //   const deletePhoneDelay = await user_verify.findOneAndDelete({
-//     //     phone: response.phone,
-//     //   });
-//     //   console.log("deleted", deletePhoneDelay);
-//     // }, numberOfMonths * 30 * 24 * 60 * 60 * 1000);
-//     return res.status(200).json({ success: true, data });
-//   } catch (error) {
-//     res.status(500).json({ success: false, error: error.message });
-//   }
-// });
-
-
 exports.create = asyncHandler(async (req, res, next) => {
   try {
     const { Course } = req.body;
-    console.log(req.body)
-    const data = [];
-    let priceTotal = 0
-    for (let index = 0; index < Course.length; index++) {
-      let res = await courseModel.find({ _id: Course[index]._id });
-      priceTotal += res[0].price;
-      data.push(res);
-    }
+    const courses = await Promise.all(
+      Course.map((courseId) => courseModel.findById(courseId))
+    );
+    console.log(courses);
+    const totalPrice = courses.reduce(
+      (total, course) => total + course.price,
+      0
+    );
+
     const invoiceCreate = await invoiceModel.create({
-      course: data,
-      totalPrice: priceTotal
+      courseId: Course.map((course) => course._id),
+      totalPrice: totalPrice,
     });
 
-    return res.status(200).json({ success: true, price: priceTotal, data: invoiceCreate })
-
+    return res
+      .status(200)
+      .json({ success: true, price: totalPrice, data: invoiceCreate });
   } catch (error) {
     console.error(error);
     res.status(500).json({ success: false, error: error.message });
   }
-
 });
-
-
 
 exports.update = asyncHandler(async (req, res, next) => {
   try {
