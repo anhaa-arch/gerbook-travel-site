@@ -19,6 +19,11 @@ const courseSchema = new Schema({
     ref: "Category",
     default: "no category",
   },
+  description: {
+    type: String,
+    maxlength: [500, "Тайлбар хамгийн ихдээ 500-н тэмдэгт байна!"],
+
+  },
   price: {
     type: Number,
     required: [true, "Үнэ заавал  оруулна уу !"],
