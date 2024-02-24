@@ -96,7 +96,7 @@ exports.updateUser = asyncHandler(async (req, res, next) => {
             photo: req.file?.filename,
         };
 
-        const upDateUserData = await User.findByIdAndUpdate(
+        const upDateUserData = await Customer.findByIdAndUpdate(
             req.params.id,
             updatedData,
             {

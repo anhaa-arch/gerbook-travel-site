@@ -37,8 +37,8 @@ app.use("/api/v1/qpayRent", qpayRoute);
 app.use("/api/v1/additional", additionalRoute);
 
 // file upload limit
-app.use(express.json({ limit: "300mb" }));
-app.use(express.urlencoded({ limit: "300mb", extended: true }));
+app.use(express.json({ limit: "24000mb" }));
+app.use(express.urlencoded({ limit: "24000mb", extended: true }));
 app.use("/uploads", express.static(__dirname + "/public/uploads")); // Serve uploaded files
 
 // global error handler
