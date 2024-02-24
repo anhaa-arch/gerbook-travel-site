@@ -4,7 +4,7 @@ const cors = require("cors");
 const logger = require("./middleware/logger.js");
 dotenv.config({ path: "./config/config.env" });
 const connectDB = require("./db");
-const bodyParser = require('body-parser');
+const bodyParser = require("body-parser");
 
 // router routes import
 const userRoutes = require("./routes/user");
@@ -14,7 +14,8 @@ const categoryRoute = require("./routes/category-route.js");
 const myLessonRoute = require("./routes/myLesson-route.js");
 const invoiceRoute = require("./routes/invoice-route.js");
 const coursRoute = require("./routes/course-route.js");
-const qpayRoute = require("./routes/qpayRentRoute.js")
+const qpayRoute = require("./routes/qpayRentRoute.js");
+const additionalRoute = require("./routes/additional.js");
 const errorHandler = require("./middleware/error.js");
 connectDB();
 
@@ -32,12 +33,12 @@ app.use("/api/v1/category", categoryRoute);
 app.use("/api/v1/myLesson", myLessonRoute);
 app.use("/api/v1/invoice", invoiceRoute);
 app.use("/api/v1/course", coursRoute);
-app.use("/api/v1/qpayRent", qpayRoute)
-
+app.use("/api/v1/qpayRent", qpayRoute);
+app.use("/api/v1/additional", additionalRoute);
 
 // file upload limit
-app.use(express.json({ limit: '300mb' }));
-app.use(express.urlencoded({ limit: '300mb', extended: true }));
+app.use(express.json({ limit: "300mb" }));
+app.use(express.urlencoded({ limit: "300mb", extended: true }));
 app.use("/uploads", express.static(__dirname + "/public/uploads")); // Serve uploaded files
 
 // global error handler
