@@ -88,8 +88,17 @@ exports.getAll = asyncHandler(async (req, res) => {
         const total = await model.countDocuments({ createUser: req.userId });
         const data = await model
             .find({ createUser: req.userId })
-            .populate("courseId")
-            .populate("createUser");
+            .populate({
+                path: "createUser",
+                select: "name"
+            })
+            .populate({
+                path: "courseId",
+                populate: {
+                    path: "employee",
+                    select: "name"
+                }
+            })
 
         return res.status(200).json({
             success: true,
