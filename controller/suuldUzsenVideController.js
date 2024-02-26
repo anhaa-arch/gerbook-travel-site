@@ -7,13 +7,14 @@ exports.create = asyncHandler(async (req, res, next) => {
             ...req.body,
         };
         console.log(data);
-        const text = await model.create(data);
-        return res.status(200).json({ success: true, data: text });
+        const result = await model.create(data);
+        const populatedResult = await result.populate("lessonId")
+        return res.status(200).json({ success: true, data: populatedResult });
     } catch (error) {
-        res.status(500).json({ success: false, error: error.message });
+        console.error("Error occurred while creating:", error);
+        return res.status(500).json({ success: false, error: error.message });
     }
 });
-
 exports.update = asyncHandler(async (req, res, next) => {
     try {
         const updatedData = {
