@@ -42,7 +42,7 @@ exports.findDelete = asyncHandler(async (req, res, next) => {
 
 exports.detail = asyncHandler(async (req, res, next) => {
     try {
-        const text = await model.findById(req.params.id);
+        const text = await model.findById(req.params.id).populate("lessonId")
         return res.status(200).json({ success: true, data: text });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
