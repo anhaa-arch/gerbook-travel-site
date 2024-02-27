@@ -5,6 +5,10 @@ const suuldUzsenVideoSchema = new Schema({
   lessonVideo: {
     type: String,
   },
+  courseId: {
+    type: Schema.Types.ObjectId,
+    ref: "Course"
+  },
   createUser: {
     type: Schema.Types.ObjectId,
     ref: "Customer"

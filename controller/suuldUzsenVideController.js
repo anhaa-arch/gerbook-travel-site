@@ -8,9 +8,7 @@ exports.create = asyncHandler(async (req, res, next) => {
             ...req.body,
             createUser: req.userId
         };
-
         const result = await model.create(data);
-
         return res.status(201).json({ success: true, data: result });
     } catch (error) {
         console.error("Error occurred while creating:", error);
@@ -49,9 +47,9 @@ exports.findDelete = asyncHandler(async (req, res, next) => {
 
 exports.detail = asyncHandler(async (req, res, next) => {
     try {
-        const lessonVideo = req.params.id;
+        // const lessonVideo = req.params.id;
         const find = {
-            lessonVideo: lessonVideo,
+            _id: req.params.id,
             createUser: req.userId
         };
         const text = await model.find(find);
