@@ -14,6 +14,6 @@ router
     .route("/:id")
     .put(update)
     .delete(findDelete)
-    .get(protect, detail);
+    .post(protect, detail);
 
 module.exports = router;

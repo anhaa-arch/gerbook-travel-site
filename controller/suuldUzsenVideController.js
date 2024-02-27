@@ -6,7 +6,7 @@ exports.create = asyncHandler(async (req, res, next) => {
     try {
         const data = {
             ...req.body,
-            createUser: req.userId
+            createUser: req.userId,
         };
         const result = await model.create(data);
         return res.status(201).json({ success: true, data: result });
@@ -48,17 +48,16 @@ exports.findDelete = asyncHandler(async (req, res, next) => {
 exports.detail = asyncHandler(async (req, res, next) => {
     try {
         // const lessonVideo = req.params.id;
+        const { courseId } = req.body;
         const find = {
             _id: req.params.id,
-            createUser: req.userId
+            createUser: req.userId,
+            courseId: courseId
         };
         const text = await model.find(find);
-
+        console.log(text)
         if (!text) {
             return res.status(404).json({ success: false, message: "Data not found" });
-        }
-        if (!text[0].createUser) {
-            return res.status(404).json({ success: false, message: "customer not found" });
         }
         return res.status(200).json({ success: true, data: text });
     } catch (error) {
