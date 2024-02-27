@@ -2,9 +2,12 @@ const mongoose = require("mongoose");
 const { Schema } = mongoose;
 
 const suuldUzsenVideoSchema = new Schema({
-  lessonId: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Lesson"
+  lessonVideo: {
+    type: String,
+  },
+  createUser: {
+    type: Schema.Types.ObjectId,
+    ref: "Customer"
   },
   createdAt: {
     type: Date,

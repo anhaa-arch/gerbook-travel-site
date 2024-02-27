@@ -1,4 +1,5 @@
 const express = require("express");
+const { protect } = require("../middleware/protect.js")
 
 const {
     create,
@@ -8,11 +9,11 @@ const {
     getAll
 } = require("../controller/suuldUzsenVideController.js");
 const router = express.Router();
-router.route("/").post(create).get(getAll);
+router.route("/").post(protect, create).get(getAll);
 router
     .route("/:id")
     .put(update)
     .delete(findDelete)
-    .get(detail);
+    .get(protect, detail);
 
 module.exports = router;
