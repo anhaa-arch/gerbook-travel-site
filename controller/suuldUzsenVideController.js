@@ -65,12 +65,14 @@ exports.detail = asyncHandler(async (req, res, next) => {
     }
 });
 
-
 exports.getAll = asyncHandler(async (req, res, next) => {
     try {
         const total = await model.countDocuments();
-        const text = await model.find();
-        return res.status(200).json({ success: true, total: total, data: text });
+        const text = await model.find({
+            createUser: req.userId
+        });
+
+        return res.status(200).json({ success: true, total: text.length, data: text });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
