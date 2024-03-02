@@ -148,9 +148,21 @@ exports.callback = asyncHandler(async (req, res, next) => {
       record[0].courseId.map(async (item, i) => {
         let myLessAddCourse = await myLessonModel.create({
           createUser: req.userId,
-          courseId: item?._id, // No need for mapping
+          courseId: item?._id,
         });
         console.log("created my course", myLessAddCourse);
+
+
+        //  1 min daraa ustgahaar testlly
+
+        setTimeout(async () => {
+          try {
+            await myLessonModel.deleteOne({ _id: myLessAddCourse._id });
+            console.log("Deleted my course after timeout");
+          } catch (error) {
+            console.error("Error deleting my course after timeout:", error);
+          }
+        }, 60 * 1000);
       });
 
       return res.status(200).json({
