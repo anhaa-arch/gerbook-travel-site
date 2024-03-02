@@ -7,6 +7,11 @@ exports.addSeconds = (date, seconds) => {
     return newDate;
 }
 
+exports.addMinute = (date, minute) => {
+    const newDate = new Date(date);
+    newDate.getMinutes(newDate.getSeconds() + minute);
+    return newDate;
+}
 exports.addDays = (date, days) => {
     const newDate = new Date(date);
     newDate.setDate(newDate.getDate() + days);
