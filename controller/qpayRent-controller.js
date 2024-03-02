@@ -4,7 +4,7 @@ const invoiceModel = require("../models/invoice-model.js");
 const qpay = require("../middleware/qpay");
 const userModel = require("../models/customer-model.js");
 const myLessonModel = require("../models/myLesson-model.js");
-const { addSeconds } = require("../middleware/addTime.js");
+const { addSeconds, addMinute } = require("../middleware/addTime.js");
 
 exports.createqpay = asyncHandler(async (req, res) => {
   try {
