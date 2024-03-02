@@ -11,6 +11,9 @@ const myLessonSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "Course",
   },
+  duusahHugatsaa: {
+    type: Date
+  },
   createdAt: {
     type: Date,
     default: Date.now,

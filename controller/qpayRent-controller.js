@@ -147,31 +147,23 @@ exports.callback = asyncHandler(async (req, res, next) => {
       console.log("cours id nuud");
 
 
+      const time = addSeconds(Date.now(), 180);
       // my lesson ruu course iig  nemeh 
       record[0].courseId.map(async (item, i) => {
         let myLessAddCourse = await myLessonModel.create({
           createUser: req.userId,
           courseId: item?._id,
+          duusahHugatsaa: time
         });
 
         console.log("created my course", myLessAddCourse);
 
         //  1 min daraa ustgahaar testlly
 
-        setTimeout(async () => {
-          try {
-            await myLessonModel.deleteOne({ _id: myLessAddCourse._id });
-            console.log("Deleted my course after timeout");
-          } catch (error) {
-            console.error("Error deleting my course after timeout:", error);
-          }
-        }, 60 * 1000);
-
 
         // const targetDate = new Date();
         // targetDate.setMonth(targetDate.getMonth() + 3);
 
-        const time = addSeconds(Date.now(), 180);
         const delay = time - Date.now();
         console.log("delaysdssssssssssssssssssss", delay)
         setTimeout(async () => {
