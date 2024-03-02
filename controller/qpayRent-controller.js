@@ -4,6 +4,7 @@ const invoiceModel = require("../models/invoice-model.js");
 const qpay = require("../middleware/qpay");
 const userModel = require("../models/customer-model.js");
 const myLessonModel = require("../models/myLesson-model.js");
+const { addSeconds } = require("../middleware/addTime.js");
 
 exports.createqpay = asyncHandler(async (req, res) => {
   try {
@@ -145,13 +146,15 @@ exports.callback = asyncHandler(async (req, res, next) => {
 
       console.log("cours id nuud");
 
+
+      // my lesson ruu course iig  nemeh 
       record[0].courseId.map(async (item, i) => {
         let myLessAddCourse = await myLessonModel.create({
           createUser: req.userId,
           courseId: item?._id,
         });
-        console.log("created my course", myLessAddCourse);
 
+        console.log("created my course", myLessAddCourse);
 
         //  1 min daraa ustgahaar testlly
 
@@ -163,6 +166,22 @@ exports.callback = asyncHandler(async (req, res, next) => {
             console.error("Error deleting my course after timeout:", error);
           }
         }, 60 * 1000);
+
+
+        // const targetDate = new Date();
+        // targetDate.setMonth(targetDate.getMonth() + 3);
+
+        const time = addSeconds(Date.now(), 180);
+        const delay = time - Date.now();
+        console.log("delaysdssssssssssssssssssss", delay)
+        setTimeout(async () => {
+          try {
+            await myLessonModel.deleteOne({ _id: myLessAddCourse._id });
+            console.log("Deleted my course after timeout");
+          } catch (error) {
+            console.error("Error deleting my course after timeout:", error);
+          }
+        }, delay);
       });
 
       return res.status(200).json({
