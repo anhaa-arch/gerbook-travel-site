@@ -163,9 +163,20 @@ exports.callback = asyncHandler(async (req, res, next) => {
         // const targetDate = new Date();
         // targetDate.setMonth(targetDate.getMonth() + 3);
 
+
+        // 3n sar bolgoj solino 
         let targetDate = new Date();
         targetDate.setMinutes(targetDate.getMinutes() + 10);
         const delay = targetDate - Date.now();
+
+        //test  duussaniii daraa ene functioniig ashiglah 
+
+        // let targetDate = new Date();
+        // targetDate.setMonth(targetDate.getMonth() + 10);
+        // const delay = targetDate - Date.now();
+
+
+
 
         setTimeout(async () => {
           try {
