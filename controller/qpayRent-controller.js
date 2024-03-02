@@ -144,7 +144,7 @@ exports.callback = asyncHandler(async (req, res, next) => {
         { new: true }
       );
       console.log("cours id nuud");
-      const endDate = addMinute(new Date(), 10);
+      const endDate = addSeconds(new Date(), 120);
       const endDateStr = endDate.toISOString().slice(0, 19);
       // my lesson ruu course iig  nemeh 
       record[0].courseId.map(async (item, i) => {
