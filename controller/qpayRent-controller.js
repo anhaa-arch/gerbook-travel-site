@@ -159,8 +159,12 @@ exports.callback = asyncHandler(async (req, res, next) => {
         // const targetDate = new Date();
         // targetDate.setMonth(targetDate.getMonth() + 3);
 
-        const nowDate = new Date().toISOString().slice(0, 19)
-        let delay = endDateStr - nowDate;
+
+        const targetDate = new Date();
+        targetDate.setMinutes(targetDate.getMinutes() + 5);
+
+        const delay = targetDate - Date.now();
+
 
         setTimeout(async () => {
           try {
