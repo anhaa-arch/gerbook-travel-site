@@ -147,7 +147,7 @@ exports.callback = asyncHandler(async (req, res, next) => {
       console.log("cours id nuud");
 
 
-      const time = addSeconds(Date.now(), 180);
+      const time = addSeconds(Date.now(), 360);
       // my lesson ruu course iig  nemeh 
       record[0].courseId.map(async (item, i) => {
         let myLessAddCourse = await myLessonModel.create({
@@ -157,15 +157,11 @@ exports.callback = asyncHandler(async (req, res, next) => {
         });
 
         console.log("created my course", myLessAddCourse);
-
         //  1 min daraa ustgahaar testlly
-
-
         // const targetDate = new Date();
         // targetDate.setMonth(targetDate.getMonth() + 3);
 
         const delay = time - Date.now();
-        console.log("delaysdssssssssssssssssssss", delay)
         setTimeout(async () => {
           try {
             await myLessonModel.deleteOne({ _id: myLessAddCourse._id });

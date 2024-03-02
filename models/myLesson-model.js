@@ -1,5 +1,5 @@
 const mongoose = require("mongoose");
-
+const { converToLocalTime } = require("../middleware/addTime");
 const { Schema } = mongoose;
 
 const myLessonSchema = new Schema({
@@ -12,7 +12,8 @@ const myLessonSchema = new Schema({
     ref: "Course",
   },
   duusahHugatsaa: {
-    type: Date
+    type: Date,
+    default: converToLocalTime
   },
   createdAt: {
     type: Date,
