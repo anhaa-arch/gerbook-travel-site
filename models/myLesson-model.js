@@ -11,7 +11,7 @@ const myLessonSchema = new Schema({
     ref: "Course",
   },
   duusahHugatsaa: {
-    type: Date,
+    type: String,
   },
   createdAt: {
     type: Date,
