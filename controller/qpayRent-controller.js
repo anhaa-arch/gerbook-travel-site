@@ -154,10 +154,14 @@ exports.callback = asyncHandler(async (req, res, next) => {
           duusahHugatsaa: endDateStr
         });
         console.log("created my course", myLessAddCourse);
+
         //  1 min daraa ustgahaar testlly
         // const targetDate = new Date();
         // targetDate.setMonth(targetDate.getMonth() + 3);
-        let delay = endDateStr - Date.now();
+
+        const nowDate = new Date().toISOString().slice(0, 19)
+        let delay = endDateStr - nowDate;
+
         setTimeout(async () => {
           try {
             await myLessonModel.deleteOne({ _id: myLessAddCourse._id });
