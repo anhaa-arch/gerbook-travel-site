@@ -17,6 +17,7 @@ const coursRoute = require("./routes/course-route.js");
 const qpayRoute = require("./routes/qpayRentRoute.js");
 const additionalRoute = require("./routes/additional.js");
 const suuldUzsenVideRoute = require("./routes/suuldUzsenVideRoute.js");
+const forgetPassword = require("./routes/forget-password-route.js");
 const errorHandler = require("./middleware/error.js");
 connectDB();
 
@@ -38,6 +39,7 @@ app.use("/api/v1/qpayRent", qpayRoute);
 app.use("/api/v1/additional", additionalRoute);
 app.use("/api/v1/additional", additionalRoute);
 app.use("/api/v1/suuldUzsenVideo", suuldUzsenVideRoute);
+app.use("/api/v1/forgetPassword", forgetPassword);
 
 // file upload limit
 app.use(express.json({ limit: "24000mb" }));

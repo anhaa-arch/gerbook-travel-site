@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-export const sendMail = async ({ email, msg }) => {
+exports.sendMail = async ({ email, msg }) => {
   // Simple regex for basic email validation
   const emailRegex =
     /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
