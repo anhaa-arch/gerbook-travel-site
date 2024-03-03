@@ -19,6 +19,11 @@ exports.sendMail = async ({ email, msg }) => {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
+      // host: "smtp.mail.mn",
+      // auth: {
+      //   user: "info@tanusoft.mn",
+      //   pass: "Tanusoft123.",
+      // },
     });
     const htmlContent = `
     <html lang="en">
