@@ -12,6 +12,12 @@ exports.sentEmailVerifyCode = asyncHandler(async (req, res, next) => {
     const endDate = addSeconds(new Date(), 180);
     const endDateStr = endDate.toISOString().slice(0, 19);
 
+
+
+    /// TEST DUUSHAAR  COMMENTIINE AWAH
+
+
+
     // if (!emailFindtoCustomer) {
     //   return res
     //     .status(404)

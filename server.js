@@ -22,6 +22,24 @@ const errorHandler = require("./middleware/error.js");
 connectDB();
 
 const app = express();
+
+
+// production d garsnii draa cors conf toxiruulah
+
+// const corsOptions = {
+//   origin: [
+//     "https://www.mokta.mn",
+//     "http://localhost:5173",
+//     "https://www.moktamongolia.com"
+//   ],
+//   optionsSuccessStatus: 200,
+//   credentials: true
+// };
+
+// Enable CORS for all routes
+// app.use(cors(corsOptions));
+
+
 app.use(cors());
 app.use(logger);
 app.use(express.json()); // Using built-in express.json() for JSON parsing

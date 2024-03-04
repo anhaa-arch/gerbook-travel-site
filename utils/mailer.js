@@ -337,7 +337,7 @@ exports.sendMail = async ({ email, msg }) => {
                 <!-- START MAIN CONTENT AREA -->
                 <tr>
                   <td class="wrapper">
-                    <p>Hi there</p>
+                    <p>СНууц үг сэргээх!</p>
                     <p>Sometimes you just want to send a simple HTML email with a simple design and clear call to action. This is it.</p>
                     <table role="presentation" border="0" cellpadding="0" cellspacing="0" class="btn btn-primary">
                       <tbody>
