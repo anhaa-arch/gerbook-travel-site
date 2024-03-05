@@ -164,23 +164,11 @@ exports.callback = asyncHandler(async (req, res, next) => {
         // const targetDate = new Date();
         // targetDate.setMonth(targetDate.getMonth() + 3);
 
-
         // 3n sar bolgoj solino 
 
         let targetDate = new Date();
-        targetDate.setMinutes(targetDate.getMinutes() + 120);
+        targetDate.setMonth(targetDate.getMonth() + 3);
 
-        const delay = targetDate - Date.now();
-
-
-        console.log(delay)
-        //test  duussaniii daraa ene functioniig ashiglah 
-
-        // let targetDate = new Date();
-        // targetDate.setMonth(targetDate.getMonth() + 3);
-        // const delay = targetDate.getTime() - Date.now();
-
-        // const delayInMilliseconds = 3 * 30 * 24 * 60 * 60 * 1000;
         setTimeout(async () => {
           try {
             await myLessonModel.deleteOne({ _id: myLessAddCourse._id });
@@ -189,6 +177,7 @@ exports.callback = asyncHandler(async (req, res, next) => {
             console.error("Error deleting my course after timeout:", error);
           }
         }, delay);
+
       });
 
       return res.status(200).json({
