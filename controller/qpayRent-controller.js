@@ -4,7 +4,7 @@ const invoiceModel = require("../models/invoice-model.js");
 const qpay = require("../middleware/qpay");
 const userModel = require("../models/customer-model.js");
 const myLessonModel = require("../models/myLesson-model.js");
-const { addSeconds, addMinute } = require("../middleware/addTime.js");
+const { addSeconds, addMinute, addMonths } = require("../middleware/addTime.js");
 
 exports.createqpay = asyncHandler(async (req, res) => {
   try {
@@ -146,7 +146,7 @@ exports.callback = asyncHandler(async (req, res, next) => {
       console.log("cours id nuud");
 
 
-      const endDate = addMinute(new Date(), 10);
+      const endDate = addMonths(new Date(), 3);
       const endDateStr = endDate.toISOString().slice(0, 10)
 
       // my lesson ruu course iig  nemeh 
@@ -166,20 +166,16 @@ exports.callback = asyncHandler(async (req, res, next) => {
 
         // 3n sar bolgoj solino 
 
-        let targetDate = new Date();
-        // 90 hnog
-        targetDate.setMinutes(targetDate.getMinutes() + 129600);
+        //  let targetDate = new Date();
+        //       targetDate.setMinutes(targetDate.getMinutes() + 120);
 
-        const delay = targetDate - Date.now();
+        //       const delay = targetDate - Date.now();
 
         //test  duussaniii daraa ene functioniig ashiglah 
 
-        // let targetDate = new Date();
-        // targetDate.setMonth(targetDate.getMonth() + 3);
-        // const delay = targetDate.getTime() - Date.now();
-
-
-
+        let targetDate = new Date();
+        targetDate.setMonth(targetDate.getMonth() + 3);
+        const delay = targetDate.getTime() - Date.now();
 
         setTimeout(async () => {
           try {
