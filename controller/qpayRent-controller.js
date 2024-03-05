@@ -87,26 +87,34 @@ exports.createqpay = asyncHandler(async (req, res) => {
   }
 });
 
-
-
 exports.callback = asyncHandler(async (req, res, next) => {
   try {
     const qpay_token = await qpay.makeRequest();
     const { access_token } = qpay_token;
-    const sender_invoice_no = req.params.id;
+    var sender_invoice_no = req.params.id;
+    console.log(sender_invoice_no);
 
-    const record = await invoiceModel.findOne({ sender_invoice_id: sender_invoice_no });
-
-    if (!record) {
+    const record = await invoiceModel.find({
+      sender_invoice_id: sender_invoice_no,
+    });
+    console.log("recorded", record);
+    if (record.length === 0) {
       return res.status(404).json({
         success: false,
         message: "Invoice not found",
       });
     }
 
-    const { _id: rentId, qpay_invoice_id, courseId } = record;
+    const { qpay_invoice_id, _id, courseId } = record[0];
+    console.log("course array  :", courseId);
+    console.log(record[0]);
 
-    const request = {
+    const rentId = _id;
+    console.log("rent id : " + rentId);
+    console.log(" invoice object id : ", qpay_invoice_id);
+    console.log(" qpay token : ", access_token);
+
+    var request = {
       object_type: "INVOICE",
       object_id: qpay_invoice_id,
       offset: {
@@ -119,36 +127,68 @@ exports.callback = asyncHandler(async (req, res, next) => {
       headers: { Authorization: `Bearer ${access_token}` },
     };
 
+    //  төлбөр төлөглдөж байгааа
     const result = await axios.post(
-      `${process.env.qpayUrl}payment/check`,
+      process.env.qpayUrl + "payment/check",
       request,
       header
     );
 
-    if (result.data.count === 1 && result.data.rows[0].payment_status === "PAID") {
-      await invoiceModel.findByIdAndUpdate(rentId, { status: "paid" });
+    if (
+      result.data.count == 1 &&
+      result.data.rows[0].payment_status == "PAID"
+    ) {
+      const updateStatusInvoice = await invoiceModel.findByIdAndUpdate(
+        rentId,
+        { status: "paid" },
+        { new: true }
+      );
+      console.log("cours id nuud");
 
-      const endDate = addMonths(new Date(), 3); // Adding 3 months to the current date
-      const endDateStr = endDate.toISOString().slice(0, 10);
 
-      for (const item of courseId) {
-        const myLessonAddCourse = await myLessonModel.create({
+      const endDate = addMinute(new Date(), 10);
+      const endDateStr = endDate.toISOString().slice(0, 10)
+
+      // my lesson ruu course iig  nemeh 
+      record[0].courseId.map(async (item, i) => {
+        let myLessAddCourse = await myLessonModel.create({
           createUser: req.userId,
           courseId: item?._id,
           duusahHugatsaa: endDateStr
         });
 
-        const delay = endDate.getTime() - Date.now();
+        console.log("created my course", myLessAddCourse);
+
+        //  1 min daraa ustgahaar testlly
+        // const targetDate = new Date();
+        // targetDate.setMonth(targetDate.getMonth() + 3);
+
+
+        // 3n sar bolgoj solino 
+
+        let targetDate = new Date();
+        targetDate.setMinutes(targetDate.getMinutes() + 120);
+
+        const delay = targetDate - Date.now();
+
+        //test  duussaniii daraa ene functioniig ashiglah 
+
+        // let targetDate = new Date();
+        // targetDate.setMonth(targetDate.getMonth() + 3);
+        // const delay = targetDate.getTime() - Date.now();
+
+
+
 
         setTimeout(async () => {
           try {
-            await myLessonModel.deleteOne({ _id: myLessonAddCourse._id });
+            await myLessonModel.deleteOne({ _id: myLessAddCourse._id });
             console.log("Deleted my course after timeout");
           } catch (error) {
             console.error("Error deleting my course after timeout:", error);
           }
         }, delay);
-      }
+      });
 
       return res.status(200).json({
         success: true,
