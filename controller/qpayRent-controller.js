@@ -172,6 +172,8 @@ exports.callback = asyncHandler(async (req, res, next) => {
 
         const delay = targetDate - Date.now();
 
+
+        console.log(delay)
         //test  duussaniii daraa ene functioniig ashiglah 
 
         // let targetDate = new Date();
