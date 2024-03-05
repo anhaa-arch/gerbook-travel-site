@@ -167,7 +167,8 @@ exports.callback = asyncHandler(async (req, res, next) => {
         // 3n sar bolgoj solino 
 
         let targetDate = new Date();
-        targetDate.setMinutes(targetDate.getMinutes() + 120);
+        // 90 hnog
+        targetDate.setMinutes(targetDate.getMinutes() + 129600);
 
         const delay = targetDate - Date.now();
 
