@@ -147,7 +147,8 @@ exports.callback = asyncHandler(async (req, res, next) => {
 
 
       const endDate = addMonths(new Date(), 3);
-      const endDateStr = endDate.toISOString().slice(0, 10)
+      const endDateStr = endDate.toISOString().slice(0, 10);
+
 
       // my lesson ruu course iig  nemeh 
       record[0].courseId.map(async (item, i) => {
@@ -173,10 +174,11 @@ exports.callback = asyncHandler(async (req, res, next) => {
 
         //test  duussaniii daraa ene functioniig ashiglah 
 
-        let targetDate = new Date();
-        targetDate.setMonth(targetDate.getMonth() + 3);
-        const delay = targetDate.getTime() - Date.now();
+        // let targetDate = new Date();
+        // targetDate.setMonth(targetDate.getMonth() + 3);
+        // const delay = targetDate.getTime() - Date.now();
 
+        const delayInMilliseconds = 3 * 30 * 24 * 60 * 60 * 1000;
         setTimeout(async () => {
           try {
             await myLessonModel.deleteOne({ _id: myLessAddCourse._id });
@@ -184,7 +186,7 @@ exports.callback = asyncHandler(async (req, res, next) => {
           } catch (error) {
             console.error("Error deleting my course after timeout:", error);
           }
-        }, delay);
+        }, delayInMilliseconds);
       });
 
       return res.status(200).json({
