@@ -57,13 +57,13 @@ exports.Login = asyncHandler(async (req, res, next) => {
         const user = await Customer.findOne({ email }).select("+password");
 
         if (!user) {
-            return res.status(404).json({ success: false, message: "Утасны дугаар бүртгэлгүй байна " });
+            return res.status(404).json({ success: false, message: " Имэйл  дугаар бүртгэлгүй байна " });
         }
 
         if (!email || !password) {
             return res.status(400).json({
                 success: false,
-                msg: "Утасны дугаар болон нууц үгээ оруулна уу!",
+                msg: "Имэйл дугаар болон нууц үгээ оруулна уу!",
             });
         }
 
@@ -72,7 +72,7 @@ exports.Login = asyncHandler(async (req, res, next) => {
         if (!isPasswordValid) {
             return res.status(400).json({
                 success: false,
-                msg: "Утасны дугаар эсвэл нууц үг буруу байна!",
+                msg: "Имэйл дугаар эсвэл нууц үг буруу байна!",
             });
         }
 
