@@ -7,22 +7,18 @@ const { sendMail } = require("../utils/mailer.js");
 exports.sentEmailVerifyCode = asyncHandler(async (req, res, next) => {
   try {
     const { email } = req.body;
-    // const emailFindtoCustomer = await CustomerModel.findOne({ email: email });
+    const emailFindtoCustomer = await CustomerModel.findOne({ email: email });
 
     const endDate = addSeconds(new Date(), 180);
     const endDateStr = endDate.toISOString().slice(0, 19);
 
-
-
     /// TEST DUUSHAAR  COMMENTIINE AWAH
 
-
-
-    // if (!emailFindtoCustomer) {
-    //   return res
-    //     .status(404)
-    //     .json({ success: false, error: "Бүртгэлтгүй имэйл хаяг байна" });
-    // }
+    if (!emailFindtoCustomer) {
+      return res
+        .status(404)
+        .json({ success: false, error: "Бүртгэлтгүй имэйл хаяг байна" });
+    }
 
     const verifyCode = Math.floor(1000 + Math.random() * 9000);
     await sendMail({ email, msg: verifyCode });
