@@ -13,17 +13,27 @@ exports.sendMail = async ({ email, msg }) => {
 
   try {
     // Create a transporter object using the default SMTP transport
+    // const transporter = nodemailer.createTransport({
+    //   host: process.env.SMTP_HOST,
+    //   auth: {
+    //     user: process.env.SMTP_USER,
+    //     pass: process.env.SMTP_PASS,
+    //   },
+    //   // host: "smtp.mail.mn",
+    //   // auth: {
+    //   //   user: "info@tanusoft.mn",
+    //   //   pass: "Tanusoft123.",
+    //   // },
+    // });
+
     const transporter = nodemailer.createTransport({
       host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT || 587, // Default SMTP port is 587
+      secure: false, // TLS should be false for port 587
       auth: {
         user: process.env.SMTP_USER,
         pass: process.env.SMTP_PASS,
       },
-      // host: "smtp.mail.mn",
-      // auth: {
-      //   user: "info@tanusoft.mn",
-      //   pass: "Tanusoft123.",
-      // },
     });
     const htmlContent = `
     <html lang="en">
