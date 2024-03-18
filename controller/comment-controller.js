@@ -79,3 +79,16 @@ exports.getAll = asyncHandler(async (req, res, next) => {
         res.status(500).json({ success: false, error: error.message });
     }
 });
+exports.CourseIdSortByComment = asyncHandler(async (req, res) => {
+    try {
+        const course_id = req.params.course_id;
+        const text = await model.find({ CourseId: course_id }).sort({ createdAt: -1 }).populate({
+            path: "CourseId",
+            select: "coursname photo"
+        })
+        return res.status(200).json({ success: true, data: text });
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+
+    }
+})
