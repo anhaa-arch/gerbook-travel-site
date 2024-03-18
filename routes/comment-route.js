@@ -9,7 +9,7 @@ const {
     getAll
 } = require("../controller/comment-controller.js");
 const router = express.Router();
-router.route("/").post(protect, create).get(protect, getAll);
+router.route("/").post(protect, create).get(getAll);
 router
     .route("/:id")
     .put(update)

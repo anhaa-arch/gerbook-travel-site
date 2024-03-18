@@ -68,11 +68,12 @@ exports.detail = asyncHandler(async (req, res, next) => {
 exports.getAll = asyncHandler(async (req, res, next) => {
     try {
         const total = await model.countDocuments();
-        const text = await model.find({
-            createUser: req.userId
-        });
+        const text = await model.find().populate({
+            path: "createUser",
+            select: "name , email , photo"
+        })
 
-        return res.status(200).json({ success: true, total: text.length, data: text });
+        return res.status(200).json({ success: true, total, data: text });
     } catch (error) {
         res.status(500).json({ success: false, error: error.message });
     }
