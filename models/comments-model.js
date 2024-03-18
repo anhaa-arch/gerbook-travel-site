@@ -6,6 +6,10 @@ const commentSchema = new Schema({
     type: Schema.Types.ObjectId,
     ref: "User",
   },
+  CourseId: {
+    type: Schema.Types.ObjectId,
+    ref: "Course",
+  },
   description: {
     type: String,
     requred: [true, 'Тайлбар заавал оруулна уу'],
