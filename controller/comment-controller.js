@@ -6,6 +6,7 @@ exports.create = asyncHandler(async (req, res, next) => {
     try {
         const data = {
             ...req.body,
+            CourseId: req.body.CourseId,
             createUser: req.userId,
         };
         const result = await model.create(data);
