@@ -1,4 +1,4 @@
-const model = require("../models/news");
+const model = require("../models/imgUpload");
 const asyncHandler = require("../middleware/asyncHandler");
 
 exports.create = asyncHandler(async (req, res, next) => {
