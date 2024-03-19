@@ -18,13 +18,14 @@ const qpayRoute = require("./routes/qpayRentRoute.js");
 const additionalRoute = require("./routes/additional.js");
 const suuldUzsenVideRoute = require("./routes/suuldUzsenVideRoute.js");
 const forgetPassword = require("./routes/forget-password-route.js");
-const quizRoute = require("./routes/quiz-route.js")
-const commentRoute = require("./routes/comment-route.js")
+const quizRoute = require("./routes/quiz-route.js");
+const commentRoute = require("./routes/comment-route.js");
+const newsRoute = require("./routes/news.js");
+const imgRoute = require("./routes/imgUpload.js");
 const errorHandler = require("./middleware/error.js");
 connectDB();
 
 const app = express();
-
 
 // production d garsnii draa cors conf toxiruulah
 
@@ -40,7 +41,6 @@ const app = express();
 
 // Enable CORS for all routes
 // app.use(cors(corsOptions));
-
 
 app.use(cors());
 app.use(logger);
@@ -62,6 +62,8 @@ app.use("/api/v1/suuldUzsenVideo", suuldUzsenVideRoute);
 app.use("/api/v1/forgetPassword", forgetPassword);
 app.use("/api/v1/comment", commentRoute);
 app.use("/api/v1/quiz", quizRoute);
+app.use("/api/v1/news", newsRoute);
+app.use("/api/v1/img", imgRoute);
 
 // file upload limit
 app.use(express.json({ limit: "24000mb" }));
