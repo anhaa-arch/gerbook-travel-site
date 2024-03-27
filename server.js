@@ -4,30 +4,19 @@ const cors = require("cors");
 const logger = require("./middleware/logger.js");
 dotenv.config({ path: "./config/config.env" });
 const connectDB = require("./db");
-const bodyParser = require("body-parser");
 
 // router routes import
 const userRoutes = require("./routes/user");
-const customerRoute = require("./routes/customer-route");
-const lessonRoute = require("./routes/lesson-route.js");
-const categoryRoute = require("./routes/category-route.js");
-const myLessonRoute = require("./routes/myLesson-route.js");
-const invoiceRoute = require("./routes/invoice-route.js");
-const coursRoute = require("./routes/course-route.js");
-const qpayRoute = require("./routes/qpayRentRoute.js");
-const additionalRoute = require("./routes/additional.js");
-const suuldUzsenVideRoute = require("./routes/suuldUzsenVideRoute.js");
-const forgetPassword = require("./routes/forget-password-route.js");
-const quizRoute = require("./routes/quiz-route.js");
-const commentRoute = require("./routes/comment-route.js");
-const newsRoute = require("./routes/news.js");
-const imgRoute = require("./routes/imgUpload.js");
+const categoryRoutes = require("./routes/category.js");
+const productRoutes = require("./routes/product.js");
+const invoiceRoutes = require("./routes/invoice.js");
+const companyRoutes = require("./routes/company.js");
+const sectionRoutes = require("./routes/section.js");
+const districtRoutes = require("./routes/district.js");
 const errorHandler = require("./middleware/error.js");
 connectDB();
 
 const app = express();
-
-// production d garsnii draa cors conf toxiruulah
 
 // const corsOptions = {
 //   origin: [
@@ -49,21 +38,12 @@ app.use(express.urlencoded({ extended: true })); // Using built-in express.urlen
 
 // api handlers
 app.use("/api/v1/user", userRoutes);
-app.use("/api/v1/customer", customerRoute);
-app.use("/api/v1/lesson", lessonRoute);
-app.use("/api/v1/category", categoryRoute);
-app.use("/api/v1/myLesson", myLessonRoute);
-app.use("/api/v1/invoice", invoiceRoute);
-app.use("/api/v1/course", coursRoute);
-app.use("/api/v1/qpayRent", qpayRoute);
-app.use("/api/v1/additional", additionalRoute);
-app.use("/api/v1/additional", additionalRoute);
-app.use("/api/v1/suuldUzsenVideo", suuldUzsenVideRoute);
-app.use("/api/v1/forgetPassword", forgetPassword);
-app.use("/api/v1/comment", commentRoute);
-app.use("/api/v1/quiz", quizRoute);
-app.use("/api/v1/news", newsRoute);
-app.use("/api/v1/img", imgRoute);
+app.use("/api/v1/category", categoryRoutes);
+app.use("/api/v1/product", productRoutes);
+app.use("/api/v1/invoice", invoiceRoutes);
+app.use("/api/v1/company", companyRoutes);
+app.use("/api/v1/section", sectionRoutes);
+app.use("/api/v1/district", districtRoutes);
 
 // file upload limit
 app.use(express.json({ limit: "24000mb" }));
