@@ -6,6 +6,10 @@ const productSchema = new Schema({
     type: String,
     required: [true, "Бүтээгдхүүний  нэр заавал  оруулна уу !"],
   },
+  ad_type: {
+    type: String,
+    enum: ["free", "vip", "special"],
+  },
   description: {
     type: String,
     required: [true, "Тайлбар оруулна уу "],
