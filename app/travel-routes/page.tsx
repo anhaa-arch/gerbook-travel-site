@@ -30,7 +30,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Input } from "@/components/ui/input"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import "../../lib/i18n"
+import '../../lib/i18n'
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
@@ -794,14 +794,14 @@ export default function TravelRoutesPage() {
                                 <div>
                                   <div className="font-bold">{camp.name}</div>
                                   <div className="text-xs text-gray-500">{camp.parent} — {camp.location}</div>
-                                </div>
+                          </div>
                                 <div className="flex items-center">
                                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 mr-1" />
                                   <span className="font-semibold">{camp.rating}</span>
-                                </div>
-                              </div>
-                            ))}
+                            </div>
                           </div>
+                            ))}
+                        </div>
                         </DialogContent>
                       </Dialog>
                       <MapContainer
@@ -851,7 +851,7 @@ export default function TravelRoutesPage() {
                                 <div className="flex items-center mb-1">
                                   <Home className="w-4 h-4 mr-1 text-emerald-600" />
                                   <span className="font-bold">{camp.name}</span>
-                                </div>
+                      </div>
                                 <div className="text-xs text-gray-600 mb-1">{camp.parent} — {camp.location}</div>
                                 <div className="flex items-center text-sm mb-1">
                                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 mr-1" />

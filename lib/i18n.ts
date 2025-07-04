@@ -373,7 +373,7 @@ const resources = {
         book_now: "Захиалах",
         reserve_now: "Одоо захиалах",
         select_dates: "Огноо сонгох",
-        per_night: "шөнө тутам",
+        per_night: "хоног болгон",
         service_fee: "Үйлчилгээний хураамж",
         total: "Нийт",
         guests: "зочин",

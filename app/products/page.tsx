@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { productCategories } from "@/lib/data"
-import "../../lib/i18n"
+import '../../lib/i18n'
 import { useCart } from "@/hooks/use-cart"
 import { toast } from "@/hooks/use-toast"
 
@@ -132,10 +132,10 @@ export default function ProductsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("products.all_prices")}</SelectItem>
-                  <SelectItem value="0-50">$0 - $50</SelectItem>
-                  <SelectItem value="50-100">$50 - $100</SelectItem>
-                  <SelectItem value="100-200">$100 - $200</SelectItem>
-                  <SelectItem value="200">$200+</SelectItem>
+                  <SelectItem value="0-50">0 - 50₮</SelectItem>
+                  <SelectItem value="50-100">50 - 100₮</SelectItem>
+                  <SelectItem value="100-200">100 - 200₮</SelectItem>
+                  <SelectItem value="200">200₮+</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -210,7 +210,7 @@ export default function ProductsPage() {
                     <span className="text-xs font-semibold">{product.seller.rating}</span>
                   </div>
                   <div className="flex items-center justify-between">
-                    <span className="text-lg sm:text-xl font-bold">${product.price}</span>
+                    <span className="text-lg sm:text-xl font-bold">{product.price}₮</span>
                     <Button
                       size="sm"
                       className="bg-emerald-600 hover:bg-emerald-700 font-semibold"

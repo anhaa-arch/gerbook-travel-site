@@ -23,7 +23,7 @@ import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import { Header } from "@/components/header"
 import Link from "next/link"
-import "../../lib/i18n"
+import '../../../lib/i18n'
 
 // Mock camp data
 const campData = {

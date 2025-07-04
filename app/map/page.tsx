@@ -8,11 +8,10 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import { Checkbox } from "@/components/ui/checkbox"
-import "../../lib/i18n"
+import '../../lib/i18n'
 import { MapContainer, TileLayer, Marker, Popup, Polyline } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
 import type { CheckedState } from "@radix-ui/react-checkbox"
-import { SaveButton } from "@/components/ui/save-button"
 
 interface MapLocation {
   id: number
@@ -262,7 +261,8 @@ export default function MapPage() {
     setRouteLoading(true)
     try {
       // OpenRouteService Directions API
-      const url = "http://localhost:4000/api/directions"
+      const apiKey = "YOUR_ORS_API_KEY" // <-- энд өөрийн API key-г тавина уу
+      const url = `https://api.openrouteservice.org/v2/directions/driving-car?api_key=${apiKey}`
       const body = {
         coordinates: [
           [userLocation[1], userLocation[0]], // [lng, lat]
@@ -423,9 +423,8 @@ export default function MapPage() {
             {/* Selected Location Details */}
             {selectedLocation && (
               <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
+                <CardHeader>
                   <CardTitle className="text-base sm:text-lg font-bold">{selectedLocation.name.en}</CardTitle>
-                  <SaveButton id={selectedLocation.id} type={selectedLocation.type} data={selectedLocation} />
                 </CardHeader>
                 <CardContent>
                   <img
@@ -464,8 +463,8 @@ export default function MapPage() {
                     )}
                     {selectedLocation.price && (
                       <div className="text-lg font-bold text-emerald-600">
-                        ${selectedLocation.price}
-                        <span className="text-sm text-gray-600 font-medium">/night</span>
+                        {selectedLocation.price}₮
+                        <span className="text-sm text-gray-600 font-medium">/шөнө</span>
                       </div>
                     )}
                     {selectedLocation.date && (
@@ -551,11 +550,10 @@ export default function MapPage() {
                               <span className="text-xs font-semibold">{location.rating}</span>
                             </div>
                             {location.price && (
-                              <span className="text-xs font-bold text-emerald-600">${location.price}</span>
+                              <span className="text-xs font-bold text-emerald-600">{location.price}₮</span>
                             )}
                           </div>
                         </div>
-                        <SaveButton id={location.id} type={location.type} data={location} className="ml-2 mt-1" />
                       </div>
                     </div>
                   ))}

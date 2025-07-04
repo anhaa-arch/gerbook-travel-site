@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Plus, Package, Home, Edit, Trash2, Star, TrendingUp, X } from "lucide-react"
+import { Plus, Package, Home, Edit, Trash2, Star, TrendingUp, X, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
@@ -13,7 +13,8 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Header } from "@/components/header"
-import "../../lib/i18n"
+import '../../lib/i18n'
+import { useAuth } from "@/hooks/use-auth"
 
 export default function HerderDashboardContent() {
   const { t } = useTranslation()
@@ -22,6 +23,7 @@ export default function HerderDashboardContent() {
   const [showAddCamp, setShowAddCamp] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const { logout } = useAuth()
 
   // Mock herder data
   const herder = {
@@ -166,24 +168,20 @@ export default function HerderDashboardContent() {
           <p className="text-gray-600 text-sm sm:text-base font-medium">Өөрийн бүтээгдэхүүн, бааз, захиалгаа удирдаарай</p>
         </div>
 
+        <div className="flex justify-end mb-4">
+          <Button variant="outline" onClick={logout} className="flex items-center gap-2">
+            <LogOut className="w-4 h-4" /> Гарах
+          </Button>
+        </div>
+
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
           <div className="overflow-x-auto">
             <TabsList className="grid w-full grid-cols-5 min-w-[500px] sm:min-w-0">
-              <TabsTrigger value="overview" className="text-xs sm:text-sm font-medium">
-                Overview
-              </TabsTrigger>
-              <TabsTrigger value="products" className="text-xs sm:text-sm font-medium">
-                Products
-              </TabsTrigger>
-              <TabsTrigger value="camps" className="text-xs sm:text-sm font-medium">
-                Camps
-              </TabsTrigger>
-              <TabsTrigger value="orders" className="text-xs sm:text-sm font-medium">
-                Orders
-              </TabsTrigger>
-              <TabsTrigger value="profile" className="text-xs sm:text-sm font-medium">
-                Profile
-              </TabsTrigger>
+              <TabsTrigger value="overview" className="text-xs sm:text-sm font-medium">Тойм</TabsTrigger>
+              <TabsTrigger value="products" className="text-xs sm:text-sm font-medium">Бүтээгдэхүүнүүд</TabsTrigger>
+              <TabsTrigger value="camps" className="text-xs sm:text-sm font-medium">Гэр баазууд</TabsTrigger>
+              <TabsTrigger value="orders" className="text-xs sm:text-sm font-medium">Захиалгууд</TabsTrigger>
+              <TabsTrigger value="profile" className="text-xs sm:text-sm font-medium">Профайл</TabsTrigger>
             </TabsList>
           </div>
 
@@ -192,45 +190,45 @@ export default function HerderDashboardContent() {
             <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-semibold">Total Products</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm font-semibold">Нийт бүтээгдэхүүн</CardTitle>
                   <Package className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl sm:text-2xl font-bold">{herder.totalProducts}</div>
-                  <p className="text-xs text-muted-foreground font-medium">+2 from last month</p>
+                  <p className="text-xs text-muted-foreground font-medium">+2 өнгөрсөн сараас</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-semibold">Active Camps</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm font-semibold">Идэвхтэй баазууд</CardTitle>
                   <Home className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl sm:text-2xl font-bold">{herder.totalCamps}</div>
-                  <p className="text-xs text-muted-foreground font-medium">All active</p>
+                  <p className="text-xs text-muted-foreground font-medium">Бүгд идэвхтэй</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-semibold">Total Earnings</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm font-semibold">Нийт орлого</CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl sm:text-2xl font-bold">${herder.totalEarnings}</div>
-                  <p className="text-xs text-muted-foreground font-medium">+15% from last month</p>
+                  <p className="text-xs text-muted-foreground font-medium">+15% өнгөрсөн сараас</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-semibold">Average Rating</CardTitle>
+                  <CardTitle className="text-xs sm:text-sm font-semibold">Дундаж үнэлгээ</CardTitle>
                   <Star className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl sm:text-2xl font-bold">{herder.rating}</div>
-                  <p className="text-xs text-muted-foreground font-medium">Based on 89 reviews</p>
+                  <p className="text-xs text-muted-foreground font-medium">89 үнэлгээнд үндэслэв</p>
                 </CardContent>
               </Card>
             </div>
@@ -238,7 +236,7 @@ export default function HerderDashboardContent() {
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl font-bold">Recent Orders</CardTitle>
+                  <CardTitle className="text-lg sm:text-xl font-bold">Сүүлийн захиалгууд</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">

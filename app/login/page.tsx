@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import "../../lib/i18n"
+import '../../lib/i18n'
 
 export default function LoginPage() {
   const { t } = useTranslation()

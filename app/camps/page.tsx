@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { mongoliaData } from "@/lib/data"
-import "../../lib/i18n"
+import '../../lib/i18n'
 
 export default function CampsPage() {
   const { t, i18n } = useTranslation()
@@ -185,7 +185,7 @@ export default function CampsPage() {
                   <div className="flex items-center justify-between">
                     <div>
                       <span className="text-2xl font-bold">${camp.price}</span>
-                      <span className="text-gray-600 ml-1 font-medium">{t("camps.per_night")}</span>
+                      <span className="text-gray-600 ml-1 font-medium">хоног</span>
                     </div>
                     <Link href={`/camps/${camp.id}`}>
                       <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-semibold">

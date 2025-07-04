@@ -76,8 +76,8 @@ export function Header() {
             <div className="flex items-center gap-4">
               <LanguageSwitcher />
               {isAuthenticated ? (
-                <button className="p-2 rounded-full hover:bg-emerald-700 transition-colors" aria-label="Хэрэглэгч">
-                  <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white"><circle cx="12" cy="7" r="4"/><path d="M5.5 21a8.38 8.38 0 0 1 13 0"/></svg>
+                <button className="p-2 rounded-full hover:bg-emerald-700 transition-colors" aria-label="Гарах" onClick={handleLogout}>
+                  <LogOut className="w-5 h-5" />
                 </button>
               ) : (
                 <Link href="/login" aria-label="Нэвтрэх">

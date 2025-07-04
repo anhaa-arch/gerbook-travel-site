@@ -8,7 +8,7 @@ import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import "@/lib/i18n"
+import '../../lib/i18n'
 
 interface CartItem {
   id: number

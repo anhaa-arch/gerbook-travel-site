@@ -7,7 +7,7 @@ import { Search, MapPin, Star, Users, Route, Compass } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
-import "../lib/i18n"
+import '../lib/i18n'
 
 export default function HomePage() {
   const { t, i18n } = useTranslation()
@@ -199,8 +199,8 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-lg md:text-xl font-bold">${camp.price}</span>
-                      <span className="text-gray-600 ml-1 text-sm font-medium">{t("camps.per_night")}</span>
+                      <span className="text-lg md:text-xl font-bold">{camp.price}₮</span>
+                      <span className="text-gray-600 ml-1 text-sm font-medium">хоног</span>
                     </div>
                     <Link href={`/camps/${camp.id}`}>
                       <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
@@ -246,8 +246,8 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-lg md:text-xl font-bold">${camp.price}</span>
-                      <span className="text-gray-600 ml-1 text-sm font-medium">{t("camps.per_night")}</span>
+                      <span className="text-lg md:text-xl font-bold">{camp.price}₮</span>
+                      <span className="text-gray-600 ml-1 text-sm font-medium">хоног</span>
                     </div>
                     <Link href={`/camps/${camp.id}`}>
                       <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
@@ -278,9 +278,7 @@ export default function HomePage() {
             <Card className="p-6 md:p-8 text-center">
               <Route className="w-12 h-12 md:w-16 md:h-16 text-emerald-600 mx-auto mb-4" />
               <h3 className="text-xl md:text-2xl font-bold font-display mb-4">{t("travel.personalized")}</h3>
-              <p className="text-gray-600 mb-6 font-medium">
-                Get customized travel routes based on your preferences, interests, and travel duration.
-              </p>
+              <p className="text-gray-600 mb-6 font-medium">Таны сонирхол, аяллын хугацаанд тохирсон хувийн маршрут үүсгээрэй.</p>
               <Link href="/travel-routes">
                 <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
                   {t("travel.generate_route")}
@@ -290,10 +288,8 @@ export default function HomePage() {
 
             <Card className="p-6 md:p-8 text-center">
               <Compass className="w-12 h-12 md:w-16 md:h-16 text-emerald-600 mx-auto mb-4" />
-              <h3 className="text-xl md:text-2xl font-bold font-display mb-4">Interactive Map</h3>
-              <p className="text-gray-600 mb-6 font-medium">
-                Explore Mongolia with our interactive map showing camps, festivals, and points of interest.
-              </p>
+              <h3 className="text-xl md:text-2xl font-bold font-display mb-4">Интерактив газрын зураг</h3>
+              <p className="text-gray-600 mb-6 font-medium">Бааз, наадам, үзвэрүүдийг газрын зураг дээрээс судлаарай.</p>
               <Link href="/map">
                 <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">{t('map.explore_map')}</Button>
               </Link>
@@ -332,7 +328,7 @@ export default function HomePage() {
                     {t("products.seller")}: {product.seller[i18n.language as 'en' | 'mn']}
                   </p>
                   <div className="flex items-center justify-between">
-                    <span className="text-xl md:text-2xl font-bold">${product.price}</span>
+                    <span className="text-xl md:text-2xl font-bold">{product.price}₮</span>
                     <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
                       {t("common.add_to_cart")}
                     </Button>

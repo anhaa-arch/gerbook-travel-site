@@ -22,7 +22,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
-import "../../../lib/i18n"
+import '../../../lib/i18n'
 import { useToast } from "@/components/ui/use-toast"
 
 // Mock camp data
@@ -567,7 +567,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                 <CardHeader>
                   <CardTitle className="flex items-center justify-between">
                     <span className="text-2xl font-bold">${camp.price}</span>
-                    <span className="text-sm text-gray-600 font-medium">{t("common.per_night")}</span>
+                    <span className="text-sm text-gray-600 font-medium">хоног</span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">

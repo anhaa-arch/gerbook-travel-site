@@ -2,18 +2,20 @@
 
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Calendar, MapPin, Star, Package, Heart, ShoppingBag, Clock } from "lucide-react"
+import { Calendar, MapPin, Star, Package, Heart, ShoppingBag, Clock, LogOut } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import "../../lib/i18n"
+import '../../lib/i18n'
+import { useAuth } from "@/hooks/use-auth"
 
 export default function UserDashboardContent() {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState("overview")
+  const { logout } = useAuth()
 
   // Mock user data
   const user = {
@@ -259,6 +261,12 @@ export default function UserDashboardContent() {
           <p className="text-gray-600 text-sm sm:text-base font-medium">
             Захиалга, бараа болон аяллын тохиргоогоо удирдах
           </p>
+        </div>
+
+        <div className="flex justify-end mb-4">
+          <Button variant="outline" onClick={logout} className="flex items-center gap-2">
+            <LogOut className="w-4 h-4" /> Гарах
+          </Button>
         </div>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">

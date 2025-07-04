@@ -15,6 +15,7 @@ import {
   Eye,
   BarChart3,
   X,
+  LogOut,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -25,7 +26,8 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
-import "../../lib/i18n"
+import '../../lib/i18n'
+import { useAuth } from "@/hooks/use-auth"
 
 export default function AdminDashboardContent() {
   const { t } = useTranslation()
@@ -35,6 +37,7 @@ export default function AdminDashboardContent() {
   const [showAddContent, setShowAddContent] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
+  const { logout } = useAuth()
 
   // Mock data
   const stats = {
@@ -159,6 +162,11 @@ export default function AdminDashboardContent() {
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+        <div className="flex justify-end mb-4">
+          <Button variant="outline" onClick={logout} className="flex items-center gap-2">
+            <LogOut className="w-4 h-4" /> Гарах
+          </Button>
+        </div>
         <div className="mb-6 sm:mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 font-display">
             {t("admin.title", "Админ самбар")}
