@@ -1,0 +1,46 @@
+version: '3.8'
+
+services:
+  # Backend API service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mysql
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - DATABASE_URL=mysql://root:password@mysql:3306/tourism_db
+      - JWT_SECRET=your_production_jwt_secret_key_here
+      - JWT_EXPIRE=30d
+      - JWT_COOKIE_EXPIRE=30
+    restart: unless-stopped
+    volumes:
+      - ./public:/app/public
+    networks:
+      - tourism-network
+
+  # MySQL database service
+  mysql:
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=password
+      - MYSQL_DATABASE=tourism_db
+    volumes:
+      - mysql-data:/var/lib/mysql
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    networks:
+      - tourism-network
+
+volumes:
+  mysql-data:
+
+networks:
+  tourism-network:
+    driver: bridge
