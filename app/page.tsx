@@ -27,10 +27,18 @@ export default function HomePage() {
   const { t, i18n } = useTranslation()
   const { data, loading, error } = useQuery(GET_PRODUCTS, { 
     variables: { first: 10 },
-    fetchPolicy: "cache-first"
+    fetchPolicy: "cache-first",
+    errorPolicy: "all"
   })
 
-  // console.log(data)
+  // Handle GraphQL loading and error states
+  if (loading) {
+    console.log("Loading GraphQL data...")
+  }
+  
+  if (error) {
+    console.error("GraphQL Error:", error)
+  }
 
   const featuredCamps = [
     {
@@ -145,15 +153,6 @@ export default function HomePage() {
   // Separate featured and regular camps
   const topFeaturedCamps = featuredCamps.filter((camp) => camp.featured).slice(0, 4)
   const regularCamps = featuredCamps.filter((camp) => !camp.featured).slice(0, 4)
-
-  // // Handle GraphQL loading and error states
-  // if (loading) {
-  //   console.log("Loading GraphQL data...")
-  // }
-  
-  // if (error) {
-  //   console.error("GraphQL Error:", error)
-  // }
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">

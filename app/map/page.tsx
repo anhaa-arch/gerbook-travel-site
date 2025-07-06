@@ -397,6 +397,7 @@ export default function MapPage() {
                       <Marker position={userLocation}>
                         <Popup>Таны байршил</Popup>
                       </Marker>
+                      
                     )}
                     {filteredLocations.map((location) => (
                       <Marker key={location.id} position={[location.coordinates.lat, location.coordinates.lng]} eventHandlers={{ click: () => handleMarkerClick(location) }}>
