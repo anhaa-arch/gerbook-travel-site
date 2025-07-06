@@ -1,5 +1,6 @@
 "use client"
 
+import { redirect } from "next/dist/server/api-utils"
 import type React from "react"
 
 import { useState, useEffect, createContext, useContext } from "react"
@@ -15,7 +16,7 @@ interface User {
 interface AuthContextType {
   user: User | null
   isAuthenticated: boolean
-  login: (email: string, password: string) => Promise<{ redirectTo?: string }>
+  saveUserData: (user:User) => void
   logout: () => Promise<void>
   register: (userData: any) => Promise<void>
 }
@@ -49,31 +50,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null // Or a loading spinner if you want
   }
 
-  const login = async (email: string, password: string) => {
-    // Mock login logic
-    const mockUsers = {
-      "admin@malchincamp.com": { id: "1", name: "Admin User", email: "admin@malchincamp.com", role: "admin" as const },
-      "herder@malchincamp.com": { id: "2", name: "Herder User", email: "herder@malchincamp.com", role: "herder" as const },
-      "user@malchincamp.com": { id: "3", name: "Regular User", email: "user@malchincamp.com", role: "user" as const },
-    }
-
-    const userData = mockUsers[email as keyof typeof mockUsers]
-    if (userData && password === "password123") {
-      setUser(userData)
-      setIsAuthenticated(true)
-      localStorage.setItem("user", JSON.stringify(userData))
-
-      // Return redirect URL based on role
-      const redirectUrls = {
-        admin: "/admin-dashboard",
-        herder: "/herder-dashboard",
-        user: "/user-dashboard",
+  const saveUserData = async (user:User) => {
+      if(!user){
+        throw new Error("Хэрэглэгчийн дата олдсонгүй")
+        
       }
-
-      return { redirectTo: redirectUrls[userData.role] }
-    } else {
-      throw new Error("Invalid credentials")
-    }
+      setUser(user)
+      setIsAuthenticated(true)
+      localStorage.setItem("user", JSON.stringify(user))
   }
 
   const logout = async () => {
@@ -99,7 +83,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value: AuthContextType = {
     user,
     isAuthenticated,
-    login,
+    saveUserData,
     logout,
     register,
   }
