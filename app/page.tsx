@@ -1,5 +1,4 @@
 "use client"
-
 import { useTranslation } from "react-i18next"
 import Image from "next/image"
 import Link from "next/link"
@@ -8,9 +7,30 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import '../lib/i18n'
+import { gql, useQuery } from "@apollo/client"
+
+const GET_PRODUCTS = gql`
+  query GetProducts($first: Int) {
+    products(first: $first) {
+      edges {
+        node {
+          id
+          name
+          price
+        }
+      }
+    }
+  }
+`
 
 export default function HomePage() {
   const { t, i18n } = useTranslation()
+  const { data, loading, error } = useQuery(GET_PRODUCTS, { 
+    variables: { first: 10 },
+    fetchPolicy: "cache-first"
+  })
+
+  // console.log(data)
 
   const featuredCamps = [
     {
@@ -125,6 +145,15 @@ export default function HomePage() {
   // Separate featured and regular camps
   const topFeaturedCamps = featuredCamps.filter((camp) => camp.featured).slice(0, 4)
   const regularCamps = featuredCamps.filter((camp) => !camp.featured).slice(0, 4)
+
+  // // Handle GraphQL loading and error states
+  // if (loading) {
+  //   console.log("Loading GraphQL data...")
+  // }
+  
+  // if (error) {
+  //   console.error("GraphQL Error:", error)
+  // }
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
