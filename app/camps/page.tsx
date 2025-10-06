@@ -9,65 +9,55 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { mongoliaData } from "@/lib/data"
+import { gql, useQuery } from "@apollo/client"
 import '../../lib/i18n'
+
+const GET_YURTS = gql`
+  query GetYurts($first: Int, $filter: String, $orderBy: String) {
+    yurts(first: $first, filter: $filter, orderBy: $orderBy) {
+      edges {
+        node {
+          id
+          name
+          location
+          pricePerNight
+          capacity
+          images
+          amenities
+        }
+      }
+      totalCount
+      pageInfo { endCursor hasNextPage }
+    }
+  }
+`
 
 export default function CampsPage() {
   const { t, i18n } = useTranslation()
   const [selectedProvince, setSelectedProvince] = useState("")
   const [selectedDistrict, setSelectedDistrict] = useState("")
-  const [camps, setCamps] = useState<any[]>([])
 
-  // Mock camps data
-  const mockCamps = [
-    {
-      id: 1,
-      name: "Найман нуур эко гэр бааз",
-      province: "arkhangai",
-      district: "tsetserleg",
-      price: 120,
-      rating: 4.8,
-      reviews: 127,
-      guests: 4,
-      image: "/placeholder.svg?height=200&width=300&text=Traditional+Ger+Camp",
-      coordinates: { lat: 47.4753, lng: 101.4544 },
-      amenities: ["WiFi", "Хоол", "Морь унах"],
-    },
-    {
-      id: 2,
-      name: "Хөвсгөл нуурын тансаг бааз",
-      province: "arkhangai",
-      district: "khairkhan",
-      price: 250,
-      rating: 4.9,
-      reviews: 89,
-      guests: 6,
-      image: "/placeholder.svg?height=200&width=300&text=Lake+Ger+Camp",
-      coordinates: { lat: 50.4265, lng: 100.1629 },
-      amenities: ["Спа", "Тансаг хоол", "Нуурын үйл ажиллагаа"],
-    },
-    {
-      id: 3,
-      name: "Уулын үзэмжит гэр бааз",
-      province: "bayan-olgii",
-      district: "olgii",
-      price: 180,
-      rating: 4.7,
-      reviews: 156,
-      guests: 4,
-      image: "/placeholder.svg?height=200&width=300&text=Mountain+Camp",
-      coordinates: { lat: 48.9687, lng: 89.9336 },
-      amenities: ["Уулын аялал", "Бүргэдийн ан", "Соёлын аялал"],
-    },
-  ]
+  const { data: yurtsData, loading: yurtsLoading, error: yurtsError } = useQuery(GET_YURTS, {
+    variables: { first: 50, orderBy: "createdAt_DESC" },
+    fetchPolicy: "cache-first",
+    errorPolicy: "all"
+  })
 
-  const filteredCamps =
-    camps.length > 0
-      ? camps
-      : mockCamps.filter((camp) => {
-          if (selectedProvince && camp.province !== selectedProvince) return false
-          if (selectedDistrict && camp.district !== selectedDistrict) return false
-          return true
-        })
+  // Handle GraphQL loading and error states
+  if (yurtsLoading) {
+    console.log("Loading GraphQL yurts data...")
+  }
+  if (yurtsError) {
+    console.error("GraphQL Yurts Error:", yurtsError)
+  }
+
+  const yurts = (yurtsData?.yurts?.edges ?? []).map((e: any) => e.node)
+  
+  const filteredCamps = yurts.filter((camp: any) => {
+    if (selectedProvince && !camp.location.toLowerCase().includes(selectedProvince.toLowerCase())) return false
+    if (selectedDistrict && !camp.location.toLowerCase().includes(selectedDistrict.toLowerCase())) return false
+    return true
+  })
 
   const selectedProvinceData = mongoliaData.provinces.find((p) => p.id === selectedProvince)
   const availableDistricts = selectedProvinceData?.districts || []
@@ -144,58 +134,61 @@ export default function CampsPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredCamps.map((camp) => (
-              <Card key={camp.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative">
-                  <Image
-                    src={camp.image || "/placeholder.svg"}
-                    alt={camp.name}
-                    width={300}
-                    height={200}
-                    className="w-full h-48 object-cover"
-                  />
-                  <div className="absolute top-2 right-2 bg-white rounded-full p-1">
-                    <MapPin className="w-4 h-4 text-emerald-600" />
-                  </div>
-                </div>
-                <CardContent className="p-6">
-                  <h3 className="font-bold text-lg mb-2">{camp.name}</h3>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
-                      <span className="text-sm font-semibold">{camp.rating}</span>
-                      <span className="text-gray-600 text-sm ml-1 font-medium">({camp.reviews})</span>
-                    </div>
-                    <div className="flex items-center text-gray-600">
-                      <Users className="w-4 h-4 mr-1" />
-                      <span className="text-sm font-medium">
-                        {camp.guests} {t("camps.guests")}
-                      </span>
+            {filteredCamps.map((camp: any) => {
+              const imageSrc = (camp.images?.split(',')[0]) || "/placeholder.svg"
+              const amenities = camp.amenities ? camp.amenities.split(',') : []
+              return (
+                <Card key={camp.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative">
+                    <Image
+                      src={imageSrc}
+                      alt={camp.name}
+                      width={300}
+                      height={200}
+                      className="w-full h-48 object-cover"
+                    />
+                    <div className="absolute top-2 right-2 bg-white rounded-full p-1">
+                      <MapPin className="w-4 h-4 text-emerald-600" />
                     </div>
                   </div>
-                  <div className="mb-4">
-                    <div className="flex flex-wrap gap-1">
-                      {camp.amenities.slice(0, 3).map((amenity: string, index: number) => (
-                        <span key={index} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium">
-                          {amenity}
+                  <CardContent className="p-6">
+                    <h3 className="font-bold text-lg mb-2">{camp.name}</h3>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center text-gray-600">
+                        <MapPin className="w-4 h-4 mr-1" />
+                        <span className="text-sm font-medium">{camp.location}</span>
+                      </div>
+                      <div className="flex items-center text-gray-600">
+                        <Users className="w-4 h-4 mr-1" />
+                        <span className="text-sm font-medium">
+                          {camp.capacity} {t("camps.guests")}
                         </span>
-                      ))}
+                      </div>
                     </div>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <span className="text-2xl font-bold">${camp.price}</span>
-                      <span className="text-gray-600 ml-1 font-medium">хоног</span>
+                    <div className="mb-4">
+                      <div className="flex flex-wrap gap-1">
+                        {amenities.slice(0, 3).map((amenity: string, index: number) => (
+                          <span key={index} className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium">
+                            {amenity.trim()}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    <Link href={`/camps/${camp.id}`}>
-                      <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
-                        {t("common.details")}
-                      </Button>
-                    </Link>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <span className="text-2xl font-bold">{camp.pricePerNight}₮</span>
+                        <span className="text-gray-600 ml-1 font-medium">хоног</span>
+                      </div>
+                      <Link href={`/camps/${camp.id}`}>
+                        <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
+                          {t("common.details")}
+                        </Button>
+                      </Link>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         </div>
       </section>

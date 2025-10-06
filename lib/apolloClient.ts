@@ -13,7 +13,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 });
 
 const httpLink = new HttpLink({
-  uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || "https://api.malchincamp.com/graphql",
+  uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://localhost:8000/graphql",
   // Add headers if needed for authentication
   // headers: { 
   //   Authorization: `Bearer ${token}` 

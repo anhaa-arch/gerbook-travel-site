@@ -17,142 +17,62 @@ const GET_PRODUCTS = gql`
           id
           name
           price
+          images
         }
       }
     }
   }
 `
 
+const GET_YURTS = gql`
+  query GetYurts($first: Int, $orderBy: String) {
+    yurts(first: $first, orderBy: $orderBy) {
+      edges {
+        node {
+          id
+          name
+          location
+          pricePerNight
+          capacity
+          images
+        }
+      }
+      totalCount
+      pageInfo { endCursor hasNextPage }
+    }
+  }
+`
+
 export default function HomePage() {
   const { t, i18n } = useTranslation()
-  const { data, loading, error } = useQuery(GET_PRODUCTS, { 
+  const { data: productsData, loading: productsLoading, error: productsError } = useQuery(GET_PRODUCTS, { 
     variables: { first: 10 },
+    fetchPolicy: "cache-first",
+    errorPolicy: "all"
+  })
+  const { data: yurtsData, loading: yurtsLoading, error: yurtsError } = useQuery(GET_YURTS, {
+    variables: { first: 8, orderBy: "createdAt_DESC" },
     fetchPolicy: "cache-first",
     errorPolicy: "all"
   })
 
   // Handle GraphQL loading and error states
-  if (loading) {
+  if (productsLoading || yurtsLoading) {
     console.log("Loading GraphQL data...")
   }
-  
-  if (error) {
-    console.error("GraphQL Error:", error)
+  if (productsError) {
+    console.error("GraphQL Products Error:", productsError)
+  }
+  if (yurtsError) {
+    console.error("GraphQL Yurts Error:", yurtsError)
   }
 
-  const featuredCamps = [
-    {
-      id: 1,
-      name: "Naiman Nuur Eco Ger Camp",
-      location: "Arkhangai Province",
-      price: 120,
-      rating: 4.8,
-      image: "/placeholder.svg?height=200&width=300&text=Traditional+Ger+Camp",
-      guests: 4,
-      featured: true,
-    },
-    {
-      id: 2,
-      name: "Khuvsgul Lake Luxury Camp",
-      location: "Khövsgöl Province",
-      price: 250,
-      rating: 4.9,
-      image: "/placeholder.svg?height=200&width=300&text=Lake+Ger+Camp",
-      guests: 6,
-      featured: true,
-    },
-    {
-      id: 3,
-      name: "Gobi Desert Adventure Camp",
-      location: "Ömnögovi Province",
-      price: 180,
-      rating: 4.7,
-      image: "/placeholder.svg?height=200&width=300&text=Desert+Camp",
-      guests: 4,
-      featured: true,
-    },
-    {
-      id: 4,
-      name: "Altai Mountains Ger Camp",
-      location: "Bayan-Ölgii Province",
-      price: 160,
-      rating: 4.6,
-      image: "/placeholder.svg?height=200&width=300&text=Mountain+Camp",
-      guests: 5,
-      featured: true,
-    },
-    {
-      id: 5,
-      name: "Orkhon Valley Traditional Camp",
-      location: "Övörkhangai Province",
-      price: 140,
-      rating: 4.5,
-      image: "/placeholder.svg?height=200&width=300&text=Valley+Camp",
-      guests: 4,
-      featured: false,
-    },
-    {
-      id: 6,
-      name: "Terelj National Park Camp",
-      location: "Töv Province",
-      price: 110,
-      rating: 4.4,
-      image: "/placeholder.svg?height=200&width=300&text=Park+Camp",
-      guests: 3,
-      featured: false,
-    },
-    {
-      id: 7,
-      name: "Khar Us Lake Eco Camp",
-      location: "Khovd Province",
-      price: 130,
-      rating: 4.3,
-      image: "/placeholder.svg?height=200&width=300&text=Eco+Camp",
-      guests: 4,
-      featured: false,
-    },
-    {
-      id: 8,
-      name: "Hustai National Park Camp",
-      location: "Töv Province",
-      price: 125,
-      rating: 4.2,
-      image: "/placeholder.svg?height=200&width=300&text=Wildlife+Camp",
-      guests: 4,
-      featured: false,
-    },
-  ]
+  const yurts = (yurtsData?.yurts?.edges ?? []).map((e: any) => e.node)
+  const topFeaturedCamps = yurts.slice(0, 4)
+  const regularCamps = yurts.slice(4, 8)
+  const productEdges = productsData?.products?.edges ?? []
 
-  const featuredProducts = [
-    {
-      id: 1,
-      name: { en: "Traditional Airag", mn: "Айраг" },
-      category: { en: "Dairy", mn: "Сүү, сүүн бүтээгдэхүүн" },
-      price: 25,
-      image: "/placeholder.svg?height=200&width=200&text=Airag",
-      seller: { en: "Batbayar Family", mn: "Батбаярын гэр бүл" },
-    },
-    {
-      id: 2,
-      name: { en: "Handwoven Carpet", mn: "Гар нэхмэл хивс" },
-      category: { en: "Handicrafts", mn: "Гар урлал" },
-      price: 150,
-      image: "/placeholder.svg?height=200&width=200&text=Carpet",
-      seller: { en: "Oyunaa Crafts", mn: "Оюунаагийн урлал" },
-    },
-    {
-      id: 3,
-      name: { en: "Dried Mutton", mn: "Хатаасан мах" },
-      category: { en: "Meat", mn: "Мах" },
-      price: 45,
-      image: "/placeholder.svg?height=200&width=200&text=Dried+Meat",
-      seller: { en: "Nomad Foods", mn: "Нүүдэлчдийн хүнс" },
-    },
-  ]
-
-  // Separate featured and regular camps
-  const topFeaturedCamps = featuredCamps.filter((camp) => camp.featured).slice(0, 4)
-  const regularCamps = featuredCamps.filter((camp) => !camp.featured).slice(0, 4)
+  // Camps are derived from GraphQL
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
@@ -193,11 +113,11 @@ export default function HomePage() {
 
           {/* Featured Camps - Responsive grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
-            {topFeaturedCamps.map((camp) => (
+            {topFeaturedCamps.map((camp: any) => (
               <Card key={camp.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative">
                   <Image
-                    src={camp.image || "/placeholder.svg"}
+                    src={(camp.images?.split(',')[0]) || "/placeholder.svg"}
                     alt={camp.name}
                     width={300}
                     height={200}
@@ -214,20 +134,14 @@ export default function HomePage() {
                     <span className="text-sm truncate font-medium">{camp.location}</span>
                   </div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
-                      <span className="text-sm font-semibold">{camp.rating}</span>
-                    </div>
                     <div className="flex items-center text-gray-600">
                       <Users className="w-4 h-4 mr-1" />
-                      <span className="text-sm font-medium">
-                        {camp.guests} {t("camps.guests")}
-                      </span>
+                      <span className="text-sm font-medium">{camp.capacity} {t("camps.guests")}</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-lg md:text-xl font-bold">{camp.price}₮</span>
+                      <span className="text-lg md:text-xl font-bold">{camp.pricePerNight}₮</span>
                       <span className="text-gray-600 ml-1 text-sm font-medium">хоног</span>
                     </div>
                     <Link href={`/camps/${camp.id}`}>
@@ -243,11 +157,11 @@ export default function HomePage() {
 
           {/* Regular Camps - Second row */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
-            {regularCamps.map((camp) => (
+            {regularCamps.map((camp: any) => (
               <Card key={camp.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative">
                   <Image
-                    src={camp.image || "/placeholder.svg"}
+                    src={(camp.images?.split(',')[0]) || "/placeholder.svg"}
                     alt={camp.name}
                     width={300}
                     height={200}
@@ -261,20 +175,14 @@ export default function HomePage() {
                     <span className="text-sm truncate font-medium">{camp.location}</span>
                   </div>
                   <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
-                      <span className="text-sm font-semibold">{camp.rating}</span>
-                    </div>
                     <div className="flex items-center text-gray-600">
                       <Users className="w-4 h-4 mr-1" />
-                      <span className="text-sm font-medium">
-                        {camp.guests} {t("camps.guests")}
-                      </span>
+                      <span className="text-sm font-medium">{camp.capacity} {t("camps.guests")}</span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-lg md:text-xl font-bold">{camp.price}₮</span>
+                      <span className="text-lg md:text-xl font-bold">{camp.pricePerNight}₮</span>
                       <span className="text-gray-600 ml-1 text-sm font-medium">хоног</span>
                     </div>
                     <Link href={`/camps/${camp.id}`}>
@@ -338,23 +246,22 @@ export default function HomePage() {
             </Link>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {featuredProducts.map((product) => (
+            {productEdges.map((edge: any) => {
+              const product = edge.node
+              const imageSrc = (product.images?.split(',')[0]) || "/placeholder.svg"
+              return (
               <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
                 <div className="relative">
                   <Image
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name[i18n.language as 'en' | 'mn']}
+                    src={imageSrc}
+                    alt={product.name}
                     width={200}
                     height={200}
                     className="w-full h-40 md:h-48 object-cover"
                   />
                 </div>
                 <CardContent className="p-4 md:p-6">
-                  <h3 className="font-semibold text-base md:text-lg mb-2">{product.name[i18n.language as 'en' | 'mn']}</h3>
-                  <p className="text-gray-600 text-sm mb-2 font-medium">{product.category[i18n.language as 'en' | 'mn']}</p>
-                  <p className="text-gray-600 text-sm mb-4 font-medium">
-                    {t("products.seller")}: {product.seller[i18n.language as 'en' | 'mn']}
-                  </p>
+                  <h3 className="font-semibold text-base md:text-lg mb-2">{product.name}</h3>
                   <div className="flex items-center justify-between">
                     <span className="text-xl md:text-2xl font-bold">{product.price}₮</span>
                     <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
@@ -363,7 +270,7 @@ export default function HomePage() {
                   </div>
                 </CardContent>
               </Card>
-            ))}
+            )})}
           </div>
         </div>
       </section>

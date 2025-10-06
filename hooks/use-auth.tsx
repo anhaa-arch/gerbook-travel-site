@@ -1,6 +1,5 @@
 "use client"
 
-import { redirect } from "next/dist/server/api-utils"
 import type React from "react"
 
 import { useState, useEffect, createContext, useContext } from "react"
@@ -9,8 +8,10 @@ interface User {
   id: string
   name: string
   email: string
+  // Normalized frontend roles
   role: "admin" | "user" | "herder"
   avatar?: string
+  isHerder?: boolean // Frontend flag for herder dashboard
 }
 
 interface AuthContextType {
@@ -31,8 +32,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const storedUser = localStorage.getItem("user")
     if (storedUser) {
       try {
-        const userData = JSON.parse(storedUser)
-        setUser(userData)
+        const rawUser = JSON.parse(storedUser)
+        const isHerder = localStorage.getItem('isHerder') === 'true'
+        // Normalize role in case older storage used backend enums or missing fields
+        const normalizedRole: User["role"] = (() => {
+          const roleValue = (rawUser.role || "").toString()
+          if (roleValue === "ADMIN" || roleValue.toLowerCase() === "admin") return "admin"
+          // Treat any non-admin as customer; split herder via flag
+          return isHerder ? "herder" : "user"
+        })()
+        const normalizedUser: User = {
+          id: rawUser.id,
+          name: rawUser.name,
+          email: rawUser.email,
+          avatar: rawUser.avatar,
+          isHerder,
+          role: normalizedRole,
+        }
+        setUser(normalizedUser)
         setIsAuthenticated(true)
       } catch (error) {
         console.error("Error parsing stored user data:", error)
@@ -50,20 +67,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null // Or a loading spinner if you want
   }
 
-  const saveUserData = async (user:User) => {
+  const saveUserData = async (user:User | any) => {
       if(!user){
         throw new Error("Хэрэглэгчийн дата олдсонгүй")
-        
       }
-      setUser(user)
+      
+      // Add herder flag from localStorage
+      const isHerder = localStorage.getItem('isHerder') === 'true';
+      // Normalize role from backend enums (ADMIN/CUSTOMER) to frontend roles
+      const normalizedRole: User["role"] = (() => {
+        const roleValue = (user.role || "").toString()
+        if (roleValue === "ADMIN" || roleValue.toLowerCase() === "admin") return "admin"
+        return isHerder ? "herder" : "user"
+      })()
+      const userWithHerderFlag: User = {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        avatar: user.avatar,
+        isHerder,
+        role: normalizedRole,
+      };
+      
+      setUser(userWithHerderFlag)
       setIsAuthenticated(true)
-      localStorage.setItem("user", JSON.stringify(user))
+      localStorage.setItem("user", JSON.stringify(userWithHerderFlag))
   }
 
   const logout = async () => {
     setUser(null)
     setIsAuthenticated(false)
     localStorage.removeItem("user")
+    localStorage.removeItem("isHerder")
   }
 
   const register = async (userData: any) => {

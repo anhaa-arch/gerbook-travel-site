@@ -3,16 +3,42 @@
 import type React from "react"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useRouter } from "next/navigation"
+import { useAuth } from "@/hooks/use-auth"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import '../../lib/i18n'
 import { mongoliaData } from "@/lib/data"
+import { gql, useMutation } from "@apollo/client"
+
+const REGISTER_MUTATION = gql`
+  mutation register($input: CreateUserInput!) {
+    register(input: $input) {
+      token
+      user {
+        id
+        email
+        name
+        role
+      }
+    }
+  }
+`
 
 export default function RegisterPage() {
   const { t } = useTranslation()
+  const { saveUserData } = useAuth()
+  const router = useRouter()
+  const [isLoading, setIsLoading] = useState(false)
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
+  
+  const [userRegister] = useMutation(REGISTER_MUTATION)
+  
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -55,14 +81,17 @@ export default function RegisterPage() {
     }
   }
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError("")
+    setSuccess("")
+    
     if (formData.password !== formData.confirmPassword) {
-      alert("Нууц үг таарахгүй байна!")
+      setError("Нууц үг таарахгүй байна!")
       return
     }
     if (emailError || phoneError) {
-      alert("И-мэйл болон утасны дугаараа зөв оруулна уу.")
+      setError("И-мэйл болон утасны дугаараа зөв оруулна уу.")
       return
     }
     if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
@@ -73,8 +102,66 @@ export default function RegisterPage() {
       setPhoneError("8 оронтой утасны дугаар оруулна уу.")
       return
     }
-    console.log("Registration attempt:", formData)
-    // Handle registration logic here
+    
+    setIsLoading(true)
+    
+    try {
+      const input = {
+        name: `${formData.firstName} ${formData.lastName}`,
+        email: formData.email,
+        password: formData.password,
+        role: "CUSTOMER" // Backend only supports CUSTOMER and ADMIN
+      }
+      
+      console.log("Registration attempt:", input)
+      
+      const response = await userRegister({
+        variables: { input }
+      })
+      
+      console.log("Registration successful:", response.data)
+      
+      // Save user data and redirect
+      const user = response.data.register.user;
+      saveUserData(user);
+      
+      // Store herder flag in localStorage if user selected herder role
+      if (formData.role === 'herder') {
+        localStorage.setItem('isHerder', 'true');
+      } else {
+        localStorage.setItem('isHerder', 'false');
+      }
+      
+      // Determine redirect based on role and selected type
+      let redirectPath = "/";
+      let successMessage = "Амжилттай бүртгүүллээ!";
+      
+      if (user.role === 'ADMIN') {
+        redirectPath = "/admin-dashboard";
+        successMessage = "Амжилттай бүртгүүллээ! Таныг админ хянах самбар руу шилжүүлж байна...";
+      } else if (user.role === 'CUSTOMER') {
+        if (formData.role === 'herder') {
+          redirectPath = "/herder-dashboard";
+          successMessage = "Амжилттай бүртгүүллээ! Таныг малчин хянах самбар руу шилжүүлж байна...";
+        } else {
+          redirectPath = "/user-dashboard";
+          successMessage = "Амжилттай бүртгүүллээ! Таныг хэрэглэгчийн хянах самбар руу шилжүүлж байна...";
+        }
+      }
+      
+      setSuccess(successMessage);
+      
+      // Redirect after 2 seconds
+      setTimeout(() => {
+        router.push(redirectPath);
+      }, 2000)
+      
+    } catch (err) {
+      console.error("Registration error:", err)
+      setError(err instanceof Error ? err.message : "Бүртгэл амжилтгүй боллоо")
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   return (
@@ -87,6 +174,22 @@ export default function RegisterPage() {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {error && (
+              <Alert className="mb-4" variant="destructive">
+                <AlertDescription className="font-medium">
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
+            
+            {success && (
+              <Alert className="mb-4" variant="default">
+                <AlertDescription className="font-medium text-green-600">
+                  {success}
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -195,8 +298,12 @@ export default function RegisterPage() {
                 </Select>
               </div>
 
-              <Button type="submit" className="w-full bg-emerald-600 hover:bg-emerald-700 font-semibold">
-                Бүртгүүлэх
+x              <Button 
+                type="submit" 
+                className="w-full bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                disabled={isLoading}
+              >
+                {isLoading ? "Бүртгүүлж байна..." : "Бүртгүүлэх"}
               </Button>
             </form>
 

@@ -38,9 +38,8 @@ export function Header() {
       case "herder":
         return { href: "/herder-dashboard", label: t("nav.herder_dashboard") }
       case "user":
-        return { href: "/user-dashboard", label: t("nav.user_dashboard") }
       default:
-        return null
+        return { href: "/user-dashboard", label: t("nav.user_dashboard") }
     }
   }
 

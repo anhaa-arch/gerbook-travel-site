@@ -21,6 +21,8 @@ const LOGIN_MUTATION = gql`
       user {
         id
         email
+        name
+        role
       }
     }
   }
@@ -28,32 +30,46 @@ const LOGIN_MUTATION = gql`
 
 export default function LoginPage() {
   const { t } = useTranslation();
-  const { saveUserData } = useAuth();
+  const { saveUserData, user } = useAuth();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const [userLogin, { data, loading }] = useMutation(LOGIN_MUTATION);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setIsLoading(true);
 
     try {
-    const response = await userLogin({
+      const response = await userLogin({
         variables: {
           email,
           password,
         },
       });
-      saveUserData(response.data.login.user)
-      router.push("/")
+      const backendUser = response.data.login.user;
+      await saveUserData(backendUser);
+
+      // Redirect based on normalized role and herder flag
+      const isHerder = localStorage.getItem('isHerder') === 'true';
+      const roleValue = (backendUser.role || '').toString();
+      if (roleValue === 'ADMIN') {
+        router.push('/admin-dashboard');
+      } else if (isHerder) {
+        router.push('/herder-dashboard');
+      } else {
+        router.push('/user-dashboard');
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : "Login failed");
+    } finally {
+      setIsLoading(false);
     }
   };
-
-  const [userLogin, { data, loading }] = useMutation(LOGIN_MUTATION);
 
 
   return (

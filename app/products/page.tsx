@@ -8,9 +8,47 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { productCategories } from "@/lib/data"
+import { gql, useQuery } from "@apollo/client"
 import '../../lib/i18n'
 import { useCart } from "@/hooks/use-cart"
 import { toast } from "@/hooks/use-toast"
+
+const GET_PRODUCTS = gql`
+  query GetProducts($first: Int, $filter: String, $orderBy: String) {
+    products(first: $first, filter: $filter, orderBy: $orderBy) {
+      edges {
+        node {
+          id
+          name
+          description
+          price
+          stock
+          images
+          category {
+            id
+            name
+          }
+        }
+      }
+      totalCount
+      pageInfo { endCursor hasNextPage }
+    }
+  }
+`
+
+const GET_CATEGORIES = gql`
+  query GetCategories($first: Int) {
+    categories(first: $first) {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+      totalCount
+    }
+  }
+`
 
 export default function ProductsPage() {
   const { t, i18n } = useTranslation()
@@ -18,78 +56,34 @@ export default function ProductsPage() {
   const [priceRange, setPriceRange] = useState("")
   const { addToCart } = useCart()
 
-  // Mock products data
-  const mockProducts = [
-    {
-      id: 1,
-      name: "Айраг",
-      category: "dairy",
-      price: 25,
-      rating: 4.8,
-      reviews: 45,
-      image: "/placeholder.svg?height=200&width=200&text=Airag",
-      seller: { name: "Батбаярын гэр бүл", rating: 4.9 },
-      inStock: true,
-    },
-    {
-      id: 2,
-      name: "Гар нэхмэл хивс",
-      category: "handicrafts",
-      price: 150,
-      rating: 4.9,
-      reviews: 23,
-      image: "/placeholder.svg?height=200&width=200&text=Carpet",
-      seller: { name: "Оюунаагийн урлал", rating: 4.8 },
-      inStock: true,
-    },
-    {
-      id: 3,
-      name: "Хатаасан мах",
-      category: "meat",
-      price: 45,
-      rating: 4.7,
-      reviews: 67,
-      image: "/placeholder.svg?height=200&width=200&text=Dried+Meat",
-      seller: { name: "Нүүдэлчдийн хүнс", rating: 4.6 },
-      inStock: true,
-    },
-    {
-      id: 4,
-      name: "Ямаа бяслаг",
-      category: "dairy",
-      price: 35,
-      rating: 4.6,
-      reviews: 34,
-      image: "/placeholder.svg?height=200&width=200&text=Yak+Cheese",
-      seller: { name: "Уулын сүүний үйлдвэр", rating: 4.7 },
-      inStock: true,
-    },
-    {
-      id: 5,
-      name: "Монгол гутал",
-      category: "handicrafts",
-      price: 120,
-      rating: 4.8,
-      reviews: 18,
-      image: "/placeholder.svg?height=200&width=200&text=Boots",
-      seller: { name: "Уламжлалт урлал", rating: 4.9 },
-      inStock: false,
-    },
-    {
-      id: 6,
-      name: "Адуун колбас",
-      category: "meat",
-      price: 55,
-      rating: 4.5,
-      reviews: 29,
-      image: "/placeholder.svg?height=200&width=200&text=Sausage",
-      seller: { name: "Талын мах", rating: 4.4 },
-      inStock: true,
-    },
-  ]
+  const { data: productsData, loading: productsLoading, error: productsError } = useQuery(GET_PRODUCTS, {
+    variables: { first: 50, orderBy: "createdAt_DESC" },
+    fetchPolicy: "cache-first",
+    errorPolicy: "all"
+  })
 
-  const filteredProducts = mockProducts.filter((product) => {
-    if (selectedCategory && product.category !== selectedCategory) return false
+  const { data: categoriesData, loading: categoriesLoading, error: categoriesError } = useQuery(GET_CATEGORIES, {
+    variables: { first: 50 },
+    fetchPolicy: "cache-first",
+    errorPolicy: "all"
+  })
+
+  // Handle GraphQL loading and error states
+  if (productsLoading || categoriesLoading) {
+    console.log("Loading GraphQL data...")
+  }
+  if (productsError) {
+    console.error("GraphQL Products Error:", productsError)
+  }
+  if (categoriesError) {
+    console.error("GraphQL Categories Error:", categoriesError)
+  }
+
+  const products = (productsData?.products?.edges ?? []).map((e: any) => e.node)
+  const categories = (categoriesData?.categories?.edges ?? []).map((e: any) => e.node)
+
+  const filteredProducts = products.filter((product: any) => {
+    if (selectedCategory && product.category?.id !== selectedCategory) return false
     if (priceRange) {
       const [min, max] = priceRange.split("-").map(Number)
       if (max && (product.price < min || product.price > max)) return false
@@ -115,9 +109,9 @@ export default function ProductsPage() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">{t("products.all_categories")}</SelectItem>
-                  {productCategories.map((category) => (
+                  {categories.map((category: any) => (
                     <SelectItem key={category.id} value={category.id}>
-                      {category.name.mn}
+                      {category.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -173,71 +167,69 @@ export default function ProductsPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {filteredProducts.map((product) => (
-              <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="relative">
-                  <Image
-                    src={product.image || "/placeholder.svg"}
-                    alt={product.name}
-                    width={200}
-                    height={200}
-                    className="w-full h-48 object-cover"
-                  />
-                  {!product.inStock && (
-                    <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                      <span className="text-white font-bold">{t("products.out_of_stock")}</span>
+            {filteredProducts.map((product: any) => {
+              const imageSrc = (product.images?.split(',')[0]) || "/placeholder.svg"
+              const inStock = product.stock > 0
+              return (
+                <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                  <div className="relative">
+                    <Image
+                      src={imageSrc}
+                      alt={product.name}
+                      width={200}
+                      height={200}
+                      className="w-full h-48 object-cover"
+                    />
+                    {!inStock && (
+                      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                        <span className="text-white font-bold">{t("products.out_of_stock")}</span>
+                      </div>
+                    )}
+                  </div>
+                  <CardContent className="p-4">
+                    <h3 className="font-bold text-base sm:text-lg mb-2">{product.name}</h3>
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="flex items-center">
+                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium">
+                          {product.category?.name || "Бүтээгдэхүүн"}
+                        </span>
+                      </div>
                     </div>
-                  )}
-                </div>
-                <CardContent className="p-4">
-                  <h3 className="font-bold text-base sm:text-lg mb-2">{product.name}</h3>
-                  <div className="flex items-center justify-between mb-2">
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
-                      <span className="text-sm font-semibold">{product.rating}</span>
-                      <span className="text-gray-600 text-sm ml-1 font-medium">({product.reviews})</span>
+                    <div className="flex items-center text-gray-600 mb-3">
+                      <span className="text-sm font-medium">
+                        Нөөц: {product.stock} ширхэг
+                      </span>
                     </div>
-                    <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium">
-                      {productCategories.find((c) => c.id === product.category)?.name.mn || product.category}
-                    </span>
-                  </div>
-                  <div className="flex items-center text-gray-600 mb-3">
-                    <User className="w-4 h-4 mr-1" />
-                    <span className="text-sm font-medium">
-                      {t("products.seller")}: {product.seller.name}
-                    </span>
-                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 ml-2 mr-1" />
-                    <span className="text-xs font-semibold">{product.seller.rating}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-lg sm:text-xl font-bold">{product.price}₮</span>
-                    <Button
-                      size="sm"
-                      className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                      disabled={!product.inStock}
-                      onClick={() => {
-                        addToCart({
-                          id: product.id,
-                          name: product.name,
-                          seller: product.seller.name,
-                          price: product.price,
-                          quantity: 1,
-                          image: product.image,
-                          category: productCategories.find((c) => c.id === product.category)?.name.mn || product.category,
-                        })
-                        toast({
-                          title: "Сагсанд нэмэгдлээ",
-                          description: product.name,
-                        })
-                      }}
-                    >
-                      <ShoppingCart className="w-4 h-4 mr-1" />
-                      {product.inStock ? t("common.add_to_cart") : t("products.out_of_stock")}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+                    <div className="flex items-center justify-between">
+                      <span className="text-lg sm:text-xl font-bold">{product.price}₮</span>
+                      <Button
+                        size="sm"
+                        className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                        disabled={!inStock}
+                        onClick={() => {
+                          addToCart({
+                            id: product.id,
+                            name: product.name,
+                            seller: "Монголын бүтээгдэхүүн",
+                            price: product.price,
+                            quantity: 1,
+                            image: imageSrc,
+                            category: product.category?.name || "Бүтээгдэхүүн",
+                          })
+                          toast({
+                            title: "Сагсанд нэмэгдлээ",
+                            description: product.name,
+                          })
+                        }}
+                      >
+                        <ShoppingCart className="w-4 h-4 mr-1" />
+                        {inStock ? t("common.add_to_cart") : t("products.out_of_stock")}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )
+            })}
           </div>
         </div>
       </section>

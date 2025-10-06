@@ -11,11 +11,20 @@ import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
 import '../../lib/i18n'
 import { useAuth } from "@/hooks/use-auth"
+import { gql, useMutation } from "@apollo/client"
 
 export default function UserDashboardContent() {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState("overview")
   const { logout } = useAuth()
+  const SEED_MUTATION = gql`
+    mutation seedMockData { seedMockData }
+  `
+  const CLEAR_MUTATION = gql`
+    mutation clearMockData { clearMockData }
+  `
+  const [seedMockData, { loading: seeding } ] = useMutation(SEED_MUTATION)
+  const [clearMockData, { loading: clearing } ] = useMutation(CLEAR_MUTATION)
 
   // Mock user data
   const user = {
@@ -263,7 +272,13 @@ export default function UserDashboardContent() {
           </p>
         </div>
 
-        <div className="flex justify-end mb-4">
+        <div className="flex justify-end mb-4 gap-2">
+          <Button variant="outline" onClick={async ()=> { await seedMockData(); }} disabled={seeding} className="flex items-center gap-2">
+            {seeding ? "Тарьж байна..." : "Mock data оруулах"}
+          </Button>
+          <Button variant="outline" onClick={async ()=> { await clearMockData(); }} disabled={clearing} className="flex items-center gap-2">
+            {clearing ? "Цэвэрлэж байна..." : "Mock data устгах"}
+          </Button>
           <Button variant="outline" onClick={logout} className="flex items-center gap-2">
             <LogOut className="w-4 h-4" /> Гарах
           </Button>

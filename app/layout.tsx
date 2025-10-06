@@ -10,8 +10,6 @@ import { AuthProvider } from "@/hooks/use-auth";
 import {ThemeProvider} from "@/components/theme-provider"
 import { CartProvider } from "@/hooks/use-cart";
 import { SavedProvider } from "@/hooks/use-saved";
-import { ApolloProvider } from "@apollo/client";
-import client from "../lib/apolloClient";
 import dynamic from "next/dynamic";
 
 const montserrat = Montserrat({

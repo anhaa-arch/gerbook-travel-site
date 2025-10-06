@@ -30,7 +30,7 @@ export function ProtectedRoute({ children, requiredRole, redirectTo = "/login" }
         user: "/user-dashboard",
       }
 
-      router.push(dashboardRoutes[user?.role || "user"])
+      router.push(dashboardRoutes[(user?.role as "admin" | "herder" | "user") || "user"])
       return
     }
   }, [isAuthenticated, user, requiredRole, router, redirectTo])
