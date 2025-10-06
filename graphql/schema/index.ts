@@ -6,6 +6,7 @@ import productSchema from './product';
 import bookingSchema from './booking';
 import orderSchema from './order';
 import categorySchema from './category';
+import maintenanceSchema from './maintenance';
 
 // Base schema with Query and Mutation types
 const baseSchema = gql`
@@ -34,5 +35,6 @@ export default [
   productSchema,
   bookingSchema,
   orderSchema,
-  categorySchema
+  categorySchema,
+  maintenanceSchema
 ];

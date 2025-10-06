@@ -5,6 +5,7 @@ import productResolvers from './product';
 import bookingResolvers from './booking';
 import orderResolvers from './order';
 import categoryResolvers from './category';
+import maintenanceResolvers from './maintenance';
 
 // Combine all resolvers
 export default [
@@ -14,5 +15,6 @@ export default [
   productResolvers,
   bookingResolvers,
   orderResolvers,
-  categoryResolvers
+  categoryResolvers,
+  maintenanceResolvers
 ];
