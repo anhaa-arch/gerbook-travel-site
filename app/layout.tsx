@@ -2,15 +2,16 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
-import { Header } from "@/components/header";
+import { ClientHeader } from "@/components/client-header";
 // import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/components/language-provider";
 import ApolloClientProvider from "@/components/apollo-client-provider";
 import { AuthProvider } from "@/hooks/use-auth";
-import {ThemeProvider} from "@/components/theme-provider"
+import { ThemeProvider } from "@/components/theme-provider";
 import { CartProvider } from "@/hooks/use-cart";
 import { SavedProvider } from "@/hooks/use-saved";
 import dynamic from "next/dynamic";
+import { Footer } from "@/components/footer";
 
 const montserrat = Montserrat({
   subsets: ["latin", "cyrillic"],
@@ -39,26 +40,28 @@ export default function RootLayout({
       className={montserrat.variable}
       suppressHydrationWarning={true}
     >
-      <body className="font-sans antialiased">
-       
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="light"
-            enableSystem={false}
-            disableTransitionOnChange
-          > <ApolloClientProvider >
+      <body className="font-sans antialiased min-h-screen flex flex-col">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="light"
+          enableSystem={false}
+          disableTransitionOnChange
+        >
+          {" "}
+          <ApolloClientProvider>
             <CartProvider>
               <SavedProvider>
                 <AuthProvider>
                   <LanguageProvider>
-                    <Header />
-                    <main className="min-h-screen">{children}</main>
+                    <ClientHeader />
+                    <main className="flex-1">{children}</main>
+                    <Footer />
                   </LanguageProvider>
                 </AuthProvider>
               </SavedProvider>
             </CartProvider>
-            </ApolloClientProvider>
-          </ThemeProvider>
+          </ApolloClientProvider>
+        </ThemeProvider>
       </body>
     </html>
   );
