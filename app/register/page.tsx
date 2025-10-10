@@ -7,6 +7,19 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Globe, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+import { useAuth } from "@/hooks/use-auth";
+import { gql, useMutation } from "@apollo/client";
+
+const REGISTER_MUTATION = gql`
+  mutation Register($input: CreateUserInput!) {
+    register(input: $input) {
+      token
+      user { id name email role }
+    }
+  }
+`;
 
 export default function RegisterPage() {
   const [activeTab, setActiveTab] = useState<"traveler" | "merchant">(
@@ -17,6 +30,10 @@ export default function RegisterPage() {
     email: "",
     password: "",
   });
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { toast } = useToast();
+  const [registerMutation] = useMutation(REGISTER_MUTATION);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -25,9 +42,33 @@ export default function RegisterPage() {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Registration attempt:", formData);
+    if (loading) return;
+    setLoading(true);
+    try {
+      // For now, use frontend register from useAuth (mock). Save herder flag based on tab.
+      if (activeTab === "merchant") {
+        localStorage.setItem("isHerder", "true");
+      } else {
+        localStorage.removeItem("isHerder");
+      }
+      const role = activeTab === "merchant" ? "CUSTOMER" : "CUSTOMER"; // backend has ADMIN/CUSTOMER
+      const name = formData.email.split("@")[0];
+      const { data } = await registerMutation({ variables: { input: { email: formData.email, password: formData.password, name, role } } });
+      const payload = data?.register;
+      if (!payload?.token || !payload?.user) throw new Error("Invalid register response");
+      localStorage.setItem("token", payload.token);
+      toast({ title: "Бүртгэл амжилттай", description: payload.user.email });
+
+      const isHerder = localStorage.getItem("isHerder") === "true";
+      const route = isHerder ? "/herder-dashboard" : "/user-dashboard";
+      router.push(route);
+    } catch (err: any) {
+      toast({ title: "Бүртгэл амжилтгүй", description: err?.message || "Дахин оролдоно уу", variant: "destructive" as any });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -171,8 +212,9 @@ export default function RegisterPage() {
             <Button
               type="submit"
               className="w-full bg-green-700 hover:bg-green-800 text-white py-2 px-4 rounded-md font-medium"
+              disabled={loading}
             >
-              Үргэлжлүүлэх
+              {loading ? "Түр хүлээнэ үү..." : "Үргэлжлүүлэх"}
             </Button>
           </form>
 

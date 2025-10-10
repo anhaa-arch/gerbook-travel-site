@@ -12,6 +12,7 @@ import { CartProvider } from "@/hooks/use-cart";
 import { SavedProvider } from "@/hooks/use-saved";
 import dynamic from "next/dynamic";
 import { Footer } from "@/components/footer";
+import { Toaster } from "@/components/ui/toaster";
 
 const montserrat = Montserrat({
   subsets: ["latin", "cyrillic"],
@@ -55,6 +56,7 @@ export default function RootLayout({
                   <LanguageProvider>
                     <ClientHeader />
                     <main className="flex-1">{children}</main>
+                    <Toaster />
                     <Footer />
                   </LanguageProvider>
                 </AuthProvider>

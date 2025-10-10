@@ -1,4 +1,5 @@
 import { ApolloClient, InMemoryCache, HttpLink, from } from "@apollo/client";
+import { setContext } from "@apollo/client/link/context";
 import { onError } from "@apollo/client/link/error";
 
 // Error handling link
@@ -20,8 +21,19 @@ const httpLink = new HttpLink({
   // }
 });
 
+const authLink = setContext((_, { headers }) => {
+  if (typeof window === "undefined") return { headers };
+  const token = localStorage.getItem("token");
+  return {
+    headers: {
+      ...headers,
+      ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    },
+  };
+});
+
 const client = new ApolloClient({
-  link: from([errorLink, httpLink]),
+  link: from([errorLink, authLink.concat(httpLink)]),
   cache: new InMemoryCache(),
   // Add default options if needed
   defaultOptions: {

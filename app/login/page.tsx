@@ -8,6 +8,19 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Globe, ChevronDown } from "lucide-react";
 import Link from "next/link";
+import { gql, useMutation } from "@apollo/client";
+import { useAuth } from "@/hooks/use-auth";
+import { useRouter } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+
+const LOGIN_MUTATION = gql`
+  mutation Login($email: String!, $password: String!) {
+    login(email: $email, password: $password) {
+      token
+      user { id name email role }
+    }
+  }
+`;
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -15,10 +28,44 @@ export default function LoginPage() {
   const [activeTab, setActiveTab] = useState("traveler");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const { saveUserData } = useAuth();
+  const router = useRouter();
+  const { toast } = useToast();
+  const [loginMutation] = useMutation(LOGIN_MUTATION);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Login attempt:", { email, password, type: activeTab });
+    if (loading) return;
+    setLoading(true);
+    try {
+      const { data } = await loginMutation({ variables: { email, password } });
+      const payload = data?.login;
+      if (!payload?.token || !payload?.user) throw new Error("Invalid login response");
+      localStorage.setItem("token", payload.token);
+      const user = payload.user;
+      // Persist role mapping if merchant/herder selected
+      if (activeTab === "merchant") {
+        localStorage.setItem("isHerder", "true");
+      } else {
+        localStorage.removeItem("isHerder");
+      }
+      await saveUserData(user);
+
+      toast({ title: "Амжилттай нэвтэрлээ", description: `${user.name || user.email}` });
+
+      const role = (user.role === "admin") ? "admin" : (localStorage.getItem("isHerder") === "true" ? "herder" : "user");
+      const dashboardRoutes: Record<string, string> = {
+        admin: "/admin-dashboard",
+        herder: "/herder-dashboard",
+        user: "/user-dashboard",
+      };
+      router.push(dashboardRoutes[role] || "/user-dashboard");
+    } catch (err: any) {
+      toast({ title: "Нэвтрэх амжилтгүй", description: err?.message || "И-мэйл эсвэл нууц үгээ шалгана уу", variant: "destructive" as any });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -144,6 +191,8 @@ export default function LoginPage() {
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  aria-label="Toggle password visibility"
+                  title="Toggle password visibility"
                 >
                   <svg
                     className="h-5 w-5 text-gray-400"
@@ -191,8 +240,9 @@ export default function LoginPage() {
             <Button
               type="submit"
               className="w-full bg-green-700 hover:bg-green-800 text-white py-3"
+              disabled={loading}
             >
-              Нэвтрэх
+              {loading ? "Түр хүлээнэ үү..." : "Нэвтрэх"}
             </Button>
           </form>
 
