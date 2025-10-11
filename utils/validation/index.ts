@@ -27,7 +27,7 @@ export const userSchemas = {
     name: Joi.string().required().messages({
       'any.required': 'Name is required'
     }),
-    role: Joi.string().valid('CUSTOMER', 'ADMIN')
+    role: Joi.string().valid('CUSTOMER', 'HERDER', 'ADMIN')
   }),
 
   login: Joi.object({
@@ -48,7 +48,7 @@ export const userSchemas = {
       'string.min': 'Password must be at least 6 characters long'
     }),
     name: Joi.string(),
-    role: Joi.string().valid('CUSTOMER', 'ADMIN')
+    role: Joi.string().valid('CUSTOMER', 'HERDER', 'ADMIN')
   })
 };
 

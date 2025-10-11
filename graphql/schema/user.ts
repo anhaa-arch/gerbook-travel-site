@@ -3,6 +3,7 @@ import { gql } from 'apollo-server-express';
 export default gql`
   enum Role {
     CUSTOMER
+    HERDER
     ADMIN
   }
 

@@ -6,24 +6,23 @@ const prisma = new PrismaClient();
 async function createAdminUser() {
   try {
     // Check if admin user already exists
-    const existingAdmin = await prisma.user.findUnique({
-      where: { email: 'admin@malchincamp.com' }
+    const existingAdmin = await prisma.user.findFirst({
+      where: { role: 'ADMIN' }
     });
 
     if (existingAdmin) {
-      console.log('Admin user already exists');
+      console.log('Admin user already exists:', existingAdmin.email);
       return;
     }
 
-    // Hash the password
-    const hashedPassword = await hashPassword('password123');
-
     // Create admin user
+    const hashedPassword = await hashPassword('admin123');
+    
     const adminUser = await prisma.user.create({
       data: {
         email: 'admin@malchincamp.com',
         password: hashedPassword,
-        name: 'Admin User',
+        name: 'System Administrator',
         role: 'ADMIN'
       }
     });
@@ -35,6 +34,10 @@ async function createAdminUser() {
       role: adminUser.role
     });
 
+    console.log('Admin login credentials:');
+    console.log('Email: admin@malchincamp.com');
+    console.log('Password: admin123');
+
   } catch (error) {
     console.error('Error creating admin user:', error);
   } finally {
@@ -42,4 +45,5 @@ async function createAdminUser() {
   }
 }
 
+// Run the function
 createAdminUser();
