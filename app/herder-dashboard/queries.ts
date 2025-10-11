@@ -115,3 +115,84 @@ export const GET_HERDER_BOOKINGS = gql`
     }
   }
 `
+
+// Mutations for herder dashboard
+export const CREATE_YURT = gql`
+  mutation CreateYurt($input: CreateYurtInput!) {
+    createYurt(input: $input) {
+      id
+      name
+      description
+      location
+      pricePerNight
+      capacity
+      amenities
+      images
+      createdAt
+    }
+  }
+`
+
+export const UPDATE_YURT = gql`
+  mutation UpdateYurt($id: ID!, $input: UpdateYurtInput!) {
+    updateYurt(id: $id, input: $input) {
+      id
+      name
+      description
+      location
+      pricePerNight
+      capacity
+      amenities
+      images
+      updatedAt
+    }
+  }
+`
+
+export const DELETE_YURT = gql`
+  mutation DeleteYurt($id: ID!) {
+    deleteYurt(id: $id)
+  }
+`
+
+export const CREATE_PRODUCT = gql`
+  mutation CreateProduct($input: CreateProductInput!) {
+    createProduct(input: $input) {
+      id
+      name
+      description
+      price
+      stock
+      images
+      category {
+        id
+        name
+      }
+      createdAt
+    }
+  }
+`
+
+export const UPDATE_PRODUCT = gql`
+  mutation UpdateProduct($id: ID!, $input: UpdateProductInput!) {
+    updateProduct(id: $id, input: $input) {
+      id
+      name
+      description
+      price
+      stock
+      images
+      category {
+        id
+        name
+      }
+      updatedAt
+    }
+  }
+`
+
+export const DELETE_PRODUCT = gql`
+  mutation DeleteProduct($id: ID!) {
+    deleteProduct(id: $id)
+  }
+`

@@ -24,8 +24,10 @@ const LOGIN_MUTATION = gql`
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [activeTab, setActiveTab] = useState("customer");
+  const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -37,26 +39,119 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
+    
+    // Client-side validation
+    if (loginMethod === "email") {
+      if (!email) {
+        toast({ 
+          title: "Алдаа", 
+          description: "И-мэйл хаягаа оруулна уу", 
+          variant: "destructive" as any 
+        });
+        return;
+      }
+      
+      // Basic email format validation
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+        toast({ 
+          title: "Алдаа", 
+          description: "И-мэйл хаягийн формат буруу байна", 
+          variant: "destructive" as any 
+        });
+        return;
+      }
+    } else {
+      // Phone validation
+      if (!phone) {
+        toast({ 
+          title: "Алдаа", 
+          description: "Утасны дугаараа оруулна уу", 
+          variant: "destructive" as any 
+        });
+        return;
+      }
+      
+      // Basic phone format validation (8 digits)
+      if (!/^\d{8,}$/.test(phone.replace(/\D/g, ''))) {
+        toast({ 
+          title: "Алдаа", 
+          description: "Утасны дугаар буруу байна", 
+          variant: "destructive" as any 
+        });
+        return;
+      }
+    }
+    
+    if (!password) {
+      toast({ 
+        title: "Алдаа", 
+        description: "Нууц үгээ оруулна уу", 
+        variant: "destructive" as any 
+      });
+      return;
+    }
+    
+    if (password.length < 6) {
+      toast({ 
+        title: "Алдаа", 
+        description: "Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой", 
+        variant: "destructive" as any 
+      });
+      return;
+    }
+    
     setLoading(true);
     try {
-      const { data } = await loginMutation({ variables: { email, password } });
+      // Use the appropriate login credential based on the selected method
+      const loginCredential = loginMethod === "email" ? email : phone;
+      
+      // For now, we'll use the email field for both email and phone
+      // In the future, the backend should be updated to support phone login
+      const { data } = await loginMutation({ 
+        variables: { 
+          email: loginCredential, 
+          password 
+        } 
+      });
+      
       const payload = data?.login;
       if (!payload?.token || !payload?.user) throw new Error("Invalid login response");
       localStorage.setItem("token", payload.token);
       const user = payload.user;
+      
+      // Set isHerder flag in localStorage if user is a herder
+      const isHerder = user.role === "HERDER" || user.role.toLowerCase() === "herder";
+      if (isHerder) {
+        localStorage.setItem('isHerder', 'true');
+      } else {
+        localStorage.removeItem('isHerder');
+      }
+      
       await saveUserData(user);
 
       toast({ title: "Амжилттай нэвтэрлээ", description: `${user.name || user.email}` });
 
-      // Route based on user role from backend
+      // Route based on normalized role
+      const userRole = user.role.toString().toUpperCase();
       const dashboardRoutes: Record<string, string> = {
-        ADMIN: "/admin-dashboard",
-        HERDER: "/herder-dashboard",
-        CUSTOMER: "/user-dashboard",
+        "ADMIN": "/admin-dashboard",
+        "HERDER": "/herder-dashboard",
+        "CUSTOMER": "/user-dashboard",
       };
-      router.push(dashboardRoutes[user.role] || "/user-dashboard");
+      
+      // Ensure herder users are redirected to herder dashboard
+      if (isHerder) {
+        router.push("/herder-dashboard");
+      } else {
+        router.push(dashboardRoutes[userRole] || "/user-dashboard");
+      }
     } catch (err: any) {
-      toast({ title: "Нэвтрэх амжилтгүй", description: err?.message || "И-мэйл эсвэл нууц үгээ шалгана уу", variant: "destructive" as any });
+      toast({ 
+        title: "Нэвтрэх амжилтгүй", 
+        description: err?.message || (loginMethod === "email" ? "И-мэйл эсвэл нууц үгээ шалгана уу" : "Утасны дугаар эсвэл нууц үгээ шалгана уу"), 
+        variant: "destructive" as any 
+      });
     } finally {
       setLoading(false);
     }
@@ -151,22 +246,63 @@ export default function LoginPage() {
               Малчин
             </button>
           </div>
+          
+          {/* Login Method Toggle */}
+          <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
+            <button
+              onClick={() => setLoginMethod("email")}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                loginMethod === "email"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Имэйл хаягаар
+            </button>
+            <button
+              onClick={() => setLoginMethod("phone")}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                loginMethod === "phone"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Утасны дугаараар
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="email" className="text-gray-700">
-                Имэйл хаяг
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Имэйл хаягаа оруулна уу."
-                required
-                className="mt-1 bg-gray-50 border-gray-200"
-              />
-            </div>
+            {loginMethod === "email" ? (
+              <div>
+                <Label htmlFor="email" className="text-gray-700">
+                  Имэйл хаяг
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Имэйл хаягаа оруулна уу."
+                  required
+                  className="mt-1 bg-gray-50 border-gray-200"
+                />
+              </div>
+            ) : (
+              <div>
+                <Label htmlFor="phone" className="text-gray-700">
+                  Утасны дугаар
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Утасны дугаараа оруулна уу."
+                  required
+                  className="mt-1 bg-gray-50 border-gray-200"
+                />
+              </div>
+            )}
 
             <div>
               <Label htmlFor="password" className="text-gray-700">
@@ -224,7 +360,7 @@ export default function LoginPage() {
               </div>
 
               <Link
-                href="#"
+                href="/forgot-password"
                 className="text-sm text-green-600 hover:text-green-500"
               >
                 Нууц үгээ мартсан уу?
@@ -254,6 +390,32 @@ export default function LoginPage() {
               type="button"
               variant="outline"
               className="w-full flex items-center justify-center space-x-2 py-3 border-gray-300 bg-transparent"
+              onClick={() => {
+                // Google login implementation
+                const googleAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+                const redirectUri = window.location.origin + "/api/auth/google/callback";
+                
+                // These would normally be environment variables
+                const clientId = "YOUR_GOOGLE_CLIENT_ID";
+                
+                const params = new URLSearchParams({
+                  client_id: clientId,
+                  redirect_uri: redirectUri,
+                  response_type: "code",
+                  scope: "email profile",
+                  prompt: "select_account",
+                  access_type: "offline",
+                });
+                
+                // For demo purposes, we'll show a toast instead of redirecting
+                toast({
+                  title: "Google Login",
+                  description: "Google login would redirect to: " + googleAuthUrl + "?" + params.toString(),
+                });
+                
+                // In a real implementation, we would redirect:
+                // window.location.href = `${googleAuthUrl}?${params.toString()}`;
+              }}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path

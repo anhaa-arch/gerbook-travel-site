@@ -29,6 +29,8 @@ export default function RegisterPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
+    phone: "",
+    confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
@@ -45,12 +47,39 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
+
+    // Validation
+    if (formData.password !== formData.confirmPassword) {
+      toast({ title: "Алдаа", description: "Нууц үг таарахгүй байна", variant: "destructive" as any });
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      toast({ title: "Алдаа", description: "Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой", variant: "destructive" as any });
+      return;
+    }
+
+    if (!formData.phone || formData.phone.length < 8) {
+      toast({ title: "Алдаа", description: "Утасны дугаар оруулна уу", variant: "destructive" as any });
+      return;
+    }
+
     setLoading(true);
     try {
       // Set role based on selected tab
       const role = activeTab === "herder" ? "HERDER" : "CUSTOMER";
       const name = formData.email.split("@")[0];
-      const { data } = await registerMutation({ variables: { input: { email: formData.email, password: formData.password, name, role } } });
+      const { data } = await registerMutation({ 
+        variables: { 
+          input: { 
+            email: formData.email, 
+            password: formData.password, 
+            name, 
+            role,
+            phone: formData.phone
+          } 
+        } 
+      });
       const payload = data?.register;
       if (!payload?.token || !payload?.user) throw new Error("Invalid register response");
       localStorage.setItem("token", payload.token);
@@ -191,6 +220,25 @@ export default function RegisterPage() {
 
             <div>
               <Label
+                htmlFor="phone"
+                className="text-sm font-medium text-gray-700"
+              >
+                Утасны дугаар
+              </Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="Утасны дугаараа оруулна уу"
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+
+            <div>
+              <Label
                 htmlFor="password"
                 className="text-sm font-medium text-gray-700"
               >
@@ -203,6 +251,25 @@ export default function RegisterPage() {
                 value={formData.password}
                 onChange={handleChange}
                 placeholder="Нууц үгээ оруулна уу."
+                required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+
+            <div>
+              <Label
+                htmlFor="confirmPassword"
+                className="text-sm font-medium text-gray-700"
+              >
+                Нууц үг баталгаажуулах
+              </Label>
+              <Input
+                id="confirmPassword"
+                name="confirmPassword"
+                type="password"
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                placeholder="Нууц үгээ дахин оруулна уу"
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
               />
@@ -245,6 +312,34 @@ export default function RegisterPage() {
               type="button"
               variant="outline"
               className="w-full flex items-center justify-center space-x-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              onClick={() => {
+                // Google registration implementation
+                const googleAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+                const redirectUri = window.location.origin + "/api/auth/google/callback";
+                
+                // These would normally be environment variables
+                const clientId = "YOUR_GOOGLE_CLIENT_ID";
+                
+                const params = new URLSearchParams({
+                  client_id: clientId,
+                  redirect_uri: redirectUri,
+                  response_type: "code",
+                  scope: "email profile",
+                  prompt: "select_account",
+                  access_type: "offline",
+                  // Add a state parameter to indicate this is for registration
+                  state: "register"
+                });
+                
+                // For demo purposes, we'll show a toast instead of redirecting
+                toast({
+                  title: "Google Registration",
+                  description: "Google registration would redirect to: " + googleAuthUrl + "?" + params.toString(),
+                });
+                
+                // In a real implementation, we would redirect:
+                // window.location.href = `${googleAuthUrl}?${params.toString()}`;
+              }}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path

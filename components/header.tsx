@@ -1,12 +1,15 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Globe, ChevronDown } from "lucide-react";
+import { Globe, ChevronDown, User } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
+import { useAuth } from "@/hooks/use-auth";
 
 export function Header() {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const { user, isAuthenticated, logout } = useAuth();
 
   return (
     <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
@@ -91,14 +94,63 @@ export function Header() {
                 </div>
               )}
             </div>
-            <Link href="/login" className="text-gray-700 hover:text-gray-900">
-              Нэвтрэх
-            </Link>
-            <Link href="/register">
-              <Button className="bg-green-700 hover:bg-green-800 text-white px-6">
-                Бүртгүүлэх
-              </Button>
-            </Link>
+            
+            {isAuthenticated ? (
+              <div className="relative">
+                <button
+                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded-lg"
+                >
+                  <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                    <User className="w-5 h-5 text-gray-600" />
+                  </div>
+                </button>
+
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                    <div className="p-3 border-b border-gray-100">
+                      <div className="text-sm font-medium">{user?.name || user?.email}</div>
+                      <div className="text-xs text-gray-500">{user?.email}</div>
+                    </div>
+                    <div className="p-2">
+                      <Link 
+                        href={
+                          user?.role === "admin" 
+                            ? "/admin-dashboard" 
+                            : user?.role === "herder" 
+                              ? "/herder-dashboard" 
+                              : "/user-dashboard"
+                        }
+                        className="w-full flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-md text-left"
+                        onClick={() => setIsUserMenuOpen(false)}
+                      >
+                        <span className="text-sm text-gray-700">Dashboard</span>
+                      </Link>
+                      <button
+                        className="w-full flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-md text-left"
+                        onClick={() => {
+                          logout();
+                          setIsUserMenuOpen(false);
+                        }}
+                      >
+                        <span className="text-sm text-gray-700">Logout</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <>
+                <Link href="/login" className="text-gray-700 hover:text-gray-900">
+                  Нэвтрэх
+                </Link>
+                <Link href="/register">
+                  <Button className="bg-green-700 hover:bg-green-800 text-white px-6">
+                    Бүртгүүлэх
+                  </Button>
+                </Link>
+              </>
+            )}
           </div>
         </div>
       </div>
