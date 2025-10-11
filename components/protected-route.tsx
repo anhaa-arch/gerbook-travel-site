@@ -24,13 +24,13 @@ export function ProtectedRoute({ children, requiredRole, redirectTo = "/login" }
 
     if (requiredRole && user?.role !== requiredRole) {
       // Redirect to appropriate dashboard based on user role
-      const dashboardRoutes = {
+      const dashboardRoutes: Record<string, string> = {
         admin: "/admin-dashboard",
         herder: "/herder-dashboard",
         user: "/user-dashboard",
       }
 
-      router.push(dashboardRoutes[(user?.role as "admin" | "herder" | "user") || "user"])
+      router.push(dashboardRoutes[user?.role || "user"])
       return
     }
   }, [isAuthenticated, user, requiredRole, router, redirectTo])

@@ -25,7 +25,7 @@ const LOGIN_MUTATION = gql`
 export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [activeTab, setActiveTab] = useState("traveler");
+  const [activeTab, setActiveTab] = useState("customer");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -44,23 +44,17 @@ export default function LoginPage() {
       if (!payload?.token || !payload?.user) throw new Error("Invalid login response");
       localStorage.setItem("token", payload.token);
       const user = payload.user;
-      // Persist role mapping if merchant/herder selected
-      if (activeTab === "merchant") {
-        localStorage.setItem("isHerder", "true");
-      } else {
-        localStorage.removeItem("isHerder");
-      }
       await saveUserData(user);
 
       toast({ title: "Амжилттай нэвтэрлээ", description: `${user.name || user.email}` });
 
-      const role = (user.role === "admin") ? "admin" : (localStorage.getItem("isHerder") === "true" ? "herder" : "user");
+      // Route based on user role from backend
       const dashboardRoutes: Record<string, string> = {
-        admin: "/admin-dashboard",
-        herder: "/herder-dashboard",
-        user: "/user-dashboard",
+        ADMIN: "/admin-dashboard",
+        HERDER: "/herder-dashboard",
+        CUSTOMER: "/user-dashboard",
       };
-      router.push(dashboardRoutes[role] || "/user-dashboard");
+      router.push(dashboardRoutes[user.role] || "/user-dashboard");
     } catch (err: any) {
       toast({ title: "Нэвтрэх амжилтгүй", description: err?.message || "И-мэйл эсвэл нууц үгээ шалгана уу", variant: "destructive" as any });
     } finally {
@@ -137,9 +131,9 @@ export default function LoginPage() {
           </div>
           <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
             <button
-              onClick={() => setActiveTab("traveler")}
+              onClick={() => setActiveTab("customer")}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "traveler"
+                activeTab === "customer"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
               }`}
@@ -147,14 +141,14 @@ export default function LoginPage() {
               Аялагч
             </button>
             <button
-              onClick={() => setActiveTab("merchant")}
+              onClick={() => setActiveTab("herder")}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "merchant"
+                activeTab === "herder"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              Мерчант
+              Малчин
             </button>
           </div>
 

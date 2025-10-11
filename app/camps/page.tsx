@@ -10,6 +10,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { mongoliaData } from "@/lib/data"
 import { gql, useQuery } from "@apollo/client"
+import { getFirstImage } from "@/lib/imageUtils"
 import '../../lib/i18n'
 
 const GET_YURTS = gql`
@@ -135,7 +136,7 @@ export default function CampsPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {filteredCamps.map((camp: any) => {
-              const imageSrc = (camp.images?.split(',')[0]) || "/placeholder.svg"
+              const imageSrc = getFirstImage(camp.images)
               const amenities = camp.amenities ? camp.amenities.split(',') : []
               return (
                 <Card key={camp.id} className="overflow-hidden hover:shadow-lg transition-shadow">

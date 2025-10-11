@@ -22,8 +22,8 @@ const REGISTER_MUTATION = gql`
 `;
 
 export default function RegisterPage() {
-  const [activeTab, setActiveTab] = useState<"traveler" | "merchant">(
-    "traveler"
+  const [activeTab, setActiveTab] = useState<"customer" | "herder">(
+    "customer"
   );
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [formData, setFormData] = useState({
@@ -47,13 +47,8 @@ export default function RegisterPage() {
     if (loading) return;
     setLoading(true);
     try {
-      // For now, use frontend register from useAuth (mock). Save herder flag based on tab.
-      if (activeTab === "merchant") {
-        localStorage.setItem("isHerder", "true");
-      } else {
-        localStorage.removeItem("isHerder");
-      }
-      const role = activeTab === "merchant" ? "CUSTOMER" : "CUSTOMER"; // backend has ADMIN/CUSTOMER
+      // Set role based on selected tab
+      const role = activeTab === "herder" ? "HERDER" : "CUSTOMER";
       const name = formData.email.split("@")[0];
       const { data } = await registerMutation({ variables: { input: { email: formData.email, password: formData.password, name, role } } });
       const payload = data?.register;
@@ -61,9 +56,13 @@ export default function RegisterPage() {
       localStorage.setItem("token", payload.token);
       toast({ title: "Бүртгэл амжилттай", description: payload.user.email });
 
-      const isHerder = localStorage.getItem("isHerder") === "true";
-      const route = isHerder ? "/herder-dashboard" : "/user-dashboard";
-      router.push(route);
+      // Route based on user role
+      const dashboardRoutes: Record<string, string> = {
+        ADMIN: "/admin-dashboard",
+        HERDER: "/herder-dashboard", 
+        CUSTOMER: "/user-dashboard",
+      };
+      router.push(dashboardRoutes[payload.user.role] || "/user-dashboard");
     } catch (err: any) {
       toast({ title: "Бүртгэл амжилтгүй", description: err?.message || "Дахин оролдоно уу", variant: "destructive" as any });
     } finally {
@@ -148,9 +147,9 @@ export default function RegisterPage() {
           {/* Tabs */}
           <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
             <button
-              onClick={() => setActiveTab("traveler")}
+              onClick={() => setActiveTab("customer")}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "traveler"
+                activeTab === "customer"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
               }`}
@@ -158,14 +157,14 @@ export default function RegisterPage() {
               Аялагч
             </button>
             <button
-              onClick={() => setActiveTab("merchant")}
+              onClick={() => setActiveTab("herder")}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "merchant"
+                activeTab === "herder"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
               }`}
             >
-              Мерчант
+              Малчин
             </button>
           </div>
 

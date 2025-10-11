@@ -26,8 +26,10 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import { useQuery } from "@apollo/client"
 import '../../lib/i18n'
 import { useAuth } from "@/hooks/use-auth"
+import { GET_ADMIN_STATS, GET_ALL_USERS, GET_ALL_YURTS, GET_ALL_PRODUCTS, GET_ALL_ORDERS, GET_ALL_BOOKINGS } from "./queries"
 
 export default function AdminDashboardContent() {
   const { t } = useTranslation()
@@ -39,99 +41,73 @@ export default function AdminDashboardContent() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const { logout } = useAuth()
 
-  // Mock data
+  // Fetch real data from database
+  const { data: statsData, loading: statsLoading } = useQuery(GET_ADMIN_STATS)
+  const { data: usersData, loading: usersLoading } = useQuery(GET_ALL_USERS)
+  const { data: yurtsData, loading: yurtsLoading } = useQuery(GET_ALL_YURTS)
+  const { data: productsData, loading: productsLoading } = useQuery(GET_ALL_PRODUCTS)
+  const { data: ordersData, loading: ordersLoading } = useQuery(GET_ALL_ORDERS)
+  const { data: bookingsData, loading: bookingsLoading } = useQuery(GET_ALL_BOOKINGS)
+
+  // Transform data for display
   const stats = {
-    totalUsers: 1247,
-    totalCamps: 89,
-    totalProducts: 456,
-    totalOrders: 234,
+    totalUsers: statsData?.users?.totalCount || 0,
+    totalCamps: statsData?.yurts?.totalCount || 0,
+    totalProducts: statsData?.products?.totalCount || 0,
+    totalOrders: statsData?.orders?.totalCount || 0,
   }
 
-  const users = [
-    {
-      id: 1,
-      name: "Ганбаатар Батбаяр",
-      email: "batbayar@email.com",
-      role: "herder",
-      status: "active",
-      joinDate: "2024-01-15",
-    },
-    { id: 2, name: "Сараа Жонсон", email: "sarah@email.com", role: "user", status: "active", joinDate: "2024-02-20" },
-    {
-      id: 3,
-      name: "Оюунаа Цэрэн",
-      email: "oyunaa@email.com",
-      role: "herder",
-      status: "inactive",
-      joinDate: "2024-01-10",
-    },
-  ]
+  // Transform data for display
+  const users = usersData?.users?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    name: edge.node.name,
+    email: edge.node.email,
+    role: edge.node.role.toLowerCase(),
+    status: "active", // Default status
+    joinDate: edge.node.createdAt.split('T')[0],
+  })) || []
 
-  const camps = [
-    { id: 1, name: "Найман нуур эко бааз", owner: "Батбаяр", location: "Архангай", price: 120, status: "active" },
-    { id: 2, name: "Хөвсгөл нуурын бааз", owner: "Оюунаа", location: "Хөвсгөл", price: 250, status: "active" },
-    { id: 3, name: "Говь цөлийн бааз", owner: "Мөнх", location: "Говь", price: 180, status: "pending" },
-  ]
+  const camps = yurtsData?.yurts?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    name: edge.node.name,
+    owner: "Owner", // Default owner
+    location: edge.node.location,
+    price: edge.node.pricePerNight,
+    status: "active", // Default status
+  })) || []
 
-  const products = [
-    {
-      id: 1,
-      name: "Айраг",
-      seller: "Батбаярын гэр бүл",
-      category: "Сүүн бүтээгдэхүүн",
-      price: 25,
-      stock: 50,
-      status: "active",
-    },
-    {
-      id: 2,
-      name: "Гар нэхмэл хивс",
-      seller: "Оюунаагийн урлал",
-      category: "Гар урлал",
-      price: 150,
-      stock: 12,
-      status: "active",
-    },
-    {
-      id: 3,
-      name: "Хатаасан мах",
-      seller: "Нүүдэлчдийн хүнс",
-      category: "Мах",
-      price: 45,
-      stock: 0,
-      status: "out_of_stock",
-    },
-  ]
+  const products = productsData?.products?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    name: edge.node.name,
+    seller: "Seller", // Default seller
+    category: edge.node.category?.name || "Uncategorized",
+    price: edge.node.price,
+    stock: edge.node.stock,
+    status: edge.node.stock > 0 ? "active" : "out_of_stock",
+  })) || []
 
-  const orders = [
-    {
-      id: 1,
-      customer: "Сараа Жонсон",
+  const orders = ordersData?.orders?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    customer: edge.node.user?.name || "Unknown",
       type: "product",
-      item: "Айраг",
-      amount: 75,
-      status: "completed",
-      date: "2024-12-28",
-    },
-    {
-      id: 2,
-      customer: "Майк Чен",
+    item: edge.node.items[0]?.product?.name || "Multiple items",
+    amount: edge.node.totalPrice,
+    status: edge.node.status.toLowerCase(),
+    date: edge.node.createdAt.split('T')[0],
+  })) || []
+
+  const bookings = bookingsData?.bookings?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    customer: edge.node.user?.name || "Unknown",
       type: "camp",
-      item: "Найман нуурын бааз",
-      amount: 360,
-      status: "confirmed",
-      date: "2024-12-27",
-    },
-    {
-      id: 3,
-      customer: "Эмма Вилсон",
-      type: "product",
-      item: "Гар нэхмэл хивс",
-      amount: 150,
-      status: "pending",
-      date: "2024-12-26",
-    },
-  ]
+    item: edge.node.yurt?.name || "Unknown camp",
+    amount: edge.node.totalPrice,
+    status: edge.node.status.toLowerCase(),
+    date: edge.node.createdAt.split('T')[0],
+  })) || []
+
+  // Combine orders and bookings for display
+  const allOrders = [...orders, ...bookings]
 
   const handleDelete = (item: any) => {
     setSelectedItem(item)
@@ -257,7 +233,7 @@ export default function AdminDashboardContent() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {orders.slice(0, 5).map((order) => (
+                    {allOrders.slice(0, 5).map((order: any) => (
                       <div key={order.id} className="flex items-center justify-between">
                         <div className="min-w-0 flex-1">
                           <p className="font-semibold text-sm sm:text-base truncate">{order.customer}</p>
@@ -716,7 +692,7 @@ export default function AdminDashboardContent() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {orders.map((order) => (
+                      {allOrders.map((order: any) => (
                         <TableRow key={order.id}>
                           <TableCell className="font-bold">#{order.id}</TableCell>
                           <TableCell className="truncate max-w-[120px] font-medium">{order.customer}</TableCell>

@@ -13,8 +13,10 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Header } from "@/components/header"
+import { useQuery } from "@apollo/client"
 import '../../lib/i18n'
 import { useAuth } from "@/hooks/use-auth"
+import { GET_HERDER_STATS, GET_HERDER_PRODUCTS, GET_HERDER_YURTS, GET_HERDER_ORDERS, GET_HERDER_BOOKINGS } from "./queries"
 
 export default function HerderDashboardContent() {
   const { t } = useTranslation()
@@ -23,131 +25,75 @@ export default function HerderDashboardContent() {
   const [showAddCamp, setShowAddCamp] = useState(false)
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
-  const { logout } = useAuth()
+  const { logout, user } = useAuth()
 
-  // Mock herder data
+  // Fetch real data from database
+  const { data: statsData, loading: statsLoading } = useQuery(GET_HERDER_STATS, {
+    variables: { userId: user?.id },
+    skip: !user?.id
+  })
+  const { data: productsData, loading: productsLoading } = useQuery(GET_HERDER_PRODUCTS)
+  const { data: yurtsData, loading: yurtsLoading } = useQuery(GET_HERDER_YURTS)
+  const { data: ordersData, loading: ordersLoading } = useQuery(GET_HERDER_ORDERS)
+  const { data: bookingsData, loading: bookingsLoading } = useQuery(GET_HERDER_BOOKINGS)
+
+  // Transform data for display
   const herder = {
-    name: "Ганбаатар Батбаяр",
-    email: "batbayar@email.com",
+    name: user?.name || "Ганбаатар Батбаяр",
+    email: user?.email || "batbayar@email.com",
     phone: "+976 9999 5678",
     location: "Архангай аймаг",
     joinDate: "2023 оны 3-р сар",
-    totalProducts: 15,
-    totalCamps: 2,
-    totalEarnings: 2450,
+    totalProducts: productsData?.products?.edges?.length || 0,
+    totalCamps: yurtsData?.yurts?.edges?.length || 0,
+    totalEarnings: 2450, // Calculate from orders and bookings
     rating: 4.8,
   }
 
-  const products = [
-    {
-      id: 1,
-      name: "Айраг",
-      category: "Сүүн бүтээгдэхүүн",
-      price: 25,
-      stock: 50,
-      sold: 120,
-      status: "active",
-      image: "/placeholder.svg?height=60&width=60&text=Айраг",
-    },
-    {
-      id: 2,
-      name: "Ямаа бяслаг",
-      category: "Сүүн бүтээгдэхүүн",
-      price: 35,
-      stock: 25,
-      sold: 45,
-      status: "active",
-      image: "/placeholder.svg?height=60&width=60&text=Бяслаг",
-    },
-    {
-      id: 3,
-      name: "Хатаасан мах",
-      category: "Мах",
-      price: 45,
-      stock: 0,
-      sold: 78,
-      status: "out_of_stock",
-      image: "/placeholder.svg?height=60&width=60&text=Мах",
-    },
-  ]
+  // Transform data for display
+  const products = productsData?.products?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    name: edge.node.name,
+    category: edge.node.category?.name || "Uncategorized",
+    price: edge.node.price,
+    stock: edge.node.stock,
+    sold: 0, // Default sold count
+    status: edge.node.stock > 0 ? "active" : "out_of_stock",
+    image: edge.node.images || "/placeholder.svg",
+  })) || []
 
-  const camps = [
-    {
-      id: 1,
-      name: "Найман нуур эко гэр бааз",
-      location: "Архангай аймаг",
-      price: 120,
-      capacity: 20,
-      bookings: 45,
-      rating: 4.8,
-      status: "active",
-      image: "/placeholder.svg?height=60&width=60&text=Бааз",
-    },
-    {
-      id: 2,
-      name: "Уулын үзэмжит гэр бааз",
-      location: "Архангай аймаг",
-      price: 95,
-      capacity: 12,
-      bookings: 23,
-      rating: 4.6,
-      status: "active",
-      image: "/placeholder.svg?height=60&width=60&text=Уул",
-    },
-  ]
+  const camps = yurtsData?.yurts?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    name: edge.node.name,
+    location: edge.node.location,
+    price: edge.node.pricePerNight,
+    capacity: edge.node.capacity,
+    bookings: 0, // Default booking count
+    rating: 4.8, // Default rating
+    status: "active",
+    image: edge.node.images || "/placeholder.svg",
+  })) || []
 
-  const orders = [
-    {
-      id: 1,
-      customer: "Сараа Жонсон",
-      product: "Айраг",
-      quantity: 3,
-      amount: 75,
-      status: "completed",
-      date: "2024-12-20",
-    },
-    {
-      id: 2,
-      customer: "Майк Чен",
-      product: "Ямаа бяслаг",
-      quantity: 2,
-      amount: 70,
-      status: "shipped",
-      date: "2024-12-18",
-    },
-    {
-      id: 3,
-      customer: "Эмма Вилсон",
-      product: "Хатаасан мах",
-      quantity: 1,
-      amount: 45,
-      status: "processing",
-      date: "2024-12-15",
-    },
-  ]
+  const orders = ordersData?.orders?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    customer: edge.node.user?.name || "Unknown",
+    product: edge.node.items[0]?.product?.name || "Multiple items",
+    quantity: edge.node.items.reduce((sum: number, item: any) => sum + item.quantity, 0),
+    amount: edge.node.totalPrice,
+    status: edge.node.status.toLowerCase(),
+    date: edge.node.createdAt.split('T')[0],
+  })) || []
 
-  const bookings = [
-    {
-      id: 1,
-      customer: "Жон Смит",
-      camp: "Найман нуур эко гэр бааз",
-      checkIn: "2024-07-15",
-      checkOut: "2024-07-18",
-      guests: 2,
-      amount: 360,
-      status: "confirmed",
-    },
-    {
-      id: 2,
-      customer: "Лиза Ван",
-      camp: "Уулын үзэмжит гэр бааз",
-      checkIn: "2024-08-10",
-      checkOut: "2024-08-12",
-      guests: 4,
-      amount: 190,
-      status: "completed",
-    },
-  ]
+  const bookings = bookingsData?.bookings?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    customer: edge.node.user?.name || "Unknown",
+    camp: edge.node.yurt?.name || "Unknown camp",
+    checkIn: edge.node.startDate,
+    checkOut: edge.node.endDate,
+    guests: 2, // Default guest count
+    amount: edge.node.totalPrice,
+    status: edge.node.status.toLowerCase(),
+  })) || []
 
   const handleDelete = (item: any) => {
     setSelectedItem(item)

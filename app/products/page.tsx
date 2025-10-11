@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { productCategories } from "@/lib/data"
 import { gql, useQuery } from "@apollo/client"
+import { getFirstImage } from "@/lib/imageUtils"
 import '../../lib/i18n'
 import { useCart } from "@/hooks/use-cart"
 import { toast } from "@/hooks/use-toast"
@@ -168,7 +169,7 @@ export default function ProductsPage() {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
             {filteredProducts.map((product: any) => {
-              const imageSrc = (product.images?.split(',')[0]) || "/placeholder.svg"
+              const imageSrc = getFirstImage(product.images)
               const inStock = product.stock > 0
               return (
                 <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">

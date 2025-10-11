@@ -38,8 +38,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const normalizedRole: User["role"] = (() => {
           const roleValue = (rawUser.role || "").toString()
           if (roleValue === "ADMIN" || roleValue.toLowerCase() === "admin") return "admin"
-          // Treat any non-admin as customer; split herder via flag
-          return isHerder ? "herder" : "user"
+          if (roleValue === "HERDER" || roleValue.toLowerCase() === "herder") return "herder"
+          // Treat any other as customer
+          return "user"
         })()
         const normalizedUser: User = {
           id: rawUser.id,
@@ -74,11 +75,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       // Add herder flag from localStorage
       const isHerder = localStorage.getItem('isHerder') === 'true';
-      // Normalize role from backend enums (ADMIN/CUSTOMER) to frontend roles
+      // Normalize role from backend enums (ADMIN/CUSTOMER/HERDER) to frontend roles
       const normalizedRole: User["role"] = (() => {
         const roleValue = (user.role || "").toString()
         if (roleValue === "ADMIN" || roleValue.toLowerCase() === "admin") return "admin"
-        return isHerder ? "herder" : "user"
+        if (roleValue === "HERDER" || roleValue.toLowerCase() === "herder") return "herder"
+        // Treat any other as customer
+        return "user"
       })()
       const userWithHerderFlag: User = {
         id: user.id,

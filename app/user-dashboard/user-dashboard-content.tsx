@@ -9,258 +9,200 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
+import { useQuery } from "@apollo/client"
 import '../../lib/i18n'
 import { useAuth } from "@/hooks/use-auth"
-import { gql, useMutation } from "@apollo/client"
+import { GET_USER_BOOKINGS, GET_USER_ORDERS, GET_USER_TRAVEL_BOOKINGS, GET_AVAILABLE_YURTS, GET_AVAILABLE_PRODUCTS, GET_AVAILABLE_TRAVELS } from "./queries"
+
+// Type definitions
+interface Booking {
+  id: string
+  camp: string
+  location: string
+  checkIn: string
+  checkOut: string
+  guests: number
+  amount: number
+  status: string
+  image: string
+}
+
+interface Order {
+  id: string
+  product: string
+  seller: string
+  quantity: number
+  amount: number
+  status: string
+  date: string
+  image: string
+}
+
+interface TravelBooking {
+  id: string
+  travel: string
+  location: string
+  startDate: string
+  numberOfPeople: number
+  amount: number
+  status: string
+  image: string
+}
+
+interface Favorite {
+  id: string
+  name: string
+  location?: string
+  seller?: string
+  price: number
+  rating: number
+  type: string
+  image: string
+}
+
+interface TravelRoute {
+  id: string
+  title: string
+  duration: string
+  regions: string[]
+  status: string
+  createdDate: string
+  completedDate?: string
+  totalDistance: string
+  estimatedCost: number
+  difficulty: string
+  attractions: Array<{
+    name: string
+    type: string
+    duration: string
+    activities: string[]
+    image: string
+  }>
+  weatherSeason: string
+  childFriendly: boolean
+  transportation: string
+  accommodations: string[]
+  notes: string
+  rating?: number
+  review?: string
+}
 
 export default function UserDashboardContent() {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState("overview")
-  const { logout } = useAuth()
-  const SEED_MUTATION = gql`
-    mutation seedMockData { seedMockData }
-  `
-  const CLEAR_MUTATION = gql`
-    mutation clearMockData { clearMockData }
-  `
-  const [seedMockData, { loading: seeding } ] = useMutation(SEED_MUTATION)
-  const [clearMockData, { loading: clearing } ] = useMutation(CLEAR_MUTATION)
+  const { logout, user } = useAuth()
 
-  // Mock user data
-  const user = {
-    name: "Сараа Жонсон",
-    email: "sarah@email.com",
-    phone: "+976 9911 2233",
-    location: "Улаанбаатар, Монгол",
-    joinDate: "2024 оны 1-р сар",
-    totalBookings: 5,
-    totalOrders: 12,
-    totalSpent: 1850,
-    favoriteDestination: "Хөвсгөл нуур",
-  }
+  // Fetch real data from database
+  const { data: bookingsData, loading: bookingsLoading } = useQuery(GET_USER_BOOKINGS, {
+    variables: { userId: user?.id },
+    skip: !user?.id
+  })
 
-  const bookings = [
-    {
-      id: 1,
-      camp: "Найман нуур эко гэр бааз",
-      location: "Архангай аймаг",
-      checkIn: "2024-07-15",
-      checkOut: "2024-07-18",
-      guests: 2,
-      amount: 360,
-      status: "confirmed",
-      image: "/placeholder.svg?height=60&width=60&text=Бааз",
-    },
-    {
-      id: 2,
-      camp: "Хөвсгөл нуурын бааз",
-      location: "Хөвсгөл аймаг",
-      checkIn: "2024-08-10",
-      checkOut: "2024-08-12",
-      guests: 4,
-      amount: 500,
-      status: "completed",
-      image: "/placeholder.svg?height=60&width=60&text=Нуур",
-    },
-    {
-      id: 3,
-      camp: "Говь цөлийн адал явдал",
-      location: "Өмнөговь аймаг",
-      checkIn: "2024-09-05",
-      checkOut: "2024-09-08",
-      guests: 2,
-      amount: 540,
-      status: "upcoming",
-      image: "/placeholder.svg?height=60&width=60&text=Цөл",
-    },
-  ]
+  const { data: ordersData, loading: ordersLoading } = useQuery(GET_USER_ORDERS, {
+    variables: { userId: user?.id },
+    skip: !user?.id
+  })
 
-  const orders = [
-    {
-      id: 1,
-      product: "Айраг",
-      seller: "Батбаярын гэр бүл",
-      quantity: 3,
-      amount: 75,
-      status: "delivered",
-      date: "2024-12-20",
-      image: "/placeholder.svg?height=40&width=40&text=Айраг",
-    },
-    {
-      id: 2,
-      product: "Гар нэхмэл хивс",
-      seller: "Оюунаагийн урлал",
-      quantity: 1,
-      amount: 150,
-      status: "shipped",
-      date: "2024-12-18",
-      image: "/placeholder.svg?height=40&width=40&text=Хивс",
-    },
-    {
-      id: 3,
-      product: "Ямаа бяслаг",
-      seller: "Уулын малчид",
-      quantity: 2,
-      amount: 70,
-      status: "processing",
-      date: "2024-12-15",
-      image: "/placeholder.svg?height=40&width=40&text=Бяслаг",
-    },
-  ]
+  const { data: travelBookingsData, loading: travelBookingsLoading } = useQuery(GET_USER_TRAVEL_BOOKINGS, {
+    variables: { userId: user?.id },
+    skip: !user?.id
+  })
 
-  const favorites = [
-    {
-      id: 1,
-      name: "Алтайн уулсын гэр бааз",
-      location: "Баян-Өлгий аймаг",
-      price: 160,
-      rating: 4.6,
+  const { data: yurtsData, loading: yurtsLoading } = useQuery(GET_AVAILABLE_YURTS)
+  const { data: productsData, loading: productsLoading } = useQuery(GET_AVAILABLE_PRODUCTS)
+  const { data: travelsData, loading: travelsLoading } = useQuery(GET_AVAILABLE_TRAVELS)
+
+  // Transform data for display
+  const bookings: Booking[] = bookingsData?.bookings?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    camp: edge.node.yurt.name,
+    location: edge.node.yurt.location,
+    checkIn: edge.node.startDate,
+    checkOut: edge.node.endDate,
+    guests: 2, // Default since we don't have guest count in the schema
+    amount: edge.node.totalPrice,
+    status: edge.node.status.toLowerCase(),
+    image: edge.node.yurt.images || "/placeholder.svg"
+  })) || []
+
+  const orders: Order[] = ordersData?.orders?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    product: edge.node.items[0]?.product.name || "Multiple items",
+    seller: "Seller", // We don't have seller info in current schema
+    quantity: edge.node.items.reduce((sum: number, item: any) => sum + item.quantity, 0),
+    amount: edge.node.totalPrice,
+    status: edge.node.status.toLowerCase(),
+    date: edge.node.createdAt.split('T')[0],
+    image: edge.node.items[0]?.product.images || "/placeholder.svg"
+  })) || []
+
+  const travelBookings: TravelBooking[] = travelBookingsData?.travelBookings?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    travel: edge.node.travel.name,
+    location: edge.node.travel.location,
+    startDate: edge.node.startDate,
+    numberOfPeople: edge.node.numberOfPeople,
+    amount: edge.node.totalPrice,
+    status: edge.node.status.toLowerCase(),
+    image: edge.node.travel.images || "/placeholder.svg"
+  })) || []
+
+  // Calculate stats
+  const totalBookings = bookings.length
+  const totalOrders = orders.length
+  const totalSpent = orders.reduce((sum: number, order: Order) => sum + order.amount, 0) + 
+                    bookings.reduce((sum: number, booking: Booking) => sum + booking.amount, 0) +
+                    travelBookings.reduce((sum: number, booking: TravelBooking) => sum + booking.amount, 0)
+
+
+  // Create favorites from available data
+  const favorites: Favorite[] = [
+    ...(yurtsData?.yurts?.edges?.slice(0, 2).map((edge: any) => ({
+      id: edge.node.id,
+      name: edge.node.name,
+      location: edge.node.location,
+      price: edge.node.pricePerNight,
+      rating: 4.5, // Default rating
       type: "camp",
-      image: "/placeholder.svg?height=60&width=60&text=Уул",
-    },
-    {
-      id: 2,
-      name: "Монгол гутал",
-      seller: "Нүүдэлчдийн урлал",
-      price: 85,
-      rating: 4.8,
+      image: edge.node.images || "/placeholder.svg"
+    })) || []),
+    ...(productsData?.products?.edges?.slice(0, 1).map((edge: any) => ({
+      id: edge.node.id,
+      name: edge.node.name,
+      seller: "Seller",
+      price: edge.node.price,
+      rating: 4.8, // Default rating
       type: "product",
-      image: "/placeholder.svg?height=60&width=60&text=Гутал",
-    },
-    {
-      id: 3,
-      name: "Орхоны хөндийн бааз",
-      location: "Өвөрхангай аймаг",
-      price: 140,
-      rating: 4.5,
-      type: "camp",
-      image: "/placeholder.svg?height=60&width=60&text=Хөндий",
-    },
+      image: edge.node.images || "/placeholder.svg"
+    })) || [])
   ]
 
-  const travelRoutes = [
-    {
-      id: 1,
-      title: "Northern Lakes Adventure",
-      duration: "7 days",
-      regions: ["Khövsgöl Lake", "Orkhon Valley", "Amarbayasgalant Monastery"],
+  // Create travel routes from available travel data
+  const travelRoutes: TravelRoute[] = travelsData?.travels?.edges?.map((edge: any) => ({
+    id: edge.node.id,
+    title: edge.node.name,
+    duration: `${edge.node.duration} days`,
+    regions: [edge.node.location],
       status: "saved",
-      createdDate: "2024-12-15",
-      totalDistance: "1,250 km",
-      estimatedCost: 850,
+    createdDate: edge.node.createdAt.split('T')[0],
+    totalDistance: "N/A",
+    estimatedCost: edge.node.basePrice,
       difficulty: "moderate",
       attractions: [
         {
-          name: "Khövsgöl Lake",
-          type: "lake",
-          duration: "3 days",
-          activities: ["Horseback riding", "Boat tours", "Camping"],
-          image: "/placeholder.svg?height=60&width=60&text=Lake",
-        },
-        {
-          name: "Orkhon Valley",
-          type: "valley",
-          duration: "2 days",
-          activities: ["Hiking", "Cultural tours", "Photography"],
-          image: "/placeholder.svg?height=60&width=60&text=Valley",
-        },
-        {
-          name: "Amarbayasgalant Monastery",
-          type: "cultural",
-          duration: "2 days",
-          activities: ["Temple visits", "Meditation", "Local crafts"],
-          image: "/placeholder.svg?height=60&width=60&text=Temple",
-        },
+        name: edge.node.name,
+        type: "travel",
+        duration: `${edge.node.duration} days`,
+        activities: ["Travel", "Exploration"],
+        image: edge.node.images || "/placeholder.svg"
+      }
       ],
       weatherSeason: "summer",
       childFriendly: true,
-      transportation: "4WD vehicle + guide",
-      accommodations: ["Ger camps", "Guesthouses"],
-      notes: "Perfect for families, includes cultural experiences and natural beauty",
-    },
-    {
-      id: 2,
-      title: "Gobi Desert Explorer",
-      duration: "5 days",
-      regions: ["Gobi Desert", "Flaming Cliffs", "Khermen Tsav"],
-      status: "completed",
-      createdDate: "2024-11-20",
-      completedDate: "2024-12-01",
-      totalDistance: "980 km",
-      estimatedCost: 720,
-      difficulty: "challenging",
-      attractions: [
-        {
-          name: "Gobi Desert",
-          type: "desert",
-          duration: "2 days",
-          activities: ["Camel riding", "Sand dune climbing", "Stargazing"],
-          image: "/placeholder.svg?height=60&width=60&text=Desert",
-        },
-        {
-          name: "Flaming Cliffs",
-          type: "geological",
-          duration: "1 day",
-          activities: ["Fossil hunting", "Photography", "Hiking"],
-          image: "/placeholder.svg?height=60&width=60&text=Cliffs",
-        },
-        {
-          name: "Khermen Tsav",
-          type: "canyon",
-          duration: "2 days",
-          activities: ["Canyon exploration", "Rock climbing", "Wildlife watching"],
-          image: "/placeholder.svg?height=60&width=60&text=Canyon",
-        },
-      ],
-      weatherSeason: "autumn",
-      childFriendly: false,
-      transportation: "Specialized desert vehicle",
-      accommodations: ["Desert camps", "Traditional gers"],
-      notes: "Completed trip - Amazing desert landscapes and dinosaur fossils!",
-      rating: 5,
-      review:
-        "Incredible experience! The desert sunsets were breathtaking and our guide was very knowledgeable about the fossil sites.",
-    },
-    {
-      id: 3,
-      title: "Western Mongolia Expedition",
-      duration: "10 days",
-      regions: ["Altai Mountains", "Uvs Lake", "Kazakh Eagle Hunters"],
-      status: "planning",
-      createdDate: "2024-12-28",
-      totalDistance: "1,800 km",
-      estimatedCost: 1200,
-      difficulty: "extreme",
-      attractions: [
-        {
-          name: "Altai Mountains",
-          type: "mountains",
-          duration: "4 days",
-          activities: ["Mountain climbing", "Glacier viewing", "Wildlife photography"],
-          image: "/placeholder.svg?height=60&width=60&text=Mountains",
-        },
-        {
-          name: "Uvs Lake",
-          type: "lake",
-          duration: "3 days",
-          activities: ["Bird watching", "Fishing", "Cultural immersion"],
-          image: "/placeholder.svg?height=60&width=60&text=UvsLake",
-        },
-        {
-          name: "Kazakh Eagle Hunters",
-          type: "cultural",
-          duration: "3 days",
-          activities: ["Eagle hunting demonstration", "Horseback riding", "Traditional crafts"],
-          image: "/placeholder.svg?height=60&width=60&text=Eagle",
-        },
-      ],
-      weatherSeason: "winter",
-      childFriendly: false,
-      transportation: "Specialized mountain vehicle + horses",
-      accommodations: ["Mountain lodges", "Kazakh family stays"],
-      notes: "Advanced expedition requiring good physical fitness and cold weather gear",
-    },
-  ]
+    transportation: "Guided tour",
+    accommodations: ["Ger camps"],
+    notes: edge.node.description
+  })) || []
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
@@ -272,13 +214,7 @@ export default function UserDashboardContent() {
           </p>
         </div>
 
-        <div className="flex justify-end mb-4 gap-2">
-          <Button variant="outline" onClick={async ()=> { await seedMockData(); }} disabled={seeding} className="flex items-center gap-2">
-            {seeding ? "Тарьж байна..." : "Mock data оруулах"}
-          </Button>
-          <Button variant="outline" onClick={async ()=> { await clearMockData(); }} disabled={clearing} className="flex items-center gap-2">
-            {clearing ? "Цэвэрлэж байна..." : "Mock data устгах"}
-          </Button>
+        <div className="flex justify-end mb-4">
           <Button variant="outline" onClick={logout} className="flex items-center gap-2">
             <LogOut className="w-4 h-4" /> Гарах
           </Button>
@@ -317,7 +253,7 @@ export default function UserDashboardContent() {
                   <Calendar className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">{user.totalBookings}</div>
+                  <div className="text-xl sm:text-2xl font-bold">{totalBookings}</div>
                   <p className="text-xs text-muted-foreground font-medium">Энэ сард +1</p>
                 </CardContent>
               </Card>
@@ -328,7 +264,7 @@ export default function UserDashboardContent() {
                   <ShoppingBag className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">{user.totalOrders}</div>
+                  <div className="text-xl sm:text-2xl font-bold">{totalOrders}</div>
                   <p className="text-xs text-muted-foreground font-medium">Энэ сард +3</p>
                 </CardContent>
               </Card>
@@ -339,7 +275,7 @@ export default function UserDashboardContent() {
                   <Package className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">${user.totalSpent}</div>
+                  <div className="text-xl sm:text-2xl font-bold">${totalSpent.toFixed(0)}</div>
                   <p className="text-xs text-muted-foreground font-medium">Энэ сард +$320</p>
                 </CardContent>
               </Card>
@@ -364,8 +300,8 @@ export default function UserDashboardContent() {
                 <CardContent>
                   <div className="space-y-4">
                     {bookings
-                      .filter((booking) => booking.status === "upcoming" || booking.status === "confirmed")
-                      .map((booking) => (
+                      .filter((booking: Booking) => booking.status === "upcoming" || booking.status === "confirmed")
+                      .map((booking: Booking) => (
                         <div key={booking.id} className="flex items-center space-x-4">
                           <img
                             src={booking.image || "/placeholder.svg"}
@@ -400,7 +336,7 @@ export default function UserDashboardContent() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {orders.slice(0, 3).map((order) => (
+                    {orders.slice(0, 3).map((order: Order) => (
                       <div key={order.id} className="flex items-center space-x-4">
                         <img
                           src={order.image || "/placeholder.svg"}
@@ -438,7 +374,7 @@ export default function UserDashboardContent() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
-              {bookings.map((booking) => (
+              {bookings.map((booking: Booking) => (
                 <Card key={booking.id} className="overflow-hidden">
                   <div className="aspect-video bg-gray-100 flex items-center justify-center">
                     <img
@@ -511,7 +447,7 @@ export default function UserDashboardContent() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {orders.map((order) => (
+                      {orders.map((order: Order) => (
                         <TableRow key={order.id}>
                           <TableCell className="font-semibold">#{order.id}</TableCell>
                           <TableCell>
@@ -561,7 +497,7 @@ export default function UserDashboardContent() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
-              {favorites.map((item) => (
+              {favorites.map((item: Favorite) => (
                 <Card key={item.id} className="overflow-hidden">
                   <div className="aspect-video bg-gray-100 flex items-center justify-center">
                     <img
@@ -619,7 +555,7 @@ export default function UserDashboardContent() {
             </div>
 
             <div className="grid grid-cols-1 gap-6">
-              {travelRoutes.map((route) => (
+              {travelRoutes.map((route: TravelRoute) => (
                 <Card key={route.id} className="overflow-hidden">
                   <CardContent className="p-0">
                     <div className="p-4 sm:p-6">
@@ -698,7 +634,7 @@ export default function UserDashboardContent() {
                             <div>
                               <h4 className="font-bold text-sm text-gray-700 mb-2">Accommodations</h4>
                               <div className="flex flex-wrap gap-1">
-                                {route.accommodations.map((acc, index) => (
+                                {route.accommodations.map((acc: string, index: number) => (
                                   <Badge key={index} variant="secondary" className="text-xs font-medium">
                                     {acc}
                                   </Badge>
@@ -711,7 +647,7 @@ export default function UserDashboardContent() {
                           <div className="mb-4">
                             <h4 className="font-bold text-sm text-gray-700 mb-3">Attractions & Activities</h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                              {route.attractions.map((attraction, index) => (
+                              {route.attractions.map((attraction: any, index: number) => (
                                 <div key={index} className="border rounded-lg p-3 bg-gray-50">
                                   <div className="flex items-center space-x-3 mb-2">
                                     <img
@@ -727,7 +663,7 @@ export default function UserDashboardContent() {
                                     </div>
                                   </div>
                                   <div className="flex flex-wrap gap-1">
-                                    {attraction.activities.slice(0, 2).map((activity, actIndex) => (
+                                    {attraction.activities.slice(0, 2).map((activity: string, actIndex: number) => (
                                       <Badge key={actIndex} variant="outline" className="text-xs font-medium">
                                         {activity}
                                       </Badge>
@@ -803,7 +739,7 @@ export default function UserDashboardContent() {
               <Card>
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-emerald-600">
-                    {travelRoutes.filter((r) => r.status === "completed").length}
+                    {travelRoutes.filter((r: TravelRoute) => r.status === "completed").length}
                   </div>
                   <div className="text-sm text-gray-600 font-medium">Completed Routes</div>
                 </CardContent>
@@ -811,7 +747,7 @@ export default function UserDashboardContent() {
               <Card>
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-blue-600">
-                    {travelRoutes.filter((r) => r.status === "planning").length}
+                    {travelRoutes.filter((r: TravelRoute) => r.status === "planning").length}
                   </div>
                   <div className="text-sm text-gray-600 font-medium">Planning</div>
                 </CardContent>
@@ -819,7 +755,7 @@ export default function UserDashboardContent() {
               <Card>
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-purple-600">
-                    {travelRoutes.reduce((total, route) => total + Number.parseInt(route.duration), 0)}
+                    {travelRoutes.reduce((total: number, route: TravelRoute) => total + Number.parseInt(route.duration), 0)}
                   </div>
                   <div className="text-sm text-gray-600 font-medium">Total Days Planned</div>
                 </CardContent>
@@ -827,7 +763,7 @@ export default function UserDashboardContent() {
               <Card>
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-orange-600">
-                    ${travelRoutes.reduce((total, route) => total + route.estimatedCost, 0)}
+                    ${travelRoutes.reduce((total: number, route: TravelRoute) => total + route.estimatedCost, 0)}
                   </div>
                   <div className="text-sm text-gray-600 font-medium">Total Investment</div>
                 </CardContent>
@@ -847,19 +783,19 @@ export default function UserDashboardContent() {
                 <CardContent className="space-y-4">
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Бүтэн нэр</label>
-                    <Input defaultValue={user.name} className="font-medium" />
+                    <Input defaultValue={user?.name || ""} className="font-medium" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Имэйл</label>
-                    <Input defaultValue={user.email} className="font-medium" />
+                    <Input defaultValue={user?.email || ""} className="font-medium" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Утас</label>
-                    <Input defaultValue={user.phone} className="font-medium" />
+                    <Input defaultValue="+976 9911 2233" className="font-medium" />
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Байршил</label>
-                    <Input defaultValue={user.location} className="font-medium" />
+                    <Input defaultValue="Улаанбаатар, Монгол" className="font-medium" />
                   </div>
                   <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">Профайл шинэчлэх</Button>
                 </CardContent>
@@ -872,23 +808,23 @@ export default function UserDashboardContent() {
                 <CardContent className="space-y-4">
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600 font-medium">Гишүүн болсон огноо</span>
-                    <span className="font-semibold">{user.joinDate}</span>
+                    <span className="font-semibold">2024 оны 1-р сар</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600 font-medium">Нийт захиалга</span>
-                    <span className="font-semibold">{user.totalBookings}</span>
+                    <span className="font-semibold">{totalBookings}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600 font-medium">Нийт барааны захиалга</span>
-                    <span className="font-semibold">{user.totalOrders}</span>
+                    <span className="font-semibold">{totalOrders}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600 font-medium">Нийт зарцуулсан</span>
-                    <span className="font-semibold">${user.totalSpent}</span>
+                    <span className="font-semibold">${totalSpent.toFixed(0)}</span>
                   </div>
                   <div className="flex items-center justify-between">
                     <span className="text-sm text-gray-600 font-medium">Хамгийн дуртай газар</span>
-                    <span className="font-semibold">{user.favoriteDestination}</span>
+                    <span className="font-semibold">Хөвсгөл нуур</span>
                   </div>
                 </CardContent>
               </Card>

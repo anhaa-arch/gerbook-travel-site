@@ -3,7 +3,7 @@ export interface User {
   id: string
   name: string
   email: string
-  role: "admin" | "user" | "herder"
+  role: "ADMIN" | "CUSTOMER" | "HERDER"
   avatar?: string
 }
 
@@ -12,19 +12,19 @@ export const mockUsers: Record<string, User> = {
     id: "1",
     name: "Admin User",
     email: "admin@malchincamp.com",
-    role: "admin",
+    role: "ADMIN",
   },
   "herder@malchincamp.com": {
     id: "2",
     name: "Herder User",
     email: "herder@malchincamp.com",
-    role: "herder",
+    role: "HERDER",
   },
-  "user@malchincamp.com": {
+  "customer@malchincamp.com": {
     id: "3",
-    name: "Regular User",
-    email: "user@malchincamp.com",
-    role: "user",
+    name: "Customer User",
+    email: "customer@malchincamp.com",
+    role: "CUSTOMER",
   },
 }
 
