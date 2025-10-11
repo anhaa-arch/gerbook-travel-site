@@ -11,6 +11,7 @@ export default gql`
     id: ID!
     email: String!
     name: String!
+    phone: String
     role: Role!
     createdAt: String!
     updatedAt: String!
@@ -50,6 +51,7 @@ export default gql`
     email: String!
     password: String!
     name: String!
+    phone: String
     role: Role
   }
 
@@ -57,13 +59,20 @@ export default gql`
     email: String
     password: String
     name: String
+    phone: String
     role: Role
   }
 
   extend type Mutation {
     register(input: CreateUserInput!): AuthPayload!
     login(email: String!, password: String!): AuthPayload!
+    forgotPassword(email: String!): ForgotPasswordResponse!
+    resetPassword(token: String!, newPassword: String!): AuthPayload!
     updateUser(id: ID!, input: UpdateUserInput!): User!
     deleteUser(id: ID!): Boolean!
+  }
+
+  type ForgotPasswordResponse {
+    message: String!
   }
 `;

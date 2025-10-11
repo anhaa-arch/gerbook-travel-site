@@ -1,11 +1,16 @@
 import { gql } from 'apollo-server-express';
 
 export default gql`
+  enum BookingStatus {
+    PENDING
+    CONFIRMED
+    CANCELLED
+    COMPLETED
+  }
+
   type Booking {
     id: ID!
-    userId: ID!
     user: User!
-    yurtId: ID!
     yurt: Yurt!
     startDate: String!
     endDate: String!
@@ -15,18 +20,40 @@ export default gql`
     updatedAt: String!
   }
 
+  type TravelBooking {
+    id: ID!
+    user: User!
+    travel: Travel!
+    startDate: String!
+    numberOfPeople: Int!
+    totalPrice: Float!
+    status: BookingStatus!
+    createdAt: String!
+    updatedAt: String!
+  }
+
   extend type Query {
     bookings(
-      userId: ID
-      yurtId: ID
-      status: BookingStatus
       first: Int
       after: String
       last: Int
       before: String
+      filter: String
+      orderBy: String
+      userId: ID
     ): BookingConnection!
     booking(id: ID!): Booking
-    checkYurtAvailability(yurtId: ID!, startDate: String!, endDate: String!): Boolean!
+    travelBookings(
+      first: Int
+      after: String
+      last: Int
+      before: String
+      filter: String
+      orderBy: String
+      userId: ID
+    ): TravelBookingConnection!
+    travelBooking(id: ID!): TravelBooking
+    availableYurts(startDate: String!, endDate: String!, capacity: Int): [Yurt!]!
   }
 
   type BookingConnection {
@@ -40,10 +67,38 @@ export default gql`
     cursor: String!
   }
 
+  type TravelBookingConnection {
+    edges: [TravelBookingEdge!]!
+    pageInfo: PageInfo!
+    totalCount: Int!
+  }
+
+  type TravelBookingEdge {
+    node: TravelBooking!
+    cursor: String!
+  }
+
   input CreateBookingInput {
     yurtId: ID!
     startDate: String!
     endDate: String!
+  }
+
+  input CreateTravelBookingInput {
+    travelId: ID!
+    startDate: String!
+    numberOfPeople: Int!
+  }
+
+  extend type Mutation {
+    createBooking(input: CreateBookingInput!): Booking!
+    updateBooking(id: ID!, input: UpdateBookingInput!): Booking!
+    cancelBooking(id: ID!): Booking!
+    deleteBooking(id: ID!): Boolean!
+    createTravelBooking(input: CreateTravelBookingInput!): TravelBooking!
+    updateTravelBooking(id: ID!, input: UpdateTravelBookingInput!): TravelBooking!
+    cancelTravelBooking(id: ID!): TravelBooking!
+    deleteTravelBooking(id: ID!): Boolean!
   }
 
   input UpdateBookingInput {
@@ -52,9 +107,9 @@ export default gql`
     status: BookingStatus
   }
 
-  extend type Mutation {
-    createBooking(input: CreateBookingInput!): Booking!
-    updateBooking(id: ID!, input: UpdateBookingInput!): Booking!
-    cancelBooking(id: ID!): Booking!
+  input UpdateTravelBookingInput {
+    startDate: String
+    numberOfPeople: Int
+    status: BookingStatus
   }
 `;

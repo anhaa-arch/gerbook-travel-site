@@ -27,6 +27,9 @@ export const userSchemas = {
     name: Joi.string().required().messages({
       'any.required': 'Name is required'
     }),
+    phone: Joi.string().min(8).messages({
+      'string.min': 'Phone number must be at least 8 characters long'
+    }),
     role: Joi.string().valid('CUSTOMER', 'HERDER', 'ADMIN')
   }),
 
@@ -103,25 +106,36 @@ export const bookingSchemas = {
     yurtId: Joi.string().required().messages({
       'any.required': 'Yurt ID is required'
     }),
-    startDate: Joi.date().iso().required().messages({
-      'date.base': 'Start date must be a valid date',
+    startDate: Joi.string().required().messages({
       'any.required': 'Start date is required'
     }),
-    endDate: Joi.date().iso().greater(Joi.ref('startDate')).required().messages({
-      'date.base': 'End date must be a valid date',
-      'date.greater': 'End date must be after start date',
+    endDate: Joi.string().required().messages({
       'any.required': 'End date is required'
     })
   }),
 
   update: Joi.object({
-    startDate: Joi.date().iso().messages({
-      'date.base': 'Start date must be a valid date'
+    startDate: Joi.string(),
+    endDate: Joi.string(),
+    status: Joi.string().valid('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED')
+  }),
+
+  createTravel: Joi.object({
+    travelId: Joi.string().required().messages({
+      'any.required': 'Travel ID is required'
     }),
-    endDate: Joi.date().iso().greater(Joi.ref('startDate')).messages({
-      'date.base': 'End date must be a valid date',
-      'date.greater': 'End date must be after start date'
+    startDate: Joi.string().required().messages({
+      'any.required': 'Start date is required'
     }),
+    numberOfPeople: Joi.number().integer().min(1).required().messages({
+      'any.required': 'Number of people is required',
+      'number.min': 'Number of people must be at least 1'
+    })
+  }),
+
+  updateTravel: Joi.object({
+    startDate: Joi.string(),
+    numberOfPeople: Joi.number().integer().min(1),
     status: Joi.string().valid('PENDING', 'CONFIRMED', 'CANCELLED', 'COMPLETED')
   })
 };
