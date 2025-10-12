@@ -13,10 +13,11 @@ import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Header } from "@/components/header"
-import { useQuery } from "@apollo/client"
+import { useQuery, useMutation } from "@apollo/client"
 import '../../lib/i18n'
 import { useAuth } from "@/hooks/use-auth"
-import { GET_HERDER_STATS, GET_HERDER_PRODUCTS, GET_HERDER_YURTS, GET_HERDER_ORDERS, GET_HERDER_BOOKINGS } from "./queries"
+import { useToast } from "@/components/ui/use-toast"
+import { GET_HERDER_STATS, GET_HERDER_PRODUCTS, GET_HERDER_YURTS, GET_HERDER_ORDERS, GET_HERDER_BOOKINGS, CREATE_YURT, UPDATE_YURT, DELETE_YURT, CREATE_PRODUCT, UPDATE_PRODUCT, DELETE_PRODUCT } from "./queries"
 
 export default function HerderDashboardContent() {
   const { t } = useTranslation()
@@ -26,6 +27,26 @@ export default function HerderDashboardContent() {
   const [selectedItem, setSelectedItem] = useState<any>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const { logout, user } = useAuth()
+  const { toast } = useToast()
+
+  // Form states
+  const [yurtForm, setYurtForm] = useState({
+    name: "",
+    description: "",
+    location: "",
+    pricePerNight: "",
+    capacity: "",
+    amenities: "",
+    images: ""
+  })
+  const [productForm, setProductForm] = useState({
+    name: "",
+    description: "",
+    price: "",
+    stock: "",
+    images: "",
+    categoryId: ""
+  })
 
   // Fetch real data from database
   const { data: statsData, loading: statsLoading } = useQuery(GET_HERDER_STATS, {
@@ -36,6 +57,26 @@ export default function HerderDashboardContent() {
   const { data: yurtsData, loading: yurtsLoading } = useQuery(GET_HERDER_YURTS)
   const { data: ordersData, loading: ordersLoading } = useQuery(GET_HERDER_ORDERS)
   const { data: bookingsData, loading: bookingsLoading } = useQuery(GET_HERDER_BOOKINGS)
+
+  // Mutations
+  const [createYurt] = useMutation(CREATE_YURT, {
+    refetchQueries: [GET_HERDER_YURTS, GET_HERDER_STATS]
+  })
+  const [updateYurt] = useMutation(UPDATE_YURT, {
+    refetchQueries: [GET_HERDER_YURTS]
+  })
+  const [deleteYurt] = useMutation(DELETE_YURT, {
+    refetchQueries: [GET_HERDER_YURTS, GET_HERDER_STATS]
+  })
+  const [createProduct] = useMutation(CREATE_PRODUCT, {
+    refetchQueries: [GET_HERDER_PRODUCTS, GET_HERDER_STATS]
+  })
+  const [updateProduct] = useMutation(UPDATE_PRODUCT, {
+    refetchQueries: [GET_HERDER_PRODUCTS]
+  })
+  const [deleteProduct] = useMutation(DELETE_PRODUCT, {
+    refetchQueries: [GET_HERDER_PRODUCTS, GET_HERDER_STATS]
+  })
 
   // Transform data for display
   const herder = {
@@ -100,10 +141,31 @@ export default function HerderDashboardContent() {
     setShowDeleteDialog(true)
   }
 
-  const confirmDelete = () => {
-    console.log("Deleting:", selectedItem)
-    setShowDeleteDialog(false)
-    setSelectedItem(null)
+  const confirmDelete = async () => {
+    try {
+      // Determine if the item is a product or a yurt based on its properties
+      const isProduct = 'stock' in selectedItem;
+      
+      if (isProduct) {
+        await handleDeleteProduct();
+      } else {
+        await handleDeleteYurt();
+      }
+      
+      toast({ 
+        title: "Амжилттай", 
+        description: isProduct ? "Бүтээгдэхүүн амжилттай устгагдлаа" : "Гэр амжилттай устгагдлаа" 
+      });
+    } catch (error: any) {
+      toast({ 
+        title: "Алдаа", 
+        description: error.message || "Устгах үед алдаа гарлаа", 
+        variant: "destructive" as any 
+      });
+    } finally {
+      setShowDeleteDialog(false)
+      setSelectedItem(null)
+    }
   }
 
   return (
@@ -261,11 +323,19 @@ export default function HerderDashboardContent() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Product Name</label>
-                      <Input placeholder="Enter product name" className="font-medium" />
+                      <Input 
+                        placeholder="Enter product name" 
+                        className="font-medium" 
+                        value={productForm.name}
+                        onChange={(e) => setProductForm({...productForm, name: e.target.value})}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Category</label>
-                      <Select>
+                      <Select 
+                        value={productForm.categoryId} 
+                        onValueChange={(value) => setProductForm({...productForm, categoryId: value})}
+                      >
                         <SelectTrigger>
                           <SelectValue placeholder="Select category" />
                         </SelectTrigger>
@@ -278,25 +348,66 @@ export default function HerderDashboardContent() {
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Price ($)</label>
-                      <Input type="number" placeholder="0.00" className="font-medium" />
+                      <Input 
+                        type="number" 
+                        placeholder="0.00" 
+                        className="font-medium" 
+                        value={productForm.price}
+                        onChange={(e) => setProductForm({...productForm, price: e.target.value})}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Stock Quantity</label>
-                      <Input type="number" placeholder="0" className="font-medium" />
+                      <Input 
+                        type="number" 
+                        placeholder="0" 
+                        className="font-medium" 
+                        value={productForm.stock}
+                        onChange={(e) => setProductForm({...productForm, stock: e.target.value})}
+                      />
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-                    <Textarea placeholder="Describe your product..." className="font-medium" />
+                    <Textarea 
+                      placeholder="Describe your product..." 
+                      className="font-medium" 
+                      value={productForm.description}
+                      onChange={(e) => setProductForm({...productForm, description: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Images (URLs, comma separated)</label>
+                    <Input 
+                      placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg" 
+                      className="font-medium" 
+                      value={productForm.images}
+                      onChange={(e) => setProductForm({...productForm, images: e.target.value})}
+                    />
                   </div>
                   <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <Button
                       className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                      onClick={() => setShowAddProduct(false)}
+                      onClick={selectedItem ? handleUpdateProduct : handleCreateProduct}
                     >
-                      Save Product
+                      {selectedItem ? "Update Product" : "Save Product"}
                     </Button>
-                    <Button variant="outline" onClick={() => setShowAddProduct(false)} className="font-medium">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setShowAddProduct(false);
+                        setSelectedItem(null);
+                        setProductForm({
+                          name: "",
+                          description: "",
+                          price: "",
+                          stock: "",
+                          images: "",
+                          categoryId: ""
+                        });
+                      }} 
+                      className="font-medium"
+                    >
                       Cancel
                     </Button>
                   </div>
@@ -336,7 +447,12 @@ export default function HerderDashboardContent() {
                       </span>
                     </div>
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" className="flex-1 bg-transparent font-medium">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1 bg-transparent font-medium"
+                        onClick={() => handleEditProduct(product)}
+                      >
                         <Edit className="w-4 h-4 mr-1" />
                         Edit
                       </Button>
@@ -375,33 +491,94 @@ export default function HerderDashboardContent() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Camp Name</label>
-                      <Input placeholder="Enter camp name" className="font-medium" />
+                      <Input 
+                        placeholder="Enter camp name" 
+                        className="font-medium" 
+                        value={yurtForm.name}
+                        onChange={(e) => setYurtForm({...yurtForm, name: e.target.value})}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Location</label>
-                      <Input placeholder="Province, District" className="font-medium" />
+                      <Input 
+                        placeholder="Province, District" 
+                        className="font-medium" 
+                        value={yurtForm.location}
+                        onChange={(e) => setYurtForm({...yurtForm, location: e.target.value})}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Price per Night ($)</label>
-                      <Input type="number" placeholder="0.00" className="font-medium" />
+                      <Input 
+                        type="number" 
+                        placeholder="0.00" 
+                        className="font-medium" 
+                        value={yurtForm.pricePerNight}
+                        onChange={(e) => setYurtForm({...yurtForm, pricePerNight: e.target.value})}
+                      />
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">Guest Capacity</label>
-                      <Input type="number" placeholder="0" className="font-medium" />
+                      <Input 
+                        type="number" 
+                        placeholder="0" 
+                        className="font-medium" 
+                        value={yurtForm.capacity}
+                        onChange={(e) => setYurtForm({...yurtForm, capacity: e.target.value})}
+                      />
                     </div>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">Description</label>
-                    <Textarea placeholder="Describe your camp..." className="font-medium" />
+                    <Textarea 
+                      placeholder="Describe your camp..." 
+                      className="font-medium" 
+                      value={yurtForm.description}
+                      onChange={(e) => setYurtForm({...yurtForm, description: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Amenities (comma separated)</label>
+                    <Input 
+                      placeholder="WiFi, Heating, Breakfast..." 
+                      className="font-medium" 
+                      value={yurtForm.amenities}
+                      onChange={(e) => setYurtForm({...yurtForm, amenities: e.target.value})}
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Images (URLs, comma separated)</label>
+                    <Input 
+                      placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg" 
+                      className="font-medium" 
+                      value={yurtForm.images}
+                      onChange={(e) => setYurtForm({...yurtForm, images: e.target.value})}
+                    />
                   </div>
                   <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <Button
                       className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                      onClick={() => setShowAddCamp(false)}
+                      onClick={selectedItem ? handleUpdateYurt : handleCreateYurt}
                     >
-                      Save Camp
+                      {selectedItem ? "Update Camp" : "Save Camp"}
                     </Button>
-                    <Button variant="outline" onClick={() => setShowAddCamp(false)} className="font-medium">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setShowAddCamp(false);
+                        setSelectedItem(null);
+                        setYurtForm({
+                          name: "",
+                          description: "",
+                          location: "",
+                          pricePerNight: "",
+                          capacity: "",
+                          amenities: "",
+                          images: ""
+                        });
+                      }} 
+                      className="font-medium"
+                    >
                       Cancel
                     </Button>
                   </div>
@@ -445,7 +622,12 @@ export default function HerderDashboardContent() {
                       <span className="text-sm text-gray-600 font-medium">{camp.bookings} bookings</span>
                     </div>
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm" className="flex-1 bg-transparent font-medium">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="flex-1 bg-transparent font-medium"
+                        onClick={() => handleEditYurt(camp)}
+                      >
                         <Edit className="w-4 h-4 mr-1" />
                         Edit
                       </Button>
@@ -646,4 +828,181 @@ export default function HerderDashboardContent() {
       </div>
     </div>
   )
+
+  // Yurt management functions
+  const handleCreateYurt = async () => {
+    try {
+      await createYurt({
+        variables: {
+          input: {
+            name: yurtForm.name,
+            description: yurtForm.description,
+            location: yurtForm.location,
+            pricePerNight: parseFloat(yurtForm.pricePerNight),
+            capacity: parseInt(yurtForm.capacity),
+            amenities: yurtForm.amenities,
+            images: yurtForm.images
+          }
+        }
+      })
+      toast({ title: "Амжилттай", description: "Гэр амжилттай нэмэгдлээ" })
+      setShowAddCamp(false)
+      setYurtForm({
+        name: "",
+        description: "",
+        location: "",
+        pricePerNight: "",
+        capacity: "",
+        amenities: "",
+        images: ""
+      })
+    } catch (error: any) {
+      toast({ title: "Алдаа", description: error.message, variant: "destructive" as any })
+    }
+  }
+
+  const handleUpdateYurt = async () => {
+    try {
+      await updateYurt({
+        variables: {
+          id: selectedItem.id,
+          input: {
+            name: yurtForm.name,
+            description: yurtForm.description,
+            location: yurtForm.location,
+            pricePerNight: parseFloat(yurtForm.pricePerNight),
+            capacity: parseInt(yurtForm.capacity),
+            amenities: yurtForm.amenities,
+            images: yurtForm.images
+          }
+        }
+      })
+      toast({ title: "Амжилттай", description: "Гэр амжилттай шинэчигдлээ" })
+      setSelectedItem(null)
+      setYurtForm({
+        name: "",
+        description: "",
+        location: "",
+        pricePerNight: "",
+        capacity: "",
+        amenities: "",
+        images: ""
+      })
+    } catch (error: any) {
+      toast({ title: "Алдаа", description: error.message, variant: "destructive" as any })
+    }
+  }
+
+  const handleDeleteYurt = async () => {
+    try {
+      await deleteYurt({
+        variables: { id: selectedItem.id }
+      })
+      toast({ title: "Амжилттай", description: "Гэр амжилттай устгагдлаа" })
+      setShowDeleteDialog(false)
+      setSelectedItem(null)
+    } catch (error: any) {
+      toast({ title: "Алдаа", description: error.message, variant: "destructive" as any })
+    }
+  }
+
+  // Product management functions
+  const handleCreateProduct = async () => {
+    try {
+      await createProduct({
+        variables: {
+          input: {
+            name: productForm.name,
+            description: productForm.description,
+            price: parseFloat(productForm.price),
+            stock: parseInt(productForm.stock),
+            images: productForm.images,
+            categoryId: productForm.categoryId
+          }
+        }
+      })
+      toast({ title: "Амжилттай", description: "Бүтээгдэхүүн амжилттай нэмэгдлээ" })
+      setShowAddProduct(false)
+      setProductForm({
+        name: "",
+        description: "",
+        price: "",
+        stock: "",
+        images: "",
+        categoryId: ""
+      })
+    } catch (error: any) {
+      toast({ title: "Алдаа", description: error.message, variant: "destructive" as any })
+    }
+  }
+
+  const handleUpdateProduct = async () => {
+    try {
+      await updateProduct({
+        variables: {
+          id: selectedItem.id,
+          input: {
+            name: productForm.name,
+            description: productForm.description,
+            price: parseFloat(productForm.price),
+            stock: parseInt(productForm.stock),
+            images: productForm.images,
+            categoryId: productForm.categoryId
+          }
+        }
+      })
+      toast({ title: "Амжилттай", description: "Бүтээгдэхүүн амжилттай шинэчигдлээ" })
+      setSelectedItem(null)
+      setProductForm({
+        name: "",
+        description: "",
+        price: "",
+        stock: "",
+        images: "",
+        categoryId: ""
+      })
+    } catch (error: any) {
+      toast({ title: "Алдаа", description: error.message, variant: "destructive" as any })
+    }
+  }
+
+  const handleDeleteProduct = async () => {
+    try {
+      await deleteProduct({
+        variables: { id: selectedItem.id }
+      })
+      toast({ title: "Амжилттай", description: "Бүтээгдэхүүн амжилттай устгагдлаа" })
+      setShowDeleteDialog(false)
+      setSelectedItem(null)
+    } catch (error: any) {
+      toast({ title: "Алдаа", description: error.message, variant: "destructive" as any })
+    }
+  }
+
+  const handleEditYurt = (yurt: any) => {
+    setSelectedItem(yurt)
+    setYurtForm({
+      name: yurt.name,
+      description: yurt.description,
+      location: yurt.location,
+      pricePerNight: yurt.pricePerNight.toString(),
+      capacity: yurt.capacity.toString(),
+      amenities: yurt.amenities,
+      images: yurt.images
+    })
+    setShowAddCamp(true)
+  }
+
+  const handleEditProduct = (product: any) => {
+    setSelectedItem(product)
+    setProductForm({
+      name: product.name,
+      description: product.description,
+      price: product.price.toString(),
+      stock: product.stock.toString(),
+      images: product.images,
+      categoryId: product.categoryId
+    })
+    setShowAddProduct(true)
+  }
 }

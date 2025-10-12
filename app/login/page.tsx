@@ -8,59 +8,62 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Globe, ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { gql, useMutation } from "@apollo/client";
 import { useAuth } from "@/hooks/use-auth";
+import OtpModal from "@/components/otp-modal";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
-const LOGIN_MUTATION = gql`
-  mutation Login($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
-      token
-      user { id name email role }
-    }
-  }
-`;
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [activeTab, setActiveTab] = useState("customer");
+  const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { saveUserData } = useAuth();
+  const { saveUserData, login, sendOtp, verifyOtp } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [loginMutation] = useMutation(LOGIN_MUTATION);
+  const [otpOpen, setOtpOpen] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loading) return;
-    setLoading(true);
+    e.preventDefault()
+    if (loading) return
+    setLoading(true)
     try {
-      const { data } = await loginMutation({ variables: { email, password } });
-      const payload = data?.login;
-      if (!payload?.token || !payload?.user) throw new Error("Invalid login response");
-      localStorage.setItem("token", payload.token);
-      const user = payload.user;
-      await saveUserData(user);
-
-      toast({ title: "Амжилттай нэвтэрлээ", description: `${user.name || user.email}` });
-
-      // Route based on user role from backend
-      const dashboardRoutes: Record<string, string> = {
-        ADMIN: "/admin-dashboard",
-        HERDER: "/herder-dashboard",
-        CUSTOMER: "/user-dashboard",
-      };
-      router.push(dashboardRoutes[user.role] || "/user-dashboard");
+      if (loginMethod === "email") {
+        if (!email || !password) {
+          toast({ title: "Алдаа", description: "И-мэйл болон нууц үг шаардлагатай", variant: "destructive" as any })
+          return
+        }
+        await login({ email, password })
+        const storedUser = localStorage.getItem('user')
+        const user = storedUser ? JSON.parse(storedUser) : null
+        if (user) {
+          const isHerder = user.role === 'HERDER' || user.role.toLowerCase() === 'herder'
+          if (isHerder) localStorage.setItem('isHerder', 'true')
+          else localStorage.removeItem('isHerder')
+          await saveUserData(user)
+          toast({ title: 'Амжилттай нэвтэрлээ', description: `${user.name || user.email}` })
+          if (isHerder) router.push('/herder-dashboard')
+          else router.push('/user-dashboard')
+        }
+      } else {
+        if (!phone) {
+          toast({ title: 'Алдаа', description: 'Утасны дугаар шаардлагатай', variant: 'destructive' as any })
+          return
+        }
+        await sendOtp(phone)
+        setOtpOpen(true)
+      }
     } catch (err: any) {
-      toast({ title: "Нэвтрэх амжилтгүй", description: err?.message || "И-мэйл эсвэл нууц үгээ шалгана уу", variant: "destructive" as any });
+      toast({ title: 'Нэвтрэх амжилтгүй', description: err?.message || 'Нэвтрэх амжилтгүй', variant: 'destructive' as any })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -151,22 +154,63 @@ export default function LoginPage() {
               Малчин
             </button>
           </div>
+          
+          {/* Login Method Toggle */}
+          <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
+            <button
+              onClick={() => setLoginMethod("email")}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                loginMethod === "email"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Имэйл хаягаар
+            </button>
+            <button
+              onClick={() => setLoginMethod("phone")}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
+                loginMethod === "phone"
+                  ? "bg-white text-gray-900 shadow-sm"
+                  : "text-gray-600 hover:text-gray-900"
+              }`}
+            >
+              Утасны дугаараар
+            </button>
+          </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <Label htmlFor="email" className="text-gray-700">
-                Имэйл хаяг
-              </Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="Имэйл хаягаа оруулна уу."
-                required
-                className="mt-1 bg-gray-50 border-gray-200"
-              />
-            </div>
+            {loginMethod === "email" ? (
+              <div>
+                <Label htmlFor="email" className="text-gray-700">
+                  Имэйл хаяг
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Имэйл хаягаа оруулна уу."
+                  required
+                  className="mt-1 bg-gray-50 border-gray-200"
+                />
+              </div>
+            ) : (
+              <div>
+                <Label htmlFor="phone" className="text-gray-700">
+                  Утасны дугаар
+                </Label>
+                <Input
+                  id="phone"
+                  type="tel"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  placeholder="Утасны дугаараа оруулна уу."
+                  required
+                  className="mt-1 bg-gray-50 border-gray-200"
+                />
+              </div>
+            )}
 
             <div>
               <Label htmlFor="password" className="text-gray-700">
@@ -224,7 +268,7 @@ export default function LoginPage() {
               </div>
 
               <Link
-                href="#"
+                href="/forgot-password"
                 className="text-sm text-green-600 hover:text-green-500"
               >
                 Нууц үгээ мартсан уу?
@@ -240,6 +284,27 @@ export default function LoginPage() {
             </Button>
           </form>
 
+          <OtpModal
+            open={otpOpen}
+            onOpenChange={(open) => setOtpOpen(open)}
+            phone={phone}
+            onResend={async () => await sendOtp(phone)}
+            onVerify={async (otp) => {
+              await verifyOtp(phone, otp)
+              const storedUser = localStorage.getItem('user')
+              const user = storedUser ? JSON.parse(storedUser) : null
+              if (user) {
+                const isHerder = user.role === 'HERDER' || user.role.toLowerCase() === 'herder'
+                if (isHerder) localStorage.setItem('isHerder', 'true')
+                else localStorage.removeItem('isHerder')
+                await saveUserData(user)
+                toast({ title: 'Амжилттай нэвтэрлээ', description: `${user.name || user.email}` })
+                if (isHerder) router.push('/herder-dashboard')
+                else router.push('/user-dashboard')
+              }
+            }}
+          />
+
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
               <div className="w-full border-t border-gray-300" />
@@ -254,6 +319,32 @@ export default function LoginPage() {
               type="button"
               variant="outline"
               className="w-full flex items-center justify-center space-x-2 py-3 border-gray-300 bg-transparent"
+              onClick={() => {
+                // Google login implementation
+                const googleAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth";
+                const redirectUri = window.location.origin + "/api/auth/google/callback";
+                
+                // These would normally be environment variables
+                const clientId = "YOUR_GOOGLE_CLIENT_ID";
+                
+                const params = new URLSearchParams({
+                  client_id: clientId,
+                  redirect_uri: redirectUri,
+                  response_type: "code",
+                  scope: "email profile",
+                  prompt: "select_account",
+                  access_type: "offline",
+                });
+                
+                // For demo purposes, we'll show a toast instead of redirecting
+                toast({
+                  title: "Google Login",
+                  description: "Google login would redirect to: " + googleAuthUrl + "?" + params.toString(),
+                });
+                
+                // In a real implementation, we would redirect:
+                // window.location.href = `${googleAuthUrl}?${params.toString()}`;
+              }}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path

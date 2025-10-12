@@ -2,7 +2,7 @@
 
 import { use, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { gql, useQuery } from "@apollo/client"
+import { gql, useQuery, useMutation } from "@apollo/client"
 import { parseImagePaths } from "@/lib/imageUtils"
 import {
   ArrowLeft,
@@ -26,6 +26,8 @@ import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import '../../../lib/i18n'
 import { useToast } from "@/components/ui/use-toast"
+import { useAuth } from "@/hooks/use-auth"
+import { CREATE_BOOKING } from "@/app/user-dashboard/queries"
 
 const GET_YURT = gql`
   query GetYurt($id: ID!) {
@@ -51,6 +53,7 @@ interface CampDetailPageProps {
 export default function CampDetailPage({ params }: CampDetailPageProps) {
   const { t } = useTranslation()
   const { toast } = useToast()
+  const { user, isAuthenticated } = useAuth()
   const resolvedParams = use(params)
   const campId = resolvedParams.id
 
@@ -58,6 +61,41 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     variables: { id: campId },
     skip: !campId,
     errorPolicy: "all"
+  })
+
+  const [createBooking, { loading: bookingLoading, error: bookingError }] = useMutation(CREATE_BOOKING, {
+    onCompleted: (data) => {
+      // Store booking in localStorage
+      const userBookings = JSON.parse(localStorage.getItem('userBookings') || '[]');
+      userBookings.push({
+        id: data.createBooking.id,
+        yurtId: data.createBooking.yurt.id,
+        yurtName: data.createBooking.yurt.name,
+        location: data.createBooking.yurt.location,
+        startDate: data.createBooking.startDate,
+        endDate: data.createBooking.endDate,
+        totalPrice: data.createBooking.totalPrice,
+        status: data.createBooking.status,
+        createdAt: data.createBooking.createdAt,
+        userId: user?.id
+      });
+      localStorage.setItem('userBookings', JSON.stringify(userBookings));
+      
+      toast({
+        title: "Booking Successful",
+        description: "Your camp reservation has been confirmed!",
+      })
+      setCheckIn("")
+      setCheckOut("")
+      setGuests(2)
+    },
+    onError: (error) => {
+      toast({
+        title: "Booking Failed",
+        description: error.message || "There was an error creating your booking. Please try again.",
+        variant: "destructive"
+      })
+    }
   })
 
   const camp = data?.yurt
@@ -175,13 +213,33 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
   const handleBooking = () => {
     if (!checkIn || !checkOut) return
-    toast({
-      title: "Booking Successful",
-      description: "Your camp reservation has been confirmed!",
+    
+    // Check if user is authenticated
+    if (!isAuthenticated || !user) {
+      toast({
+        title: "Authentication Required",
+        description: "Please log in to book a camp.",
+        variant: "destructive"
+      })
+      // Redirect to login page
+      window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`
+      return
+    }
+    
+    // Calculate dates
+    const startDate = new Date(checkIn).toISOString()
+    const endDate = new Date(checkOut).toISOString()
+    
+    // Call the createBooking mutation
+    createBooking({
+      variables: {
+        input: {
+          yurtId: campId,
+          startDate,
+          endDate
+        }
+      }
     })
-    setCheckIn("")
-    setCheckOut("")
-    setGuests(2)
   }
 
   return (

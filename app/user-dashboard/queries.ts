@@ -144,3 +144,81 @@ export const GET_AVAILABLE_TRAVELS = gql`
     }
   }
 `
+
+// Mutations for user dashboard
+export const CREATE_BOOKING = gql`
+  mutation CreateBooking($input: CreateBookingInput!) {
+    createBooking(input: $input) {
+      id
+      yurt {
+        id
+        name
+        location
+        images
+      }
+      startDate
+      endDate
+      totalPrice
+      status
+      createdAt
+    }
+  }
+`
+
+export const CREATE_ORDER = gql`
+  mutation CreateOrder($input: CreateOrderInput!) {
+    createOrder(input: $input) {
+      id
+      items {
+        id
+        product {
+          id
+          name
+          images
+        }
+        quantity
+        price
+      }
+      totalPrice
+      status
+      createdAt
+    }
+  }
+`
+
+export const CREATE_TRAVEL_BOOKING = gql`
+  mutation CreateTravelBooking($input: CreateTravelBookingInput!) {
+    createTravelBooking(input: $input) {
+      id
+      travel {
+        id
+        name
+        location
+        images
+      }
+      startDate
+      numberOfPeople
+      totalPrice
+      status
+      createdAt
+    }
+  }
+`
+
+export const CANCEL_BOOKING = gql`
+  mutation CancelBooking($id: ID!) {
+    cancelBooking(id: $id) {
+      id
+      status
+    }
+  }
+`
+
+export const CANCEL_ORDER = gql`
+  mutation CancelOrder($id: ID!) {
+    cancelOrder(id: $id) {
+      id
+      status
+    }
+  }
+`
