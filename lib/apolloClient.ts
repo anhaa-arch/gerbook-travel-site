@@ -4,13 +4,20 @@ import { onError } from "@apollo/client/link/error";
 
 // Error handling link
 const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (graphQLErrors)
-    graphQLErrors.forEach(({ message, locations, path }) =>
-      console.log(
-        `[GraphQL error]: Message: ${message}, Location: ${locations}, Path: ${path}`
-      )
-    );
-  if (networkError) console.log(`[Network error]: ${networkError}`);
+  if (process.env.NODE_ENV === "development") {
+    if (graphQLErrors)
+      graphQLErrors.forEach(({ message, locations, path }) => {
+        const loc = Array.isArray(locations)
+          ? locations.map(l => `${l.line}:${l.column}`).join(",")
+          : String(locations);
+        // eslint-disable-next-line no-console
+        console.log(`[GraphQL error]: Message: ${message}, Location: ${loc}, Path: ${path}`);
+      });
+    if (networkError) {
+      // eslint-disable-next-line no-console
+      console.log(`[Network error]: ${networkError}`);
+    }
+  }
 });
 
 const httpLink = new HttpLink({

@@ -22,15 +22,18 @@ export function ProtectedRoute({ children, requiredRole, redirectTo = "/login" }
       return
     }
 
-    if (requiredRole && user?.role !== requiredRole) {
+    const currentRole = (user?.role || "user").toString().toLowerCase() as "admin" | "user" | "herder"
+    const needsRole = requiredRole as ("admin" | "user" | "herder" | undefined)
+
+    if (needsRole && currentRole !== needsRole) {
       // Redirect to appropriate dashboard based on user role
-      const dashboardRoutes: Record<string, string> = {
+      const dashboardRoutes: Record<"admin" | "herder" | "user", string> = {
         admin: "/admin-dashboard",
         herder: "/herder-dashboard",
         user: "/user-dashboard",
       }
 
-      router.push(dashboardRoutes[user?.role || "user"])
+      router.push(dashboardRoutes[currentRole])
       return
     }
   }, [isAuthenticated, user, requiredRole, router, redirectTo])
@@ -46,7 +49,8 @@ export function ProtectedRoute({ children, requiredRole, redirectTo = "/login" }
     )
   }
 
-  if (requiredRole && user?.role !== requiredRole) {
+  const currentRole = (user?.role || "user").toString().toLowerCase() as "admin" | "user" | "herder"
+  if (requiredRole && currentRole !== requiredRole) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans">
         <div className="text-center">

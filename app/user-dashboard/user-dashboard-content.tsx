@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input"
 import { useQuery } from "@apollo/client"
 import '../../lib/i18n'
 import { useAuth } from "@/hooks/use-auth"
+import Link from "next/link"
 import { GET_USER_BOOKINGS, GET_USER_ORDERS, GET_USER_TRAVEL_BOOKINGS, GET_AVAILABLE_YURTS, GET_AVAILABLE_PRODUCTS, GET_AVAILABLE_TRAVELS } from "./queries"
 
 // Type definitions
@@ -368,9 +369,13 @@ export default function UserDashboardContent() {
           <TabsContent value="bookings" className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl sm:text-2xl font-bold">Миний захиалгууд</h2>
-              <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold">
-                Шинэ бааз захиалах
-              </Button>
+              {user?.role === 'user' && (
+                <Link href="/camps">
+                  <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold">
+                    Шинэ бааз захиалах
+                  </Button>
+                </Link>
+              )}
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">

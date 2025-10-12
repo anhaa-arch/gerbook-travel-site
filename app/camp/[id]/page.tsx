@@ -25,6 +25,7 @@ import { Separator } from "@/components/ui/separator"
 import { Input } from "@/components/ui/input"
 import Link from "next/link"
 import '../../../lib/i18n'
+import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 import { useAuth } from "@/hooks/use-auth"
 import { CREATE_BOOKING } from "@/app/user-dashboard/queries"
@@ -54,6 +55,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const { t } = useTranslation()
   const { toast } = useToast()
   const { user, isAuthenticated } = useAuth()
+  const router = useRouter()
   const resolvedParams = use(params)
   const campId = resolvedParams.id
 
@@ -88,6 +90,9 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       setCheckIn("")
       setCheckOut("")
       setGuests(2)
+
+      // Redirect to the traveler dashboard so the new booking is visible
+      router.push('/user-dashboard');
     },
     onError: (error) => {
       toast({
@@ -223,6 +228,16 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       })
       // Redirect to login page
       window.location.href = `/login?redirect=${encodeURIComponent(window.location.pathname)}`
+      return
+    }
+
+    // RBAC: Only CUSTOMER (user) can create bookings; block admins and herders
+    if (user.role !== 'user') {
+      toast({
+        title: "Not allowed",
+        description: "Only CUSTOMER users can create bookings.",
+        variant: "destructive"
+      })
       return
     }
     
@@ -618,10 +633,14 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
                   <Button
                     className="w-full bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                    disabled={!checkIn || !checkOut}
+                    disabled={!checkIn || !checkOut || !(user && user.role !== 'user')}
                     onClick={handleBooking}
                   >
-                    {!checkIn || !checkOut ? "Select Dates" : "Reserve Now"}
+                    {!checkIn || !checkOut
+                      ? "Select Dates"
+                      : (user && user.role !== 'user')
+                        ? "Only CUSTOMER can book"
+                        : "Reserve Now"}
                   </Button>
 
                   <div className="text-center">

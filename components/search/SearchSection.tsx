@@ -1,5 +1,6 @@
 "use client";
 
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +8,7 @@ import { Search, MapPin, Calendar, Users } from "lucide-react";
 import { LocationDropdown } from "@/components/search/location-dropdown";
 import { DatePickerModal } from "@/components/search/date-picker-modal";
 import { GuestSelector } from "@/components/search/guest-selector";
+import mnData from "@/data";
 
 export function SearchSection() {
   const [selectedLocation, setSelectedLocation] = useState("");
@@ -18,6 +20,10 @@ export function SearchSection() {
     end: null,
   });
   const [selectedGuests, setSelectedGuests] = useState(1);
+
+  console.log(mnData())
+
+
 
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);

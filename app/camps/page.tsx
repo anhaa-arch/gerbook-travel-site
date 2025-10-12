@@ -180,7 +180,7 @@ export default function CampsPage() {
                         <span className="text-2xl font-bold">{camp.pricePerNight}₮</span>
                         <span className="text-gray-600 ml-1 font-medium">хоног</span>
                       </div>
-                      <Link href={`/camps/${camp.id}`}>
+                      <Link href={`/camp/${camp.id}`}>
                         <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
                           {t("common.details")}
                         </Button>
