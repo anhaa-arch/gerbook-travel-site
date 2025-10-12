@@ -1,5 +1,4 @@
 import { ForbiddenError } from 'apollo-server-express';
-import { Yurt } from '@prisma/client';
 import { getUserId, isAdmin } from '../../utils/auth/jwt';
 import { validateInput, yurtSchemas } from '../../utils/validation';
 
@@ -115,29 +114,44 @@ const yurtResolvers = {
   },
 
   Mutation: {
-    // Create a new yurt (admin only)
-    createYurt: async (_: any, { input }: { input: any }, context: Context): Promise<Yurt> => {
-      if (!isAdmin(context)) {
-        throw new ForbiddenError('Not authorized to create yurts');
+    // Create a new yurt (admin or herder)
+    createYurt: async (_: any, { input }: { input: any }, context: Context): Promise<any> => {
+      const userId = require('../../utils/auth/jwt').getUserId(context);
+      const userIsAdmin = require('../../utils/auth/jwt').isAdmin(context);
+      // Allow admins or herders to create yurts; herders will own the yurt
+      if (!userIsAdmin) {
+        // if not admin, ensure the user has HERDER role
+        const ctxUser = await context.prisma.user.findUnique({ where: { id: userId } });
+        if (!ctxUser || ctxUser.role !== 'HERDER') {
+          throw new ForbiddenError('Not authorized to create yurts');
+        }
       }
 
       // Validate input
       const validatedInput = validateInput(input, yurtSchemas.create);
 
-      // Create yurt
-      return context.prisma.yurt.create({
-        data: validatedInput
-      });
+      // Create yurt; set owner if herder
+      const data: any = { ...validatedInput };
+      if (!userIsAdmin) data.ownerId = userId;
+
+      return context.prisma.yurt.create({ data });
     },
 
-    // Update a yurt (admin only)
-    updateYurt: async (_: any, { id, input }: { id: string; input: any }, context: Context): Promise<Yurt> => {
-      if (!isAdmin(context)) {
-        throw new ForbiddenError('Not authorized to update yurts');
-      }
+    // Update a yurt (admin or herder owner)
+  updateYurt: async (_: any, { id, input }: { id: string; input: any }, context: Context): Promise<any> => {
+      const userId = require('../../utils/auth/jwt').getUserId(context);
+      const userIsAdmin = require('../../utils/auth/jwt').isAdmin(context);
 
       // Validate input
       const validatedInput = validateInput(input, yurtSchemas.update);
+
+      const yurt = await context.prisma.yurt.findUnique({ where: { id } });
+      if (!yurt) throw new Error('Yurt not found');
+
+      // If user is not admin, check ownership
+      if (!userIsAdmin && yurt.ownerId !== userId) {
+        throw new ForbiddenError('Not authorized to update this yurt');
+      }
 
       // Update yurt
       return context.prisma.yurt.update({
@@ -147,8 +161,14 @@ const yurtResolvers = {
     },
 
     // Delete a yurt (admin only)
-    deleteYurt: async (_: any, { id }: { id: string }, context: Context): Promise<boolean> => {
-      if (!isAdmin(context)) {
+  deleteYurt: async (_: any, { id }: { id: string }, context: Context): Promise<boolean> => {
+      const userId = require('../../utils/auth/jwt').getUserId(context);
+      const userIsAdmin = require('../../utils/auth/jwt').isAdmin(context);
+
+      const yurt = await context.prisma.yurt.findUnique({ where: { id } });
+      if (!yurt) throw new Error('Yurt not found');
+
+      if (!userIsAdmin && yurt.ownerId !== userId) {
         throw new ForbiddenError('Not authorized to delete yurts');
       }
 

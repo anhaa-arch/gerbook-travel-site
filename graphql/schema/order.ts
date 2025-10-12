@@ -44,6 +44,10 @@ export default gql`
     order(id: ID!): Order
   }
 
+  extend type Query {
+    herderOrders(first: Int, after: String, last: Int, before: String): OrderConnection!
+  }
+
   type OrderConnection {
     edges: [OrderEdge!]!
     pageInfo: PageInfo!

@@ -1,5 +1,4 @@
 import { ForbiddenError } from 'apollo-server-express';
-import { Order } from '@prisma/client';
 import { getUserId, isAdmin } from '../../utils/auth/jwt';
 import { validateInput, orderSchemas } from '../../utils/validation';
 
@@ -102,12 +101,38 @@ const orderResolvers = {
       }
       
       return order;
-    }
-  },
+      },
+      // Herder-specific: orders containing products owned by the herder
+      herderOrders: async (_: any, args: any, context: Context) => {
+        const userId = getUserId(context);
+        const userIsAdmin = isAdmin(context);
+        const { first = 10, after } = args;
+
+        // If admin, return all orders
+        if (userIsAdmin) {
+          const orders = await context.prisma.order.findMany({ include: { items: { include: { product: true } }, user: true }, take: first, orderBy: { createdAt: 'desc' } });
+          const edges = orders.map(o => ({ node: o, cursor: o.id }));
+          const pageInfo = { hasNextPage: orders.length === first, hasPreviousPage: false, startCursor: edges.length ? edges[0].cursor : null, endCursor: edges.length ? edges[edges.length-1].cursor : null };
+          return { edges, pageInfo, totalCount: orders.length };
+        }
+
+        // For herder: find products owned by this user
+        const products = await context.prisma.product.findMany({ where: { ownerId: userId }, select: { id: true } });
+        const productIds = products.map(p => p.id);
+
+        // Find order items that reference these products
+        const orderItemRecords = await context.prisma.orderItem.findMany({ where: { productId: { in: productIds } }, select: { orderId: true } });
+        const orderIds = Array.from(new Set(orderItemRecords.map(r => r.orderId)));
+
+        const orders = await context.prisma.order.findMany({ where: { id: { in: orderIds } }, include: { items: { include: { product: true } }, user: true }, take: first, orderBy: { createdAt: 'desc' } });
+        const edges = orders.map(o => ({ node: o, cursor: o.id }));
+        const pageInfo = { hasNextPage: orders.length === first, hasPreviousPage: false, startCursor: edges.length ? edges[0].cursor : null, endCursor: edges.length ? edges[edges.length-1].cursor : null };
+        return { edges, pageInfo, totalCount: orders.length };
+      },
 
   Mutation: {
     // Create a new order
-    createOrder: async (_: any, { input }: { input: any }, context: Context): Promise<Order> => {
+  createOrder: async (_: any, { input }: { input: any }, context: Context): Promise<any> => {
       const userId = getUserId(context);
       
       // Validate input
@@ -195,7 +220,7 @@ const orderResolvers = {
     },
 
     // Update an order (user can update their own orders, admin can update any order)
-    updateOrder: async (_: any, { id, input }: { id: string; input: any }, context: Context): Promise<Order> => {
+  updateOrder: async (_: any, { id, input }: { id: string; input: any }, context: Context): Promise<any> => {
       const userId = getUserId(context);
       const isUserAdmin = isAdmin(context);
       
@@ -258,8 +283,8 @@ const orderResolvers = {
       });
     },
 
-    // Cancel an order (user can cancel their own orders, admin can cancel any order)
-    cancelOrder: async (_: any, { id }: { id: string }, context: Context): Promise<Order> => {
+  // Cancel an order (user can cancel their own orders, admin can cancel any order)
+  cancelOrder: async (_: any, { id }: { id: string }, context: Context): Promise<any> => {
       const userId = getUserId(context);
       const isUserAdmin = isAdmin(context);
       

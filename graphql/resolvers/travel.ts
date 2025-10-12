@@ -1,5 +1,4 @@
 import { ForbiddenError } from 'apollo-server-express';
-import { Travel, TravelBooking } from '@prisma/client';
 import { getUserId, isAdmin } from '../../utils/auth/jwt';
 import { validateInput, travelSchemas, travelBookingSchemas } from '../../utils/validation';
 
@@ -161,7 +160,7 @@ const travelResolvers = {
 
   Mutation: {
     // Create a new travel (admin only)
-    createTravel: async (_: any, { input }: { input: any }, context: Context): Promise<Travel> => {
+  createTravel: async (_: any, { input }: { input: any }, context: Context): Promise<any> => {
       if (!isAdmin(context)) {
         throw new ForbiddenError('Not authorized to create travels');
       }
@@ -176,7 +175,7 @@ const travelResolvers = {
     },
 
     // Update a travel (admin only)
-    updateTravel: async (_: any, { id, input }: { id: string; input: any }, context: Context): Promise<Travel> => {
+  updateTravel: async (_: any, { id, input }: { id: string; input: any }, context: Context): Promise<any> => {
       if (!isAdmin(context)) {
         throw new ForbiddenError('Not authorized to update travels');
       }
@@ -192,7 +191,7 @@ const travelResolvers = {
     },
 
     // Delete a travel (admin only)
-    deleteTravel: async (_: any, { id }: { id: string }, context: Context): Promise<boolean> => {
+  deleteTravel: async (_: any, { id }: { id: string }, context: Context): Promise<boolean> => {
       if (!isAdmin(context)) {
         throw new ForbiddenError('Not authorized to delete travels');
       }
@@ -218,7 +217,7 @@ const travelResolvers = {
     },
 
     // Create a new travel booking
-    createTravelBooking: async (_: any, { input }: { input: any }, context: Context): Promise<TravelBooking> => {
+  createTravelBooking: async (_: any, { input }: { input: any }, context: Context): Promise<any> => {
       const userId = getUserId(context);
       
       // Validate input
@@ -253,7 +252,7 @@ const travelResolvers = {
     },
 
     // Update a travel booking
-    updateTravelBooking: async (_: any, { id, input }: { id: string; input: any }, context: Context): Promise<TravelBooking> => {
+  updateTravelBooking: async (_: any, { id, input }: { id: string; input: any }, context: Context): Promise<any> => {
       const userId = getUserId(context);
       const isUserAdmin = isAdmin(context);
       
@@ -296,7 +295,7 @@ const travelResolvers = {
     },
 
     // Cancel a travel booking
-    cancelTravelBooking: async (_: any, { id }: { id: string }, context: Context): Promise<TravelBooking> => {
+  cancelTravelBooking: async (_: any, { id }: { id: string }, context: Context): Promise<any> => {
       const userId = getUserId(context);
       const isUserAdmin = isAdmin(context);
       

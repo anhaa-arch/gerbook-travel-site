@@ -20,7 +20,7 @@ const errorHandler = (err: CustomError, req: Request, res: Response, next: NextF
     error.statusCode = 400;
   }
 
-  res.status(err.statusCode || 500).json({
+  res.status(error.statusCode || 500).json({
     success: false,
     error,
   });

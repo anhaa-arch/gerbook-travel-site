@@ -45,6 +45,8 @@ export default gql`
     location: String!
     pricePerNight: Float!
     capacity: Int!
+    ownerId: ID
+    owner: User
     amenities: String!
     images: String!
   }

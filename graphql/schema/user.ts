@@ -2,6 +2,7 @@ import { gql } from 'apollo-server-express';
 
 export default gql`
   enum Role {
+    USER
     CUSTOMER
     HERDER
     ADMIN
@@ -68,6 +69,8 @@ export default gql`
     login(email: String!, password: String!): AuthPayload!
     forgotPassword(email: String!): ForgotPasswordResponse!
     resetPassword(token: String!, newPassword: String!): AuthPayload!
+    sendOtp(phone: String!): ForgotPasswordResponse!
+    verifyOtp(phone: String!, otp: String!): AuthPayload!
     updateUser(id: ID!, input: UpdateUserInput!): User!
     deleteUser(id: ID!): Boolean!
   }

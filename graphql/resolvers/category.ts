@@ -1,5 +1,4 @@
 import { ForbiddenError } from 'apollo-server-express';
-import { Category } from '@prisma/client';
 import { isAdmin } from '../../utils/auth/jwt';
 import { validateInput, categorySchemas } from '../../utils/validation';
 
@@ -67,7 +66,7 @@ const categoryResolvers = {
 
   Mutation: {
     // Create a new category (admin only)
-    createCategory: async (_: any, { input }: { input: any }, context: Context): Promise<Category> => {
+  createCategory: async (_: any, { input }: { input: any }, context: Context): Promise<any> => {
       if (!isAdmin(context)) {
         throw new ForbiddenError('Not authorized to create categories');
       }
@@ -82,7 +81,7 @@ const categoryResolvers = {
     },
 
     // Update a category (admin only)
-    updateCategory: async (_: any, { id, input }: { id: string; input: any }, context: Context): Promise<Category> => {
+  updateCategory: async (_: any, { id, input }: { id: string; input: any }, context: Context): Promise<any> => {
       if (!isAdmin(context)) {
         throw new ForbiddenError('Not authorized to update categories');
       }
@@ -107,7 +106,7 @@ const categoryResolvers = {
     },
 
     // Delete a category (admin only)
-    deleteCategory: async (_: any, { id }: { id: string }, context: Context): Promise<boolean> => {
+  deleteCategory: async (_: any, { id }: { id: string }, context: Context): Promise<boolean> => {
       if (!isAdmin(context)) {
         throw new ForbiddenError('Not authorized to delete categories');
       }

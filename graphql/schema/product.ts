@@ -10,6 +10,8 @@ export default gql`
     images: String!
     categoryId: ID!
     category: Category!
+    ownerId: ID
+    owner: User
     createdAt: String!
     updatedAt: String!
     orderItems: [OrderItem!]
@@ -26,6 +28,7 @@ export default gql`
       categoryId: ID
     ): ProductConnection!
     product(id: ID!): Product
+    myProducts(first: Int, after: String, last: Int, before: String): ProductConnection!
   }
 
   type ProductConnection {

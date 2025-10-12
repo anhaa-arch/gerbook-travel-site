@@ -8,6 +8,7 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 import logger from "./middleware/logger";
 import errorHandler from "./middleware/error";
 import prisma from "./prisma/client";
+import authRoutes from './routes/auth'
 
 // Define Apollo context type for code generation
 export interface ApolloContext {
@@ -42,6 +43,9 @@ app.use(logger);
 app.use(express.json({ limit: "50mb" }));
 app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 app.use("/uploads", express.static(__dirname + "/public/uploads"));
+
+// Auth routes (Google OAuth callback etc.)
+app.use('/api/auth', authRoutes)
 
 // Set up Apollo Server
 const schema = makeExecutableSchema({ typeDefs, resolvers });

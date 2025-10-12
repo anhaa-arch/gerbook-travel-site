@@ -22,11 +22,13 @@ model User {
   updatedAt     DateTime        @updatedAt
   bookings      Booking[]
   orders        Order[]
+  tokens        Token[]
   TravelBooking TravelBooking[]
   auditLogs     Audit[]         // Relation to audit logs
 }
 
 enum Role {
+  USER
   CUSTOMER
   HERDER
   ADMIN
@@ -45,6 +47,8 @@ model Yurt {
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   bookings      Booking[]
+  ownerId       String?   
+  owner         User?     @relation(fields: [ownerId], references: [id])
 }
 
 // Travel model
@@ -72,6 +76,8 @@ model Product {
   images      String      @db.Text
   category    Category    @relation(fields: [categoryId], references: [id])
   categoryId  String
+  ownerId     String?
+  owner       User?       @relation(fields: [ownerId], references: [id])
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
   orderItems  OrderItem[]
@@ -132,6 +138,7 @@ model Order {
   totalPrice      Decimal     @db.Decimal(10, 2)
   status          OrderStatus @default(PENDING)
   shippingAddress String      @db.Text
+  expectedDelivery DateTime?
   paymentInfo     String?     @db.Text
   createdAt       DateTime    @default(now())
   updatedAt       DateTime    @updatedAt
@@ -154,6 +161,24 @@ enum OrderStatus {
   SHIPPED
   DELIVERED
   CANCELLED
+}
+
+// Tokens for password reset and OTP
+model Token {
+  id         String    @id @default(uuid())
+  user       User?     @relation(fields: [userId], references: [id])
+  userId     String?
+  identifier String?
+  token      String    @unique
+  type       TokenType
+  expiresAt  DateTime
+  used       Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+}
+
+enum TokenType {
+  PASSWORD_RESET
+  OTP
 }
 
 // Audit model for tracking user activities
