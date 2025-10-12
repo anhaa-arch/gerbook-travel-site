@@ -10,16 +10,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
-import { gql, useMutation } from "@apollo/client";
-
-const REGISTER_MUTATION = gql`
-  mutation Register($input: CreateUserInput!) {
-    register(input: $input) {
-      token
-      user { id name email role }
-    }
-  }
-`;
 
 export default function RegisterPage() {
   const [activeTab, setActiveTab] = useState<"customer" | "herder">(
@@ -35,7 +25,7 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const [registerMutation] = useMutation(REGISTER_MUTATION);
+  const { register } = useAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -69,21 +59,10 @@ export default function RegisterPage() {
       // Set role based on selected tab
       const role = activeTab === "herder" ? "HERDER" : "CUSTOMER";
       const name = formData.email.split("@")[0];
-      const { data } = await registerMutation({ 
-        variables: { 
-          input: { 
-            email: formData.email, 
-            password: formData.password, 
-            name, 
-            role,
-            phone: formData.phone
-          } 
-        } 
-      });
-      const payload = data?.register;
-      if (!payload?.token || !payload?.user) throw new Error("Invalid register response");
-      localStorage.setItem("token", payload.token);
-      toast({ title: "Бүртгэл амжилттай", description: payload.user.email });
+      await register({ email: formData.email, password: formData.password, name, role, phone: formData.phone })
+      const storedUser = localStorage.getItem('user')
+      const user = storedUser ? JSON.parse(storedUser) : null
+      toast({ title: "Бүртгэл амжилттай", description: user?.email || formData.email });
 
       // Route based on user role
       const dashboardRoutes: Record<string, string> = {
@@ -91,7 +70,7 @@ export default function RegisterPage() {
         HERDER: "/herder-dashboard", 
         CUSTOMER: "/user-dashboard",
       };
-      router.push(dashboardRoutes[payload.user.role] || "/user-dashboard");
+  router.push(dashboardRoutes[user?.role || 'CUSTOMER'] || "/user-dashboard");
     } catch (err: any) {
       toast({ title: "Бүртгэл амжилтгүй", description: err?.message || "Дахин оролдоно уу", variant: "destructive" as any });
     } finally {

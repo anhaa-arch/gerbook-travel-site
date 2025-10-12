@@ -10,6 +10,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { gql, useMutation } from "@apollo/client";
+import { useAuth } from '@/hooks/use-auth'
 
 const FORGOT_PASSWORD_MUTATION = gql`
   mutation ForgotPassword($email: String!) {
@@ -28,6 +29,7 @@ export default function ForgotPasswordPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [forgotPasswordMutation] = useMutation(FORGOT_PASSWORD_MUTATION);
+  const { forgotPassword, sendOtp } = useAuth()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -78,16 +80,11 @@ export default function ForgotPasswordPage() {
 
     setLoading(true);
     try {
-      // Use the appropriate recovery credential based on the selected method
-      const recoveryCredential = recoveryMethod === "email" ? email : phone;
-      
-      // For now, we'll use the email field for both email and phone
-      // In the future, the backend should be updated to support phone recovery
-      await forgotPasswordMutation({ 
-        variables: { 
-          email: recoveryCredential 
-        } 
-      });
+      if (recoveryMethod === 'email') {
+        await forgotPasswordMutation({ variables: { email } })
+      } else {
+        await sendOtp(phone)
+      }
       
       setEmailSent(true);
       

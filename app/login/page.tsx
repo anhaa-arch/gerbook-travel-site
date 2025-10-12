@@ -8,19 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Globe, ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { gql, useMutation } from "@apollo/client";
 import { useAuth } from "@/hooks/use-auth";
+import OtpModal from "@/components/otp-modal";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
-const LOGIN_MUTATION = gql`
-  mutation Login($email: String!, $password: String!) {
-    login(email: $email, password: $password) {
-      token
-      user { id name email role }
-    }
-  }
-`;
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -31,131 +23,47 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { saveUserData } = useAuth();
+  const { saveUserData, login, sendOtp, verifyOtp } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [loginMutation] = useMutation(LOGIN_MUTATION);
+  const [otpOpen, setOtpOpen] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (loading) return;
-    
-    // Client-side validation
-    if (loginMethod === "email") {
-      if (!email) {
-        toast({ 
-          title: "Алдаа", 
-          description: "И-мэйл хаягаа оруулна уу", 
-          variant: "destructive" as any 
-        });
-        return;
-      }
-      
-      // Basic email format validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        toast({ 
-          title: "Алдаа", 
-          description: "И-мэйл хаягийн формат буруу байна", 
-          variant: "destructive" as any 
-        });
-        return;
-      }
-    } else {
-      // Phone validation
-      if (!phone) {
-        toast({ 
-          title: "Алдаа", 
-          description: "Утасны дугаараа оруулна уу", 
-          variant: "destructive" as any 
-        });
-        return;
-      }
-      
-      // Basic phone format validation (8 digits)
-      if (!/^\d{8,}$/.test(phone.replace(/\D/g, ''))) {
-        toast({ 
-          title: "Алдаа", 
-          description: "Утасны дугаар буруу байна", 
-          variant: "destructive" as any 
-        });
-        return;
-      }
-    }
-    
-    if (!password) {
-      toast({ 
-        title: "Алдаа", 
-        description: "Нууц үгээ оруулна уу", 
-        variant: "destructive" as any 
-      });
-      return;
-    }
-    
-    if (password.length < 6) {
-      toast({ 
-        title: "Алдаа", 
-        description: "Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой", 
-        variant: "destructive" as any 
-      });
-      return;
-    }
-    
-    setLoading(true);
+    e.preventDefault()
+    if (loading) return
+    setLoading(true)
     try {
-      // Use the appropriate login credential based on the selected method
-      const loginCredential = loginMethod === "email" ? email : phone;
-      
-      // For now, we'll use the email field for both email and phone
-      // In the future, the backend should be updated to support phone login
-      const { data } = await loginMutation({ 
-        variables: { 
-          email: loginCredential, 
-          password 
-        } 
-      });
-      
-      const payload = data?.login;
-      if (!payload?.token || !payload?.user) throw new Error("Invalid login response");
-      localStorage.setItem("token", payload.token);
-      const user = payload.user;
-      
-      // Set isHerder flag in localStorage if user is a herder
-      const isHerder = user.role === "HERDER" || user.role.toLowerCase() === "herder";
-      if (isHerder) {
-        localStorage.setItem('isHerder', 'true');
+      if (loginMethod === "email") {
+        if (!email || !password) {
+          toast({ title: "Алдаа", description: "И-мэйл болон нууц үг шаардлагатай", variant: "destructive" as any })
+          return
+        }
+        await login({ email, password })
+        const storedUser = localStorage.getItem('user')
+        const user = storedUser ? JSON.parse(storedUser) : null
+        if (user) {
+          const isHerder = user.role === 'HERDER' || user.role.toLowerCase() === 'herder'
+          if (isHerder) localStorage.setItem('isHerder', 'true')
+          else localStorage.removeItem('isHerder')
+          await saveUserData(user)
+          toast({ title: 'Амжилттай нэвтэрлээ', description: `${user.name || user.email}` })
+          if (isHerder) router.push('/herder-dashboard')
+          else router.push('/user-dashboard')
+        }
       } else {
-        localStorage.removeItem('isHerder');
-      }
-      
-      await saveUserData(user);
-
-      toast({ title: "Амжилттай нэвтэрлээ", description: `${user.name || user.email}` });
-
-      // Route based on normalized role
-      const userRole = user.role.toString().toUpperCase();
-      const dashboardRoutes: Record<string, string> = {
-        "ADMIN": "/admin-dashboard",
-        "HERDER": "/herder-dashboard",
-        "CUSTOMER": "/user-dashboard",
-      };
-      
-      // Ensure herder users are redirected to herder dashboard
-      if (isHerder) {
-        router.push("/herder-dashboard");
-      } else {
-        router.push(dashboardRoutes[userRole] || "/user-dashboard");
+        if (!phone) {
+          toast({ title: 'Алдаа', description: 'Утасны дугаар шаардлагатай', variant: 'destructive' as any })
+          return
+        }
+        await sendOtp(phone)
+        setOtpOpen(true)
       }
     } catch (err: any) {
-      toast({ 
-        title: "Нэвтрэх амжилтгүй", 
-        description: err?.message || (loginMethod === "email" ? "И-мэйл эсвэл нууц үгээ шалгана уу" : "Утасны дугаар эсвэл нууц үгээ шалгана уу"), 
-        variant: "destructive" as any 
-      });
+      toast({ title: 'Нэвтрэх амжилтгүй', description: err?.message || 'Нэвтрэх амжилтгүй', variant: 'destructive' as any })
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -375,6 +283,27 @@ export default function LoginPage() {
               {loading ? "Түр хүлээнэ үү..." : "Нэвтрэх"}
             </Button>
           </form>
+
+          <OtpModal
+            open={otpOpen}
+            onOpenChange={(open) => setOtpOpen(open)}
+            phone={phone}
+            onResend={async () => await sendOtp(phone)}
+            onVerify={async (otp) => {
+              await verifyOtp(phone, otp)
+              const storedUser = localStorage.getItem('user')
+              const user = storedUser ? JSON.parse(storedUser) : null
+              if (user) {
+                const isHerder = user.role === 'HERDER' || user.role.toLowerCase() === 'herder'
+                if (isHerder) localStorage.setItem('isHerder', 'true')
+                else localStorage.removeItem('isHerder')
+                await saveUserData(user)
+                toast({ title: 'Амжилттай нэвтэрлээ', description: `${user.name || user.email}` })
+                if (isHerder) router.push('/herder-dashboard')
+                else router.push('/user-dashboard')
+              }
+            }}
+          />
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
