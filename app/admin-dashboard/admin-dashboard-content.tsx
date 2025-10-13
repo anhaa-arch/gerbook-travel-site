@@ -31,41 +31,13 @@ import '../../lib/i18n'
 import { useAuth } from "@/hooks/use-auth"
 import { GET_ADMIN_STATS, GET_ALL_USERS, GET_ALL_YURTS, GET_ALL_PRODUCTS, GET_ALL_ORDERS, GET_ALL_BOOKINGS } from "./queries"
 
-type UserRow = {
-  id: string;
-  name: string;
-  email: string;
-  role: string;
-  status: string;
-  joinDate: string;
-};
-
-type ProductRow = {
-  id: string;
-  name: string;
-  seller: string;
-  category: string;
-  price: number;
-  stock: number;
-  status: string;
-};
-
-type CampRow = {
-  id: string;
-  name: string;
-  owner: string;
-  location: string;
-  price: number;
-  status: string;
-};
-
 export default function AdminDashboardContent() {
   const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState("overview")
   const [showAddProduct, setShowAddProduct] = useState(false)
   const [showAddCamp, setShowAddCamp] = useState(false)
   const [showAddContent, setShowAddContent] = useState(false)
-  const [selectedItem, setSelectedItem] = useState<UserRow | ProductRow | CampRow | null>(null)
+  const [selectedItem, setSelectedItem] = useState<any>(null)
   const [showDeleteDialog, setShowDeleteDialog] = useState(false)
   const { logout } = useAuth()
 
@@ -86,7 +58,7 @@ export default function AdminDashboardContent() {
   }
 
   // Transform data for display
-  const users: UserRow[] = usersData?.users?.edges?.map((edge: any) => ({
+  const users = usersData?.users?.edges?.map((edge: any) => ({
     id: edge.node.id,
     name: edge.node.name,
     email: edge.node.email,
@@ -95,7 +67,7 @@ export default function AdminDashboardContent() {
     joinDate: edge.node.createdAt.split('T')[0],
   })) || []
 
-  const camps: CampRow[] = yurtsData?.yurts?.edges?.map((edge: any) => ({
+  const camps = yurtsData?.yurts?.edges?.map((edge: any) => ({
     id: edge.node.id,
     name: edge.node.name,
     owner: "Owner", // Default owner
@@ -104,7 +76,7 @@ export default function AdminDashboardContent() {
     status: "active", // Default status
   })) || []
 
-  const products: ProductRow[] = productsData?.products?.edges?.map((edge: any) => ({
+  const products = productsData?.products?.edges?.map((edge: any) => ({
     id: edge.node.id,
     name: edge.node.name,
     seller: "Seller", // Default seller
@@ -137,7 +109,7 @@ export default function AdminDashboardContent() {
   // Combine orders and bookings for display
   const allOrders = [...orders, ...bookings]
 
-  const handleDelete = (item: UserRow | ProductRow | CampRow) => {
+  const handleDelete = (item: any) => {
     setSelectedItem(item)
     setShowDeleteDialog(true)
   }
@@ -335,7 +307,7 @@ export default function AdminDashboardContent() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {users.map((user: UserRow) => (
+                      {users.map((user: any) => (
                         <TableRow key={user.id}>
                           <TableCell className="font-semibold">{user.name}</TableCell>
                           <TableCell className="truncate max-w-[200px] font-medium">{user.email}</TableCell>
@@ -486,7 +458,7 @@ export default function AdminDashboardContent() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {products.map((product: ProductRow) => (
+                      {products.map((product: any) => (
                         <TableRow key={product.id}>
                           <TableCell className="font-semibold">{product.name}</TableCell>
                           <TableCell className="truncate max-w-[120px] font-medium">{product.seller}</TableCell>
@@ -628,7 +600,7 @@ export default function AdminDashboardContent() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {camps.map((camp: CampRow) => (
+                      {camps.map((camp: any) => (
                         <TableRow key={camp.id}>
                           <TableCell className="font-semibold">{camp.name}</TableCell>
                           <TableCell className="font-medium">{camp.owner}</TableCell>

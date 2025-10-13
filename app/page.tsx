@@ -159,7 +159,7 @@ export default function HomePage() {
                         хоног
                       </span>
                     </div>
-                    <Link href={`/camps/${camp.id}`}>
+                    <Link href={`/camp/${camp.id}`}>
                       <Button
                         size="sm"
                         className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
@@ -216,7 +216,7 @@ export default function HomePage() {
                         хоног
                       </span>
                     </div>
-                    <Link href={`/camps/${camp.id}`}>
+                    <Link href={`/camp/${camp.id}`}>
                       <Button
                         size="sm"
                         className="bg-emerald-600 hover:bg-emerald-700 font-semibold"

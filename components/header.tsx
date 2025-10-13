@@ -37,12 +37,12 @@ export function Header() {
               >
                 Гэр
               </Link>
-              <Link
+              {/* <Link
                 href="/destinations"
                 className="text-gray-500 hover:text-gray-900 font-bold"
               >
                 Аялах газар
-              </Link>
+              </Link> */}
             </nav>
           </div>
 
@@ -94,7 +94,7 @@ export function Header() {
                 </div>
               )}
             </div>
-            
+
             {isAuthenticated ? (
               <div className="relative">
                 <button
@@ -109,17 +109,19 @@ export function Header() {
                 {isUserMenuOpen && (
                   <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                     <div className="p-3 border-b border-gray-100">
-                      <div className="text-sm font-medium">{user?.name || user?.email}</div>
+                      <div className="text-sm font-medium">
+                        {user?.name || user?.email}
+                      </div>
                       <div className="text-xs text-gray-500">{user?.email}</div>
                     </div>
                     <div className="p-2">
-                      <Link 
+                      <Link
                         href={
-                          user?.role === "admin" 
-                            ? "/admin-dashboard" 
-                            : user?.role === "herder" 
-                              ? "/herder-dashboard" 
-                              : "/user-dashboard"
+                          user?.role === "admin"
+                            ? "/admin-dashboard"
+                            : user?.role === "herder"
+                            ? "/herder-dashboard"
+                            : "/user-dashboard"
                         }
                         className="w-full flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-md text-left"
                         onClick={() => setIsUserMenuOpen(false)}
@@ -141,7 +143,10 @@ export function Header() {
               </div>
             ) : (
               <>
-                <Link href="/login" className="text-gray-700 hover:text-gray-900">
+                <Link
+                  href="/login"
+                  className="text-gray-700 hover:text-gray-900"
+                >
                   Нэвтрэх
                 </Link>
                 <Link href="/register">

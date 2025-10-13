@@ -16,7 +16,12 @@ const REGISTER_MUTATION = gql`
   mutation Register($input: CreateUserInput!) {
     register(input: $input) {
       token
-      user { id name email role }
+      user {
+        id
+        name
+        email
+        role
+      }
     }
   }
 `;
@@ -31,7 +36,9 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
   });
-  const [selectedRole, setSelectedRole] = useState<'CUSTOMER' | 'ADMIN'>('CUSTOMER');
+  const [selectedRole, setSelectedRole] = useState<
+    "CUSTOMER" | "HERDER" | "ADMIN"
+  >("CUSTOMER");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -49,36 +56,45 @@ export default function RegisterPage() {
     e.preventDefault();
     if (loading) return;
 
-
-
     // Validation
     if (formData.password !== formData.confirmPassword) {
-      toast({ title: "Алдаа", description: "Нууц үг таарахгүй байна", variant: "destructive" as any });
+      toast({
+        title: "Алдаа",
+        description: "Нууц үг таарахгүй байна",
+        variant: "destructive" as any,
+      });
       return;
     }
 
-      console.log('Register response:');
-
-
     if (formData.password.length < 6) {
-      toast({ title: "Алдаа", description: "Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой", variant: "destructive" as any });
+      toast({
+        title: "Алдаа",
+        description: "Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой",
+        variant: "destructive" as any,
+      });
       return;
     }
 
     if (!formData.identifier) {
-      toast({ title: "Алдаа", description: "Утас эсвэл и-мэйл хаягаа оруулна уу", variant: "destructive" as any });
+      toast({
+        title: "Алдаа",
+        description: "Утас эсвэл и-мэйл хаягаа оруулна уу",
+        variant: "destructive" as any,
+      });
       return;
     }
 
-
-
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const digits = formData.identifier.replace(/\D/g, '');
+    const digits = formData.identifier.replace(/\D/g, "");
     const isEmailInput = emailRegex.test(formData.identifier);
     const isPhoneInput = /^\d{8,}$/.test(digits);
 
     if (!isEmailInput && !isPhoneInput) {
-      toast({ title: "Алдаа", description: "И-мэйл эсвэл утасны дугаарын формат буруу байна", variant: "destructive" as any });
+      toast({
+        title: "Алдаа",
+        description: "И-мэйл эсвэл утасны дугаарын формат буруу байна",
+        variant: "destructive" as any,
+      });
       return;
     }
 
@@ -86,55 +102,82 @@ export default function RegisterPage() {
     try {
       // Build CreateUserInput as required by backend schema
       const generatedName = isEmailInput
-        ? String(formData.identifier).split('@')[0]
+        ? String(formData.identifier).split("@")[0]
         : `User_${digits}`;
-      // Determine role: if current user is admin, allow selecting ADMIN or CUSTOMER; otherwise use tab mapping (HERDER/CUSTOMER)
-      // Determine role based on selected tab and current user's permissions
-      // if (activeTab === 'admin' && !(user && (user as any).role === 'admin')) {
-      //     console.log('User is not an admin:', user);
-      //   toast({ title: "Зөвшөөрөлгүй үйлдэл", description: "Зөвхөн админ хэрэглэгчид шинэ админ бүртгэж болно", variant: "destructive" as any });
-      //   setLoading(false);
-      //   return;
-      // }
-      const role = (activeTab === 'admin')
-        ? 'ADMIN'
-        : ((user && (user as any).role === 'admin')
-            ? selectedRole
-            : (activeTab === 'herder' ? 'HERDER' : 'CUSTOMER'));
+
+      // Determine if current user is admin
+      const isCurrentUserAdmin =
+        user && (user as any).role?.toUpperCase() === "ADMIN";
+
+      // If admin tab is selected, check if user is admin
+      if (activeTab === "admin" && !isCurrentUserAdmin) {
+        toast({
+          title: "Зөвшөөрөлгүй үйлдэл",
+          description: "Зөвхөн админ хэрэглэгчид шинэ админ бүртгэж болно",
+          variant: "destructive" as any,
+        });
+        setLoading(false);
+        return;
+      }
+
+      // Determine role based on activeTab or selectedRole (if admin)
+      let role: string;
+
+      if (isCurrentUserAdmin) {
+        // Admin can choose any role via dropdown
+        role = selectedRole;
+      } else {
+        // Non-admin users: map activeTab directly to role
+        if (activeTab === "herder") {
+          role = "HERDER";
+        } else if (activeTab === "admin") {
+          role = "ADMIN";
+        } else {
+          role = "CUSTOMER";
+        }
+      }
 
       const input: any = {
         email: isEmailInput ? formData.identifier : `${digits}@phone.local`,
         password: formData.password,
-        name: generatedName || 'User',
+        name: generatedName || "User",
         ...(isPhoneInput ? { phone: digits } : {}),
         role,
       };
 
-      const { data } = await registerMutation({ 
-        variables: { 
-          input
-        } 
+      const { data } = await registerMutation({
+        variables: {
+          input,
+        },
       });
 
-      console.log('Register response:', data);
-
       const payload = data?.register;
-      if (!payload?.token || !payload?.user) throw new Error("Invalid register response");
+      if (!payload?.token || !payload?.user)
+        throw new Error("Invalid register response");
       localStorage.setItem("token", payload.token);
-      toast({ title: "Бүртгэл амжилттай", description: payload.user.email || "Бүртгэл амжилттай" });
+      toast({
+        title: "Бүртгэл амжилттай",
+        description: payload.user.email || "Бүртгэл амжилттай",
+      });
 
       // Route based on user role if provided, otherwise default to user dashboard
       const dashboardRoutes: Record<string, string> = {
         ADMIN: "/admin-dashboard",
-        HERDER: "/herder-dashboard", 
+        HERDER: "/herder-dashboard",
         CUSTOMER: "/user-dashboard",
       };
-      const normalizedRole = (payload.user.role || "CUSTOMER").toString().toUpperCase();
+      const normalizedRole = (payload.user.role || "CUSTOMER")
+        .toString()
+        .toUpperCase();
       router.push(dashboardRoutes[normalizedRole] || "/user-dashboard");
     } catch (err: any) {
       const gmsg = err?.graphQLErrors?.[0]?.message;
       const nmsg = err?.networkError?.message;
-      toast({ title: "Бүртгэл амжилтгүй", description: gmsg || nmsg || err?.message || "Дахин оролдоно уу", variant: "destructive" as any });
+      toast({
+        title: "Бүртгэл амжилтгүй",
+        description: gmsg || nmsg || err?.message || "Дахин оролдоно уу",
+        variant: "destructive" as any,
+      });
     } finally {
       setLoading(false);
     }
@@ -217,7 +260,13 @@ export default function RegisterPage() {
           {/* Tabs */}
           <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
             <button
-              onClick={() => setActiveTab("customer")}
+              onClick={() => {
+                setActiveTab("customer");
+                // If not admin, sync selectedRole with tab
+                if (!(user && (user as any).role === "admin")) {
+                  setSelectedRole("CUSTOMER");
+                }
+              }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 activeTab === "customer"
                   ? "bg-white text-gray-900 shadow-sm"
@@ -227,7 +276,13 @@ export default function RegisterPage() {
               Аялагч
             </button>
             <button
-              onClick={() => setActiveTab("herder")}
+              onClick={() => {
+                setActiveTab("herder");
+                // If not admin, sync selectedRole with tab
+                if (!(user && (user as any).role === "admin")) {
+                  setSelectedRole("HERDER");
+                }
+              }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 activeTab === "herder"
                   ? "bg-white text-gray-900 shadow-sm"
@@ -237,13 +292,23 @@ export default function RegisterPage() {
               Малчин
             </button>
             <button
-              onClick={() => setActiveTab("admin")}
+              onClick={() => {
+                setActiveTab("admin");
+                // If not admin, sync selectedRole with tab
+                if (!(user && (user as any).role === "admin")) {
+                  setSelectedRole("ADMIN");
+                }
+              }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 activeTab === "admin"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
               }`}
-              title={!(user && (user as any).role === 'admin') ? 'Зөвхөн админ бүртгэж чадна' : undefined}
+              title={
+                !(user && (user as any).role === "admin")
+                  ? "Зөвхөн админ бүртгэж чадна"
+                  : undefined
+              }
             >
               Админ
             </button>
@@ -256,7 +321,7 @@ export default function RegisterPage() {
                 htmlFor="identifier"
                 className="text-sm font-medium text-gray-700"
               >
-                Please enter your phone number or email
+                Нэвтрэх нэр
               </Label>
               <Input
                 id="identifier"
@@ -264,7 +329,7 @@ export default function RegisterPage() {
                 type="text"
                 value={formData.identifier}
                 onChange={handleChange}
-                placeholder="Please enter your phone number or email"
+                placeholder="Утасны дугаар эсвэл Имэйлээ оруулна уу"
                 required
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
               />
@@ -309,22 +374,32 @@ export default function RegisterPage() {
             </div>
 
             {/* Role selection for admins */}
-            {user && (user as any).role === 'admin' && (
+            {user && (user as any).role === "admin" && (
               <div>
-                <Label htmlFor="role" className="text-sm font-medium text-gray-700">
-                  Assign Role
+                <Label
+                  htmlFor="role"
+                  className="text-sm font-medium text-gray-700"
+                >
+                  Эрхийн түвшин сонгох
                 </Label>
                 <select
                   id="role"
                   name="role"
                   value={selectedRole}
-                  onChange={(e) => setSelectedRole(e.target.value as 'CUSTOMER' | 'ADMIN')}
+                  onChange={(e) =>
+                    setSelectedRole(
+                      e.target.value as "CUSTOMER" | "HERDER" | "ADMIN"
+                    )
+                  }
                   className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 bg-white"
                 >
-                  <option value="CUSTOMER">Customer</option>
-                  <option value="ADMIN">Admin</option>
+                  <option value="CUSTOMER">Аялагч (Customer)</option>
+                  <option value="HERDER">Малчин (Herder)</option>
+                  <option value="ADMIN">Админ (Admin)</option>
                 </select>
-                <p className="text-xs text-gray-500 mt-1">Only admins can create new admin accounts.</p>
+                <p className="text-xs text-gray-500 mt-1">
+                  Админ хэрэглэгч бүх төрлийн хэрэглэгч үүсгэж чадна.
+                </p>
               </div>
             )}
 
@@ -336,7 +411,6 @@ export default function RegisterPage() {
               {loading ? "Түр хүлээнэ үү..." : "Үргэлжлүүлэх"}
             </Button>
           </form>
-
           {/* Login link */}
           <div className="text-center">
             <span className="text-sm text-gray-600">
@@ -367,11 +441,18 @@ export default function RegisterPage() {
               className="w-full flex items-center justify-center space-x-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
               onClick={() => {
                 // Google OAuth 2.0 (registration)
-                const googleAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth";
-                const redirectUri = window.location.origin + "/auth/google/callback"; // client route
+                const googleAuthUrl =
+                  "https://accounts.google.com/o/oauth2/v2/auth";
+                const redirectUri =
+                  window.location.origin + "/auth/google/callback"; // client route
                 const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
                 if (!clientId) {
-                  toast({ title: "Тохиргоо дутуу", description: "Google Client ID тохируулаагүй байна (NEXT_PUBLIC_GOOGLE_CLIENT_ID)", variant: "destructive" as any });
+                  toast({
+                    title: "Тохиргоо дутуу",
+                    description:
+                      "Google Client ID тохируулаагүй байна (NEXT_PUBLIC_GOOGLE_CLIENT_ID)",
+                    variant: "destructive" as any,
+                  });
                   return;
                 }
                 const params = new URLSearchParams({
@@ -381,7 +462,7 @@ export default function RegisterPage() {
                   scope: "email profile",
                   prompt: "select_account",
                   access_type: "offline",
-                  state: "register"
+                  state: "register",
                 });
                 // Redirect to Google
                 window.location.href = `${googleAuthUrl}?${params.toString()}`;

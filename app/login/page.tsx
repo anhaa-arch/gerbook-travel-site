@@ -226,14 +226,14 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="identifier" className="text-gray-700">
-                Please enter your phone number or email
+                Нэвтрэх нэр
               </Label>
               <Input
                 id="identifier"
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="Please enter your phone number or email"
+                placeholder="Утасны дугаар эсвэл Имэйлээ оруулна уу"
                 required
                 className="mt-1 bg-gray-50 border-gray-200"
               />
