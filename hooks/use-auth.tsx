@@ -3,6 +3,8 @@
 import type React from "react"
 
 import { useState, useEffect, createContext, useContext } from "react"
+import client from '@/lib/apolloClient'
+import { gql } from '@apollo/client'
 
 interface User {
   id: string
@@ -20,6 +22,11 @@ interface AuthContextType {
   saveUserData: (user:User) => void
   logout: () => Promise<void>
   register: (userData: any) => Promise<void>
+  login: (credentials: { email?: string; password?: string; phone?: string }) => Promise<void>
+  sendOtp: (phone: string) => Promise<void>
+  verifyOtp: (phone: string, otp: string) => Promise<void>
+  resetPassword: (token: string, newPassword: string) => Promise<void>
+  forgotPassword?: (email: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -102,20 +109,90 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setIsAuthenticated(false)
     localStorage.removeItem("user")
     localStorage.removeItem("isHerder")
+    localStorage.removeItem('token')
   }
+  // GraphQL operations
+  const REGISTER_MUTATION = gql`
+    mutation Register($input: CreateUserInput!) {
+      register(input: $input) { token user { id name email role } }
+    }
+  `
+
+  const LOGIN_MUTATION = gql`
+    mutation Login($email: String!, $password: String!) {
+      login(email: $email, password: $password) { token user { id name email role } }
+    }
+  `
+
+  const SEND_OTP_MUTATION = gql`
+    mutation SendOtp($phone: String!) { sendOtp(phone: $phone) { message } }
+  `
+
+  const VERIFY_OTP_MUTATION = gql`
+    mutation VerifyOtp($phone: String!, $otp: String!) { verifyOtp(phone: $phone, otp: $otp) { token user { id name email role } } }
+  `
+
+  const RESET_PASSWORD_MUTATION = gql`
+    mutation ResetPassword($token: String!, $newPassword: String!) { resetPassword(token: $token, newPassword: $newPassword) { token user { id name email role } } }
+  `
+
+  const FORGOT_PASSWORD_MUTATION = gql`
+    mutation ForgotPassword($email: String!) { forgotPassword(email: $email) { message } }
+  `
 
   const register = async (userData: any) => {
-    // Mock registration logic
-    const newUser = {
-      id: Date.now().toString(),
-      name: `${userData.firstName} ${userData.lastName}`,
-      email: userData.email,
-      role: userData.role || ("user" as const),
+    const { data } = await client.mutate({ mutation: REGISTER_MUTATION, variables: { input: userData } })
+    if (data?.register) {
+      const { token, user } = data.register
+      localStorage.setItem('token', token)
+      saveUserData(user)
+    } else {
+      throw new Error('Registration failed')
     }
+  }
 
-    setUser(newUser)
-    setIsAuthenticated(true)
-    localStorage.setItem("user", JSON.stringify(newUser))
+  const login = async (credentials: { email?: string; password?: string; phone?: string }) => {
+    if (!credentials.email || !credentials.password) {
+      throw new Error('Email and password required')
+    }
+    const { data } = await client.mutate({ mutation: LOGIN_MUTATION, variables: { email: credentials.email, password: credentials.password } })
+    if (data?.login) {
+      const { token, user } = data.login
+      localStorage.setItem('token', token)
+      saveUserData(user)
+    } else {
+      throw new Error('Login failed')
+    }
+  }
+
+  const sendOtp = async (phone: string) => {
+    await client.mutate({ mutation: SEND_OTP_MUTATION, variables: { phone } })
+  }
+
+  const verifyOtp = async (phone: string, otp: string) => {
+    const { data } = await client.mutate({ mutation: VERIFY_OTP_MUTATION, variables: { phone, otp } })
+    if (data?.verifyOtp) {
+      const { token, user } = data.verifyOtp
+      localStorage.setItem('token', token)
+      saveUserData(user)
+    } else {
+      throw new Error('OTP verification failed')
+    }
+  }
+
+  const resetPassword = async (token: string, newPassword: string) => {
+    const { data } = await client.mutate({ mutation: RESET_PASSWORD_MUTATION, variables: { token, newPassword } })
+    if (data?.resetPassword) {
+      const { token: newToken, user } = data.resetPassword
+      localStorage.setItem('token', newToken)
+      saveUserData(user)
+    } else {
+      throw new Error('Reset password failed')
+    }
+  }
+
+  const forgotPassword = async (email: string) => {
+    await client.mutate({ mutation: FORGOT_PASSWORD_MUTATION, variables: { email } })
   }
 
   const value: AuthContextType = {
@@ -124,6 +201,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     saveUserData,
     logout,
     register,
+    login,
+    sendOtp,
+    verifyOtp,
+    resetPassword,
+    // expose forgotPassword for UI
+    // @ts-ignore
+    forgotPassword,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

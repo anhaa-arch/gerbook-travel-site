@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Globe, ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { gql, useMutation } from "@apollo/client";
 import { useAuth } from "@/hooks/use-auth";
+import OtpModal from "@/components/otp-modal";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -29,10 +29,10 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { saveUserData } = useAuth();
+  const { saveUserData, login, sendOtp, verifyOtp } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const [loginMutation] = useMutation(LOGIN_MUTATION);
+  const [otpOpen, setOtpOpen] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -129,9 +129,9 @@ export default function LoginPage() {
         variant: "destructive" as any 
       });
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <div className="min-h-screen flex">
@@ -310,6 +310,27 @@ export default function LoginPage() {
               {loading ? "Түр хүлээнэ үү..." : "Нэвтрэх"}
             </Button>
           </form>
+
+          <OtpModal
+            open={otpOpen}
+            onOpenChange={(open) => setOtpOpen(open)}
+            phone={phone}
+            onResend={async () => await sendOtp(phone)}
+            onVerify={async (otp) => {
+              await verifyOtp(phone, otp)
+              const storedUser = localStorage.getItem('user')
+              const user = storedUser ? JSON.parse(storedUser) : null
+              if (user) {
+                const isHerder = user.role === 'HERDER' || user.role.toLowerCase() === 'herder'
+                if (isHerder) localStorage.setItem('isHerder', 'true')
+                else localStorage.removeItem('isHerder')
+                await saveUserData(user)
+                toast({ title: 'Амжилттай нэвтэрлээ', description: `${user.name || user.email}` })
+                if (isHerder) router.push('/herder-dashboard')
+                else router.push('/user-dashboard')
+              }
+            }}
+          />
 
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
