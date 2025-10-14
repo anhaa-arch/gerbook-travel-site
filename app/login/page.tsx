@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/use-auth";
 import OtpModal from "@/components/otp-modal";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
+import { gql, useMutation } from "@apollo/client";
 
 const LOGIN_MUTATION = gql`
   mutation Login($email: String, $phone: String, $password: String!) {
