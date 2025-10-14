@@ -19,12 +19,20 @@ export default function ForgotPasswordPage() {
     if (loading) return;
 
     if (!email) {
-      toast({ title: "Алдаа", description: "И-мэйл хаягаа оруулна уу", variant: "destructive" as any });
+      toast({
+        title: "Алдаа",
+        description: "И-мэйл хаягаа оруулна уу",
+        variant: "destructive" as any,
+      });
       return;
     }
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(email)) {
-      toast({ title: "Алдаа", description: "И-мэйл хаягийн формат буруу байна", variant: "destructive" as any });
+      toast({
+        title: "Алдаа",
+        description: "И-мэйл хаягийн формат буруу байна",
+        variant: "destructive" as any,
+      });
       return;
     }
 
@@ -32,10 +40,17 @@ export default function ForgotPasswordPage() {
     try {
       // TODO: Call backend mutation to send reset email
       await new Promise((r) => setTimeout(r, 800));
-      toast({ title: "Амжилттай", description: "Сэргээх холбоосыг и-мэйлээр илгээлээ" });
+      toast({
+        title: "Амжилттай",
+        description: "Сэргээх холбоосыг и-мэйлээр илгээлээ",
+      });
       router.push("/login");
     } catch (e: any) {
-      toast({ title: "Амжилтгүй", description: e?.message || "Сэргээх хүсэлт амжилтгүй боллоо", variant: "destructive" as any });
+      toast({
+        title: "Амжилтгүй",
+        description: e?.message || "Сэргээх хүсэлт амжилтгүй боллоо",
+        variant: "destructive" as any,
+      });
     } finally {
       setLoading(false);
     }
@@ -44,9 +59,18 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white px-4">
       <div className="w-full max-w-md space-y-6">
-        <Link href="/" className="block text-center text-xl font-semibold text-gray-900">Malchin Camp</Link>
-        <h1 className="text-2xl font-bold text-gray-900 text-center">Нууц үг сэргээх</h1>
-        <p className="text-center text-gray-600 text-sm">И-мэйл хаягаа оруулж сэргээх холбоос аваарай</p>
+        <Link
+          href="/"
+          className="block text-center text-xl font-semibold text-gray-900"
+        >
+          Malchin Camp
+        </Link>
+        <h1 className="text-2xl font-bold text-gray-900 text-center">
+          Нууц үг сэргээх
+        </h1>
+        <p className="text-center text-gray-600 text-sm">
+          И-мэйл хаягаа оруулж сэргээх холбоос аваарай
+        </p>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="email">И-мэйл</Label>
@@ -59,11 +83,20 @@ export default function ForgotPasswordPage() {
               required
             />
           </div>
-          <Button type="submit" className="w-full bg-green-700 hover:bg-green-800" disabled={loading}>
+          <Button
+            type="submit"
+            className="w-full bg-green-700 hover:bg-green-800"
+            disabled={loading}
+          >
             {loading ? "Илгээж байна..." : "Холбоос илгээх"}
           </Button>
           <div className="text-center">
-            <Link href="/login" className="text-green-600 hover:text-green-500 text-sm">Буцах</Link>
+            <Link
+              href="/login"
+              className="text-green-600 hover:text-green-500 text-sm"
+            >
+              Буцах
+            </Link>
           </div>
         </form>
       </div>

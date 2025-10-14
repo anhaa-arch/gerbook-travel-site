@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Globe, ChevronDown } from "lucide-react";
 import Link from "next/link";
-import { gql, useMutation } from "@apollo/client";
 import { useAuth } from "@/hooks/use-auth";
+import OtpModal from "@/components/otp-modal";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 
@@ -17,7 +17,12 @@ const LOGIN_MUTATION = gql`
   mutation Login($email: String, $phone: String, $password: String!) {
     login(email: $email, phone: $phone, password: $password) {
       token
-      user { id name email role }
+      user {
+        id
+        name
+        email
+        role
+      }
     }
   }
 `;
@@ -29,7 +34,7 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { saveUserData } = useAuth();
+  const { saveUserData, login, sendOtp, verifyOtp } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [loginMutation] = useMutation(LOGIN_MUTATION);
@@ -37,79 +42,86 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (loading) return;
-  
+
     // Client-side validation for a single identifier (email or phone)
     if (!identifier) {
-      toast({ 
-        title: "Алдаа", 
-        description: "Утас эсвэл и-мэйл хаягаа оруулна уу", 
-        variant: "destructive" as any 
+      toast({
+        title: "Алдаа",
+        description: "Утас эсвэл и-мэйл хаягаа оруулна уу",
+        variant: "destructive" as any,
       });
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const digits = identifier.replace(/\D/g, '');
+    const digits = identifier.replace(/\D/g, "");
     const isEmailInput = emailRegex.test(identifier);
     const isPhoneInput = /^\d{8,}$/.test(digits);
 
     if (!isEmailInput && !isPhoneInput) {
-      toast({ 
-        title: "Алдаа", 
-        description: "И-мэйл эсвэл утасны дугаарын формат буруу байна", 
-        variant: "destructive" as any 
+      toast({
+        title: "Алдаа",
+        description: "И-мэйл эсвэл утасны дугаарын формат буруу байна",
+        variant: "destructive" as any,
       });
       return;
     }
-    
+
     if (!password) {
-      toast({ 
-        title: "Алдаа", 
-        description: "Нууц үгээ оруулна уу", 
-        variant: "destructive" as any 
+      toast({
+        title: "Алдаа",
+        description: "Нууц үгээ оруулна уу",
+        variant: "destructive" as any,
       });
       return;
     }
-    
+
     if (password.length < 6) {
-      toast({ 
-        title: "Алдаа", 
-        description: "Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой", 
-        variant: "destructive" as any 
+      toast({
+        title: "Алдаа",
+        description: "Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой",
+        variant: "destructive" as any,
       });
       return;
     }
-    
+
     setLoading(true);
     try {
       // Build variables for email or phone based login
-      const variables: { email?: string; phone?: string; password: string } = { password } as any;
+      const variables: { email?: string; phone?: string; password: string } = {
+        password,
+      } as any;
       if (isEmailInput) {
         variables.email = identifier;
       } else {
         variables.phone = digits; // send digits-only phone
       }
 
-      const { data } = await loginMutation({ 
-        variables 
+      const { data } = await loginMutation({
+        variables,
       });
-      
+
       const payload = data?.login;
-      if (!payload?.token || !payload?.user) throw new Error("Invalid login response");
+      if (!payload?.token || !payload?.user)
+        throw new Error("Invalid login response");
       localStorage.setItem("token", payload.token);
       const user = payload.user;
-      
+
       // Set isHerder flag in localStorage if user is a herder
-      const isHerder = user.role === "HERDER" || user.role.toLowerCase() === "herder";
+      const isHerder =
+        user.role === "HERDER" || user.role.toLowerCase() === "herder";
       if (isHerder) {
-        localStorage.setItem('isHerder', 'true');
+        localStorage.setItem("isHerder", "true");
       } else {
-        localStorage.removeItem('isHerder');
+        localStorage.removeItem("isHerder");
       }
-      
+
       await saveUserData(user);
 
-      toast({ title: "Амжилттай нэвтэрлээ", description: `${user.name || user.email}` });
+      toast({
+        title: "Амжилттай нэвтэрлээ",
+        description: `${user.name || user.email}`,
+      });
 
       // Route based on role from backend; ADMIN must always go to admin dashboard
       const userRole = String(user.role).toUpperCase();
@@ -123,10 +135,14 @@ export default function LoginPage() {
     } catch (err: any) {
       const gmsg = err?.graphQLErrors?.[0]?.message;
       const nmsg = err?.networkError?.message;
-      toast({ 
-        title: "Нэвтрэх амжилтгүй", 
-        description: gmsg || nmsg || err?.message || "Нэвтрэх мэдээлэл буруу байна. И-мэйл/утас болон нууц үгээ шалгана уу", 
-        variant: "destructive" as any 
+      toast({
+        title: "Нэвтрэх амжилтгүй",
+        description:
+          gmsg ||
+          nmsg ||
+          err?.message ||
+          "Нэвтрэх мэдээлэл буруу байна. И-мэйл/утас болон нууц үгээ шалгана уу",
+        variant: "destructive" as any,
       });
     } finally {
       setLoading(false);
@@ -222,7 +238,7 @@ export default function LoginPage() {
           {/*    Малчин*/}
           {/*  </button>*/}
           {/*</div>*/}
-          
+
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="identifier" className="text-gray-700">
@@ -327,17 +343,24 @@ export default function LoginPage() {
               className="w-full flex items-center justify-center space-x-2 py-3 border-gray-300 bg-transparent"
               onClick={() => {
                 // Google OAuth 2.0 login
-                const googleAuthUrl = "https://accounts.google.com/o/oauth2/v2/auth";
-                const redirectUri = window.location.origin + "/auth/google/callback"; // handled client-side
-                
+                const googleAuthUrl =
+                  "https://accounts.google.com/o/oauth2/v2/auth";
+                const redirectUri =
+                  window.location.origin + "/auth/google/callback"; // handled client-side
+
                 // Use env var for client ID
                 const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
-                
+
                 if (!clientId) {
-                  toast({ title: "Тохиргоо дутуу", description: "Google Client ID тохируулаагүй байна (NEXT_PUBLIC_GOOGLE_CLIENT_ID)", variant: "destructive" as any });
+                  toast({
+                    title: "Тохиргоо дутуу",
+                    description:
+                      "Google Client ID тохируулаагүй байна (NEXT_PUBLIC_GOOGLE_CLIENT_ID)",
+                    variant: "destructive" as any,
+                  });
                   return;
                 }
-                
+
                 const params = new URLSearchParams({
                   client_id: clientId,
                   redirect_uri: redirectUri,
@@ -346,16 +369,20 @@ export default function LoginPage() {
                   prompt: "select_account",
                   access_type: "offline",
                 });
-                
+
                 // Redirect to Google
                 window.location.href = `${googleAuthUrl}?${params.toString()}`;
-                
+
                 // Fallback toast (should not execute)
                 toast({
                   title: "Google Login",
-                  description: "Google login would redirect to: " + googleAuthUrl + "?" + params.toString(),
+                  description:
+                    "Google login would redirect to: " +
+                    googleAuthUrl +
+                    "?" +
+                    params.toString(),
                 });
-                
+
                 // In a real implementation, we would redirect:
                 // window.location.href = `${googleAuthUrl}?${params.toString()}`;
               }}
