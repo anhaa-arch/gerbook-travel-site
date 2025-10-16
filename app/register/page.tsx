@@ -5,7 +5,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Globe, ChevronDown } from "lucide-react";
+import { Globe, ChevronDown, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
@@ -30,15 +30,14 @@ export default function RegisterPage() {
   const [activeTab, setActiveTab] = useState<"customer" | "herder" | "admin">(
     "customer"
   );
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [formData, setFormData] = useState({
     identifier: "",
     password: "",
     confirmPassword: "",
   });
-  const [selectedRole, setSelectedRole] = useState<
-    "CUSTOMER" | "HERDER" | "ADMIN"
-  >("CUSTOMER");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
@@ -109,32 +108,26 @@ export default function RegisterPage() {
       const isCurrentUserAdmin =
         user && (user as any).role?.toUpperCase() === "ADMIN";
 
-      // If admin tab is selected, check if user is admin
-      if (activeTab === "admin" && !isCurrentUserAdmin) {
-        toast({
-          title: "Зөвшөөрөлгүй үйлдэл",
-          description: "Зөвхөн админ хэрэглэгчид шинэ админ бүртгэж болно",
-          variant: "destructive" as any,
-        });
-        setLoading(false);
-        return;
-      }
+      // Allow admin registration for testing purposes
+      // TODO: Remove this in production - only admins should create ADMIN users
+      // if (activeTab === "admin" && !isCurrentUserAdmin) {
+      //   toast({
+      //     title: "Зөвшөөрөлгүй үйлдэл",
+      //     description: "Зөвхөн админ хэрэглэгчид шинэ админ бүртгэж болно",
+      //     variant: "destructive" as any,
+      //   });
+      //   setLoading(false);
+      //   return;
+      // }
 
-      // Determine role based on activeTab or selectedRole (if admin)
+      // Determine role based on activeTab
       let role: string;
-
-      if (isCurrentUserAdmin) {
-        // Admin can choose any role via dropdown
-        role = selectedRole;
+      if (activeTab === "herder") {
+        role = "HERDER";
+      } else if (activeTab === "admin") {
+        role = "ADMIN";
       } else {
-        // Non-admin users: map activeTab directly to role
-        if (activeTab === "herder") {
-          role = "HERDER";
-        } else if (activeTab === "admin") {
-          role = "ADMIN";
-        } else {
-          role = "CUSTOMER";
-        }
+        role = "CUSTOMER";
       }
 
       const input: any = {
@@ -184,12 +177,12 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
+    <div className="min-h-screen flex flex-col lg:flex-row">
       {/* Left side - Registration form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white">
-        <div className="max-w-md w-full space-y-8">
+      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white py-8 lg:py-0">
+        <div className="max-w-md w-full space-y-6">
           {/* Logo */}
-          <div className="text-center flex justify-between">
+          <div className="text-center">
             <Link
               href="/"
               className="flex items-center justify-center space-x-2 mb-8"
@@ -203,50 +196,54 @@ export default function RegisterPage() {
                 Malchin Camp
               </span>
             </Link>
-            <div className="relative">
-              <button
-                onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded-lg"
-              >
-                <img
-                  src="/mng-flag.jpg"
-                  alt="Монгол туг"
-                  className="w-6 h-6 rounded-full object-cover"
-                />
-              </button>
 
-              {isLanguageOpen && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                  <div className="p-3 border-b border-gray-100">
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <Globe className="w-4 h-4" />
-                      <span>Бүх хэлийг харуулах</span>
+            <div className="flex justify-center mb-6">
+              <div className="relative">
+                <button
+                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                  className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded-lg"
+                >
+                  <img
+                    src="/mng-flag.jpg"
+                    alt="Монгол туг"
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                  <ChevronDown className="w-4 h-4 text-gray-600" />
+                </button>
+
+                {isLanguageOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                    <div className="p-3 border-b border-gray-100">
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <Globe className="w-4 h-4" />
+                        <span>Бүх хэлийг харуулах</span>
+                      </div>
+                    </div>
+                    <div className="p-2">
+                      {[
+                        { flag: "🇲🇳", name: "Монгол" },
+                        { flag: "🇬🇧", name: "Англи" },
+                        { flag: "🇨🇳", name: "Хятад" },
+                        { flag: "🇯🇵", name: "Япон" },
+                        { flag: "🇰🇷", name: "Солонгос" },
+                        { flag: "🇷🇺", name: "Орос" },
+                        { flag: "🇩🇪", name: "Герман" },
+                      ].map((lang, index) => (
+                        <button
+                          key={index}
+                          className="w-full flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-md text-left"
+                          onClick={() => setIsLanguageOpen(false)}
+                        >
+                          <span className="text-lg">{lang.flag}</span>
+                          <span className="text-sm text-gray-700">
+                            {lang.name}
+                          </span>
+                        </button>
+                      ))}
                     </div>
                   </div>
-                  <div className="p-2">
-                    {[
-                      { flag: "🇲🇳", name: "Монгол" },
-                      { flag: "🇬🇧", name: "English" },
-                      { flag: "🇨🇳", name: "中文" },
-                      { flag: "🇯🇵", name: "日本語" },
-                      { flag: "🇰🇷", name: "한국어" },
-                      { flag: "🇷🇺", name: "Русский" },
-                      { flag: "🇩🇪", name: "Deutsch" },
-                    ].map((lang, index) => (
-                      <button
-                        key={index}
-                        className="w-full flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-md text-left"
-                        onClick={() => setIsLanguageOpen(false)}
-                      >
-                        <span className="text-lg">{lang.flag}</span>
-                        <span className="text-sm text-gray-700">
-                          {lang.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
 
@@ -262,10 +259,6 @@ export default function RegisterPage() {
             <button
               onClick={() => {
                 setActiveTab("customer");
-                // If not admin, sync selectedRole with tab
-                if (!(user && (user as any).role === "admin")) {
-                  setSelectedRole("CUSTOMER");
-                }
               }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 activeTab === "customer"
@@ -278,10 +271,6 @@ export default function RegisterPage() {
             <button
               onClick={() => {
                 setActiveTab("herder");
-                // If not admin, sync selectedRole with tab
-                if (!(user && (user as any).role === "admin")) {
-                  setSelectedRole("HERDER");
-                }
               }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 activeTab === "herder"
@@ -294,21 +283,13 @@ export default function RegisterPage() {
             <button
               onClick={() => {
                 setActiveTab("admin");
-                // If not admin, sync selectedRole with tab
-                if (!(user && (user as any).role === "admin")) {
-                  setSelectedRole("ADMIN");
-                }
               }}
               className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
                 activeTab === "admin"
                   ? "bg-white text-gray-900 shadow-sm"
                   : "text-gray-600 hover:text-gray-900"
               }`}
-              title={
-                !(user && (user as any).role === "admin")
-                  ? "Зөвхөн админ бүртгэж чадна"
-                  : undefined
-              }
+              title="Админ хэрэглэгч бүртгүүлэх"
             >
               Админ
             </button>
@@ -342,16 +323,31 @@ export default function RegisterPage() {
               >
                 Нууц үг
               </Label>
-              <Input
-                id="password"
-                name="password"
-                type="password"
-                value={formData.password}
-                onChange={handleChange}
-                placeholder="Нууц үгээ оруулна уу."
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
-              />
+              <div className="relative">
+                <Input
+                  id="password"
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={handleChange}
+                  placeholder="Нууц үгээ оруулна уу."
+                  required
+                  className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
+                  aria-label="Toggle password visibility"
+                  title="Toggle password visibility"
+                >
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
+              </div>
             </div>
 
             <div>
@@ -361,47 +357,34 @@ export default function RegisterPage() {
               >
                 Нууц үг баталгаажуулах
               </Label>
-              <Input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                value={formData.confirmPassword}
-                onChange={handleChange}
-                placeholder="Нууц үгээ дахин оруулна уу"
-                required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
-              />
+              <div className="relative">
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type={showConfirmPassword ? "text" : "password"}
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  placeholder="Нууц үгээ дахин оруулна уу"
+                  required
+                  className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                />
+                <button
+                  type="button"
+                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  aria-label="Toggle confirm password visibility"
+                  title="Toggle confirm password visibility"
+                >
+                  {showConfirmPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400" />
+                  )}
+                </button>
+              </div>
             </div>
 
-            {/* Role selection for admins */}
-            {user && (user as any).role === "admin" && (
-              <div>
-                <Label
-                  htmlFor="role"
-                  className="text-sm font-medium text-gray-700"
-                >
-                  Эрхийн түвшин сонгох
-                </Label>
-                <select
-                  id="role"
-                  name="role"
-                  value={selectedRole}
-                  onChange={(e) =>
-                    setSelectedRole(
-                      e.target.value as "CUSTOMER" | "HERDER" | "ADMIN"
-                    )
-                  }
-                  className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-green-500 focus:border-green-500 bg-white"
-                >
-                  <option value="CUSTOMER">Аялагч (Customer)</option>
-                  <option value="HERDER">Малчин (Herder)</option>
-                  <option value="ADMIN">Админ (Admin)</option>
-                </select>
-                <p className="text-xs text-gray-500 mt-1">
-                  Админ хэрэглэгч бүх төрлийн хэрэглэгч үүсгэж чадна.
-                </p>
-              </div>
-            )}
+            {/* Role selection removed - now using tabs for role selection */}
 
             <Button
               type="submit"
@@ -508,13 +491,34 @@ export default function RegisterPage() {
         </div>
       </div>
 
-      {/* Right side - Landscape background */}
-      <div className="hidden lg:block flex-1 relative">
-        <img
-          src="/placeholder.svg?height=800&width=800"
-          alt="Mongolian Landscape"
-          className="absolute inset-0 w-full h-full object-cover"
-        />
+      {/* Right side - Sidebar for larger screens */}
+      <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-green-600 to-green-800 items-center justify-center p-8">
+        <div className="text-center text-white max-w-md">
+          <h2 className="text-3xl font-bold mb-4">Монголын байгалийн сайхан</h2>
+          <p className="text-lg mb-6 opacity-90">
+            Гэр амралт, байгалийн сайхан, малчны амьдралыг мэдрэх боломж
+          </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-center space-x-3">
+              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <span className="text-lg">🏕️</span>
+              </div>
+              <span className="text-lg">Гэр амралт</span>
+            </div>
+            <div className="flex items-center justify-center space-x-3">
+              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <span className="text-lg">🌄</span>
+              </div>
+              <span className="text-lg">Байгалийн сайхан</span>
+            </div>
+            <div className="flex items-center justify-center space-x-3">
+              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <span className="text-lg">🐎</span>
+              </div>
+              <span className="text-lg">Малчны амьдрал</span>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

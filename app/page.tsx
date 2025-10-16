@@ -128,8 +128,8 @@ export default function HomePage() {
                     height={200}
                     className="w-full h-40 md:h-48 object-cover"
                   />
-                  <div className="absolute top-2 right-2 bg-emerald-600 text-white px-2 py-1 rounded text-xs font-semibold">
-                    Featured
+                  <div className="absolute top-2 right-2 bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-normal">
+                    Онцгой хамтрагч
                   </div>
                 </div>
                 <CardContent className="p-4">

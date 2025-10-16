@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface GuestSelectorProps {
   isOpen: boolean;
@@ -14,6 +14,27 @@ export function GuestSelector({
   onSelect,
 }: GuestSelectorProps) {
   const [guests, setGuests] = useState(1);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Outside click handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
 
   useEffect(() => {
     if (!isOpen) setGuests(1);
@@ -22,7 +43,10 @@ export function GuestSelector({
   if (!isOpen) return null;
 
   return (
-    <div className="absolute left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[60] p-3 w-56">
+    <div
+      ref={dropdownRef}
+      className="absolute left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-lg z-[60] p-3 w-56"
+    >
       <div className="flex items-center justify-between">
         <span className="text-sm font-medium">Зочин</span>
         <div className="flex items-center gap-2">

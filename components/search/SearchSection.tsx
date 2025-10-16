@@ -1,10 +1,9 @@
 "use client";
 
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Calendar, Users } from "lucide-react";
+import { Search, MapPin, Calendar, Users, X } from "lucide-react";
 import { LocationDropdown } from "@/components/search/location-dropdown";
 import { DatePickerModal } from "@/components/search/date-picker-modal";
 import { GuestSelector } from "@/components/search/guest-selector";
@@ -21,9 +20,7 @@ export function SearchSection() {
   });
   const [selectedGuests, setSelectedGuests] = useState(1);
 
-  console.log(mnData())
-
-
+  console.log(mnData());
 
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -42,64 +39,114 @@ export function SearchSection() {
     return selectedGuests === 1 ? "Зочин нэмэх" : `${selectedGuests} зочин`;
   };
 
-  return (
-    <div className="bg-white py-8 ">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-2 lg:py-2 rounded-full shadow-lg">
-        <div className="flex flex-col md:flex-row gap-4 items-center ">
-          {/* Location Search */}
-          <div className="flex-1 relative ">
-            <label className="block text-sm font-medium text-gray-700 ">
-              Хаана
-            </label>
-            <div className="relative">
-              <MapPin className="absolute  top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
-              <Input
-                placeholder="Газар хайх"
-                value={selectedLocation}
-                onClick={() => setShowLocationDropdown(true)}
-                readOnly
-                className="w-full h-10 ml-2  rounded-lg cursor-pointer text-gray-500 border-0 ring-0 outline-none focus:ring-0 focus:border-0 focus:outline-none focus-visible:outline-none"
-              />
-              <LocationDropdown
-                isOpen={showLocationDropdown}
-                onClose={() => setShowLocationDropdown(false)}
-                onSelect={setSelectedLocation}
-              />
-            </div>
-          </div>
+  const handleLocationSelect = (location: string) => {
+    setSelectedLocation(location);
+    setShowLocationDropdown(false);
+  };
 
-          {/* Date Range */}
-          <div className="flex gap-4 ">
+  const handleLocationClear = () => {
+    setSelectedLocation("");
+  };
+
+  const handleDateClear = () => {
+    setSelectedDates({ start: null, end: null });
+  };
+
+  const handleGuestClear = () => {
+    setSelectedGuests(1);
+  };
+
+  const handleSearch = () => {
+    // Implement search logic here
+    console.log("Searching for:", {
+      location: selectedLocation,
+      dates: selectedDates,
+      guests: selectedGuests,
+    });
+  };
+
+  return (
+    <div className="bg-white py-4 sm:py-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="bg-white p-4 sm:p-6 rounded-lg sm:rounded-full shadow-lg">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-center">
+            {/* Location Search */}
             <div className="flex-1 relative">
-              <label className="block text-sm font-medium text-gray-700 ">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Хаана
+              </label>
+              <div className="relative">
+                <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Input
+                  placeholder="Газар хайх"
+                  value={selectedLocation}
+                  onClick={() => setShowLocationDropdown(true)}
+                  readOnly
+                  className="w-full h-10 pl-10 pr-10 rounded-lg cursor-pointer text-gray-500 border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
+                />
+                {selectedLocation && (
+                  <button
+                    onClick={handleLocationClear}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                  >
+                    <X className="w-4 h-4 text-gray-600" />
+                  </button>
+                )}
+                <LocationDropdown
+                  isOpen={showLocationDropdown}
+                  onClose={() => setShowLocationDropdown(false)}
+                  onSelect={handleLocationSelect}
+                />
+              </div>
+            </div>
+
+            {/* Date Range */}
+            <div className="flex-1 relative">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Хэзээ
               </label>
               <div className="relative">
-                <Calendar className="absolute  top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                <Calendar className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   placeholder="Огноо сонгох"
                   value={formatDateRange()}
                   onClick={() => setShowDatePicker(true)}
                   readOnly
-                  className="w-full h-10 ml-2 rounded-lg cursor-pointer text-gray-500 border-0 ring-0 outline-none focus:ring-0 focus:border-0 focus:outline-none focus-visible:outline-none"
+                  className="w-full h-10 pl-10 pr-10 rounded-lg cursor-pointer text-gray-500 border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                 />
+                {selectedDates.start && (
+                  <button
+                    onClick={handleDateClear}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                  >
+                    <X className="w-4 h-4 text-gray-600" />
+                  </button>
+                )}
               </div>
             </div>
 
             {/* Guests */}
             <div className="flex-1 relative">
-              <label className="block text-sm font-medium text-gray-700 ">
+              <label className="block text-sm font-medium text-gray-700 mb-1">
                 Хэдэн
               </label>
-              <div className="relative ">
-                <Users className="absolute top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <div className="relative">
+                <Users className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                 <Input
                   placeholder="Зочин нэмэх"
                   value={formatGuests()}
                   onClick={() => setShowGuestSelector(true)}
                   readOnly
-                  className="w-full ml-2 h-10 rounded-lg cursor-pointer text-gray-500 border-0 ring-0 outline-none focus:ring-0 focus:border-0 focus:outline-none focus-visible:outline-none"
+                  className="w-full h-10 pl-10 pr-10 rounded-lg cursor-pointer text-gray-500 border border-gray-200 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                 />
+                {selectedGuests > 1 && (
+                  <button
+                    onClick={handleGuestClear}
+                    className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                  >
+                    <X className="w-4 h-4 text-gray-600" />
+                  </button>
+                )}
                 <GuestSelector
                   isOpen={showGuestSelector}
                   onClose={() => setShowGuestSelector(false)}
@@ -109,10 +156,15 @@ export function SearchSection() {
                 />
               </div>
             </div>
-            <div>
-              <Button className="bg-green-700 hover:bg-green-800 text-white h-10 rounded-full">
-                <Search className="w-6 h-6" />
-                <span className="text-[18px]">Хайх</span>
+
+            {/* Search Button */}
+            <div className="flex items-end">
+              <Button
+                className="bg-green-700 hover:bg-green-800 text-white h-10 w-full sm:w-auto px-6 rounded-lg sm:rounded-full"
+                onClick={handleSearch}
+              >
+                <Search className="w-4 h-4 sm:w-6 sm:h-6 mr-2" />
+                <span className="text-sm sm:text-lg">Хайх</span>
               </Button>
             </div>
           </div>

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Globe, ChevronDown } from "lucide-react";
+import { Globe, ChevronDown, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import OtpModal from "@/components/otp-modal";
@@ -31,6 +31,7 @@ const LOGIN_MUTATION = gql`
 export default function LoginPage() {
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [activeTab, setActiveTab] = useState("customer");
   const [rememberMe, setRememberMe] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
@@ -151,10 +152,10 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-6 items-center">
-          <div className="text-center flex justify-between">
+    <div className="min-h-screen flex flex-col lg:flex-row">
+      <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-6 lg:px-8 py-8 lg:py-0">
+        <div className="max-w-md w-full space-y-6">
+          <div className="text-center">
             <Link
               href="/"
               className="flex items-center justify-center space-x-2 mb-8"
@@ -168,50 +169,54 @@ export default function LoginPage() {
                 Malchin Camp
               </span>
             </Link>
-            <div className="relative">
-              <button
-                onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded-lg"
-              >
-                <img
-                  src="/mng-flag.jpg"
-                  alt="Монгол туг"
-                  className="w-6 h-6 rounded-full object-cover"
-                />
-              </button>
 
-              {isLanguageOpen && (
-                <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                  <div className="p-3 border-b border-gray-100">
-                    <div className="flex items-center space-x-2 text-sm text-gray-600">
-                      <Globe className="w-4 h-4" />
-                      <span>Бүх хэлийг харуулах</span>
+            <div className="flex justify-center mb-6">
+              <div className="relative">
+                <button
+                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                  className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded-lg"
+                >
+                  <img
+                    src="/mng-flag.jpg"
+                    alt="Монгол туг"
+                    className="w-6 h-6 rounded-full object-cover"
+                  />
+                  <ChevronDown className="w-4 h-4 text-gray-600" />
+                </button>
+
+                {isLanguageOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
+                    <div className="p-3 border-b border-gray-100">
+                      <div className="flex items-center space-x-2 text-sm text-gray-600">
+                        <Globe className="w-4 h-4" />
+                        <span>Бүх хэлийг харуулах</span>
+                      </div>
+                    </div>
+                    <div className="p-2">
+                      {[
+                        { flag: "🇲🇳", name: "Монгол" },
+                        { flag: "🇬🇧", name: "Англи" },
+                        { flag: "🇨🇳", name: "Хятад" },
+                        { flag: "🇯🇵", name: "Япон" },
+                        { flag: "🇰🇷", name: "Солонгос" },
+                        { flag: "🇷🇺", name: "Орос" },
+                        { flag: "🇩🇪", name: "Герман" },
+                      ].map((lang, index) => (
+                        <button
+                          key={index}
+                          className="w-full flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-md text-left"
+                          onClick={() => setIsLanguageOpen(false)}
+                        >
+                          <span className="text-lg">{lang.flag}</span>
+                          <span className="text-sm text-gray-700">
+                            {lang.name}
+                          </span>
+                        </button>
+                      ))}
                     </div>
                   </div>
-                  <div className="p-2">
-                    {[
-                      { flag: "🇲🇳", name: "Монгол" },
-                      { flag: "🇬🇧", name: "English" },
-                      { flag: "🇨🇳", name: "中文" },
-                      { flag: "🇯🇵", name: "日本語" },
-                      { flag: "🇰🇷", name: "한국어" },
-                      { flag: "🇷🇺", name: "Русский" },
-                      { flag: "🇩🇪", name: "Deutsch" },
-                    ].map((lang, index) => (
-                      <button
-                        key={index}
-                        className="w-full flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-md text-left"
-                        onClick={() => setIsLanguageOpen(false)}
-                      >
-                        <span className="text-lg">{lang.flag}</span>
-                        <span className="text-sm text-gray-700">
-                          {lang.name}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
           <div className="text-center">
@@ -263,7 +268,7 @@ export default function LoginPage() {
               <div className="relative">
                 <Input
                   id="password"
-                  type="password"
+                  type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Нууц үгээ оруулна уу."
@@ -273,28 +278,15 @@ export default function LoginPage() {
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  onClick={() => setShowPassword(!showPassword)}
                   aria-label="Toggle password visibility"
                   title="Toggle password visibility"
                 >
-                  <svg
-                    className="h-5 w-5 text-gray-400"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                    />
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                    />
-                  </svg>
+                  {showPassword ? (
+                    <EyeOff className="h-5 w-5 text-gray-400" />
+                  ) : (
+                    <Eye className="h-5 w-5 text-gray-400" />
+                  )}
                 </button>
               </div>
             </div>
@@ -376,9 +368,9 @@ export default function LoginPage() {
 
                 // Fallback toast (should not execute)
                 toast({
-                  title: "Google Login",
+                  title: "Google нэвтрэх",
                   description:
-                    "Google login would redirect to: " +
+                    "Google нэвтрэх дараах хаяг руу шилжүүлнэ: " +
                     googleAuthUrl +
                     "?" +
                     params.toString(),
@@ -439,14 +431,33 @@ export default function LoginPage() {
         </div>
       </div>
 
-      <div className="hidden lg:block flex-1 relative">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: `url('/placeholder.svg?height=800&width=800')`,
-          }}
-        >
-          <div className="absolute inset-0 bg-black bg-opacity-10"></div>
+      {/* Sidebar for larger screens */}
+      <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-green-600 to-green-800 items-center justify-center p-8">
+        <div className="text-center text-white max-w-md">
+          <h2 className="text-3xl font-bold mb-4">Монголын байгалийн сайхан</h2>
+          <p className="text-lg mb-6 opacity-90">
+            Гэр амралт, байгалийн сайхан, малчны амьдралыг мэдрэх боломж
+          </p>
+          <div className="space-y-4">
+            <div className="flex items-center justify-center space-x-3">
+              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <span className="text-lg">🏕️</span>
+              </div>
+              <span className="text-lg">Гэр амралт</span>
+            </div>
+            <div className="flex items-center justify-center space-x-3">
+              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <span className="text-lg">🌄</span>
+              </div>
+              <span className="text-lg">Байгалийн сайхан</span>
+            </div>
+            <div className="flex items-center justify-center space-x-3">
+              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
+                <span className="text-lg">🐎</span>
+              </div>
+              <span className="text-lg">Малчны амьдрал</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>

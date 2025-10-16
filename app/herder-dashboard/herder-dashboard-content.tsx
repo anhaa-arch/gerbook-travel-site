@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Plus,
@@ -12,6 +12,8 @@ import {
   TrendingUp,
   X,
   LogOut,
+  Upload,
+  Link,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -66,6 +68,11 @@ export default function HerderDashboardContent() {
   const [showAddCamp, setShowAddCamp] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [imageUploadMode, setImageUploadMode] = useState<"file" | "url">(
+    "file"
+  );
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { logout, user } = useAuth();
   const { toast } = useToast();
 
@@ -98,7 +105,14 @@ export default function HerderDashboardContent() {
   );
   const { data: productsData, loading: productsLoading } =
     useQuery(GET_HERDER_PRODUCTS);
-  const { data: yurtsData, loading: yurtsLoading } = useQuery(GET_HERDER_YURTS);
+  const {
+    data: yurtsData,
+    loading: yurtsLoading,
+    refetch: refetchYurts,
+  } = useQuery(GET_HERDER_YURTS, {
+    variables: { userId: user?.id },
+    skip: !user?.id,
+  });
   const { data: ordersData, loading: ordersLoading } =
     useQuery(GET_HERDER_ORDERS);
   const { data: bookingsData, loading: bookingsLoading } =
@@ -133,9 +147,46 @@ export default function HerderDashboardContent() {
     joinDate: "2023 оны 3-р сар",
     totalProducts: productsData?.products?.edges?.length || 0,
     totalCamps: yurtsData?.yurts?.edges?.length || 0,
-    totalEarnings: 2450, // Calculate from orders and bookings
+    totalEarnings:
+      (ordersData?.orders?.edges?.reduce(
+        (sum: number, edge: any) => sum + edge.node.totalPrice,
+        0
+      ) || 0) +
+      (bookingsData?.bookings?.edges?.reduce(
+        (sum: number, edge: any) => sum + edge.node.totalPrice,
+        0
+      ) || 0),
     rating: 4.8,
   };
+
+  // Calculate additional stats from real data
+  const todayProducts =
+    productsData?.products?.edges?.filter(
+      (edge: any) =>
+        new Date(edge.node.createdAt).toDateString() ===
+        new Date().toDateString()
+    ).length || 0;
+
+  const todayCamps =
+    yurtsData?.yurts?.edges?.filter(
+      (edge: any) =>
+        new Date(edge.node.createdAt).toDateString() ===
+        new Date().toDateString()
+    ).length || 0;
+
+  const todayOrders =
+    ordersData?.orders?.edges?.filter(
+      (edge: any) =>
+        new Date(edge.node.createdAt).toDateString() ===
+        new Date().toDateString()
+    ).length || 0;
+
+  const todayBookings =
+    bookingsData?.bookings?.edges?.filter(
+      (edge: any) =>
+        new Date(edge.node.createdAt).toDateString() ===
+        new Date().toDateString()
+    ).length || 0;
 
   // Transform data for display
   const products =
@@ -192,6 +243,9 @@ export default function HerderDashboardContent() {
   // Yurt management functions
   const handleCreateYurt = async () => {
     try {
+      // Optimize images data - limit to first 3 images
+      const optimizedImages = uploadedImages.slice(0, 3);
+
       await createYurt({
         variables: {
           input: {
@@ -201,7 +255,7 @@ export default function HerderDashboardContent() {
             pricePerNight: parseFloat(yurtForm.pricePerNight),
             capacity: parseInt(yurtForm.capacity),
             amenities: yurtForm.amenities,
-            images: yurtForm.images,
+            images: JSON.stringify(optimizedImages),
           },
         },
       });
@@ -216,6 +270,7 @@ export default function HerderDashboardContent() {
         amenities: "",
         images: "",
       });
+      setUploadedImages([]); // Clear uploaded images
     } catch (error: any) {
       toast({
         title: "Алдаа",
@@ -237,7 +292,7 @@ export default function HerderDashboardContent() {
             pricePerNight: parseFloat(yurtForm.pricePerNight),
             capacity: parseInt(yurtForm.capacity),
             amenities: yurtForm.amenities,
-            images: yurtForm.images,
+            images: JSON.stringify(uploadedImages.slice(0, 3)),
           },
         },
       });
@@ -253,6 +308,7 @@ export default function HerderDashboardContent() {
         amenities: "",
         images: "",
       });
+      setUploadedImages([]); // Clear uploaded images
     } catch (error: any) {
       toast({
         title: "Алдаа",
@@ -303,7 +359,7 @@ export default function HerderDashboardContent() {
             description: productForm.description,
             price: parseFloat(productForm.price),
             stock: parseInt(productForm.stock),
-            images: productForm.images,
+            images: JSON.stringify(uploadedImages.slice(0, 3)),
             categoryId: productForm.categoryId,
           },
         },
@@ -321,6 +377,7 @@ export default function HerderDashboardContent() {
         images: "",
         categoryId: "",
       });
+      setUploadedImages([]); // Clear uploaded images
     } catch (error: any) {
       toast({
         title: "Алдаа",
@@ -340,7 +397,7 @@ export default function HerderDashboardContent() {
             description: productForm.description,
             price: parseFloat(productForm.price),
             stock: parseInt(productForm.stock),
-            images: productForm.images,
+            images: JSON.stringify(uploadedImages.slice(0, 3)),
             categoryId: productForm.categoryId,
           },
         },
@@ -359,6 +416,7 @@ export default function HerderDashboardContent() {
         images: "",
         categoryId: "",
       });
+      setUploadedImages([]); // Clear uploaded images
     } catch (error: any) {
       toast({
         title: "Алдаа",
@@ -404,6 +462,76 @@ export default function HerderDashboardContent() {
   const handleDelete = (item: any) => {
     setSelectedItem(item);
     setShowDeleteDialog(true);
+  };
+
+  // Image upload functions
+  const handleFileUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    formType: "yurt" | "product"
+  ) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
+
+      // Check file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        toast({
+          title: "Алдаа",
+          description: "Зурагны хэмжээ 2MB-аас их байна",
+          variant: "destructive" as any,
+        });
+        return;
+      }
+
+      // Check if we already have 3 images
+      if (uploadedImages.length >= 3) {
+        toast({
+          title: "Алдаа",
+          description: "Дээд тал 3 зураг оруулж болно",
+          variant: "destructive" as any,
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setUploadedImages((prev) => [...prev, result]);
+        toast({
+          title: "Амжилттай",
+          description: "Зураг амжилттай орууллаа",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleImageUrlChange = (url: string, formType: "yurt" | "product") => {
+    if (!url.trim()) return;
+
+    // Check if we already have 3 images
+    if (uploadedImages.length >= 3) {
+      toast({
+        title: "Алдаа",
+        description: "Дээд тал 3 зураг оруулж болно",
+        variant: "destructive" as any,
+      });
+      return;
+    }
+
+    setUploadedImages((prev) => [...prev, url]);
+    toast({
+      title: "Амжилттай",
+      description: "Зурагны линк орууллаа",
+    });
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setUploadedImages((prev) => prev.filter((_, i) => i !== index));
+    toast({
+      title: "Амжилттай",
+      description: "Зураг цуцлагдлаа",
+    });
   };
 
   const confirmDelete = async () => {
@@ -480,7 +608,7 @@ export default function HerderDashboardContent() {
                 value="camps"
                 className="text-xs sm:text-sm font-medium"
               >
-                Гэр баазууд
+                Миний гэр
               </TabsTrigger>
               <TabsTrigger
                 value="orders"
@@ -512,7 +640,7 @@ export default function HerderDashboardContent() {
                     {herder.totalProducts}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
-                    +2 өнгөрсөн сараас
+                    +{todayProducts} өнөөдөр
                   </p>
                 </CardContent>
               </Card>
@@ -529,7 +657,7 @@ export default function HerderDashboardContent() {
                     {herder.totalCamps}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
-                    Бүгд идэвхтэй
+                    +{todayCamps} өнөөдөр
                   </p>
                 </CardContent>
               </Card>
@@ -578,7 +706,7 @@ export default function HerderDashboardContent() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {orders.slice(0, 5).map((order) => (
+                    {orders.slice(0, 5).map((order: any) => (
                       <div
                         key={order.id}
                         className="flex items-center justify-between"
@@ -615,12 +743,12 @@ export default function HerderDashboardContent() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg sm:text-xl font-bold">
-                    Recent Bookings
+                    Сүүлийн захиалгууд
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
-                    {bookings.map((booking) => (
+                    {bookings.map((booking: any) => (
                       <div
                         key={booking.id}
                         className="flex items-center justify-between"
@@ -659,20 +787,24 @@ export default function HerderDashboardContent() {
           {/* Products Tab */}
           <TabsContent value="products" className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h2 className="text-xl sm:text-2xl font-bold">My Products</h2>
+              <h2 className="text-xl sm:text-2xl font-bold">
+                Миний бүтээгдэхүүн
+              </h2>
               <Button
                 className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold"
                 onClick={() => setShowAddProduct(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add New Product
+                Шинэ бүтээгдэхүүн нэмэх
               </Button>
             </div>
 
             {showAddProduct && (
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="font-bold">Add New Product</CardTitle>
+                  <CardTitle className="font-bold">
+                    Шинэ бүтээгдэхүүн нэмэх
+                  </CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -710,14 +842,16 @@ export default function HerderDashboardContent() {
                         }
                       >
                         <SelectTrigger>
-                          <SelectValue placeholder="Select category" />
+                          <SelectValue placeholder="Ангилал сонгох" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="dairy">Dairy Products</SelectItem>
-                          <SelectItem value="meat">Meat Products</SelectItem>
-                          <SelectItem value="handicrafts">
-                            Handicrafts
+                          <SelectItem value="dairy">
+                            Сүүн бүтээгдэхүүн
                           </SelectItem>
+                          <SelectItem value="meat">
+                            Махны бүтээгдэхүүн
+                          </SelectItem>
+                          <SelectItem value="handicrafts">Гар урлал</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -774,19 +908,117 @@ export default function HerderDashboardContent() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Images (URLs, comma separated)
+                      Зураг оруулах ({uploadedImages.length}/10)
                     </label>
-                    <Input
-                      placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-                      className="font-medium"
-                      value={productForm.images}
-                      onChange={(e) =>
-                        setProductForm({
-                          ...productForm,
-                          images: e.target.value,
-                        })
-                      }
-                    />
+
+                    {/* Image Upload Mode Toggle */}
+                    <div className="flex space-x-2 mb-3">
+                      <Button
+                        type="button"
+                        variant={
+                          imageUploadMode === "file" ? "default" : "outline"
+                        }
+                        size="sm"
+                        onClick={() => setImageUploadMode("file")}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Файлаас сонгох
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={
+                          imageUploadMode === "url" ? "default" : "outline"
+                        }
+                        size="sm"
+                        onClick={() => setImageUploadMode("url")}
+                        className="flex items-center gap-2"
+                      >
+                        <Link className="w-4 h-4" />
+                        Линк оруулах
+                      </Button>
+                    </div>
+
+                    {/* File Upload */}
+                    {imageUploadMode === "file" && (
+                      <div className="space-y-2">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileUpload(e, "product")}
+                          className="hidden"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-full"
+                          disabled={uploadedImages.length >= 10}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          Зураг сонгох ({uploadedImages.length}/3)
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* URL Input */}
+                    {imageUploadMode === "url" && (
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <Input
+                            id="product-image-url-input"
+                            placeholder="https://example.com/image1.jpg"
+                            className="font-medium flex-1"
+                          />
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              const input = document.getElementById(
+                                "product-image-url-input"
+                              ) as HTMLInputElement;
+                              if (input.value.trim()) {
+                                handleImageUrlChange(
+                                  input.value.trim(),
+                                  "product"
+                                );
+                                input.value = "";
+                              }
+                            }}
+                            disabled={uploadedImages.length >= 3}
+                          >
+                            Нэмэх
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Image Preview Grid */}
+                    {uploadedImages.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-4">
+                        {uploadedImages.map((image, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={image}
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-24 object-cover rounded border"
+                              onError={(e) => {
+                                e.currentTarget.src = "/placeholder.svg";
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => handleRemoveImage(index)}
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <Button
@@ -795,7 +1027,9 @@ export default function HerderDashboardContent() {
                         selectedItem ? handleUpdateProduct : handleCreateProduct
                       }
                     >
-                      {selectedItem ? "Update Product" : "Save Product"}
+                      {selectedItem
+                        ? "Бүтээгдэхүүн шинэчлэх"
+                        : "Бүтээгдэхүүн хадгалах"}
                     </Button>
                     <Button
                       variant="outline"
@@ -813,7 +1047,7 @@ export default function HerderDashboardContent() {
                       }}
                       className="font-medium"
                     >
-                      Cancel
+                      Цуцлах
                     </Button>
                   </div>
                 </CardContent>
@@ -873,7 +1107,7 @@ export default function HerderDashboardContent() {
                         onClick={() => handleEditProduct(product)}
                       >
                         <Edit className="w-4 h-4 mr-1" />
-                        Edit
+                        Засах
                       </Button>
                       <Button
                         variant="outline"
@@ -892,20 +1126,22 @@ export default function HerderDashboardContent() {
           {/* Camps Tab */}
           <TabsContent value="camps" className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h2 className="text-xl sm:text-2xl font-bold">My Ger Camps</h2>
+              <h2 className="text-xl sm:text-2xl font-bold">
+                Миний гэр баазууд
+              </h2>
               <Button
                 className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold"
                 onClick={() => setShowAddCamp(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add New Camp
+                Шинэ бааз нэмэх
               </Button>
             </div>
 
             {showAddCamp && (
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="font-bold">Add New Camp</CardTitle>
+                  <CardTitle className="font-bold">Шинэ бааз нэмэх</CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -1005,16 +1241,117 @@ export default function HerderDashboardContent() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Images (URLs, comma separated)
+                      Зураг оруулах ({uploadedImages.length}/10)
                     </label>
-                    <Input
-                      placeholder="https://example.com/image1.jpg, https://example.com/image2.jpg"
-                      className="font-medium"
-                      value={yurtForm.images}
-                      onChange={(e) =>
-                        setYurtForm({ ...yurtForm, images: e.target.value })
-                      }
-                    />
+
+                    {/* Image Upload Mode Toggle */}
+                    <div className="flex space-x-2 mb-3">
+                      <Button
+                        type="button"
+                        variant={
+                          imageUploadMode === "file" ? "default" : "outline"
+                        }
+                        size="sm"
+                        onClick={() => setImageUploadMode("file")}
+                        className="flex items-center gap-2"
+                      >
+                        <Upload className="w-4 h-4" />
+                        Файлаас сонгох
+                      </Button>
+                      <Button
+                        type="button"
+                        variant={
+                          imageUploadMode === "url" ? "default" : "outline"
+                        }
+                        size="sm"
+                        onClick={() => setImageUploadMode("url")}
+                        className="flex items-center gap-2"
+                      >
+                        <Link className="w-4 h-4" />
+                        Линк оруулах
+                      </Button>
+                    </div>
+
+                    {/* File Upload */}
+                    {imageUploadMode === "file" && (
+                      <div className="space-y-2">
+                        <input
+                          ref={fileInputRef}
+                          type="file"
+                          accept="image/*"
+                          onChange={(e) => handleFileUpload(e, "yurt")}
+                          className="hidden"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => fileInputRef.current?.click()}
+                          className="w-full"
+                          disabled={uploadedImages.length >= 10}
+                        >
+                          <Upload className="w-4 h-4 mr-2" />
+                          Зураг сонгох ({uploadedImages.length}/3)
+                        </Button>
+                      </div>
+                    )}
+
+                    {/* URL Input */}
+                    {imageUploadMode === "url" && (
+                      <div className="space-y-2">
+                        <div className="flex gap-2">
+                          <Input
+                            id="yurt-image-url-input"
+                            placeholder="https://example.com/image1.jpg"
+                            className="font-medium flex-1"
+                          />
+                          <Button
+                            type="button"
+                            onClick={() => {
+                              const input = document.getElementById(
+                                "yurt-image-url-input"
+                              ) as HTMLInputElement;
+                              if (input.value.trim()) {
+                                handleImageUrlChange(
+                                  input.value.trim(),
+                                  "yurt"
+                                );
+                                input.value = "";
+                              }
+                            }}
+                            disabled={uploadedImages.length >= 3}
+                          >
+                            Нэмэх
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Image Preview Grid */}
+                    {uploadedImages.length > 0 && (
+                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-4">
+                        {uploadedImages.map((image, index) => (
+                          <div key={index} className="relative group">
+                            <img
+                              src={image}
+                              alt={`Preview ${index + 1}`}
+                              className="w-full h-24 object-cover rounded border"
+                              onError={(e) => {
+                                e.currentTarget.src = "/placeholder.svg";
+                              }}
+                            />
+                            <Button
+                              type="button"
+                              variant="destructive"
+                              size="sm"
+                              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                              onClick={() => handleRemoveImage(index)}
+                            >
+                              <X className="w-3 h-3" />
+                            </Button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <Button
@@ -1023,7 +1360,7 @@ export default function HerderDashboardContent() {
                         selectedItem ? handleUpdateYurt : handleCreateYurt
                       }
                     >
-                      {selectedItem ? "Update Camp" : "Save Camp"}
+                      {selectedItem ? "Бааз шинэчлэх" : "Бааз хадгалах"}
                     </Button>
                     <Button
                       variant="outline"
@@ -1042,7 +1379,7 @@ export default function HerderDashboardContent() {
                       }}
                       className="font-medium"
                     >
-                      Cancel
+                      Цуцлах
                     </Button>
                   </div>
                 </CardContent>
@@ -1109,7 +1446,7 @@ export default function HerderDashboardContent() {
                         onClick={() => handleEditYurt(camp)}
                       >
                         <Edit className="w-4 h-4 mr-1" />
-                        Edit
+                        Засах
                       </Button>
                       <Button
                         variant="outline"
@@ -1163,7 +1500,7 @@ export default function HerderDashboardContent() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {orders.map((order) => (
+                        {orders.map((order: any) => (
                           <TableRow key={order.id}>
                             <TableCell className="font-bold">
                               #{order.id}
@@ -1239,7 +1576,7 @@ export default function HerderDashboardContent() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {bookings.map((booking) => (
+                        {bookings.map((booking: any) => (
                           <TableRow key={booking.id}>
                             <TableCell className="font-bold">
                               #{booking.id}

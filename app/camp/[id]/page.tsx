@@ -1,6 +1,6 @@
 "use client";
 
-import { use, useState } from "react";
+import { use, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { parseImagePaths } from "@/lib/imageUtils";
@@ -61,6 +61,16 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const router = useRouter();
   const resolvedParams = use(params);
   const campId = resolvedParams.id;
+
+  const [isSaved, setIsSaved] = useState(false);
+  const [savedCamps, setSavedCamps] = useState<any[]>([]);
+
+  // Load saved camps from localStorage on component mount
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem("savedCamps") || "[]");
+    setSavedCamps(saved);
+    setIsSaved(saved.some((camp: any) => camp.id === campId));
+  }, [campId]);
 
   const { data, loading, error } = useQuery(GET_YURT, {
     variables: { id: campId },
@@ -125,6 +135,55 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
   const [showAllReviews, setShowAllReviews] = useState(false);
+
+  // Handle save/unsave camp
+  const handleSaveCamp = () => {
+    if (!isAuthenticated) {
+      toast({
+        title: "Нэвтрэх шаардлагатай",
+        description: "Амралт хадгалахын тулд нэвтрэх шаардлагатай.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const campData = data?.yurt;
+    if (!campData) return;
+
+    const campToSave = {
+      id: campData.id,
+      name: campData.name,
+      location: campData.location,
+      pricePerNight: campData.pricePerNight,
+      capacity: campData.capacity,
+      images: campData.images,
+      amenities: campData.amenities,
+      description: campData.description,
+      savedAt: new Date().toISOString(),
+      userId: user?.id,
+    };
+
+    let updatedSavedCamps;
+    if (isSaved) {
+      // Remove from saved
+      updatedSavedCamps = savedCamps.filter((camp: any) => camp.id !== campId);
+      toast({
+        title: "Хадгалсан амралт",
+        description: "Амралт хадгалсан жагсаалтаас хасагдлаа.",
+      });
+    } else {
+      // Add to saved
+      updatedSavedCamps = [...savedCamps, campToSave];
+      toast({
+        title: "Амжилттай хадгалагдлаа",
+        description: "Амралт хадгалсан жагсаалтад нэмэгдлээ.",
+      });
+    }
+
+    setSavedCamps(updatedSavedCamps);
+    setIsSaved(!isSaved);
+    localStorage.setItem("savedCamps", JSON.stringify(updatedSavedCamps));
+  };
 
   if (loading) {
     return (
@@ -307,9 +366,9 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-8">
+          <div className="lg:col-span-2 space-y-6 lg:space-y-8">
             {/* Image Gallery */}
             <div className="space-y-4">
               <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden">
@@ -319,7 +378,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="grid grid-cols-4 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {campData.images
                   .slice(0, 4)
                   .map((image: string, index: number) => (
@@ -367,10 +426,17 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className="font-medium bg-transparent"
+                    className={`font-medium bg-transparent ${
+                      isSaved ? "text-red-600 border-red-600" : ""
+                    }`}
+                    onClick={handleSaveCamp}
                   >
-                    <Heart className="w-4 h-4 mr-2" />
-                    Save
+                    <Heart
+                      className={`w-4 h-4 mr-2 ${
+                        isSaved ? "fill-current" : ""
+                      }`}
+                    />
+                    {isSaved ? "Хадгалсан" : "Хадгалах"}
                   </Button>
                   <Button
                     variant="outline"
@@ -707,11 +773,11 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
           {/* Booking Sidebar */}
           <div className="lg:col-span-1">
-            <div className="sticky top-8">
+            <div className="sticky top-4 lg:top-8">
               <Card>
-                <CardHeader>
+                <CardHeader className="p-4 lg:p-6">
                   <CardTitle className="flex items-center justify-between">
-                    <span className="text-2xl font-bold">
+                    <span className="text-xl lg:text-2xl font-bold">
                       ${campData.price}
                     </span>
                     <span className="text-sm text-gray-600 font-medium">
@@ -719,7 +785,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     </span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="p-4 lg:p-6 space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-1">

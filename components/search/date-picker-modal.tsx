@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Calendar } from "@/components/ui/calendar";
 
 interface DatePickerModalProps {
@@ -14,9 +14,30 @@ export function DatePickerModal({
   onClose,
   onSelect,
 }: DatePickerModalProps) {
-  if (!isOpen) return null;
-
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  // Outside click handler
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        modalRef.current &&
+        !modalRef.current.contains(event.target as Node)
+      ) {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
 
   const handleApply = () => {
     onSelect(selectedDate ?? null, selectedDate ?? null);
@@ -25,7 +46,10 @@ export function DatePickerModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
-      <div className="bg-white rounded-lg shadow-lg p-4 w-fit max-w-md">
+      <div
+        ref={modalRef}
+        className="bg-white rounded-lg shadow-lg p-4 w-fit max-w-md"
+      >
         <h3 className="text-lg font-semibold mb-3">Огноо сонгох</h3>
         <div className="border rounded-md">
           <Calendar

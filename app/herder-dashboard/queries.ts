@@ -40,8 +40,8 @@ export const GET_HERDER_PRODUCTS = gql`
 `
 
 export const GET_HERDER_YURTS = gql`
-  query GetHerderYurts {
-    yurts {
+  query GetHerderYurts($userId: ID!) {
+    yurts(userId: $userId) {
       edges {
         node {
           id
