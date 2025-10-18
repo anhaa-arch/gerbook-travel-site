@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
+import { useIdleLogout } from "@/hooks/use-idle-logout";
 import {
   Calendar,
   MapPin,
@@ -29,6 +30,8 @@ import { useQuery } from "@apollo/client";
 import "../../lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
+import { getPrimaryImage } from "@/lib/imageUtils";
+import { ProfileSettings } from "@/components/profile-settings";
 import {
   GET_USER_BOOKINGS,
   GET_USER_ORDERS,
@@ -49,6 +52,12 @@ interface Booking {
   amount: number;
   status: string;
   image: string;
+  owner?: {
+    id: string;
+    name: string;
+    email?: string;
+    phone?: string;
+  };
 }
 
 interface Order {
@@ -111,13 +120,22 @@ interface TravelRoute {
   review?: string;
 }
 
+// Enable debug logging (set to false in production)
+const DEBUG_MODE = process.env.NODE_ENV === 'development';
+
 export default function UserDashboardContent() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("overview");
   const { logout, user } = useAuth();
+  
+  // Auto-logout after 5 minutes of inactivity
+  useIdleLogout({
+    timeout: 5 * 60 * 1000, // 5 minutes
+    onLogout: logout,
+  });
 
   // Fetch real data from database
-  const { data: bookingsData, loading: bookingsLoading } = useQuery(
+  const { data: bookingsData, loading: bookingsLoading, error: bookingsError } = useQuery(
     GET_USER_BOOKINGS,
     {
       variables: { userId: user?.id },
@@ -125,7 +143,7 @@ export default function UserDashboardContent() {
     }
   );
 
-  const { data: ordersData, loading: ordersLoading } = useQuery(
+  const { data: ordersData, loading: ordersLoading, error: ordersError } = useQuery(
     GET_USER_ORDERS,
     {
       variables: { userId: user?.id },
@@ -133,7 +151,7 @@ export default function UserDashboardContent() {
     }
   );
 
-  const { data: travelBookingsData, loading: travelBookingsLoading } = useQuery(
+  const { data: travelBookingsData, loading: travelBookingsLoading, error: travelBookingsError } = useQuery(
     GET_USER_TRAVEL_BOOKINGS,
     {
       variables: { userId: user?.id },
@@ -141,55 +159,150 @@ export default function UserDashboardContent() {
     }
   );
 
-  const { data: yurtsData, loading: yurtsLoading } =
+  const { data: yurtsData, loading: yurtsLoading, error: yurtsError } =
     useQuery(GET_AVAILABLE_YURTS);
-  const { data: productsData, loading: productsLoading } = useQuery(
+  const { data: productsData, loading: productsLoading, error: productsError } = useQuery(
     GET_AVAILABLE_PRODUCTS
   );
-  const { data: travelsData, loading: travelsLoading } = useQuery(
+  const { data: travelsData, loading: travelsLoading, error: travelsError } = useQuery(
     GET_AVAILABLE_TRAVELS
   );
 
+  // Log any errors for debugging
+  if (DEBUG_MODE) {
+    if (bookingsError) console.error("Bookings error:", bookingsError);
+    if (ordersError) console.error("Orders error:", ordersError);
+    if (travelBookingsError) console.error("Travel bookings error:", travelBookingsError);
+  }
+
   // Transform data for display
   const bookings: Booking[] =
-    bookingsData?.bookings?.edges?.map((edge: any) => ({
-      id: edge.node.id,
-      camp: edge.node.yurt.name,
-      location: edge.node.yurt.location,
-      checkIn: edge.node.startDate,
-      checkOut: edge.node.endDate,
-      guests: 2, // Default since we don't have guest count in the schema
-      amount: edge.node.totalPrice,
-      status: edge.node.status.toLowerCase(),
-      image: edge.node.yurt.images || "/placeholder.svg",
-    })) || [];
+    bookingsData?.bookings?.edges?.map((edge: any) => {
+      const yurt = edge.node?.yurt || {};
+      const images = yurt.images;
+      const primaryImage = getPrimaryImage(images);
+      
+      if (DEBUG_MODE) {
+        console.log("Booking image data:", { 
+          yurtId: yurt.id, 
+          rawImages: images, 
+          primaryImage 
+        });
+      }
+      
+      // Format dates properly
+      const formatDate = (dateString: string) => {
+        try {
+          // Check if it's a timestamp (all numbers)
+          if (/^\d+$/.test(dateString)) {
+            const timestamp = parseInt(dateString);
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+          }
+          // If it's ISO date string
+          const date = new Date(dateString);
+          if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+          }
+          return dateString;
+        } catch {
+          return dateString;
+        }
+      };
+      
+      return {
+        id: edge.node.id,
+        camp: yurt.name || "Unknown Camp",
+        location: yurt.location || "Unknown Location",
+        checkIn: formatDate(edge.node.startDate),
+        checkOut: formatDate(edge.node.endDate),
+        guests: 2, // Default since we don't have guest count in the schema
+        amount: parseFloat(edge.node.totalPrice) || 0,
+        status: edge.node.status?.toLowerCase() || "pending",
+        image: primaryImage,
+        owner: yurt.owner ? {
+          id: yurt.owner.id,
+          name: yurt.owner.name,
+          email: yurt.owner.email,
+          phone: yurt.owner.phone,
+        } : undefined,
+      };
+    }) || [];
 
   const orders: Order[] =
-    ordersData?.orders?.edges?.map((edge: any) => ({
-      id: edge.node.id,
-      product: edge.node.items[0]?.product.name || "Multiple items",
-      seller: "Seller", // We don't have seller info in current schema
-      quantity: edge.node.items.reduce(
-        (sum: number, item: any) => sum + item.quantity,
-        0
-      ),
-      amount: edge.node.totalPrice,
-      status: edge.node.status.toLowerCase(),
-      date: edge.node.createdAt.split("T")[0],
-      image: edge.node.items[0]?.product.images || "/placeholder.svg",
-    })) || [];
+    ordersData?.orders?.edges?.map((edge: any) => {
+      const firstItem = edge.node?.items?.[0];
+      const product = firstItem?.product || {};
+      const images = product.images;
+      const primaryImage = getPrimaryImage(images);
+      
+      if (DEBUG_MODE) {
+        console.log("Order image data:", { 
+          orderId: edge.node.id, 
+          productId: product.id,
+          rawImages: images, 
+          primaryImage 
+        });
+      }
+      
+      return {
+        id: edge.node.id,
+        product: firstItem?.product?.name || "Multiple items",
+        seller: "Seller", // We don't have seller info in current schema
+        quantity: edge.node.items?.reduce(
+          (sum: number, item: any) => sum + (item.quantity || 0),
+          0
+        ) || 0,
+        amount: parseFloat(edge.node.totalPrice) || 0,
+        status: edge.node.status?.toLowerCase() || "pending",
+        date: edge.node.createdAt?.split("T")[0] || edge.node.createdAt,
+        image: primaryImage,
+      };
+    }) || [];
 
   const travelBookings: TravelBooking[] =
-    travelBookingsData?.travelBookings?.edges?.map((edge: any) => ({
-      id: edge.node.id,
-      travel: edge.node.travel.name,
-      location: edge.node.travel.location,
-      startDate: edge.node.startDate,
-      numberOfPeople: edge.node.numberOfPeople,
-      amount: edge.node.totalPrice,
-      status: edge.node.status.toLowerCase(),
-      image: edge.node.travel.images || "/placeholder.svg",
-    })) || [];
+    travelBookingsData?.travelBookings?.edges?.map((edge: any) => {
+      const travel = edge.node?.travel || {};
+      const images = travel.images;
+      const primaryImage = getPrimaryImage(images);
+      
+      if (DEBUG_MODE) {
+        console.log("Travel booking image data:", { 
+          travelId: travel.id, 
+          rawImages: images, 
+          primaryImage 
+        });
+      }
+      
+      // Format travel date
+      const formatTravelDate = (dateString: string) => {
+        try {
+          if (/^\d+$/.test(dateString)) {
+            const timestamp = parseInt(dateString);
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+          }
+          const date = new Date(dateString);
+          if (!isNaN(date.getTime())) {
+            return date.toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+          }
+          return dateString;
+        } catch {
+          return dateString;
+        }
+      };
+      
+      return {
+        id: edge.node.id,
+        travel: travel.name || "Unknown Travel",
+        location: travel.location || "Unknown Location",
+        startDate: formatTravelDate(edge.node.startDate),
+        numberOfPeople: edge.node.numberOfPeople || 0,
+        amount: parseFloat(edge.node.totalPrice) || 0,
+        status: edge.node.status?.toLowerCase() || "pending",
+        image: primaryImage,
+      };
+    }) || [];
 
   // Calculate stats from real data
   const totalBookings = bookings.length;
@@ -288,25 +401,42 @@ export default function UserDashboardContent() {
       notes: edge.node.description,
     })) || [];
 
+  // Show loading state
+  const isLoading = bookingsLoading || ordersLoading || travelBookingsLoading;
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 font-display">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-8">
+        <div className="mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 font-display">
             Хэрэглэгчийн хянах самбар
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base font-medium">
+          <p className="text-gray-600 text-xs sm:text-sm md:text-base font-medium mt-1">
             Захиалга, бараа болон аяллын тохиргоогоо удирдах
           </p>
         </div>
 
-        <div className="flex justify-end mb-4">
+        {/* Show errors if any */}
+        {(bookingsError || ordersError || travelBookingsError) && (
+          <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-red-800 font-medium">
+              Алдаа гарлаа. Дахин оролдоно уу.
+            </p>
+            {bookingsError && <p className="text-sm text-red-600">Захиалга: {bookingsError.message}</p>}
+            {ordersError && <p className="text-sm text-red-600">Бараа: {ordersError.message}</p>}
+            {travelBookingsError && <p className="text-sm text-red-600">Аялал: {travelBookingsError.message}</p>}
+          </div>
+        )}
+
+        <div className="flex justify-end mb-3 sm:mb-4">
           <Button
             variant="outline"
             onClick={logout}
-            className="flex items-center gap-2"
+            className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base px-3 py-2 sm:px-4 sm:py-2"
           >
-            <LogOut className="w-4 h-4" /> Гарах
+            <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
+            <span className="hidden xs:inline">Гарах</span>
+            <span className="xs:hidden">Гарах</span>
           </Button>
         </div>
 
@@ -315,35 +445,36 @@ export default function UserDashboardContent() {
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <div className="overflow-x-auto">
-            <TabsList className="grid w-full grid-cols-5 min-w-[500px] sm:min-w-0">
+          <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
+            <TabsList className="grid w-full grid-cols-5 gap-1 sm:gap-2 h-auto p-1">
               <TabsTrigger
                 value="overview"
-                className="text-xs sm:text-sm font-semibold"
+                className="text-[10px] xs:text-xs sm:text-sm font-semibold px-1.5 xs:px-2 sm:px-3 py-2 sm:py-2.5 whitespace-nowrap"
               >
                 Тойм
               </TabsTrigger>
               <TabsTrigger
                 value="bookings"
-                className="text-xs sm:text-sm font-semibold"
+                className="text-[10px] xs:text-xs sm:text-sm font-semibold px-1 xs:px-2 sm:px-3 py-2 sm:py-2.5 whitespace-nowrap leading-tight"
               >
-                Миний захиалгууд
+                <span className="hidden xs:inline">Миний захиалгууд</span>
+                <span className="xs:hidden">Захиалга</span>
               </TabsTrigger>
               <TabsTrigger
                 value="favorites"
-                className="text-xs sm:text-sm font-semibold"
+                className="text-[10px] xs:text-xs sm:text-sm font-semibold px-1.5 xs:px-2 sm:px-3 py-2 sm:py-2.5 whitespace-nowrap"
               >
                 Хадгалсан
               </TabsTrigger>
               <TabsTrigger
                 value="routes"
-                className="text-xs sm:text-sm font-semibold"
+                className="text-[10px] xs:text-xs sm:text-sm font-semibold px-1.5 xs:px-2 sm:px-3 py-2 sm:py-2.5 whitespace-nowrap"
               >
                 Маршрут
               </TabsTrigger>
               <TabsTrigger
                 value="profile"
-                className="text-xs sm:text-sm font-semibold"
+                className="text-[10px] xs:text-xs sm:text-sm font-semibold px-1.5 xs:px-2 sm:px-3 py-2 sm:py-2.5 whitespace-nowrap"
               >
                 Профайл
               </TabsTrigger>
@@ -351,192 +482,238 @@ export default function UserDashboardContent() {
           </div>
 
           {/* Overview Tab */}
-          <TabsContent value="overview" className="space-y-6">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-semibold">
-                    Нийт захиалга
+          <TabsContent value="overview" className="space-y-4 sm:space-y-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
+              <Card className="shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 sm:pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-[10px] xs:text-xs sm:text-sm font-semibold leading-tight">
+                    Нийт<br className="xs:hidden" /> захиалга
                   </CardTitle>
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                  <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="text-lg xs:text-xl sm:text-2xl font-bold">
                     {totalBookings}
                   </div>
-                  <p className="text-xs text-muted-foreground font-medium">
+                  <p className="text-[10px] xs:text-xs text-muted-foreground font-medium mt-0.5">
                     Энэ сард +{monthlyBookings}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-semibold">
-                    Барааны захиалга
+              <Card className="shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 sm:pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-[10px] xs:text-xs sm:text-sm font-semibold leading-tight">
+                    Барааны<br className="xs:hidden" /> захиалга
                   </CardTitle>
-                  <ShoppingBag className="h-4 w-4 text-muted-foreground" />
+                  <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="text-lg xs:text-xl sm:text-2xl font-bold">
                     {totalOrders}
                   </div>
-                  <p className="text-xs text-muted-foreground font-medium">
+                  <p className="text-[10px] xs:text-xs text-muted-foreground font-medium mt-0.5">
                     Энэ сард +{monthlyOrders}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-semibold">
-                    Нийт зарцуулсан
+              <Card className="shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 sm:pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-[10px] xs:text-xs sm:text-sm font-semibold leading-tight">
+                    Нийт<br className="xs:hidden" /> зарцуулсан
                   </CardTitle>
-                  <Package className="h-4 w-4 text-muted-foreground" />
+                  <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="text-lg xs:text-xl sm:text-2xl font-bold">
                     ${totalSpent.toFixed(0)}
                   </div>
-                  <p className="text-xs text-muted-foreground font-medium">
+                  <p className="text-[10px] xs:text-xs text-muted-foreground font-medium mt-0.5">
                     Энэ сард +${monthlySpent.toFixed(0)}
                   </p>
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-xs sm:text-sm font-semibold">
+              <Card className="shadow-sm">
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 sm:pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
+                  <CardTitle className="text-[10px] xs:text-xs sm:text-sm font-semibold leading-tight">
                     Хадгалсан
                   </CardTitle>
-                  <Heart className="h-4 w-4 text-muted-foreground" />
+                  <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                 </CardHeader>
-                <CardContent>
-                  <div className="text-xl sm:text-2xl font-bold">
+                <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
+                  <div className="text-lg xs:text-xl sm:text-2xl font-bold">
                     {favorites.length}
                   </div>
-                  <p className="text-xs text-muted-foreground font-medium">
+                  <p className="text-[10px] xs:text-xs text-muted-foreground font-medium mt-0.5">
                     Хадгалсан
                   </p>
                 </CardContent>
               </Card>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl font-bold">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
+              <Card className="shadow-sm">
+                <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+                  <CardTitle className="text-base sm:text-lg md:text-xl font-bold">
                     Ирэх захиалгууд
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {bookings
-                      .filter(
-                        (booking: Booking) =>
-                          booking.status === "upcoming" ||
-                          booking.status === "confirmed"
-                      )
-                      .map((booking: Booking) => (
-                        <div
-                          key={booking.id}
-                          className="flex items-center space-x-4"
-                        >
-                          <img
-                            src={booking.image || "/placeholder.svg"}
-                            alt={booking.camp}
-                            className="w-12 h-12 rounded-lg object-cover"
-                          />
-                          <div className="min-w-0 flex-1">
-                            <p className="font-semibold text-sm sm:text-base truncate">
-                              {booking.camp}
-                            </p>
-                            <p className="text-xs sm:text-sm text-gray-600 truncate font-medium">
-                              {booking.location}
-                            </p>
-                            <p className="text-xs text-gray-500 font-medium">
-                              {booking.checkIn} - {booking.checkOut}
-                            </p>
-                          </div>
-                          <div className="text-right">
-                            <p className="font-bold text-sm sm:text-base">
-                              ${booking.amount}
-                            </p>
-                            <Badge
-                              variant={
-                                booking.status === "confirmed"
-                                  ? "default"
-                                  : "secondary"
-                              }
-                              className="text-xs font-medium"
+                <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+                  {bookingsLoading ? (
+                    <div className="text-center py-4 text-gray-500 text-sm">
+                      Уншиж байна...
+                    </div>
+                  ) : (
+                    <div className="space-y-3 sm:space-y-4">
+                      {bookings
+                        .filter(
+                          (booking: Booking) =>
+                            booking.status === "upcoming" ||
+                            booking.status === "confirmed" ||
+                            booking.status === "pending"
+                        )
+                        .length === 0 ? (
+                        <p className="text-center text-gray-500 py-4">
+                          Ирэх захиалга байхгүй
+                        </p>
+                      ) : (
+                        bookings
+                          .filter(
+                            (booking: Booking) =>
+                              booking.status === "upcoming" ||
+                              booking.status === "confirmed" ||
+                              booking.status === "pending"
+                          )
+                          .map((booking: Booking) => (
+                            <div
+                              key={booking.id}
+                              className="flex items-center space-x-2 sm:space-x-4"
                             >
-                              {booking.status}
-                            </Badge>
-                          </div>
-                        </div>
-                      ))}
-                  </div>
+                              <img
+                                src={booking.image || "/placeholder.svg"}
+                                alt={booking.camp}
+                                className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = "/placeholder.svg";
+                                }}
+                              />
+                              <div className="min-w-0 flex-1">
+                                <p className="font-semibold text-xs sm:text-sm md:text-base truncate">
+                                  {booking.camp}
+                                </p>
+                                <p className="text-[10px] xs:text-xs sm:text-sm text-gray-600 truncate font-medium">
+                                  {booking.location}
+                                </p>
+                                <p className="text-[10px] xs:text-xs text-gray-500 font-medium hidden xs:block">
+                                  {booking.checkIn} - {booking.checkOut}
+                                </p>
+                              </div>
+                              <div className="text-right flex-shrink-0">
+                                <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
+                                  ${booking.amount}
+                                </p>
+                                <Badge
+                                  variant={
+                                    booking.status === "confirmed"
+                                      ? "default"
+                                      : "secondary"
+                                  }
+                                  className={`text-[10px] xs:text-xs font-medium mt-1 ${
+                                    booking.status === "confirmed"
+                                      ? "bg-green-100 text-green-800"
+                                      : ""
+                                  }`}
+                                >
+                                  {booking.status === "confirmed"
+                                    ? "Баталгаажсан"
+                                    : booking.status === "pending"
+                                    ? "Хүлээгдэж байна"
+                                    : booking.status}
+                                </Badge>
+                              </div>
+                            </div>
+                          ))
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg sm:text-xl font-bold">
+              <Card className="shadow-sm">
+                <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
+                  <CardTitle className="text-base sm:text-lg md:text-xl font-bold">
                     Сүүлийн захиалгууд
                   </CardTitle>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    {orders.slice(0, 3).map((order: Order) => (
-                      <div
-                        key={order.id}
-                        className="flex items-center space-x-4"
-                      >
-                        <img
-                          src={order.image || "/placeholder.svg"}
-                          alt={order.product}
-                          className="w-10 h-10 rounded object-cover"
-                        />
-                        <div className="min-w-0 flex-1">
-                          <p className="font-semibold text-sm sm:text-base truncate">
-                            {order.product}
-                          </p>
-                          <p className="text-xs sm:text-sm text-gray-600 truncate font-medium">
-                            {order.seller}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-sm sm:text-base">
-                            ${order.amount}
-                          </p>
-                          <Badge
-                            variant={
-                              order.status === "delivered"
-                                ? "default"
-                                : "secondary"
-                            }
-                            className="text-xs font-medium"
+                <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
+                  {ordersLoading ? (
+                    <div className="text-center py-4 text-gray-500 text-sm">
+                      Уншиж байна...
+                    </div>
+                  ) : (
+                    <div className="space-y-3 sm:space-y-4">
+                      {orders.length === 0 ? (
+                        <p className="text-center text-gray-500 py-4 text-sm">
+                          Захиалга байхгүй
+                        </p>
+                      ) : (
+                        orders.slice(0, 3).map((order: Order) => (
+                          <div
+                            key={order.id}
+                            className="flex items-center space-x-2 sm:space-x-4"
                           >
-                            {order.status}
-                          </Badge>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
+                            <img
+                              src={order.image || "/placeholder.svg"}
+                              alt={order.product}
+                              className="w-10 h-10 sm:w-12 sm:h-12 rounded object-cover flex-shrink-0"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/placeholder.svg";
+                              }}
+                            />
+                            <div className="min-w-0 flex-1">
+                              <p className="font-semibold text-xs sm:text-sm md:text-base truncate">
+                                {order.product}
+                              </p>
+                              <p className="text-[10px] xs:text-xs sm:text-sm text-gray-600 truncate font-medium">
+                                {order.seller}
+                              </p>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
+                                ${order.amount}
+                              </p>
+                              <Badge
+                                variant={
+                                  order.status === "delivered"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                                className="text-[10px] xs:text-xs font-medium mt-1"
+                              >
+                                {order.status}
+                              </Badge>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
             </div>
           </TabsContent>
 
           {/* Bookings Tab */}
-          <TabsContent value="bookings" className="space-y-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <h2 className="text-xl sm:text-2xl font-bold">
+          <TabsContent value="bookings" className="space-y-4 sm:space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
+              <h2 className="text-lg sm:text-xl md:text-2xl font-bold">
                 Миний захиалгууд
               </h2>
-              {user?.role === "CUSTOMER" && (
-                <Link href="/camps">
-                  <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold">
+              {user?.role === "user" && (
+                <Link href="/camps" className="w-full sm:w-auto">
+                  <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold text-sm sm:text-base px-4 py-2">
                     Шинэ бааз захиалах
                   </Button>
                 </Link>
@@ -544,26 +721,33 @@ export default function UserDashboardContent() {
             </div>
 
             {/* All Bookings Combined */}
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Camp Bookings */}
-              {bookings.length > 0 && (
+              {bookingsLoading ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">Захиалгуудыг уншиж байна...</p>
+                </div>
+              ) : bookings.length > 0 ? (
                 <div>
-                  <h3 className="text-lg font-bold mb-4">
+                  <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">
                     Амралт баазын захиалгууд
                   </h3>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                     {bookings.map((booking: Booking) => (
-                      <Card key={booking.id} className="overflow-hidden">
+                      <Card key={booking.id} className="overflow-hidden shadow-sm">
                         <div className="aspect-video bg-gray-100 flex items-center justify-center">
                           <img
                             src={booking.image || "/placeholder.svg"}
                             alt={booking.camp}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/placeholder.svg";
+                            }}
                           />
                         </div>
-                        <CardContent className="p-4">
+                        <CardContent className="p-3 sm:p-4">
                           <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-bold text-base sm:text-lg truncate flex-1">
+                            <h3 className="font-bold text-sm sm:text-base md:text-lg truncate flex-1 pr-2">
                               {booking.camp}
                             </h3>
                             <Badge
@@ -574,33 +758,67 @@ export default function UserDashboardContent() {
                                   ? "secondary"
                                   : "outline"
                               }
-                              className="text-xs ml-2 font-medium"
+                              className={`text-[10px] xs:text-xs ml-1 sm:ml-2 font-medium flex-shrink-0 ${
+                                booking.status === "confirmed"
+                                  ? "bg-green-100 text-green-800 border-green-300"
+                                  : booking.status === "pending"
+                                  ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                                  : ""
+                              }`}
                             >
-                              {booking.status}
+                              {booking.status === "confirmed"
+                                ? "Баталгаажсан"
+                                : booking.status === "pending"
+                                ? "Хүлээгдэж байна"
+                                : booking.status === "completed"
+                                ? "Дууссан"
+                                : booking.status === "cancelled"
+                                ? "Цуцлагдсан"
+                                : booking.status}
                             </Badge>
                           </div>
-                          <div className="flex items-center text-gray-600 mb-2">
-                            <MapPin className="w-4 h-4 mr-1" />
-                            <span className="text-sm truncate font-medium">
+                          <div className="flex items-center text-gray-600 mb-1.5 sm:mb-2">
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                            <span className="text-xs sm:text-sm truncate font-medium">
                               {booking.location}
                             </span>
                           </div>
-                          <div className="flex items-center text-gray-600 mb-4">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            <span className="text-sm font-medium">
+                          <div className="flex items-center text-gray-600 mb-3 sm:mb-4">
+                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                            <span className="text-xs sm:text-sm font-medium">
                               {booking.checkIn} - {booking.checkOut}
                             </span>
                           </div>
+                          
+                          {/* Owner Contact Info */}
+                          {booking.owner && (
+                            <div className="bg-gray-50 rounded-md p-2 sm:p-3 mb-3 space-y-1">
+                              <p className="text-xs font-semibold text-gray-700">
+                                Малчин: {booking.owner.name}
+                              </p>
+                              {booking.owner.phone && (
+                                <p className="text-xs text-gray-600 font-medium">
+                                  📞 {booking.owner.phone}
+                                </p>
+                              )}
+                              {booking.owner.email && (
+                                <p className="text-xs text-gray-600 truncate font-medium">
+                                  ✉️ {booking.owner.email}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                          
                           <div className="flex items-center justify-between">
                             <div>
-                              <span className="text-xl font-bold">
+                              <span className="text-base sm:text-lg md:text-xl font-bold">
                                 ${booking.amount}
                               </span>
-                              <span className="text-gray-600 ml-1 text-sm font-medium">
+                              <span className="text-gray-600 ml-1 text-[10px] xs:text-xs sm:text-sm font-medium">
                                 total
                               </span>
                             </div>
-                            <span className="text-sm text-gray-600 font-medium">
+                            <span className="text-xs sm:text-sm text-gray-600 font-medium">
                               {booking.guests} guests
                             </span>
                           </div>
@@ -609,25 +827,32 @@ export default function UserDashboardContent() {
                     ))}
                   </div>
                 </div>
-              )}
+              ) : null}
 
               {/* Travel Bookings */}
-              {travelBookings.length > 0 && (
+              {travelBookingsLoading ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">Аяллын захиалгуудыг уншиж байна...</p>
+                </div>
+              ) : travelBookings.length > 0 ? (
                 <div>
-                  <h3 className="text-lg font-bold mb-4">Аяллын захиалгууд</h3>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6">
+                  <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Аяллын захиалгууд</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                     {travelBookings.map((booking: TravelBooking) => (
-                      <Card key={booking.id} className="overflow-hidden">
+                      <Card key={booking.id} className="overflow-hidden shadow-sm">
                         <div className="aspect-video bg-gray-100 flex items-center justify-center">
                           <img
                             src={booking.image || "/placeholder.svg"}
                             alt={booking.travel}
                             className="w-full h-full object-cover"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/placeholder.svg";
+                            }}
                           />
                         </div>
-                        <CardContent className="p-4">
+                        <CardContent className="p-3 sm:p-4">
                           <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-bold text-base sm:text-lg truncate flex-1">
+                            <h3 className="font-bold text-sm sm:text-base md:text-lg truncate flex-1 pr-2">
                               {booking.travel}
                             </h3>
                             <Badge
@@ -638,9 +863,23 @@ export default function UserDashboardContent() {
                                   ? "secondary"
                                   : "outline"
                               }
-                              className="text-xs ml-2 font-medium"
+                              className={`text-xs ml-2 font-medium ${
+                                booking.status === "confirmed"
+                                  ? "bg-green-100 text-green-800 border-green-300"
+                                  : booking.status === "pending"
+                                  ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                                  : ""
+                              }`}
                             >
-                              {booking.status}
+                              {booking.status === "confirmed"
+                                ? "Баталгаажсан"
+                                : booking.status === "pending"
+                                ? "Хүлээгдэж байна"
+                                : booking.status === "completed"
+                                ? "Дууссан"
+                                : booking.status === "cancelled"
+                                ? "Цуцлагдсан"
+                                : booking.status}
                             </Badge>
                           </div>
                           <div className="flex items-center text-gray-600 mb-2">
@@ -673,37 +912,89 @@ export default function UserDashboardContent() {
                     ))}
                   </div>
                 </div>
-              )}
+              ) : null}
 
               {/* Product Orders */}
-              {orders.length > 0 && (
+              {ordersLoading ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">Барааны захиалгуудыг уншиж байна...</p>
+                </div>
+              ) : orders.length > 0 ? (
                 <div>
-                  <h3 className="text-lg font-bold mb-4">Барааны захиалгууд</h3>
-                  <Card>
+                  <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Барааны захиалгууд</h3>
+                  
+                  {/* Mobile: Card Layout */}
+                  <div className="sm:hidden space-y-3">
+                    {orders.map((order: Order) => (
+                      <Card key={order.id} className="shadow-sm">
+                        <CardContent className="p-3">
+                          <div className="flex items-start space-x-3 mb-2">
+                            <img
+                              src={order.image || "/placeholder.svg"}
+                              alt={order.product}
+                              className="w-12 h-12 rounded object-cover flex-shrink-0"
+                              onError={(e) => {
+                                (e.target as HTMLImageElement).src = "/placeholder.svg";
+                              }}
+                            />
+                            <div className="flex-1 min-w-0">
+                              <p className="font-semibold text-sm truncate">{order.product}</p>
+                              <p className="text-xs text-gray-600 truncate">{order.seller}</p>
+                              <p className="text-xs text-gray-500 mt-1">#{order.id.substring(0, 8)}</p>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <p className="font-bold text-sm">${order.amount}</p>
+                              <Badge
+                                variant={order.status === "delivered" ? "default" : order.status === "shipped" ? "secondary" : "outline"}
+                                className={`text-[10px] mt-1 ${
+                                  order.status === "delivered"
+                                    ? "bg-green-100 text-green-800"
+                                    : order.status === "shipped"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : order.status === "paid"
+                                    ? "bg-purple-100 text-purple-800"
+                                    : ""
+                                }`}
+                              >
+                                {order.status === "delivered" ? "Хүргэгдсэн" : order.status === "shipped" ? "Илгээсэн" : order.status === "paid" ? "Төлсөн" : order.status === "pending" ? "Хүлээгдэж байна" : order.status}
+                              </Badge>
+                            </div>
+                          </div>
+                          <div className="flex justify-between text-xs text-gray-600 mt-2 pt-2 border-t">
+                            <span>Тоо: {order.quantity}</span>
+                            <span>{order.date}</span>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                  
+                  {/* Desktop: Table Layout */}
+                  <Card className="hidden sm:block shadow-sm">
                     <CardContent className="p-0">
                       <div className="overflow-x-auto">
                         <Table>
                           <TableHeader>
                             <TableRow>
-                              <TableHead className="font-semibold">
+                              <TableHead className="font-semibold text-xs md:text-sm">
                                 Захиалгын №
                               </TableHead>
-                              <TableHead className="min-w-[150px] font-semibold">
+                              <TableHead className="min-w-[150px] font-semibold text-xs md:text-sm">
                                 Бараа
                               </TableHead>
-                              <TableHead className="min-w-[120px] font-semibold">
+                              <TableHead className="min-w-[120px] font-semibold text-xs md:text-sm">
                                 Борлуулагч
                               </TableHead>
-                              <TableHead className="font-semibold">
+                              <TableHead className="font-semibold text-xs md:text-sm">
                                 Тоо
                               </TableHead>
-                              <TableHead className="font-semibold">
+                              <TableHead className="font-semibold text-xs md:text-sm">
                                 Дүн
                               </TableHead>
-                              <TableHead className="font-semibold">
+                              <TableHead className="font-semibold text-xs md:text-sm">
                                 Төлөв
                               </TableHead>
-                              <TableHead className="hidden sm:table-cell font-semibold">
+                              <TableHead className="hidden md:table-cell font-semibold text-xs md:text-sm">
                                 Огноо
                               </TableHead>
                             </TableRow>
@@ -711,28 +1002,31 @@ export default function UserDashboardContent() {
                           <TableBody>
                             {orders.map((order: Order) => (
                               <TableRow key={order.id}>
-                                <TableCell className="font-semibold">
-                                  #{order.id}
+                                <TableCell className="font-semibold text-xs md:text-sm">
+                                  #{order.id.substring(0, 8)}
                                 </TableCell>
                                 <TableCell>
-                                  <div className="flex items-center space-x-3">
+                                  <div className="flex items-center space-x-2">
                                     <img
                                       src={order.image || "/placeholder.svg"}
                                       alt={order.product}
-                                      className="w-8 h-8 rounded object-cover"
+                                      className="w-8 h-8 rounded object-cover flex-shrink-0"
+                                      onError={(e) => {
+                                        (e.target as HTMLImageElement).src = "/placeholder.svg";
+                                      }}
                                     />
-                                    <span className="truncate max-w-[120px] font-medium">
+                                    <span className="truncate max-w-[120px] font-medium text-xs md:text-sm">
                                       {order.product}
                                     </span>
                                   </div>
                                 </TableCell>
-                                <TableCell className="truncate max-w-[120px] font-medium">
+                                <TableCell className="truncate max-w-[120px] font-medium text-xs md:text-sm">
                                   {order.seller}
                                 </TableCell>
-                                <TableCell className="font-medium">
+                                <TableCell className="font-medium text-xs md:text-sm">
                                   {order.quantity}
                                 </TableCell>
-                                <TableCell className="font-bold">
+                                <TableCell className="font-bold text-xs md:text-sm">
                                   ${order.amount}
                                 </TableCell>
                                 <TableCell>
@@ -744,12 +1038,28 @@ export default function UserDashboardContent() {
                                         ? "secondary"
                                         : "outline"
                                     }
-                                    className="font-medium"
+                                    className={`font-medium text-[10px] md:text-xs ${
+                                      order.status === "delivered"
+                                        ? "bg-green-100 text-green-800"
+                                        : order.status === "shipped"
+                                        ? "bg-blue-100 text-blue-800"
+                                        : order.status === "paid"
+                                        ? "bg-purple-100 text-purple-800"
+                                        : ""
+                                    }`}
                                   >
-                                    {order.status}
+                                    {order.status === "delivered"
+                                      ? "Хүргэгдсэн"
+                                      : order.status === "shipped"
+                                      ? "Илгээсэн"
+                                      : order.status === "paid"
+                                      ? "Төлсөн"
+                                      : order.status === "pending"
+                                      ? "Хүлээгдэж байна"
+                                      : order.status}
                                   </Badge>
                                 </TableCell>
-                                <TableCell className="hidden sm:table-cell font-medium">
+                                <TableCell className="hidden md:table-cell font-medium text-xs md:text-sm">
                                   {order.date}
                                 </TableCell>
                               </TableRow>
@@ -760,10 +1070,13 @@ export default function UserDashboardContent() {
                     </CardContent>
                   </Card>
                 </div>
-              )}
+              ) : null}
 
               {/* No bookings message */}
-              {bookings.length === 0 &&
+              {!bookingsLoading &&
+                !ordersLoading &&
+                !travelBookingsLoading &&
+                bookings.length === 0 &&
                 travelBookings.length === 0 &&
                 orders.length === 0 && (
                   <div className="text-center py-12">
@@ -1233,95 +1546,55 @@ export default function UserDashboardContent() {
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">
             <h2 className="text-xl sm:text-2xl font-bold">Профайл тохиргоо</h2>
+            
+            {user && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <ProfileSettings 
+                    user={{
+                      id: user.id,
+                      name: user.name,
+                      email: user.email,
+                      phone: (user as any).phone,
+                      role: user.role,
+                      hostBio: (user as any).hostBio,
+                      hostExperience: (user as any).hostExperience,
+                      hostLanguages: (user as any).hostLanguages,
+                    }}
+                  />
+                </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-bold">Хувийн мэдээлэл</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Бүтэн нэр
-                    </label>
-                    <Input
-                      defaultValue={user?.name || ""}
-                      className="font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Имэйл
-                    </label>
-                    <Input
-                      defaultValue={user?.email || ""}
-                      className="font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Утас
-                    </label>
-                    <Input
-                      defaultValue="+976 9911 2233"
-                      className="font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Байршил
-                    </label>
-                    <Input
-                      defaultValue="Улаанбаатар, Монгол"
-                      className="font-medium"
-                    />
-                  </div>
-                  <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
-                    Профайл шинэчлэх
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-bold">Дансны тойм</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 font-medium">
-                      Гишүүн болсон огноо
-                    </span>
-                    <span className="font-semibold">2024 оны 1-р сар</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 font-medium">
-                      Нийт захиалга
-                    </span>
-                    <span className="font-semibold">{totalBookings}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 font-medium">
-                      Нийт барааны захиалга
-                    </span>
-                    <span className="font-semibold">{totalOrders}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 font-medium">
-                      Нийт зарцуулсан
-                    </span>
-                    <span className="font-semibold">
-                      ${totalSpent.toFixed(0)}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 font-medium">
-                      Хамгийн дуртай газар
-                    </span>
-                    <span className="font-semibold">Хөвсгөл нуур</span>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                <div>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="font-bold">Дансны тойм</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 font-medium">
+                          Нийт захиалга
+                        </span>
+                        <span className="font-semibold">{totalBookings}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 font-medium">
+                          Нийт барааны захиалга
+                        </span>
+                        <span className="font-semibold">{totalOrders}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 font-medium">
+                          Нийт зарцуулсан
+                        </span>
+                        <span className="font-semibold">
+                          ${totalSpent.toFixed(0)}
+                        </span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
 export const GET_HERDER_STATS = gql`
-  query GetHerderStats($userId: ID!) {
+  query GetHerderStats {
     products {
       totalCount
     }
@@ -99,11 +99,13 @@ export const GET_HERDER_BOOKINGS = gql`
             id
             name
             email
+            phone
           }
           yurt {
             id
             name
             images
+            location
           }
           startDate
           endDate
@@ -194,5 +196,15 @@ export const UPDATE_PRODUCT = gql`
 export const DELETE_PRODUCT = gql`
   mutation DeleteProduct($id: ID!) {
     deleteProduct(id: $id)
+  }
+`
+
+export const UPDATE_BOOKING_STATUS = gql`
+  mutation UpdateBooking($id: ID!, $input: UpdateBookingInput!) {
+    updateBooking(id: $id, input: $input) {
+      id
+      status
+      updatedAt
+    }
   }
 `

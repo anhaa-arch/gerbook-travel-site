@@ -1,0 +1,43 @@
+# Энэ query-г Apollo Studio эсвэл GraphQL Playground дээр ажиллуулна
+# http://localhost:8000/graphql
+
+# 1. Тухайн yurt-ийн бүх захиалгуудыг харах
+query GetYurtBookings {
+  yurt(id: "6f74c9a7-f197-45dd-a19f-a16b5a46813f") {
+    id
+    name
+    location
+    bookings {
+      id
+      startDate
+      endDate
+      status
+      totalPrice
+      user {
+        id
+        username
+      }
+    }
+  }
+}
+
+# 2. Availability шалгах
+query CheckAvailability {
+  checkYurtAvailability(
+    yurtId: "6f74c9a7-f197-45dd-a19f-a16b5a46813f"
+    startDate: "2025-10-17T00:00:00.000Z"
+    endDate: "2025-10-24T00:00:00.000Z"
+  )
+}
+
+# Хэрэв 2-р query false буцаавал, 1-р query-гээр захиалгууд харж,
+# аль нь давхардаж байгааг олно.
+
+# Давхардлыг шалгах:
+# Таны огноо: 2025-10-17 - 2025-10-24
+# 
+# Давхардах тохиолдлууд:
+# - Захиалгын start >= 2025-10-17 AND start < 2025-10-24
+# - Захиалгын end > 2025-10-17 AND end <= 2025-10-24
+# - Захиалгын start <= 2025-10-17 AND end >= 2025-10-24
+

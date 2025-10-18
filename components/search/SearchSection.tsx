@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, MapPin, Calendar, Users, X } from "lucide-react";
@@ -10,6 +11,7 @@ import { GuestSelector } from "@/components/search/guest-selector";
 import mnData from "@/data";
 
 export function SearchSection() {
+  const router = useRouter();
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedDates, setSelectedDates] = useState<{
     start: Date | null;
@@ -19,8 +21,6 @@ export function SearchSection() {
     end: null,
   });
   const [selectedGuests, setSelectedGuests] = useState(1);
-
-  console.log(mnData());
 
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -57,12 +57,22 @@ export function SearchSection() {
   };
 
   const handleSearch = () => {
-    // Implement search logic here
-    console.log("Searching for:", {
-      location: selectedLocation,
-      dates: selectedDates,
-      guests: selectedGuests,
-    });
+    // Build query parameters
+    const params = new URLSearchParams();
+    
+    if (selectedLocation) {
+      params.append("province", selectedLocation);
+    }
+    
+    if (selectedGuests > 0) {
+      params.append("guests", selectedGuests.toString());
+    }
+    
+    // Navigate to camps page with filters
+    const queryString = params.toString();
+    const url = queryString ? `/camps?${queryString}` : "/camps";
+    
+    router.push(url);
   };
 
   return (
@@ -88,6 +98,8 @@ export function SearchSection() {
                   <button
                     onClick={handleLocationClear}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                    aria-label="Байршил цэвэрлэх"
+                    title="Байршил цэвэрлэх"
                   >
                     <X className="w-4 h-4 text-gray-600" />
                   </button>
@@ -118,6 +130,8 @@ export function SearchSection() {
                   <button
                     onClick={handleDateClear}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                    aria-label="Огноо цэвэрлэх"
+                    title="Огноо цэвэрлэх"
                   >
                     <X className="w-4 h-4 text-gray-600" />
                   </button>
@@ -143,6 +157,8 @@ export function SearchSection() {
                   <button
                     onClick={handleGuestClear}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 p-1 hover:bg-gray-100 rounded-full"
+                    aria-label="Зочин тоо цэвэрлэх"
+                    title="Зочин тоо цэвэрлэх"
                   >
                     <X className="w-4 h-4 text-gray-600" />
                   </button>

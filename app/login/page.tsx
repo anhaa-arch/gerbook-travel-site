@@ -15,8 +15,8 @@ import { useToast } from "@/components/ui/use-toast";
 import { gql, useMutation } from "@apollo/client";
 
 const LOGIN_MUTATION = gql`
-  mutation Login($email: String, $phone: String, $password: String!) {
-    login(email: $email, phone: $phone, password: $password) {
+  mutation Login($email: String!, $password: String!) {
+    login(email: $email, password: $password) {
       token
       user {
         id
@@ -56,14 +56,12 @@ export default function LoginPage() {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const digits = identifier.replace(/\D/g, "");
     const isEmailInput = emailRegex.test(identifier);
-    const isPhoneInput = /^\d{8,}$/.test(digits);
 
-    if (!isEmailInput && !isPhoneInput) {
+    if (!isEmailInput) {
       toast({
         title: "Алдаа",
-        description: "И-мэйл эсвэл утасны дугаарын формат буруу байна",
+        description: "И-мэйл хаягийн формат буруу байна",
         variant: "destructive" as any,
       });
       return;
@@ -89,18 +87,9 @@ export default function LoginPage() {
 
     setLoading(true);
     try {
-      // Build variables for email or phone based login
-      const variables: { email?: string; phone?: string; password: string } = {
-        password,
-      } as any;
-      if (isEmailInput) {
-        variables.email = identifier;
-      } else {
-        variables.phone = digits; // send digits-only phone
-      }
-
+      // Build variables for email-based login
       const { data } = await loginMutation({
-        variables,
+        variables: { email: identifier, password },
       });
 
       const payload = data?.login;

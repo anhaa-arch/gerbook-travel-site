@@ -10,7 +10,7 @@ import "../lib/i18n";
 import { gql, useQuery } from "@apollo/client";
 import { Footer } from "@/components/footer";
 import { SearchSection } from "@/components/search/SearchSection";
-import { getFirstImage } from "@/lib/imageUtils";
+import { getFirstImage, getPrimaryImage } from "@/lib/imageUtils";
 
 const GET_PRODUCTS = gql`
   query GetProducts($first: Int) {
@@ -122,7 +122,7 @@ export default function HomePage() {
               >
                 <div className="relative">
                   <Image
-                    src={getFirstImage(camp.images)}
+                    src={getPrimaryImage(camp.images)}
                     alt={camp.name}
                     width={300}
                     height={200}
@@ -182,7 +182,7 @@ export default function HomePage() {
               >
                 <div className="relative">
                   <Image
-                    src={getFirstImage(camp.images)}
+                    src={getPrimaryImage(camp.images)}
                     alt={camp.name}
                     width={300}
                     height={200}
@@ -298,7 +298,7 @@ export default function HomePage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
             {productEdges.map((edge: any) => {
               const product = edge.node;
-              const imageSrc = getFirstImage(product.images);
+              const imageSrc = getPrimaryImage(product.images);
               return (
                 <Card
                   key={product.id}

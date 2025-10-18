@@ -27,6 +27,12 @@ export const GET_USER_BOOKINGS = gql`
             name
             location
             images
+            owner {
+              id
+              name
+              email
+              phone
+            }
           }
           startDate
           endDate

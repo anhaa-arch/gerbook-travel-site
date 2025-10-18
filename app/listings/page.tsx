@@ -19,6 +19,7 @@ import { mongoliaData } from "@/lib/data";
 import mnData from "@/data";
 import { gql, useQuery } from "@apollo/client";
 import { getFirstImage } from "@/lib/imageUtils";
+import { amenitiesOptions } from "@/data/camp-options";
 import "../../lib/i18n";
 
 const GET_YURTS = gql`
@@ -277,9 +278,26 @@ export default function ListingsPage() {
                 {filteredCamps.length > 0 ? (
                   filteredCamps.map((camp: any) => {
                     const imageSrc = getFirstImage(camp.images);
-                    const amenities = camp.amenities
-                      ? camp.amenities.split(",")
-                      : [];
+                    
+                    // Parse amenities JSON
+                    let amenitiesList: string[] = [];
+                    try {
+                      if (camp.amenities) {
+                        const parsed = typeof camp.amenities === 'string' ? JSON.parse(camp.amenities) : camp.amenities;
+                        const items = parsed.items || [];
+                        // Map to Mongolian labels
+                        amenitiesList = items
+                          .map((value: string) => {
+                            const option = amenitiesOptions.find(a => a.value === value);
+                            return option ? option.label : value;
+                          })
+                          .filter(Boolean);
+                      }
+                    } catch (e) {
+                      // Fallback to old format (comma-separated)
+                      amenitiesList = camp.amenities ? camp.amenities.split(",") : [];
+                    }
+                    
                     return (
                       <Card
                         key={camp.id}
@@ -317,14 +335,14 @@ export default function ListingsPage() {
                           </div>
                           <div className="mb-4">
                             <div className="flex flex-wrap gap-1">
-                              {amenities
+                              {amenitiesList
                                 .slice(0, 3)
                                 .map((amenity: string, index: number) => (
                                   <span
                                     key={index}
                                     className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium"
                                   >
-                                    {amenity.trim()}
+                                    {amenity}
                                   </span>
                                 ))}
                             </div>

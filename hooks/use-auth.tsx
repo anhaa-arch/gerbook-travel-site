@@ -14,6 +14,9 @@ interface User {
   role: "admin" | "user" | "herder"
   avatar?: string
   isHerder?: boolean // Frontend flag for herder dashboard
+  hostBio?: string
+  hostExperience?: string
+  hostLanguages?: string
 }
 
 interface AuthContextType {
@@ -56,6 +59,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           avatar: rawUser.avatar,
           isHerder,
           role: normalizedRole,
+          hostBio: rawUser.hostBio,
+          hostExperience: rawUser.hostExperience,
+          hostLanguages: rawUser.hostLanguages,
         }
         setUser(normalizedUser)
         setIsAuthenticated(true)
@@ -97,6 +103,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         avatar: user.avatar,
         isHerder,
         role: normalizedRole,
+        hostBio: user.hostBio,
+        hostExperience: user.hostExperience,
+        hostLanguages: user.hostLanguages,
       };
       
       setUser(userWithHerderFlag)
@@ -114,13 +123,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // GraphQL operations
   const REGISTER_MUTATION = gql`
     mutation Register($input: CreateUserInput!) {
-      register(input: $input) { token user { id name email role } }
+      register(input: $input) { token user { id name email role hostBio hostExperience hostLanguages } }
     }
   `
 
   const LOGIN_MUTATION = gql`
     mutation Login($email: String!, $password: String!) {
-      login(email: $email, password: $password) { token user { id name email role } }
+      login(email: $email, password: $password) { token user { id name email role hostBio hostExperience hostLanguages } }
     }
   `
 
@@ -129,11 +138,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   `
 
   const VERIFY_OTP_MUTATION = gql`
-    mutation VerifyOtp($phone: String!, $otp: String!) { verifyOtp(phone: $phone, otp: $otp) { token user { id name email role } } }
+    mutation VerifyOtp($phone: String!, $otp: String!) { verifyOtp(phone: $phone, otp: $otp) { token user { id name email role hostBio hostExperience hostLanguages } } }
   `
 
   const RESET_PASSWORD_MUTATION = gql`
-    mutation ResetPassword($token: String!, $newPassword: String!) { resetPassword(token: $token, newPassword: $newPassword) { token user { id name email role } } }
+    mutation ResetPassword($token: String!, $newPassword: String!) { resetPassword(token: $token, newPassword: $newPassword) { token user { id name email role hostBio hostExperience hostLanguages } } }
   `
 
   const FORGOT_PASSWORD_MUTATION = gql`

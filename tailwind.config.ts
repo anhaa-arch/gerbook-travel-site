@@ -10,6 +10,9 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      screens: {
+        'xs': '475px',
+      },
       fontFamily: {
         sans: ["var(--font-montserrat)", "system-ui", "sans-serif"],
         display: ["var(--font-montserrat)", "system-ui", "sans-serif"],

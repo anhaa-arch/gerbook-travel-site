@@ -50,6 +50,14 @@ export const GET_ALL_YURTS = gql`
           amenities
           images
           description
+          ownerId
+          owner {
+            id
+            name
+            email
+            phone
+            role
+          }
           createdAt
         }
       }
@@ -89,6 +97,7 @@ export const GET_ALL_ORDERS = gql`
             id
             name
             email
+            phone
           }
           items {
             id
@@ -101,6 +110,7 @@ export const GET_ALL_ORDERS = gql`
           }
           totalPrice
           status
+          shippingAddress
           createdAt
         }
       }
@@ -118,10 +128,18 @@ export const GET_ALL_BOOKINGS = gql`
             id
             name
             email
+            phone
           }
           yurt {
             id
             name
+            location
+            owner {
+              id
+              name
+              email
+              phone
+            }
           }
           startDate
           endDate

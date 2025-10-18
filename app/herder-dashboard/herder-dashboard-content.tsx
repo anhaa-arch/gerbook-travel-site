@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useIdleLogout } from "@/hooks/use-idle-logout";
 import {
   Plus,
   Package,
@@ -14,6 +15,15 @@ import {
   LogOut,
   Upload,
   Link,
+  CheckCircle,
+  XCircle,
+  Phone,
+  Mail,
+  MapPin,
+  Calendar,
+  Users,
+  CreditCard,
+  AlertTriangle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -47,6 +57,16 @@ import { useQuery, useMutation } from "@apollo/client";
 import "../../lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/use-toast";
+import { ProfileSettings } from "@/components/profile-settings";
+import mnzipData from "@/data/mnzip.json";
+import {
+  amenitiesOptions,
+  activitiesOptions,
+  accommodationTypes,
+  facilitiesOptions,
+  policiesOptions,
+} from "@/data/camp-options";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   GET_HERDER_STATS,
   GET_HERDER_PRODUCTS,
@@ -59,11 +79,19 @@ import {
   CREATE_PRODUCT,
   UPDATE_PRODUCT,
   DELETE_PRODUCT,
+  UPDATE_BOOKING_STATUS,
 } from "./queries";
 
 export default function HerderDashboardContent() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("overview");
+  const { logout, user } = useAuth();
+  
+  // Auto-logout after 5 minutes of inactivity
+  useIdleLogout({
+    timeout: 5 * 60 * 1000, // 5 minutes
+    onLogout: logout,
+  });
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [showAddCamp, setShowAddCamp] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -73,7 +101,6 @@ export default function HerderDashboardContent() {
   );
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { logout, user } = useAuth();
   const { toast } = useToast();
 
   // Form states
@@ -81,11 +108,31 @@ export default function HerderDashboardContent() {
     name: "",
     description: "",
     location: "",
+    province: "",
+    district: "",
     pricePerNight: "",
     capacity: "",
-    amenities: "",
+    amenities: [] as string[],
+    activities: [] as string[],
+    accommodationType: "",
+    facilities: [] as string[],
+    checkIn: "14:00",
+    checkOut: "11:00",
+    childrenPolicy: "all_ages",
+    petsPolicy: "not_allowed",
+    smokingPolicy: "no_smoking",
+    cancellationPolicy: "free_48h",
     images: "",
   });
+  
+  // Province and district data
+  const provinces = mnzipData.zipcode;
+  const selectedProvince = provinces.find((p: any) => p.mnname === yurtForm.province);
+  const districts = selectedProvince?.sub_items || [];
+  
+  // Debug log for districts
+  console.log('📍 Selected Province:', yurtForm.province);
+  console.log('📍 Districts available:', districts.length);
   const [productForm, setProductForm] = useState({
     name: "",
     description: "",
@@ -97,11 +144,7 @@ export default function HerderDashboardContent() {
 
   // Fetch real data from database
   const { data: statsData, loading: statsLoading } = useQuery(
-    GET_HERDER_STATS,
-    {
-      variables: { userId: user?.id },
-      skip: !user?.id,
-    }
+    GET_HERDER_STATS
   );
   const { data: productsData, loading: productsLoading } =
     useQuery(GET_HERDER_PRODUCTS);
@@ -115,7 +158,7 @@ export default function HerderDashboardContent() {
   });
   const { data: ordersData, loading: ordersLoading } =
     useQuery(GET_HERDER_ORDERS);
-  const { data: bookingsData, loading: bookingsLoading } =
+  const { data: bookingsData, loading: bookingsLoading, refetch: refetchBookings } =
     useQuery(GET_HERDER_BOOKINGS);
 
   // Mutations
@@ -137,6 +180,9 @@ export default function HerderDashboardContent() {
   const [deleteProduct] = useMutation(DELETE_PRODUCT, {
     refetchQueries: [GET_HERDER_PRODUCTS, GET_HERDER_STATS],
   });
+  const [updateBookingStatus] = useMutation(UPDATE_BOOKING_STATUS, {
+    refetchQueries: [GET_HERDER_BOOKINGS],
+  });
 
   // Transform data for display
   const herder = {
@@ -147,7 +193,7 @@ export default function HerderDashboardContent() {
     joinDate: "2023 оны 3-р сар",
     totalProducts: productsData?.products?.edges?.length || 0,
     totalCamps: yurtsData?.yurts?.edges?.length || 0,
-    totalEarnings:
+    totalRevenue:
       (ordersData?.orders?.edges?.reduce(
         (sum: number, edge: any) => sum + edge.node.totalPrice,
         0
@@ -157,6 +203,19 @@ export default function HerderDashboardContent() {
         0
       ) || 0),
     rating: 4.8,
+  };
+
+  // Safely parse images string (JSON array or single URL) and return first image URL/base64
+  const getPrimaryImage = (images: any): string => {
+    if (!images) return "/placeholder.svg";
+    try {
+      const parsed = typeof images === "string" ? JSON.parse(images) : images;
+      if (Array.isArray(parsed) && parsed.length > 0) return String(parsed[0]);
+      if (typeof parsed === "string" && parsed) return parsed;
+      return "/placeholder.svg";
+    } catch {
+      return typeof images === "string" && images ? images : "/placeholder.svg";
+    }
   };
 
   // Calculate additional stats from real data
@@ -198,7 +257,7 @@ export default function HerderDashboardContent() {
       stock: edge.node.stock,
       sold: 0, // Default sold count
       status: edge.node.stock > 0 ? "active" : "out_of_stock",
-      image: edge.node.images || "/placeholder.svg",
+      image: getPrimaryImage(edge.node.images),
     })) || [];
 
   const camps =
@@ -211,7 +270,7 @@ export default function HerderDashboardContent() {
       bookings: 0, // Default booking count
       rating: 4.8, // Default rating
       status: "active",
-      image: edge.node.images || "/placeholder.svg",
+      image: getPrimaryImage(edge.node.images),
     })) || [];
 
   const orders =
@@ -232,12 +291,19 @@ export default function HerderDashboardContent() {
     bookingsData?.bookings?.edges?.map((edge: any) => ({
       id: edge.node.id,
       customer: edge.node.user?.name || "Unknown",
+      customerEmail: edge.node.user?.email || "N/A",
+      customerPhone: edge.node.user?.phone || "N/A",
       camp: edge.node.yurt?.name || "Unknown camp",
+      campLocation: edge.node.yurt?.location || "N/A",
       checkIn: edge.node.startDate,
       checkOut: edge.node.endDate,
-      guests: 2, // Default guest count
+      guests: 2, // Default value since backend doesn't have this field yet
       amount: edge.node.totalPrice,
+      paymentStatus: edge.node.status === "PENDING" || edge.node.status === "CONFIRMED" ? "unpaid" : "paid", // Derive from status
       status: edge.node.status.toLowerCase(),
+      rawStatus: edge.node.status, // Keep original uppercase status
+      image: getPrimaryImage(edge.node.yurt?.images),
+      yurtId: edge.node.yurt?.id,
     })) || [];
 
   // Yurt management functions
@@ -254,7 +320,20 @@ export default function HerderDashboardContent() {
             location: yurtForm.location,
             pricePerNight: parseFloat(yurtForm.pricePerNight),
             capacity: parseInt(yurtForm.capacity),
-            amenities: yurtForm.amenities,
+            amenities: JSON.stringify({
+              items: yurtForm.amenities,
+              activities: yurtForm.activities,
+              accommodationType: yurtForm.accommodationType,
+              facilities: yurtForm.facilities,
+              policies: {
+                checkIn: yurtForm.checkIn,
+                checkOut: yurtForm.checkOut,
+                children: yurtForm.childrenPolicy,
+                pets: yurtForm.petsPolicy,
+                smoking: yurtForm.smokingPolicy,
+                cancellation: yurtForm.cancellationPolicy,
+              },
+            }),
             images: JSON.stringify(optimizedImages),
           },
         },
@@ -265,12 +344,23 @@ export default function HerderDashboardContent() {
         name: "",
         description: "",
         location: "",
+        province: "",
+        district: "",
         pricePerNight: "",
         capacity: "",
-        amenities: "",
+        amenities: [],
+        activities: [],
+        accommodationType: "",
+        facilities: [],
+        checkIn: "14:00",
+        checkOut: "11:00",
+        childrenPolicy: "all_ages",
+        petsPolicy: "not_allowed",
+        smokingPolicy: "no_smoking",
+        cancellationPolicy: "free_48h",
         images: "",
       });
-      setUploadedImages([]); // Clear uploaded images
+      setUploadedImages([]);
     } catch (error: any) {
       toast({
         title: "Алдаа",
@@ -291,7 +381,20 @@ export default function HerderDashboardContent() {
             location: yurtForm.location,
             pricePerNight: parseFloat(yurtForm.pricePerNight),
             capacity: parseInt(yurtForm.capacity),
-            amenities: yurtForm.amenities,
+            amenities: JSON.stringify({
+              items: yurtForm.amenities,
+              activities: yurtForm.activities,
+              accommodationType: yurtForm.accommodationType,
+              facilities: yurtForm.facilities,
+              policies: {
+                checkIn: yurtForm.checkIn,
+                checkOut: yurtForm.checkOut,
+                children: yurtForm.childrenPolicy,
+                pets: yurtForm.petsPolicy,
+                smoking: yurtForm.smokingPolicy,
+                cancellation: yurtForm.cancellationPolicy,
+              },
+            }),
             images: JSON.stringify(uploadedImages.slice(0, 3)),
           },
         },
@@ -303,12 +406,23 @@ export default function HerderDashboardContent() {
         name: "",
         description: "",
         location: "",
+        province: "",
+        district: "",
         pricePerNight: "",
         capacity: "",
-        amenities: "",
+        amenities: [],
+        activities: [],
+        accommodationType: "",
+        facilities: [],
+        checkIn: "14:00",
+        checkOut: "11:00",
+        childrenPolicy: "all_ages",
+        petsPolicy: "not_allowed",
+        smokingPolicy: "no_smoking",
+        cancellationPolicy: "free_48h",
         images: "",
       });
-      setUploadedImages([]); // Clear uploaded images
+      setUploadedImages([]);
     } catch (error: any) {
       toast({
         title: "Алдаа",
@@ -337,15 +451,50 @@ export default function HerderDashboardContent() {
 
   const handleEditYurt = (yurt: any) => {
     setSelectedItem(yurt);
+    // Parse location to get province and district
+    const locationParts = yurt.location.split(', ');
+    
+    // Parse amenities JSON
+    let parsedAmenities: any = {};
+    try {
+      parsedAmenities = yurt.amenities ? JSON.parse(yurt.amenities) : {};
+    } catch (e) {
+      // Fallback for old string format
+      parsedAmenities = { items: [] };
+    }
+    
     setYurtForm({
       name: yurt.name,
       description: yurt.description || "",
       location: yurt.location,
-      pricePerNight: yurt.price?.toString() || "",
+      province: locationParts[0] || "",
+      district: locationParts[1] || "",
+      pricePerNight: yurt.pricePerNight?.toString() || "",
       capacity: yurt.capacity?.toString() || "",
-      amenities: yurt.amenities || "",
-      images: yurt.image || "",
+      amenities: parsedAmenities.items || [],
+      activities: parsedAmenities.activities || [],
+      accommodationType: parsedAmenities.accommodationType || "",
+      facilities: parsedAmenities.facilities || [],
+      checkIn: parsedAmenities.policies?.checkIn || "14:00",
+      checkOut: parsedAmenities.policies?.checkOut || "11:00",
+      childrenPolicy: parsedAmenities.policies?.children || "all_ages",
+      petsPolicy: parsedAmenities.policies?.pets || "not_allowed",
+      smokingPolicy: parsedAmenities.policies?.smoking || "no_smoking",
+      cancellationPolicy: parsedAmenities.policies?.cancellation || "free_48h",
+      images: yurt.images || "",
     });
+    
+    // Parse images and set uploadedImages
+    try {
+      const images = JSON.parse(yurt.images);
+      if (Array.isArray(images)) {
+        setUploadedImages(images);
+      }
+    } catch (e) {
+      // Handle single image or invalid format
+      setUploadedImages([]);
+    }
+    
     setShowAddCamp(true);
   };
 
@@ -563,14 +712,89 @@ export default function HerderDashboardContent() {
     }
   };
 
+  // Booking management functions
+  const handleAcceptBooking = async (bookingId: string) => {
+    try {
+      await updateBookingStatus({
+        variables: { 
+          id: bookingId, 
+          input: { status: "CONFIRMED" }
+        },
+      });
+      toast({
+        title: "Амжилттай",
+        description: "Захиалгыг баталгаажууллаа",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Алдаа",
+        description: error.message,
+        variant: "destructive" as any,
+      });
+    }
+  };
+
+  const handleRejectBooking = async (bookingId: string) => {
+    try {
+      await updateBookingStatus({
+        variables: { 
+          id: bookingId, 
+          input: { status: "CANCELLED" }
+        },
+      });
+      toast({
+        title: "Амжилттай",
+        description: "Захиалгыг цуцаллаа",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Алдаа",
+        description: error.message,
+        variant: "destructive" as any,
+      });
+    }
+  };
+
+  // Check for booking date conflicts
+  const checkDateConflicts = (yurtId: string, checkIn: string, checkOut: string, excludeBookingId?: string) => {
+    const conflictingBookings = bookings.filter((booking: any) => {
+      if (booking.yurtId !== yurtId) return false;
+      if (excludeBookingId && booking.id === excludeBookingId) return false;
+      if (booking.status === "cancelled" || booking.rawStatus === "CANCELLED") return false;
+
+      const bookingStart = new Date(booking.checkIn).getTime();
+      const bookingEnd = new Date(booking.checkOut).getTime();
+      const newStart = new Date(checkIn).getTime();
+      const newEnd = new Date(checkOut).getTime();
+
+      // Check if dates overlap
+      return (newStart < bookingEnd && newEnd > bookingStart);
+    });
+
+    return conflictingBookings;
+  };
+
+  // Format date to readable format
+  const formatDate = (dateString: string) => {
+    try {
+      const timestamp = parseInt(dateString);
+      if (!isNaN(timestamp)) {
+        return new Date(timestamp).toLocaleDateString('mn-MN');
+      }
+      return new Date(dateString).toLocaleDateString('mn-MN');
+    } catch {
+      return dateString;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 font-display">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-8">
+        <div className="mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 font-display">
             Малчны самбар
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base font-medium">
+          <p className="text-gray-600 text-xs sm:text-sm md:text-base font-medium mt-1">
             Өөрийн бүтээгдэхүүн, бааз, захиалгаа удирдаарай
           </p>
         </div>
@@ -671,7 +895,7 @@ export default function HerderDashboardContent() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl sm:text-2xl font-bold">
-                    ${herder.totalEarnings}
+                    ${herder.totalRevenue}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
                     +15% өнгөрсөн сараас
@@ -799,21 +1023,14 @@ export default function HerderDashboardContent() {
               </Button>
             </div>
 
-            {showAddProduct && (
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="font-bold">
-                    Шинэ бүтээгдэхүүн нэмэх
-                  </CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowAddProduct(false)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <Dialog open={showAddProduct} onOpenChange={setShowAddProduct}>
+              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="font-bold">
+                    {selectedItem ? "Бүтээгдэхүүн засах" : "Шинэ бүтээгдэхүүн нэмэх"}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -948,6 +1165,7 @@ export default function HerderDashboardContent() {
                           accept="image/*"
                           onChange={(e) => handleFileUpload(e, "product")}
                           className="hidden"
+                          aria-label="Бүтээгдэхүүний зураг оруулах"
                         />
                         <Button
                           type="button"
@@ -1044,15 +1262,16 @@ export default function HerderDashboardContent() {
                           images: "",
                           categoryId: "",
                         });
+                        setUploadedImages([]);
                       }}
                       className="font-medium"
                     >
                       Цуцлах
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                </div>
+              </DialogContent>
+            </Dialog>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {products.map((product: any) => (
@@ -1138,19 +1357,14 @@ export default function HerderDashboardContent() {
               </Button>
             </div>
 
-            {showAddCamp && (
-              <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="font-bold">Шинэ бааз нэмэх</CardTitle>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => setShowAddCamp(false)}
-                  >
-                    <X className="w-4 h-4" />
-                  </Button>
-                </CardHeader>
-                <CardContent className="space-y-4">
+            <Dialog open={showAddCamp} onOpenChange={setShowAddCamp}>
+              <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle className="font-bold">
+                    {selectedItem ? "Бааз засах" : "Шинэ бааз нэмэх"}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -1167,16 +1381,66 @@ export default function HerderDashboardContent() {
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Location
+                        Аймаг
                       </label>
-                      <Input
-                        placeholder="Province, District"
-                        className="font-medium"
-                        value={yurtForm.location}
-                        onChange={(e) =>
-                          setYurtForm({ ...yurtForm, location: e.target.value })
-                        }
-                      />
+                      <Select
+                        value={yurtForm.province}
+                        onValueChange={(value) => {
+                          console.log('🏔️ Province selected:', value);
+                          setYurtForm({ 
+                            ...yurtForm, 
+                            province: value,
+                            district: "", // Reset district when province changes
+                            location: value // Temporarily set to province only
+                          });
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Аймаг сонгох" />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px]">
+                          {provinces.map((province: any) => (
+                            <SelectItem key={province.zipcode} value={province.mnname}>
+                              {province.mnname}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                        Сум/Дүүрэг
+                      </label>
+                      <Select
+                        value={yurtForm.district}
+                        onValueChange={(value) => {
+                          console.log('🏘️ District selected:', value);
+                          const location = `${yurtForm.province}, ${value}`;
+                          setYurtForm({ 
+                            ...yurtForm, 
+                            district: value,
+                            location: location
+                          });
+                        }}
+                        disabled={!yurtForm.province}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder={yurtForm.province ? "Сум/Дүүрэг сонгох" : "Эхлээд аймаг сонгоно уу"} />
+                        </SelectTrigger>
+                        <SelectContent className="max-h-[300px]">
+                          {districts.length > 0 ? (
+                            districts.map((district: any) => (
+                              <SelectItem key={district.zipcode} value={district.mnname}>
+                                {district.mnname}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <div className="p-2 text-sm text-gray-500">
+                              Сум олдсонгүй
+                            </div>
+                          )}
+                        </SelectContent>
+                      </Select>
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -1226,18 +1490,284 @@ export default function HerderDashboardContent() {
                       }
                     />
                   </div>
+                  {/* Amenities - Checkbox */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Тасалбар
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
+                      {amenitiesOptions.map((amenity) => (
+                        <label
+                          key={amenity.value}
+                          className="flex items-center space-x-2 cursor-pointer hover:bg-white p-2 rounded transition-colors"
+                        >
+                          <Checkbox
+                            checked={yurtForm.amenities.includes(amenity.value)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setYurtForm({
+                                  ...yurtForm,
+                                  amenities: [...yurtForm.amenities, amenity.value],
+                                });
+                              } else {
+                                setYurtForm({
+                                  ...yurtForm,
+                                  amenities: yurtForm.amenities.filter(
+                                    (a) => a !== amenity.value
+                                  ),
+                                });
+                              }
+                            }}
+                          />
+                          <span className="text-sm">{amenity.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Activities - Checkbox */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Үйл ажиллагаа
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
+                      {activitiesOptions.map((activity) => (
+                        <label
+                          key={activity.value}
+                          className="flex items-center space-x-2 cursor-pointer hover:bg-white p-2 rounded transition-colors"
+                        >
+                          <Checkbox
+                            checked={yurtForm.activities.includes(activity.value)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setYurtForm({
+                                  ...yurtForm,
+                                  activities: [...yurtForm.activities, activity.value],
+                                });
+                              } else {
+                                setYurtForm({
+                                  ...yurtForm,
+                                  activities: yurtForm.activities.filter(
+                                    (a) => a !== activity.value
+                                  ),
+                                });
+                              }
+                            }}
+                          />
+                          <span className="text-sm">{activity.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Accommodation Type - Select */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Amenities (comma separated)
+                      Байрны төрөл
                     </label>
-                    <Input
-                      placeholder="WiFi, Heating, Breakfast..."
-                      className="font-medium"
-                      value={yurtForm.amenities}
-                      onChange={(e) =>
-                        setYurtForm({ ...yurtForm, amenities: e.target.value })
+                    <Select
+                      value={yurtForm.accommodationType}
+                      onValueChange={(value) =>
+                        setYurtForm({ ...yurtForm, accommodationType: value })
                       }
-                    />
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Төрөл сонгох" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {accommodationTypes.map((type) => (
+                          <SelectItem key={type.value} value={type.value}>
+                            {type.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Facilities - Checkbox */}
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-3">
+                      Тохижилт
+                    </label>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
+                      {facilitiesOptions.map((facility) => (
+                        <label
+                          key={facility.value}
+                          className="flex items-center space-x-2 cursor-pointer hover:bg-white p-2 rounded transition-colors"
+                        >
+                          <Checkbox
+                            checked={yurtForm.facilities.includes(facility.value)}
+                            onCheckedChange={(checked) => {
+                              if (checked) {
+                                setYurtForm({
+                                  ...yurtForm,
+                                  facilities: [...yurtForm.facilities, facility.value],
+                                });
+                              } else {
+                                setYurtForm({
+                                  ...yurtForm,
+                                  facilities: yurtForm.facilities.filter(
+                                    (f) => f !== facility.value
+                                  ),
+                                });
+                              }
+                            }}
+                          />
+                          <span className="text-sm">{facility.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Policies */}
+                  <div className="border-t pt-4 space-y-4">
+                    <h3 className="font-bold text-base">Дүрэм журам</h3>
+                    
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {/* Check-in Time */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Ирэх цаг
+                        </label>
+                        <Select
+                          value={yurtForm.checkIn}
+                          onValueChange={(value) =>
+                            setYurtForm({ ...yurtForm, checkIn: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {policiesOptions.checkInTimes.map((time) => (
+                              <SelectItem key={time.value} value={time.value}>
+                                {time.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Check-out Time */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Гарах цаг
+                        </label>
+                        <Select
+                          value={yurtForm.checkOut}
+                          onValueChange={(value) =>
+                            setYurtForm({ ...yurtForm, checkOut: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {policiesOptions.checkOutTimes.map((time) => (
+                              <SelectItem key={time.value} value={time.value}>
+                                {time.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Children Policy */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Хүүхдийн дүрэм
+                        </label>
+                        <Select
+                          value={yurtForm.childrenPolicy}
+                          onValueChange={(value) =>
+                            setYurtForm({ ...yurtForm, childrenPolicy: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {policiesOptions.childrenPolicy.map((policy) => (
+                              <SelectItem key={policy.value} value={policy.value}>
+                                {policy.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Pets Policy */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Тэжээвэр амьтны дүрэм
+                        </label>
+                        <Select
+                          value={yurtForm.petsPolicy}
+                          onValueChange={(value) =>
+                            setYurtForm({ ...yurtForm, petsPolicy: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {policiesOptions.petsPolicy.map((policy) => (
+                              <SelectItem key={policy.value} value={policy.value}>
+                                {policy.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Smoking Policy */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Тамхины дүрэм
+                        </label>
+                        <Select
+                          value={yurtForm.smokingPolicy}
+                          onValueChange={(value) =>
+                            setYurtForm({ ...yurtForm, smokingPolicy: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {policiesOptions.smokingPolicy.map((policy) => (
+                              <SelectItem key={policy.value} value={policy.value}>
+                                {policy.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Cancellation Policy */}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Цуцлалтын дүрэм
+                        </label>
+                        <Select
+                          value={yurtForm.cancellationPolicy}
+                          onValueChange={(value) =>
+                            setYurtForm({ ...yurtForm, cancellationPolicy: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {policiesOptions.cancellationPolicy.map((policy) => (
+                              <SelectItem key={policy.value} value={policy.value}>
+                                {policy.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -1281,6 +1811,7 @@ export default function HerderDashboardContent() {
                           accept="image/*"
                           onChange={(e) => handleFileUpload(e, "yurt")}
                           className="hidden"
+                          aria-label="Гэр баазын зураг оруулах"
                         />
                         <Button
                           type="button"
@@ -1371,20 +1902,32 @@ export default function HerderDashboardContent() {
                           name: "",
                           description: "",
                           location: "",
+                          province: "",
+                          district: "",
                           pricePerNight: "",
                           capacity: "",
-                          amenities: "",
+                          amenities: [],
+                          activities: [],
+                          accommodationType: "",
+                          facilities: [],
+                          checkIn: "14:00",
+                          checkOut: "11:00",
+                          childrenPolicy: "all_ages",
+                          petsPolicy: "not_allowed",
+                          smokingPolicy: "no_smoking",
+                          cancellationPolicy: "free_48h",
                           images: "",
                         });
+                        setUploadedImages([]);
                       }}
                       className="font-medium"
                     >
                       Цуцлах
                     </Button>
                   </div>
-                </CardContent>
-              </Card>
-            )}
+                </div>
+              </DialogContent>
+            </Dialog>
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
               {camps.map((camp: any) => (
@@ -1544,78 +2087,197 @@ export default function HerderDashboardContent() {
                 <CardHeader>
                   <CardTitle className="font-bold">Camp Bookings</CardTitle>
                 </CardHeader>
-                <CardContent className="p-0">
-                  <div className="overflow-x-auto">
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="font-semibold">
-                            Booking ID
-                          </TableHead>
-                          <TableHead className="min-w-[120px] font-semibold">
-                            Customer
-                          </TableHead>
-                          <TableHead className="min-w-[150px] font-semibold">
-                            Camp
-                          </TableHead>
-                          <TableHead className="hidden sm:table-cell font-semibold">
-                            Check-in
-                          </TableHead>
-                          <TableHead className="hidden sm:table-cell font-semibold">
-                            Check-out
-                          </TableHead>
-                          <TableHead className="font-semibold">
-                            Guests
-                          </TableHead>
-                          <TableHead className="font-semibold">
-                            Amount
-                          </TableHead>
-                          <TableHead className="font-semibold">
-                            Status
-                          </TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {bookings.map((booking: any) => (
-                          <TableRow key={booking.id}>
-                            <TableCell className="font-bold">
-                              #{booking.id}
-                            </TableCell>
-                            <TableCell className="truncate max-w-[120px] font-medium">
-                              {booking.customer}
-                            </TableCell>
-                            <TableCell className="truncate max-w-[150px] font-medium">
+                <CardContent className="space-y-4">
+                  {bookings.length === 0 ? (
+                    <div className="text-center py-8 text-gray-500">
+                      Захиалга байхгүй байна
+                    </div>
+                  ) : (
+                    bookings.map((booking: any) => {
+                      const conflicts = checkDateConflicts(
+                        booking.yurtId,
+                        booking.checkIn,
+                        booking.checkOut,
+                        booking.id
+                      );
+                      const hasConflict = conflicts.length > 0;
+
+                      return (
+                        <Card
+                          key={booking.id}
+                          className={`border-l-4 ${
+                            hasConflict
+                              ? "border-l-orange-500"
+                              : booking.status === "pending"
+                              ? "border-l-yellow-500"
+                              : booking.status === "confirmed"
+                              ? "border-l-green-500"
+                              : "border-l-gray-300"
+                          }`}
+                        >
+                          <CardContent className="p-4 sm:p-6">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                              {/* Left Column - Booking Details */}
+                              <div className="space-y-4">
+                                <div className="flex items-start justify-between">
+                                  <div>
+                                    <h3 className="text-lg font-bold text-gray-900">
                               {booking.camp}
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell font-medium">
-                              {booking.checkIn}
-                            </TableCell>
-                            <TableCell className="hidden sm:table-cell font-medium">
-                              {booking.checkOut}
-                            </TableCell>
-                            <TableCell className="font-medium">
-                              {booking.guests}
-                            </TableCell>
-                            <TableCell className="font-bold">
-                              ${booking.amount}
-                            </TableCell>
-                            <TableCell>
+                                    </h3>
+                                    <p className="text-sm text-gray-600 flex items-center mt-1">
+                                      <MapPin className="w-3 h-3 mr-1" />
+                                      {booking.campLocation}
+                                    </p>
+                                  </div>
                               <Badge
                                 variant={
-                                  booking.status === "completed"
+                                      booking.status === "confirmed"
                                     ? "default"
-                                    : "secondary"
+                                        : booking.status === "pending"
+                                        ? "secondary"
+                                        : "destructive"
                                 }
                                 className="font-medium"
                               >
                                 {booking.status}
                               </Badge>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
+                                </div>
+
+                                <div className="text-xs text-gray-500 font-mono">
+                                  Захиалгын код: #{booking.id}
+                                </div>
+
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-1">
+                                    <div className="flex items-center text-sm text-gray-600">
+                                      <Calendar className="w-4 h-4 mr-2" />
+                                      Ирэх
+                                    </div>
+                                    <div className="font-semibold">
+                                      {formatDate(booking.checkIn)}
+                                    </div>
+                                  </div>
+                                  <div className="space-y-1">
+                                    <div className="flex items-center text-sm text-gray-600">
+                                      <Calendar className="w-4 h-4 mr-2" />
+                                      Гарах
+                                    </div>
+                                    <div className="font-semibold">
+                                      {formatDate(booking.checkOut)}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center justify-between pt-2 border-t">
+                                  <div className="flex items-center text-sm text-gray-600">
+                                    <Users className="w-4 h-4 mr-2" />
+                                    {booking.guests} зочин
+                                  </div>
+                                  <div className="text-right">
+                                    <div className="text-2xl font-bold text-emerald-600">
+                                      ${booking.amount}
+                                    </div>
+                                    <div className="flex items-center text-xs mt-1">
+                                      <CreditCard className="w-3 h-3 mr-1" />
+                                      <span
+                                        className={
+                                          booking.paymentStatus === "paid"
+                                            ? "text-green-600 font-semibold"
+                                            : "text-orange-600 font-semibold"
+                                        }
+                                      >
+                                        {booking.paymentStatus === "paid"
+                                          ? "Төлбөр төлөгдсөн"
+                                          : "Төлбөр хүлээгдэж байна"}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Right Column - Customer Details & Actions */}
+                              <div className="space-y-4">
+                                <div className="bg-gray-50 rounded-lg p-4 space-y-3">
+                                  <h4 className="font-semibold text-gray-900">
+                                    Захиалагчийн мэдээлэл
+                                  </h4>
+                                  <div className="space-y-2">
+                                    <div className="flex items-center text-sm">
+                                      <Users className="w-4 h-4 mr-2 text-gray-500" />
+                                      <span className="font-medium">
+                                        {booking.customer}
+                                      </span>
+                                    </div>
+                                    <div className="flex items-center text-sm">
+                                      <Mail className="w-4 h-4 mr-2 text-gray-500" />
+                                      <a
+                                        href={`mailto:${booking.customerEmail}`}
+                                        className="text-blue-600 hover:underline"
+                                      >
+                                        {booking.customerEmail}
+                                      </a>
+                                    </div>
+                                    <div className="flex items-center text-sm">
+                                      <Phone className="w-4 h-4 mr-2 text-gray-500" />
+                                      <a
+                                        href={`tel:${booking.customerPhone}`}
+                                        className="text-blue-600 hover:underline"
+                                      >
+                                        {booking.customerPhone}
+                                      </a>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {hasConflict && (
+                                  <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                                    <div className="flex items-start">
+                                      <AlertTriangle className="w-4 h-4 text-orange-600 mr-2 mt-0.5" />
+                                      <div className="text-sm">
+                                        <p className="font-semibold text-orange-800">
+                                          Хугацаа давхцаж байна!
+                                        </p>
+                                        <p className="text-orange-700 text-xs mt-1">
+                                          {conflicts.length} захиалгатай огноо
+                                          давхцаж байна
+                                        </p>
+                                      </div>
+                                    </div>
+                                  </div>
+                                )}
+
+                                {booking.status === "pending" && (
+                                  <div className="flex flex-col sm:flex-row gap-2 pt-2">
+                                    <Button
+                                      onClick={() =>
+                                        handleAcceptBooking(booking.id)
+                                      }
+                                      className="flex-1 bg-green-600 hover:bg-green-700"
+                                      size="sm"
+                                    >
+                                      <CheckCircle className="w-4 h-4 mr-2" />
+                                      Зөвшөөрөх
+                                    </Button>
+                                    <Button
+                                      onClick={() =>
+                                        handleRejectBooking(booking.id)
+                                      }
+                                      variant="destructive"
+                                      className="flex-1"
+                                      size="sm"
+                                    >
+                                      <XCircle className="w-4 h-4 mr-2" />
+                                      Татгалзах
+                                    </Button>
+                                  </div>
+                                )}
+                              </div>
                   </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })
+                  )}
                 </CardContent>
               </Card>
             </div>
@@ -1623,102 +2285,65 @@ export default function HerderDashboardContent() {
 
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">
-            <h2 className="text-xl sm:text-2xl font-bold">Profile Settings</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">Профайл тохиргоо</h2>
+            
+            {user && (
+              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="lg:col-span-2">
+                  <ProfileSettings 
+                    user={{
+                      id: user.id,
+                      name: user.name,
+                      email: user.email,
+                      phone: (user as any).phone,
+                      role: user.role,
+                      hostBio: (user as any).hostBio,
+                      hostExperience: (user as any).hostExperience,
+                      hostLanguages: (user as any).hostLanguages,
+                    }}
+                  />
+                </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-bold">
-                    Personal Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Full Name
-                    </label>
-                    <Input defaultValue={herder.name} className="font-medium" />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Email
-                    </label>
-                    <Input
-                      defaultValue={herder.email}
-                      className="font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Phone
-                    </label>
-                    <Input
-                      defaultValue={herder.phone}
-                      className="font-medium"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Location
-                    </label>
-                    <Input
-                      defaultValue={herder.location}
-                      className="font-medium"
-                    />
-                  </div>
-                  <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
-                    {t("user.update_profile")}
-                  </Button>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle className="font-bold">
-                    Account Statistics
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 font-medium">
-                      Member since
-                    </span>
-                    <span className="font-semibold">{herder.joinDate}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 font-medium">
-                      Total products
-                    </span>
-                    <span className="font-semibold">
-                      {herder.totalProducts}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 font-medium">
-                      Active camps
-                    </span>
-                    <span className="font-semibold">{herder.totalCamps}</span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 font-medium">
-                      Total earnings
-                    </span>
-                    <span className="font-bold text-emerald-600">
-                      ${herder.totalEarnings}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-gray-600 font-medium">
-                      Average rating
-                    </span>
-                    <div className="flex items-center">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
-                      <span className="font-semibold">{herder.rating}</span>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+                <div>
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="font-bold">Дансны тойм</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 font-medium">
+                          Нийт бүтээгдэхүүн
+                        </span>
+                        <span className="font-semibold">{herder.totalProducts}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 font-medium">
+                          Нийт гэр
+                        </span>
+                        <span className="font-semibold">{herder.totalCamps}</span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 font-medium">
+                          Нийт орлого
+                        </span>
+                        <span className="font-bold text-emerald-600">
+                          ${herder.totalRevenue.toFixed(0)}
+                        </span>
+                      </div>
+                      <div className="flex items-center justify-between">
+                        <span className="text-sm text-gray-600 font-medium">
+                          Дундаж үнэлгээ
+                        </span>
+                        <div className="flex items-center">
+                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
+                          <span className="font-semibold">{herder.rating}</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+            )}
           </TabsContent>
         </Tabs>
 

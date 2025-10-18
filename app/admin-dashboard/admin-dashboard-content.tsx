@@ -2,6 +2,7 @@
 
 import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useIdleLogout } from "@/hooks/use-idle-logout";
 import {
   Users,
   Home,
@@ -18,6 +19,7 @@ import {
   LogOut,
   Upload,
   Link,
+  Download,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -69,6 +71,30 @@ import {
   DELETE_PRODUCT,
   GET_CATEGORIES,
 } from "./queries";
+import {
+  formatDate,
+  formatDateTime,
+  formatCurrency,
+  getTodayCount,
+  getStatusBadgeColor,
+  translateStatus,
+  translateRole,
+  exportToExcel,
+  prepareBookingsForExport,
+  prepareOrdersForExport,
+  prepareUsersForExport,
+  prepareYurtsForExport,
+  calculateNights,
+} from "@/lib/admin-utils";
+import {
+  amenitiesOptions,
+  activitiesOptions,
+  accommodationTypes,
+  facilitiesOptions,
+  policiesOptions,
+} from "@/data/camp-options";
+import mnzipDataRaw from "@/data/mnzip.json";
+import { Checkbox } from "@/components/ui/checkbox";
 
 export default function AdminDashboardContent() {
   const { t } = useTranslation();
@@ -90,6 +116,33 @@ export default function AdminDashboardContent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { logout } = useAuth();
   const { toast } = useToast();
+  
+  // Camp form state (like herder dashboard)
+  const [campForm, setCampForm] = useState({
+    name: "",
+    description: "",
+    province: "",
+    district: "",
+    location: "",
+    pricePerNight: "",
+    capacity: "",
+    amenities: [] as string[],
+    activities: [] as string[],
+    accommodationType: "",
+    facilities: [] as string[],
+    checkIn: "14:00",
+    checkOut: "11:00",
+    childrenPolicy: "all_ages",
+    petsPolicy: "not_allowed",
+    smokingPolicy: "no_smoking",
+    cancellationPolicy: "free_48h",
+  });
+  
+  // Auto-logout after 5 minutes of inactivity
+  useIdleLogout({
+    timeout: 5 * 60 * 1000, // 5 minutes
+    onLogout: logout,
+  });
 
   // Fetch real data from database
   const {
@@ -148,25 +201,50 @@ export default function AdminDashboardContent() {
 
   // Calculate additional stats from real data
   const today = new Date().toISOString().split("T")[0];
+  
+  // Get provinces and districts from mnzipData (same as Herder Dashboard)
+  const provinces = (mnzipDataRaw as any).zipcode || [];
+  const selectedProvince = provinces.find((p: any) => p.mnname === campForm.province);
+  const districts = selectedProvince?.sub_items || [];
 
   // Transform data for display
   const users =
-    usersData?.users?.edges?.map((edge: any) => ({
-      id: edge.node.id,
-      name: edge.node.name,
-      email: edge.node.email,
-      role: edge.node.role.toLowerCase(),
-      status: "active", // Default status
-      joinDate: edge.node.createdAt.split("T")[0],
-    })) || [];
+    usersData?.users?.edges?.map((edge: any) => {
+      // Debug log for first user
+      if (edge.node && usersData.users.edges[0]?.node.id === edge.node.id) {
+        console.warn('🔍 First user data:', {
+          name: edge.node.name,
+          email: edge.node.email,
+          phone: edge.node.phone,
+          role: edge.node.role
+        });
+      }
+      return {
+        id: edge.node.id,
+        name: edge.node.name,
+        email: edge.node.email,
+        phone: edge.node.phone || "",
+        role: edge.node.role,
+        status: "active",
+        joinDate: edge.node.createdAt ? edge.node.createdAt.split("T")[0] : "",
+        createdAt: edge.node.createdAt,
+      };
+    }) || [];
 
   const camps =
     yurtsData?.yurts?.edges?.map((edge: any) => ({
       id: edge.node.id,
       name: edge.node.name,
-      owner: "Owner", // Default owner
+      owner: edge.node.owner?.name || "Тодорхойгүй",
+      ownerEmail: edge.node.owner?.email || "",
+      ownerPhone: edge.node.owner?.phone || "",
+      ownerId: edge.node.owner?.id || "",
       location: edge.node.location,
       price: edge.node.pricePerNight,
+      capacity: edge.node.capacity,
+      images: edge.node.images,
+      description: edge.node.description,
+      amenities: edge.node.amenities,
       status: "active", // Default status
       createdAt: edge.node.createdAt,
     })) || [];
@@ -186,42 +264,59 @@ export default function AdminDashboardContent() {
   const orders =
     ordersData?.orders?.edges?.map((edge: any) => ({
       id: edge.node.id,
-      customer: edge.node.user?.name || "Unknown",
+      customer: edge.node.user?.name || "Тодорхойгүй",
+      customerEmail: edge.node.user?.email || "",
+      customerPhone: edge.node.user?.phone || "",
       type: "product",
-      item: edge.node.items[0]?.product?.name || "Multiple items",
+      item: edge.node.items[0]?.product?.name || "Олон бүтээгдэхүүн",
       amount: edge.node.totalPrice,
-      status: edge.node.status.toLowerCase(),
-      date: edge.node.createdAt.split("T")[0],
+      status: edge.node.status,
+      shippingAddress: edge.node.shippingAddress || "",
+      date: edge.node.createdAt ? edge.node.createdAt.split("T")[0] : "",
       createdAt: edge.node.createdAt,
     })) || [];
 
   const bookings =
-    bookingsData?.bookings?.edges?.map((edge: any) => ({
-      id: edge.node.id,
-      customer: edge.node.user?.name || "Unknown",
-      type: "camp",
-      item: edge.node.yurt?.name || "Unknown camp",
-      amount: edge.node.totalPrice,
-      status: edge.node.status.toLowerCase(),
-      date: edge.node.createdAt.split("T")[0],
-      createdAt: edge.node.createdAt,
-      yurtId: edge.node.yurt?.id,
-      yurtName: edge.node.yurt?.name,
-    })) || [];
+    bookingsData?.bookings?.edges?.map((edge: any) => {
+      // Debug log for first booking
+      if (edge.node && bookingsData.bookings.edges[0]?.node.id === edge.node.id) {
+        console.warn('🔍 First booking data:', {
+          customer: edge.node.user?.name,
+          customerPhone: edge.node.user?.phone,
+          totalPrice: edge.node.totalPrice,
+          ownerName: edge.node.yurt?.owner?.name,
+          ownerPhone: edge.node.yurt?.owner?.phone
+        });
+      }
+      return {
+        id: edge.node.id,
+        customer: edge.node.user?.name || "Тодорхойгүй",
+        customerEmail: edge.node.user?.email || "",
+        customerPhone: edge.node.user?.phone || "",
+        userId: edge.node.user?.id || "",
+        type: "camp",
+        item: edge.node.yurt?.name || "Тодорхойгүй бааз",
+        yurtId: edge.node.yurt?.id,
+        yurtName: edge.node.yurt?.name || "Тодорхойгүй бааз",
+        yurtLocation: edge.node.yurt?.location || "",
+        yurtOwnerName: edge.node.yurt?.owner?.name || "",
+        yurtOwnerEmail: edge.node.yurt?.owner?.email || "",
+        yurtOwnerPhone: edge.node.yurt?.owner?.phone || "",
+        amount: edge.node.totalPrice,
+        status: edge.node.status,
+        startDate: edge.node.startDate,
+        endDate: edge.node.endDate,
+        date: edge.node.createdAt ? edge.node.createdAt.split("T")[0] : "",
+        createdAt: edge.node.createdAt,
+      };
+    }) || [];
 
-  // Now calculate stats after data is available
-  const todayUsers = users.filter(
-    (user: any) => user.joinDate === today
-  ).length;
-  const todayCamps = camps.filter(
-    (camp: any) => camp.createdAt?.split("T")[0] === today
-  ).length;
-  const todayProducts = products.filter(
-    (product: any) => product.createdAt?.split("T")[0] === today
-  ).length;
-  const todayBookings = bookings.filter(
-    (booking: any) => booking.date === today
-  ).length;
+  // Now calculate stats after data is available using utility function
+  const todayUsers = getTodayCount(users);
+  const todayCamps = getTodayCount(camps);
+  const todayProducts = getTodayCount(products);
+  const todayBookings = getTodayCount(bookings);
+  const todayOrders = getTodayCount(orders);
 
   // Group bookings by yurt for better organization
   const bookingsByYurt = bookings.reduce((acc: any, booking: any) => {
@@ -421,49 +516,8 @@ export default function AdminDashboardContent() {
 
   const handleAddCamp = async () => {
     try {
-      // Get form data from the form inputs
-      const form = document.querySelector("#add-camp-form") as HTMLFormElement;
-      if (!form) {
-        toast({
-          title: "Алдаа",
-          description: "Form олдсонгүй",
-          variant: "destructive" as any,
-        });
-        return;
-      }
-
-      const formData = new FormData(form);
-
-      // Optimize images data - limit to first 3 images and compress if needed
-      const optimizedImages = uploadedImages.slice(0, 3).map((img) => {
-        // If it's a base64 image, check if it's too large
-        if (img.startsWith("data:image/")) {
-          // For base64 images, we'll keep them as is but limit the array
-          return img;
-        }
-        // For URL images, keep as is
-        return img;
-      });
-
-      const input = {
-        name: formData.get("name") as string,
-        description: formData.get("description") as string,
-        location: formData.get("location") as string,
-        pricePerNight: parseFloat(formData.get("pricePerNight") as string),
-        capacity: parseInt(formData.get("capacity") as string),
-        amenities: formData.get("amenities") as string,
-        images: JSON.stringify(optimizedImages),
-      };
-
-      // Validate required fields
-      if (
-        !input.name ||
-        !input.description ||
-        !input.location ||
-        !input.pricePerNight ||
-        !input.capacity ||
-        !input.amenities
-      ) {
+      // Validate
+      if (!campForm.name || !campForm.description || !campForm.province || !campForm.pricePerNight || !campForm.capacity) {
         toast({
           title: "Алдаа",
           description: "Бүх талбарыг бөглөнө үү",
@@ -472,19 +526,158 @@ export default function AdminDashboardContent() {
         return;
       }
 
+      // Build location string
+      const location = campForm.district 
+        ? `${campForm.province}, ${campForm.district}`
+        : campForm.province;
+
+      // Optimize images - limit to 3
+      const optimizedImages = uploadedImages.slice(0, 3);
+
+      const input = {
+        name: campForm.name,
+        description: campForm.description,
+        location: location,
+        pricePerNight: parseFloat(campForm.pricePerNight),
+        capacity: parseInt(campForm.capacity),
+        amenities: JSON.stringify({
+          items: campForm.amenities,
+          activities: campForm.activities,
+          accommodationType: campForm.accommodationType,
+          facilities: campForm.facilities,
+          policies: {
+            checkIn: campForm.checkIn,
+            checkOut: campForm.checkOut,
+            children: campForm.childrenPolicy,
+            pets: campForm.petsPolicy,
+            smoking: campForm.smokingPolicy,
+            cancellation: campForm.cancellationPolicy,
+          },
+        }),
+        images: JSON.stringify(optimizedImages),
+      };
+
       await createYurt({ variables: { input } });
       await refetchYurts();
       await refetchStats();
+      
       toast({
         title: "Амжилттай",
         description: "Бааз амжилттай үүсгэгдлээ",
       });
+      
+      // Reset form
       setShowAddCamp(false);
-      setUploadedImages([]); // Clear uploaded images
+      setCampForm({
+        name: "",
+        description: "",
+        province: "",
+        district: "",
+        location: "",
+        pricePerNight: "",
+        capacity: "",
+        amenities: [],
+        activities: [],
+        accommodationType: "",
+        facilities: [],
+        checkIn: "14:00",
+        checkOut: "11:00",
+        childrenPolicy: "all_ages",
+        petsPolicy: "not_allowed",
+        smokingPolicy: "no_smoking",
+        cancellationPolicy: "free_48h",
+      });
+      setUploadedImages([]);
     } catch (error: any) {
       toast({
         title: "Алдаа",
         description: error.message || "Бааз үүсгэхэд алдаа гарлаа",
+        variant: "destructive" as any,
+      });
+    }
+  };
+  
+  const handleUpdateCamp = async () => {
+    try {
+      if (!editingItem) return;
+      
+      // Validate
+      if (!campForm.name || !campForm.description || !campForm.province || !campForm.pricePerNight || !campForm.capacity) {
+        toast({
+          title: "Алдаа",
+          description: "Бүх талбарыг бөглөнө үү",
+          variant: "destructive" as any,
+        });
+        return;
+      }
+
+      // Build location string
+      const location = campForm.district 
+        ? `${campForm.province}, ${campForm.district}`
+        : campForm.province;
+
+      // Optimize images - limit to 3
+      const optimizedImages = uploadedImages.slice(0, 3);
+
+      const input = {
+        name: campForm.name,
+        description: campForm.description,
+        location: location,
+        pricePerNight: parseFloat(campForm.pricePerNight),
+        capacity: parseInt(campForm.capacity),
+        amenities: JSON.stringify({
+          items: campForm.amenities,
+          activities: campForm.activities,
+          accommodationType: campForm.accommodationType,
+          facilities: campForm.facilities,
+          policies: {
+            checkIn: campForm.checkIn,
+            checkOut: campForm.checkOut,
+            children: campForm.childrenPolicy,
+            pets: campForm.petsPolicy,
+            smoking: campForm.smokingPolicy,
+            cancellation: campForm.cancellationPolicy,
+          },
+        }),
+        images: JSON.stringify(optimizedImages),
+      };
+
+      await updateYurt({ variables: { id: editingItem.id, input } });
+      await refetchYurts();
+      await refetchStats();
+      
+      toast({
+        title: "Амжилттай",
+        description: "Бааз амжилттай шинэчигдлээ",
+      });
+      
+      // Reset
+      setShowEditYurt(false);
+      setEditingItem(null);
+      setCampForm({
+        name: "",
+        description: "",
+        province: "",
+        district: "",
+        location: "",
+        pricePerNight: "",
+        capacity: "",
+        amenities: [],
+        activities: [],
+        accommodationType: "",
+        facilities: [],
+        checkIn: "14:00",
+        checkOut: "11:00",
+        childrenPolicy: "all_ages",
+        petsPolicy: "not_allowed",
+        smokingPolicy: "no_smoking",
+        cancellationPolicy: "free_48h",
+      });
+      setUploadedImages([]);
+    } catch (error: any) {
+      toast({
+        title: "Алдаа",
+        description: error.message || "Бааз шинэчлэхэд алдаа гарлаа",
         variant: "destructive" as any,
       });
     }
@@ -579,6 +772,43 @@ export default function AdminDashboardContent() {
 
   const handleEditYurt = (yurt: any) => {
     setEditingItem(yurt);
+    
+    // Parse amenities JSON
+    let parsedAmenities: any = { items: [], activities: [], accommodationType: "", facilities: [], policies: {} };
+    try {
+      if (yurt.amenities) {
+        parsedAmenities = typeof yurt.amenities === 'string' ? JSON.parse(yurt.amenities) : yurt.amenities;
+      }
+    } catch (e) {
+      console.error('Failed to parse amenities:', e);
+    }
+    
+    // Extract province and district from location
+    const locationParts = (yurt.location || "").split(",").map((s: string) => s.trim());
+    const province = locationParts[0] || "";
+    const district = locationParts[1] || "";
+    
+    // Populate campForm with yurt data
+    setCampForm({
+      name: yurt.name || "",
+      description: yurt.description || "",
+      province: province,
+      district: district,
+      location: yurt.location || "",
+      pricePerNight: yurt.price?.toString() || "",
+      capacity: yurt.capacity?.toString() || "",
+      amenities: Array.isArray(parsedAmenities.items) ? parsedAmenities.items : [],
+      activities: Array.isArray(parsedAmenities.activities) ? parsedAmenities.activities : [],
+      accommodationType: parsedAmenities.accommodationType || "",
+      facilities: Array.isArray(parsedAmenities.facilities) ? parsedAmenities.facilities : [],
+      checkIn: parsedAmenities.policies?.checkIn || "14:00",
+      checkOut: parsedAmenities.policies?.checkOut || "11:00",
+      childrenPolicy: parsedAmenities.policies?.children || "all_ages",
+      petsPolicy: parsedAmenities.policies?.pets || "not_allowed",
+      smokingPolicy: parsedAmenities.policies?.smoking || "no_smoking",
+      cancellationPolicy: parsedAmenities.policies?.cancellation || "free_48h",
+    });
+    
     setShowEditYurt(true);
   };
 
@@ -605,21 +835,21 @@ export default function AdminDashboardContent() {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
-        <div className="flex justify-end mb-4">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-8">
+        <div className="flex justify-end mb-3 sm:mb-4">
           <Button
             variant="outline"
             onClick={logout}
-            className="flex items-center gap-2"
+            className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base px-3 py-2 sm:px-4 sm:py-2"
           >
-            <LogOut className="w-4 h-4" /> Гарах
+            <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Гарах
           </Button>
         </div>
-        <div className="mb-6 sm:mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 font-display">
+        <div className="mb-4 sm:mb-6 md:mb-8">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 font-display">
             {t("admin.title", "Админ самбар")}
           </h1>
-          <p className="text-gray-600 text-sm sm:text-base font-medium">
+          <p className="text-gray-600 text-xs sm:text-sm md:text-base font-medium mt-1">
             {t(
               "admin.subtitle",
               "Платформоо удирдаж, бүх үйл ажиллагааг хянаарай"
@@ -845,14 +1075,14 @@ export default function AdminDashboardContent() {
                 onClick={() => setShowAddUser(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Add User
+                Хэрэглэгч нэмэх
               </Button>
             </div>
 
             {showAddUser && (
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="font-bold">Add New User</CardTitle>
+                  <CardTitle className="font-bold">Шинэ хэрэглэгч нэмэх</CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -866,60 +1096,60 @@ export default function AdminDashboardContent() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Name
+                          Нэр
                         </label>
                         <Input
                           name="name"
-                          placeholder="Enter user name"
+                          placeholder="Нэрээ оруулна уу"
                           className="font-medium"
                           required
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Email
+                          Имэйл
                         </label>
                         <Input
                           name="email"
                           type="email"
-                          placeholder="Enter email"
+                          placeholder="Имэйл хаягаа оруулна уу"
                           className="font-medium"
                           required
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Phone
+                          Утасны дугаар
                         </label>
                         <Input
                           name="phone"
-                          placeholder="Enter phone number"
+                          placeholder="Утасны дугаараа оруулна уу"
                           className="font-medium"
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Role
+                          Эрх
                         </label>
                         <Select name="role" defaultValue="CUSTOMER">
                           <SelectTrigger>
-                            <SelectValue placeholder="Select role" />
+                            <SelectValue placeholder="Эрх сонгох" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="CUSTOMER">Customer</SelectItem>
-                            <SelectItem value="HERDER">Herder</SelectItem>
-                            <SelectItem value="ADMIN">Admin</SelectItem>
+                            <SelectItem value="CUSTOMER">Хэрэглэгч</SelectItem>
+                            <SelectItem value="HERDER">Малчин</SelectItem>
+                            <SelectItem value="ADMIN">Админ</SelectItem>
                           </SelectContent>
                         </Select>
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Password
+                          Нууц үг
                         </label>
                         <Input
                           name="password"
                           type="password"
-                          placeholder="Enter password"
+                          placeholder="Нууц үгээ оруулна уу"
                           className="font-medium"
                           required
                         />
@@ -931,14 +1161,126 @@ export default function AdminDashboardContent() {
                       className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
                       onClick={handleAddUser}
                     >
-                      Save User
+                      Хэрэглэгч нэмэх
                     </Button>
                     <Button
                       variant="outline"
                       onClick={() => setShowAddUser(false)}
                       className="font-medium"
                     >
-                      Cancel
+                      Цуцлах
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {showEditUser && editingItem && (
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                  <CardTitle className="font-bold">Хэрэглэгч засах</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowEditUser(false);
+                      setEditingItem(null);
+                    }}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <form id="edit-user-form">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Нэр
+                        </label>
+                        <Input
+                          name="name"
+                          placeholder="Нэрээ оруулна уу"
+                          className="font-medium"
+                          defaultValue={editingItem.name}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Имэйл
+                        </label>
+                        <Input
+                          name="email"
+                          type="email"
+                          placeholder="Имэйл хаягаа оруулна уу"
+                          className="font-medium"
+                          defaultValue={editingItem.email}
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Утасны дугаар
+                        </label>
+                        <Input
+                          name="phone"
+                          placeholder="Утасны дугаараа оруулна уу"
+                          className="font-medium"
+                          defaultValue={editingItem.phone || ""}
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Эрх
+                        </label>
+                        <Select name="role" defaultValue={editingItem.role}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Эрх сонгох" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="CUSTOMER">Хэрэглэгч</SelectItem>
+                            <SelectItem value="HERDER">Малчин</SelectItem>
+                            <SelectItem value="ADMIN">Админ</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </form>
+                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                    <Button
+                      className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                      onClick={async () => {
+                        try {
+                          const form = document.querySelector("#edit-user-form") as HTMLFormElement;
+                          if (!form) return;
+                          
+                          const formData = new FormData(form);
+                          await handleEditUser({
+                            name: formData.get("name") as string,
+                            email: formData.get("email") as string,
+                            phone: formData.get("phone") as string,
+                            role: formData.get("role") as string,
+                          });
+                        } catch (error: any) {
+                          toast({
+                            title: "Алдаа",
+                            description: error.message,
+                            variant: "destructive" as any,
+                          });
+                        }
+                      }}
+                    >
+                      Хадгалах
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowEditUser(false);
+                        setEditingItem(null);
+                      }}
+                      className="font-medium"
+                    >
+                      Цуцлах
                     </Button>
                   </div>
                 </CardContent>
@@ -952,17 +1294,17 @@ export default function AdminDashboardContent() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="min-w-[150px] font-semibold">
-                          Name
+                          Нэр
                         </TableHead>
-                        <TableHead className="min-w-[200px] font-semibold">
-                          Email
+                        <TableHead className="min-w-[180px] font-semibold">
+                          Холбоо барих
                         </TableHead>
-                        <TableHead className="font-semibold">Role</TableHead>
-                        <TableHead className="font-semibold">Status</TableHead>
+                        <TableHead className="font-semibold">Эрх</TableHead>
+                        <TableHead className="font-semibold">Төлөв</TableHead>
                         <TableHead className="hidden sm:table-cell font-semibold">
-                          Join Date
+                          Бүртгүүлсэн
                         </TableHead>
-                        <TableHead className="font-semibold">Actions</TableHead>
+                        <TableHead className="font-semibold">Үйлдэл</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -971,33 +1313,26 @@ export default function AdminDashboardContent() {
                           <TableCell className="font-semibold">
                             {user.name}
                           </TableCell>
-                          <TableCell className="truncate max-w-[200px] font-medium">
-                            {user.email}
+                          <TableCell>
+                            <div className="min-w-[170px]">
+                              <p className="text-sm font-medium truncate">{user.email}</p>
+                              {user.phone && (
+                                <p className="text-xs text-gray-500">{user.phone}</p>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell>
-                            <Badge
-                              variant={
-                                user.role === "herder" ? "default" : "secondary"
-                              }
-                              className="font-medium"
-                            >
-                              {user.role}
+                            <Badge className={user.role === "ADMIN" ? "bg-red-100 text-red-800" : user.role === "HERDER" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}>
+                              {translateRole(user.role)}
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <Badge
-                              variant={
-                                user.status === "active"
-                                  ? "default"
-                                  : "destructive"
-                              }
-                              className="font-medium"
-                            >
-                              {user.status}
+                            <Badge className="bg-green-100 text-green-800 font-medium">
+                              Идэвхтэй
                             </Badge>
                           </TableCell>
-                          <TableCell className="hidden sm:table-cell font-medium">
-                            {user.joinDate}
+                          <TableCell className="hidden sm:table-cell font-medium text-sm">
+                            {formatDate(user.createdAt)}
                           </TableCell>
                           <TableCell>
                             <div className="flex space-x-1">
@@ -1010,40 +1345,60 @@ export default function AdminDashboardContent() {
                                 <DialogContent className="max-w-md">
                                   <DialogHeader>
                                     <DialogTitle className="font-bold">
-                                      User Details
+                                      Хэрэглэгчийн дэлгэрэнгүй
                                     </DialogTitle>
                                   </DialogHeader>
                                   <div className="space-y-4">
                                     <div>
-                                      <label className="text-sm font-semibold">
-                                        Name
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        ID
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
+                                      <p className="text-sm text-gray-900 font-mono">
+                                        {user.id}
+                                      </p>
+                                    </div>
+                                    <div className="border-t pt-3">
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Нэр
+                                      </label>
+                                      <p className="text-sm text-gray-900 mt-1 font-medium">
                                         {user.name}
                                       </p>
                                     </div>
                                     <div>
-                                      <label className="text-sm font-semibold">
-                                        Email
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Имэйл
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
+                                      <p className="text-sm text-gray-900 mt-1 font-medium">
                                         {user.email}
                                       </p>
                                     </div>
+                                    {user.phone && (
+                                      <div>
+                                        <label className="text-sm font-semibold text-gray-700">
+                                          Утас
+                                        </label>
+                                        <p className="text-sm text-gray-900 mt-1 font-medium">
+                                          {user.phone}
+                                        </p>
+                                      </div>
+                                    )}
                                     <div>
-                                      <label className="text-sm font-semibold">
-                                        Role
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Эрх
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
-                                        {user.role}
-                                      </p>
+                                      <div className="mt-1">
+                                        <Badge className={user.role === "ADMIN" ? "bg-red-100 text-red-800" : user.role === "HERDER" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}>
+                                          {translateRole(user.role)}
+                                        </Badge>
+                                      </div>
                                     </div>
                                     <div>
-                                      <label className="text-sm font-semibold">
-                                        Status
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Бүртгүүлсэн огноо
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
-                                        {user.status}
+                                      <p className="text-sm text-gray-900 mt-1 font-medium">
+                                        {formatDateTime(user.createdAt)}
                                       </p>
                                     </div>
                                   </div>
@@ -1169,9 +1524,9 @@ export default function AdminDashboardContent() {
                   <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <Button
                       className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                      onClick={() => handleAddProduct({})}
+                      onClick={handleAddProduct}
                     >
-                      Save Product
+                      Бүтээгдэхүүн хадгалах
                     </Button>
                     <Button
                       variant="outline"
@@ -1344,93 +1699,425 @@ export default function AdminDashboardContent() {
             {showEditYurt && (
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="font-bold">Edit Camp</CardTitle>
+                  <CardTitle className="font-bold">Гэр бааз засах</CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setShowEditYurt(false)}
+                    onClick={() => {
+                      setShowEditYurt(false);
+                      setEditingItem(null);
+                    }}
                   >
                     <X className="w-4 h-4" />
                   </Button>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <form id="edit-yurt-form">
+                <CardContent className="space-y-6 p-4 sm:p-6">
+                  <div className="space-y-6">
+                    {/* Basic Info Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Camp Name
+                          Нэр
                         </label>
                         <Input
-                          name="name"
-                          placeholder="Enter camp name"
+                          placeholder="Гэр баазын нэр"
                           className="font-medium"
-                          defaultValue={editingItem?.name || ""}
-                          required
+                          value={campForm.name}
+                          onChange={(e) =>
+                            setCampForm({ ...campForm, name: e.target.value })
+                          }
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Location
+                          Аймаг
                         </label>
-                        <Input
-                          name="location"
-                          placeholder="Province, District"
-                          className="font-medium"
-                          defaultValue={editingItem?.location || ""}
-                          required
-                        />
+                        <Select
+                          value={campForm.province}
+                          onValueChange={(value) => {
+                            setCampForm({ 
+                              ...campForm, 
+                              province: value,
+                              district: "",
+                              location: value
+                            });
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Аймаг сонгох" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {provinces.map((province: any) => (
+                              <SelectItem key={province.zipcode} value={province.mnname}>
+                                {province.mnname}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Price per Night ($)
+                          Сум/Дүүрэг
                         </label>
-                        <Input
-                          name="pricePerNight"
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          className="font-medium"
-                          defaultValue={editingItem?.price || ""}
-                          required
-                        />
+                        <Select
+                          value={campForm.district}
+                          onValueChange={(value) => {
+                            const location = `${campForm.province}, ${value}`;
+                            setCampForm({ 
+                              ...campForm, 
+                              district: value,
+                              location: location
+                            });
+                          }}
+                          disabled={!campForm.province}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={campForm.province ? "Сум/Дүүрэг сонгох" : "Эхлээд аймаг сонгоно уу"} />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {districts.length > 0 ? (
+                              districts.map((district: any) => (
+                                <SelectItem key={district.zipcode} value={district.mnname}>
+                                  {district.mnname}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <div className="p-2 text-sm text-gray-500">
+                                Сум олдсонгүй
+                              </div>
+                            )}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Guest Capacity
+                          Үнэ (₮ / шөнө)
                         </label>
                         <Input
-                          name="capacity"
                           type="number"
                           placeholder="0"
                           className="font-medium"
-                          defaultValue={editingItem?.capacity || ""}
-                          required
+                          value={campForm.pricePerNight}
+                          onChange={(e) =>
+                            setCampForm({
+                              ...campForm,
+                              pricePerNight: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Багтаамж
+                        </label>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          className="font-medium"
+                          value={campForm.capacity}
+                          onChange={(e) =>
+                            setCampForm({ ...campForm, capacity: e.target.value })
+                          }
                         />
                       </div>
                     </div>
+                    
+                    {/* Description */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Description
+                        Тайлбар
                       </label>
                       <Textarea
-                        name="description"
-                        placeholder="Describe the camp..."
+                        placeholder="Гэр баазын тухай дэлгэрэнгүй..."
                         className="font-medium"
-                        defaultValue={editingItem?.description || ""}
-                        required
+                        value={campForm.description}
+                        onChange={(e) =>
+                          setCampForm({
+                            ...campForm,
+                            description: e.target.value,
+                          })
+                        }
                       />
                     </div>
+                    
+                    {/* Amenities - Checkbox */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Тасалбар
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
+                        {amenitiesOptions.map((amenity) => (
+                          <label
+                            key={amenity.value}
+                            className="flex items-center space-x-2 cursor-pointer hover:bg-white p-2 rounded transition-colors"
+                          >
+                            <Checkbox
+                              checked={campForm.amenities.includes(amenity.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setCampForm({
+                                    ...campForm,
+                                    amenities: [...campForm.amenities, amenity.value],
+                                  });
+                                } else {
+                                  setCampForm({
+                                    ...campForm,
+                                    amenities: campForm.amenities.filter(
+                                      (a) => a !== amenity.value
+                                    ),
+                                  });
+                                }
+                              }}
+                            />
+                            <span className="text-sm">{amenity.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Activities - Checkbox */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Үйл ажиллагаа
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
+                        {activitiesOptions.map((activity) => (
+                          <label
+                            key={activity.value}
+                            className="flex items-center space-x-2 cursor-pointer hover:bg-white p-2 rounded transition-colors"
+                          >
+                            <Checkbox
+                              checked={campForm.activities.includes(activity.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setCampForm({
+                                    ...campForm,
+                                    activities: [...campForm.activities, activity.value],
+                                  });
+                                } else {
+                                  setCampForm({
+                                    ...campForm,
+                                    activities: campForm.activities.filter(
+                                      (a) => a !== activity.value
+                                    ),
+                                  });
+                                }
+                              }}
+                            />
+                            <span className="text-sm">{activity.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Accommodation Type - Select */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Amenities
+                        Байрны төрөл
                       </label>
-                      <Textarea
-                        name="amenities"
-                        placeholder="List amenities (e.g., WiFi, Hot water, Restaurant)"
-                        className="font-medium"
-                        defaultValue={editingItem?.amenities || ""}
-                        required
-                      />
+                      <Select
+                        value={campForm.accommodationType}
+                        onValueChange={(value) =>
+                          setCampForm({ ...campForm, accommodationType: value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Төрөл сонгох" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {accommodationTypes.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Facilities - Checkbox */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Тохижилт
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
+                        {facilitiesOptions.map((facility) => (
+                          <label
+                            key={facility.value}
+                            className="flex items-center space-x-2 cursor-pointer hover:bg-white p-2 rounded transition-colors"
+                          >
+                            <Checkbox
+                              checked={campForm.facilities.includes(facility.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setCampForm({
+                                    ...campForm,
+                                    facilities: [...campForm.facilities, facility.value],
+                                  });
+                                } else {
+                                  setCampForm({
+                                    ...campForm,
+                                    facilities: campForm.facilities.filter(
+                                      (f) => f !== facility.value
+                                    ),
+                                  });
+                                }
+                              }}
+                            />
+                            <span className="text-sm">{facility.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Policies */}
+                    <div className="border-t pt-4 space-y-4">
+                      <h3 className="font-bold text-base">Дүрэм журам</h3>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Check-in Time */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Ирэх цаг
+                          </label>
+                          <Select
+                            value={campForm.checkIn}
+                            onValueChange={(value) =>
+                              setCampForm({ ...campForm, checkIn: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {policiesOptions.checkInTimes.map((time) => (
+                                <SelectItem key={time.value} value={time.value}>
+                                  {time.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Check-out Time */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Гарах цаг
+                          </label>
+                          <Select
+                            value={campForm.checkOut}
+                            onValueChange={(value) =>
+                              setCampForm({ ...campForm, checkOut: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {policiesOptions.checkOutTimes.map((time) => (
+                                <SelectItem key={time.value} value={time.value}>
+                                  {time.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Children Policy */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Хүүхдийн дүрэм
+                          </label>
+                          <Select
+                            value={campForm.childrenPolicy}
+                            onValueChange={(value) =>
+                              setCampForm({ ...campForm, childrenPolicy: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {policiesOptions.childrenPolicy.map((policy) => (
+                                <SelectItem key={policy.value} value={policy.value}>
+                                  {policy.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Pets Policy */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Тэжээвэр амьтны дүрэм
+                          </label>
+                          <Select
+                            value={campForm.petsPolicy}
+                            onValueChange={(value) =>
+                              setCampForm({ ...campForm, petsPolicy: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {policiesOptions.petsPolicy.map((policy) => (
+                                <SelectItem key={policy.value} value={policy.value}>
+                                  {policy.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Smoking Policy */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Тамхины дүрэм
+                          </label>
+                          <Select
+                            value={campForm.smokingPolicy}
+                            onValueChange={(value) =>
+                              setCampForm({ ...campForm, smokingPolicy: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {policiesOptions.smokingPolicy.map((policy) => (
+                                <SelectItem key={policy.value} value={policy.value}>
+                                  {policy.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Cancellation Policy */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Цуцлалтын дүрэм
+                          </label>
+                          <Select
+                            value={campForm.cancellationPolicy}
+                            onValueChange={(value) =>
+                              setCampForm({ ...campForm, cancellationPolicy: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {policiesOptions.cancellationPolicy.map((policy) => (
+                                <SelectItem key={policy.value} value={policy.value}>
+                                  {policy.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -1474,6 +2161,7 @@ export default function AdminDashboardContent() {
                             accept="image/*"
                             onChange={(e) => handleFileUpload(e, "yurt")}
                             className="hidden"
+                            aria-label="Зураг файл сонгох"
                           />
                           <Button
                             type="button"
@@ -1499,65 +2187,26 @@ export default function AdminDashboardContent() {
                         </div>
                       )}
                     </div>
-                  </form>
-                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                    <Button
-                      className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                      onClick={async () => {
-                        try {
-                          const form = document.querySelector(
-                            "#edit-yurt-form"
-                          ) as HTMLFormElement;
-                          if (!form) return;
-
-                          const formData = new FormData(form);
-                          const input = {
-                            name: formData.get("name") as string,
-                            description: formData.get("description") as string,
-                            location: formData.get("location") as string,
-                            pricePerNight: parseFloat(
-                              formData.get("pricePerNight") as string
-                            ),
-                            capacity: parseInt(
-                              formData.get("capacity") as string
-                            ),
-                            amenities: formData.get("amenities") as string,
-                            images: (formData.get("images") as string) || "[]",
-                          };
-
-                          await updateYurt({
-                            variables: { id: editingItem.id, input },
-                          });
-                          await refetchYurts();
-                          await refetchStats();
-                          toast({
-                            title: "Амжилттай",
-                            description: "Бааз амжилттай шинэчигдлээ",
-                          });
+                    
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
+                      <Button
+                        className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                        onClick={handleUpdateCamp}
+                      >
+                        Шинэчлэх
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
                           setShowEditYurt(false);
                           setEditingItem(null);
-                        } catch (error: any) {
-                          toast({
-                            title: "Алдаа",
-                            description:
-                              error.message || "Бааз шинэчлэхэд алдаа гарлаа",
-                            variant: "destructive" as any,
-                          });
-                        }
-                      }}
-                    >
-                      Update Camp
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setShowEditYurt(false);
-                        setEditingItem(null);
-                      }}
-                      className="font-medium"
-                    >
-                      Cancel
-                    </Button>
+                        }}
+                        className="font-medium"
+                      >
+                        Цуцлах
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1566,7 +2215,7 @@ export default function AdminDashboardContent() {
             {showAddCamp && (
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <CardTitle className="font-bold">Add New Camp</CardTitle>
+                  <CardTitle className="font-bold">Гэр бааз нэмэх</CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -1575,78 +2224,413 @@ export default function AdminDashboardContent() {
                     <X className="w-4 h-4" />
                   </Button>
                 </CardHeader>
-                <CardContent className="space-y-4">
-                  <form id="add-camp-form">
+                <CardContent className="space-y-6 p-4 sm:p-6">
+                  <div className="space-y-6">
+                    {/* Basic Info Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Camp Name
+                          Нэр
                         </label>
                         <Input
-                          name="name"
-                          placeholder="Enter camp name"
+                          placeholder="Гэр баазын нэр"
                           className="font-medium"
-                          required
+                          value={campForm.name}
+                          onChange={(e) =>
+                            setCampForm({ ...campForm, name: e.target.value })
+                          }
                         />
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Location
+                          Аймаг
                         </label>
-                        <Input
-                          name="location"
-                          placeholder="Province, District"
-                          className="font-medium"
-                          required
-                        />
+                        <Select
+                          value={campForm.province}
+                          onValueChange={(value) => {
+                            setCampForm({ 
+                              ...campForm, 
+                              province: value,
+                              district: "",
+                              location: value
+                            });
+                          }}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Аймаг сонгох" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {provinces.map((province: any) => (
+                              <SelectItem key={province.zipcode} value={province.mnname}>
+                                {province.mnname}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Price per Night ($)
+                          Сум/Дүүрэг
                         </label>
-                        <Input
-                          name="pricePerNight"
-                          type="number"
-                          step="0.01"
-                          placeholder="0.00"
-                          className="font-medium"
-                          required
-                        />
+                        <Select
+                          value={campForm.district}
+                          onValueChange={(value) => {
+                            const location = `${campForm.province}, ${value}`;
+                            setCampForm({ 
+                              ...campForm, 
+                              district: value,
+                              location: location
+                            });
+                          }}
+                          disabled={!campForm.province}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder={campForm.province ? "Сум/Дүүрэг сонгох" : "Эхлээд аймаг сонгоно уу"} />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {districts.length > 0 ? (
+                              districts.map((district: any) => (
+                                <SelectItem key={district.zipcode} value={district.mnname}>
+                                  {district.mnname}
+                                </SelectItem>
+                              ))
+                            ) : (
+                              <div className="p-2 text-sm text-gray-500">
+                                Сум олдсонгүй
+                              </div>
+                            )}
+                          </SelectContent>
+                        </Select>
                       </div>
                       <div>
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Guest Capacity
+                          Үнэ (₮ / шөнө)
                         </label>
                         <Input
-                          name="capacity"
                           type="number"
                           placeholder="0"
                           className="font-medium"
-                          required
+                          value={campForm.pricePerNight}
+                          onChange={(e) =>
+                            setCampForm({
+                              ...campForm,
+                              pricePerNight: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Багтаамж
+                        </label>
+                        <Input
+                          type="number"
+                          placeholder="0"
+                          className="font-medium"
+                          value={campForm.capacity}
+                          onChange={(e) =>
+                            setCampForm({ ...campForm, capacity: e.target.value })
+                          }
                         />
                       </div>
                     </div>
+                    
+                    {/* Description */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Description
+                        Тайлбар
                       </label>
                       <Textarea
-                        name="description"
-                        placeholder="Describe the camp..."
+                        placeholder="Гэр баазын тухай дэлгэрэнгүй..."
                         className="font-medium"
-                        required
+                        value={campForm.description}
+                        onChange={(e) =>
+                          setCampForm({
+                            ...campForm,
+                            description: e.target.value,
+                          })
+                        }
                       />
                     </div>
+                    
+                    {/* Amenities - Checkbox */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Тасалбар
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
+                        {amenitiesOptions.map((amenity) => (
+                          <label
+                            key={amenity.value}
+                            className="flex items-center space-x-2 cursor-pointer hover:bg-white p-2 rounded transition-colors"
+                          >
+                            <Checkbox
+                              checked={campForm.amenities.includes(amenity.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setCampForm({
+                                    ...campForm,
+                                    amenities: [...campForm.amenities, amenity.value],
+                                  });
+                                } else {
+                                  setCampForm({
+                                    ...campForm,
+                                    amenities: campForm.amenities.filter(
+                                      (a) => a !== amenity.value
+                                    ),
+                                  });
+                                }
+                              }}
+                            />
+                            <span className="text-sm">{amenity.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Activities - Checkbox */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Үйл ажиллагаа
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
+                        {activitiesOptions.map((activity) => (
+                          <label
+                            key={activity.value}
+                            className="flex items-center space-x-2 cursor-pointer hover:bg-white p-2 rounded transition-colors"
+                          >
+                            <Checkbox
+                              checked={campForm.activities.includes(activity.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setCampForm({
+                                    ...campForm,
+                                    activities: [...campForm.activities, activity.value],
+                                  });
+                                } else {
+                                  setCampForm({
+                                    ...campForm,
+                                    activities: campForm.activities.filter(
+                                      (a) => a !== activity.value
+                                    ),
+                                  });
+                                }
+                              }}
+                            />
+                            <span className="text-sm">{activity.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Accommodation Type - Select */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Amenities
+                        Байрны төрөл
                       </label>
-                      <Textarea
-                        name="amenities"
-                        placeholder="List amenities (e.g., WiFi, Hot water, Restaurant)"
-                        className="font-medium"
-                        required
-                      />
+                      <Select
+                        value={campForm.accommodationType}
+                        onValueChange={(value) =>
+                          setCampForm({ ...campForm, accommodationType: value })
+                        }
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Төрөл сонгох" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {accommodationTypes.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Facilities - Checkbox */}
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-3">
+                        Тохижилт
+                      </label>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
+                        {facilitiesOptions.map((facility) => (
+                          <label
+                            key={facility.value}
+                            className="flex items-center space-x-2 cursor-pointer hover:bg-white p-2 rounded transition-colors"
+                          >
+                            <Checkbox
+                              checked={campForm.facilities.includes(facility.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setCampForm({
+                                    ...campForm,
+                                    facilities: [...campForm.facilities, facility.value],
+                                  });
+                                } else {
+                                  setCampForm({
+                                    ...campForm,
+                                    facilities: campForm.facilities.filter(
+                                      (f) => f !== facility.value
+                                    ),
+                                  });
+                                }
+                              }}
+                            />
+                            <span className="text-sm">{facility.label}</span>
+                          </label>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Policies */}
+                    <div className="border-t pt-4 space-y-4">
+                      <h3 className="font-bold text-base">Дүрэм журам</h3>
+                      
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        {/* Check-in Time */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Ирэх цаг
+                          </label>
+                          <Select
+                            value={campForm.checkIn}
+                            onValueChange={(value) =>
+                              setCampForm({ ...campForm, checkIn: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {policiesOptions.checkInTimes.map((time) => (
+                                <SelectItem key={time.value} value={time.value}>
+                                  {time.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Check-out Time */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Гарах цаг
+                          </label>
+                          <Select
+                            value={campForm.checkOut}
+                            onValueChange={(value) =>
+                              setCampForm({ ...campForm, checkOut: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {policiesOptions.checkOutTimes.map((time) => (
+                                <SelectItem key={time.value} value={time.value}>
+                                  {time.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Children Policy */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Хүүхдийн дүрэм
+                          </label>
+                          <Select
+                            value={campForm.childrenPolicy}
+                            onValueChange={(value) =>
+                              setCampForm({ ...campForm, childrenPolicy: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {policiesOptions.childrenPolicy.map((policy) => (
+                                <SelectItem key={policy.value} value={policy.value}>
+                                  {policy.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Pets Policy */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Тэжээвэр амьтны дүрэм
+                          </label>
+                          <Select
+                            value={campForm.petsPolicy}
+                            onValueChange={(value) =>
+                              setCampForm({ ...campForm, petsPolicy: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {policiesOptions.petsPolicy.map((policy) => (
+                                <SelectItem key={policy.value} value={policy.value}>
+                                  {policy.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Smoking Policy */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Тамхины дүрэм
+                          </label>
+                          <Select
+                            value={campForm.smokingPolicy}
+                            onValueChange={(value) =>
+                              setCampForm({ ...campForm, smokingPolicy: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {policiesOptions.smokingPolicy.map((policy) => (
+                                <SelectItem key={policy.value} value={policy.value}>
+                                  {policy.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {/* Cancellation Policy */}
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Цуцлалтын дүрэм
+                          </label>
+                          <Select
+                            value={campForm.cancellationPolicy}
+                            onValueChange={(value) =>
+                              setCampForm({ ...campForm, cancellationPolicy: value })
+                            }
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {policiesOptions.cancellationPolicy.map((policy) => (
+                                <SelectItem key={policy.value} value={policy.value}>
+                                  {policy.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -1690,6 +2674,7 @@ export default function AdminDashboardContent() {
                             accept="image/*"
                             onChange={(e) => handleFileUpload(e, "yurt")}
                             className="hidden"
+                            aria-label="Зураг файл сонгох"
                           />
                           <Button
                             type="button"
@@ -1769,21 +2754,23 @@ export default function AdminDashboardContent() {
                         value={JSON.stringify(uploadedImages.slice(0, 3))}
                       />
                     </div>
-                  </form>
-                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
-                    <Button
-                      className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                      onClick={handleAddCamp}
-                    >
-                      Save Camp
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => setShowAddCamp(false)}
-                      className="font-medium"
-                    >
-                      Cancel
-                    </Button>
+                    
+                    {/* Action Buttons */}
+                    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
+                      <Button
+                        className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                        onClick={handleAddCamp}
+                      >
+                        Хадгалах
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => setShowAddCamp(false)}
+                        className="font-medium"
+                      >
+                        Цуцлах
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -1796,17 +2783,17 @@ export default function AdminDashboardContent() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="min-w-[150px] font-semibold">
-                          Camp Name
+                          Баазын нэр
                         </TableHead>
-                        <TableHead className="font-semibold">Owner</TableHead>
+                        <TableHead className="min-w-[150px] font-semibold">Эзэмшигч</TableHead>
                         <TableHead className="font-semibold">
-                          Location
+                          Байршил
                         </TableHead>
                         <TableHead className="font-semibold">
-                          Price/Night
+                          Үнэ/Шөнө
                         </TableHead>
-                        <TableHead className="font-semibold">Status</TableHead>
-                        <TableHead className="font-semibold">Actions</TableHead>
+                        <TableHead className="font-semibold">Төлөв</TableHead>
+                        <TableHead className="font-semibold">Үйлдэл</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1815,25 +2802,30 @@ export default function AdminDashboardContent() {
                           <TableCell className="font-semibold">
                             {camp.name}
                           </TableCell>
-                          <TableCell className="font-medium">
-                            {camp.owner}
+                          <TableCell>
+                            <div className="min-w-[140px]">
+                              <p className="font-semibold text-sm">{camp.owner}</p>
+                              {camp.ownerEmail && (
+                                <p className="text-xs text-gray-500 truncate">
+                                  {camp.ownerEmail}
+                                </p>
+                              )}
+                              {camp.ownerPhone && (
+                                <p className="text-xs text-gray-500">
+                                  {camp.ownerPhone}
+                                </p>
+                              )}
+                            </div>
                           </TableCell>
                           <TableCell className="font-medium">
                             {camp.location}
                           </TableCell>
                           <TableCell className="font-bold">
-                            ${camp.price}
+                            {formatCurrency(camp.price)}
                           </TableCell>
                           <TableCell>
-                            <Badge
-                              variant={
-                                camp.status === "active"
-                                  ? "default"
-                                  : "secondary"
-                              }
-                              className="font-medium"
-                            >
-                              {camp.status}
+                            <Badge className="bg-green-100 text-green-800 font-medium">
+                              Идэвхтэй
                             </Badge>
                           </TableCell>
                           <TableCell>
@@ -1844,43 +2836,69 @@ export default function AdminDashboardContent() {
                                     <Eye className="w-4 h-4" />
                                   </Button>
                                 </DialogTrigger>
-                                <DialogContent className="max-w-md">
+                                <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
                                   <DialogHeader>
                                     <DialogTitle className="font-bold">
-                                      Camp Details
+                                      Баазын дэлгэрэнгүй
                                     </DialogTitle>
                                   </DialogHeader>
                                   <div className="space-y-4">
                                     <div>
-                                      <label className="text-sm font-semibold">
-                                        Camp Name
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Баазын нэр
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
+                                      <p className="text-sm text-gray-900 font-medium">
                                         {camp.name}
                                       </p>
                                     </div>
-                                    <div>
-                                      <label className="text-sm font-semibold">
-                                        Owner
+                                    <div className="border-t pt-3">
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Эзэмшигчийн мэдээлэл
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
-                                        {camp.owner}
+                                      <p className="text-sm text-gray-900 mt-1">
+                                        <span className="font-medium">Нэр:</span> {camp.owner}
                                       </p>
+                                      {camp.ownerEmail && (
+                                        <p className="text-sm text-gray-900">
+                                          <span className="font-medium">Имэйл:</span> {camp.ownerEmail}
+                                        </p>
+                                      )}
+                                      {camp.ownerPhone && (
+                                        <p className="text-sm text-gray-900">
+                                          <span className="font-medium">Утас:</span> {camp.ownerPhone}
+                                        </p>
+                                      )}
                                     </div>
-                                    <div>
-                                      <label className="text-sm font-semibold">
-                                        Location
+                                    <div className="border-t pt-3">
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Байршил
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
+                                      <p className="text-sm text-gray-900 mt-1">
                                         {camp.location}
                                       </p>
                                     </div>
                                     <div>
-                                      <label className="text-sm font-semibold">
-                                        Price per Night
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Багтаамж
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
-                                        ${camp.price}
+                                      <p className="text-sm text-gray-900 mt-1">
+                                        {camp.capacity} хүн
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Нэг шөнийн үнэ
+                                      </label>
+                                      <p className="text-lg font-bold text-emerald-600 mt-1">
+                                        {formatCurrency(camp.price)}
+                                      </p>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Бүртгүүлсэн огноо
+                                      </label>
+                                      <p className="text-sm text-gray-900 mt-1">
+                                        {formatDateTime(camp.createdAt)}
                                       </p>
                                     </div>
                                   </div>
@@ -1920,18 +2938,42 @@ export default function AdminDashboardContent() {
           <TabsContent value="orders" className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl sm:text-2xl font-bold">
-                Orders Management
+                Захиалгын удирдлага
               </h2>
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 w-full sm:w-auto">
                 <Button
                   variant="outline"
                   className="w-full sm:w-auto bg-transparent font-medium"
+                  onClick={async () => {
+                    const allData = [...orders, ...bookings];
+                    const exportData = allData.map(item => ({
+                      'ID': item.id,
+                      'Захиалагч': item.customer,
+                      'Имэйл': item.customerEmail,
+                      'Утас': item.customerPhone,
+                      'Төрөл': item.type === 'product' ? 'Бүтээгдэхүүн' : 'Бааз',
+                      'Зүйл': item.item,
+                      'Үнэ': item.amount,
+                      'Төлөв': translateStatus(item.status),
+                      'Огноо': formatDateTime(item.createdAt)
+                    }));
+                    const success = await exportToExcel(exportData, 'zahialgyn_jagsaalt');
+                    if (success) {
+                      toast({
+                        title: "✅ Амжилттай",
+                        description: "Захиалгын жагсаалт татагдлаа"
+                      });
+                    } else {
+                      toast({
+                        title: "❌ Алдаа",
+                        description: "Excel файл үүсгэхэд алдаа гарлаа",
+                        variant: "destructive" as any
+                      });
+                    }
+                  }}
                 >
-                  Export
-                </Button>
-                <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold">
-                  <BarChart3 className="w-4 h-4 mr-2" />
-                  Analytics
+                  <Download className="w-4 h-4 mr-2" />
+                  Excel татах
                 </Button>
               </div>
             </div>
@@ -1940,7 +2982,7 @@ export default function AdminDashboardContent() {
             <Card>
               <CardHeader>
                 <CardTitle className="text-lg font-bold">
-                  Product Orders
+                  Бүтээгдэхүүний захиалга
                 </CardTitle>
               </CardHeader>
               <CardContent className="p-0">
@@ -1949,51 +2991,56 @@ export default function AdminDashboardContent() {
                     <TableHeader>
                       <TableRow>
                         <TableHead className="font-semibold">
-                          Order ID
-                        </TableHead>
-                        <TableHead className="min-w-[120px] font-semibold">
-                          Customer
+                          ID
                         </TableHead>
                         <TableHead className="min-w-[150px] font-semibold">
-                          Item
+                          Захиалагч
                         </TableHead>
-                        <TableHead className="font-semibold">Amount</TableHead>
-                        <TableHead className="font-semibold">Status</TableHead>
+                        <TableHead className="min-w-[150px] font-semibold">
+                          Бүтээгдэхүүн
+                        </TableHead>
+                        <TableHead className="font-semibold">Үнэ</TableHead>
+                        <TableHead className="font-semibold">Төлөв</TableHead>
                         <TableHead className="hidden sm:table-cell font-semibold">
-                          Date
+                          Огноо
                         </TableHead>
-                        <TableHead className="font-semibold">Actions</TableHead>
+                        <TableHead className="font-semibold">Үйлдэл</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {orders.map((order: any) => (
                         <TableRow key={order.id}>
-                          <TableCell className="font-bold">
-                            #{order.id}
+                          <TableCell className="font-mono text-xs">
+                            {order.id.substring(0, 8)}...
                           </TableCell>
-                          <TableCell className="truncate max-w-[120px] font-medium">
-                            {order.customer}
+                          <TableCell>
+                            <div className="min-w-[140px]">
+                              <p className="font-semibold text-sm">{order.customer}</p>
+                              {order.customerEmail && (
+                                <p className="text-xs text-gray-500 truncate">
+                                  {order.customerEmail}
+                                </p>
+                              )}
+                              {order.customerPhone && (
+                                <p className="text-xs text-gray-500">
+                                  {order.customerPhone}
+                                </p>
+                              )}
+                            </div>
                           </TableCell>
-                          <TableCell className="truncate max-w-[150px] font-medium">
+                          <TableCell className="font-medium">
                             {order.item}
                           </TableCell>
                           <TableCell className="font-bold">
-                            ${order.amount}
+                            {formatCurrency(order.amount)}
                           </TableCell>
                           <TableCell>
-                            <Badge
-                              variant={
-                                order.status === "completed"
-                                  ? "default"
-                                  : "secondary"
-                              }
-                              className="font-medium"
-                            >
-                              {order.status}
+                            <Badge className={getStatusBadgeColor(order.status)}>
+                              {translateStatus(order.status)}
                             </Badge>
                           </TableCell>
-                          <TableCell className="hidden sm:table-cell font-medium">
-                            {order.date}
+                          <TableCell className="hidden sm:table-cell font-medium text-sm">
+                            {formatDate(order.createdAt)}
                           </TableCell>
                           <TableCell>
                             <div className="flex space-x-1">
@@ -2006,64 +3053,78 @@ export default function AdminDashboardContent() {
                                 <DialogContent className="max-w-md">
                                   <DialogHeader>
                                     <DialogTitle className="font-bold">
-                                      Order Details
+                                      Захиалгын дэлгэрэнгүй
                                     </DialogTitle>
                                   </DialogHeader>
                                   <div className="space-y-4">
                                     <div>
-                                      <label className="text-sm font-semibold">
-                                        Order ID
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Захиалгын ID
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
-                                        #{order.id}
+                                      <p className="text-sm text-gray-900 font-mono">
+                                        {order.id}
                                       </p>
                                     </div>
-                                    <div>
-                                      <label className="text-sm font-semibold">
-                                        Customer
+                                    <div className="border-t pt-3">
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Захиалагчийн мэдээлэл
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
-                                        {order.customer}
+                                      <p className="text-sm text-gray-900 mt-1">
+                                        <span className="font-medium">Нэр:</span> {order.customer}
                                       </p>
+                                      {order.customerEmail && (
+                                        <p className="text-sm text-gray-900">
+                                          <span className="font-medium">Имэйл:</span> {order.customerEmail}
+                                        </p>
+                                      )}
+                                      {order.customerPhone && (
+                                        <p className="text-sm text-gray-900">
+                                          <span className="font-medium">Утас:</span> {order.customerPhone}
+                                        </p>
+                                      )}
+                                      {order.shippingAddress && (
+                                        <p className="text-sm text-gray-900">
+                                          <span className="font-medium">Хаяг:</span> {order.shippingAddress}
+                                        </p>
+                                      )}
                                     </div>
-                                    <div>
-                                      <label className="text-sm font-semibold">
-                                        Type
+                                    <div className="border-t pt-3">
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Бүтээгдэхүүн
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
-                                        {order.type}
-                                      </p>
-                                    </div>
-                                    <div>
-                                      <label className="text-sm font-semibold">
-                                        Item
-                                      </label>
-                                      <p className="text-sm text-gray-600 font-medium">
+                                      <p className="text-sm text-gray-900 mt-1">
                                         {order.item}
                                       </p>
                                     </div>
-                                    <div>
-                                      <label className="text-sm font-semibold">
-                                        Amount
+                                    <div className="border-t pt-3">
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Үнэ
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
-                                        ${order.amount}
+                                      <p className="text-lg font-bold text-emerald-600 mt-1">
+                                        {formatCurrency(order.amount)}
                                       </p>
                                     </div>
                                     <div>
-                                      <label className="text-sm font-semibold">
-                                        Status
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Төлөв
                                       </label>
-                                      <p className="text-sm text-gray-600 font-medium">
-                                        {order.status}
+                                      <div className="mt-1">
+                                        <Badge className={getStatusBadgeColor(order.status)}>
+                                          {translateStatus(order.status)}
+                                        </Badge>
+                                      </div>
+                                    </div>
+                                    <div>
+                                      <label className="text-sm font-semibold text-gray-700">
+                                        Огноо
+                                      </label>
+                                      <p className="text-sm text-gray-900 mt-1">
+                                        {formatDateTime(order.createdAt)}
                                       </p>
                                     </div>
                                   </div>
                                 </DialogContent>
                               </Dialog>
-                              <Button variant="outline" size="sm">
-                                <Edit className="w-4 h-4" />
-                              </Button>
                             </div>
                           </TableCell>
                         </TableRow>
@@ -2079,7 +3140,7 @@ export default function AdminDashboardContent() {
               <Card key={yurtName}>
                 <CardHeader>
                   <CardTitle className="text-lg font-bold">
-                    Баазын захиалгууд - {yurtName}
+                    Баазын захиалга - {yurtName}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
@@ -2088,51 +3149,69 @@ export default function AdminDashboardContent() {
                       <TableHeader>
                         <TableRow>
                           <TableHead className="font-semibold">
-                            Booking ID
+                            ID
+                          </TableHead>
+                          <TableHead className="min-w-[150px] font-semibold">
+                            Захиалагч
                           </TableHead>
                           <TableHead className="min-w-[120px] font-semibold">
-                            Customer
+                            Огноо
                           </TableHead>
                           <TableHead className="font-semibold">
-                            Amount
+                            Үнэ
                           </TableHead>
                           <TableHead className="font-semibold">
-                            Status
-                          </TableHead>
-                          <TableHead className="hidden sm:table-cell font-semibold">
-                            Date
+                            Төлөв
                           </TableHead>
                           <TableHead className="font-semibold">
-                            Actions
+                            Үйлдэл
                           </TableHead>
                         </TableRow>
                       </TableHeader>
                       <TableBody>
                         {bookingsByYurt[yurtName].map((booking: any) => (
                           <TableRow key={booking.id}>
-                            <TableCell className="font-bold">
-                              #{booking.id}
-                            </TableCell>
-                            <TableCell className="truncate max-w-[120px] font-medium">
-                              {booking.customer}
-                            </TableCell>
-                            <TableCell className="font-bold">
-                              ${booking.amount}
+                            <TableCell className="font-mono text-xs">
+                              {booking.id.substring(0, 8)}...
                             </TableCell>
                             <TableCell>
-                              <Badge
-                                variant={
-                                  booking.status === "completed"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                                className="font-medium"
-                              >
-                                {booking.status}
-                              </Badge>
+                              <div className="min-w-[140px]">
+                                <p className="font-semibold text-sm">{booking.customer}</p>
+                                {booking.customerEmail && (
+                                  <p className="text-xs text-gray-500 truncate">
+                                    {booking.customerEmail}
+                                  </p>
+                                )}
+                                {booking.customerPhone && (
+                                  <p className="text-xs text-gray-500">
+                                    {booking.customerPhone}
+                                  </p>
+                                )}
+                              </div>
                             </TableCell>
-                            <TableCell className="hidden sm:table-cell font-medium">
-                              {booking.date}
+                            <TableCell className="text-sm">
+                              <div>
+                                <p className="font-medium">{formatDate(booking.startDate)}</p>
+                                <p className="text-gray-500">→ {formatDate(booking.endDate)}</p>
+                                <p className="text-xs text-emerald-600 font-semibold">
+                                  {calculateNights(booking.startDate, booking.endDate)} хоног
+                                </p>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div>
+                                <p className="font-bold text-emerald-600">
+                                  {formatCurrency(booking.amount)}
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                  {calculateNights(booking.startDate, booking.endDate)} × {formatCurrency(booking.amount / calculateNights(booking.startDate, booking.endDate))}
+                                </p>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge className={getStatusBadgeColor(booking.status)}>
+                                {translateStatus(booking.status)}
+                              </Badge>
                             </TableCell>
                             <TableCell>
                               <div className="flex space-x-1">
@@ -2142,59 +3221,118 @@ export default function AdminDashboardContent() {
                                       <Eye className="w-4 h-4" />
                                     </Button>
                                   </DialogTrigger>
-                                  <DialogContent className="max-w-md">
+                                  <DialogContent className="max-w-md max-h-[80vh] overflow-y-auto">
                                     <DialogHeader>
                                       <DialogTitle className="font-bold">
-                                        Booking Details
+                                        Захиалгын дэлгэрэнгүй
                                       </DialogTitle>
                                     </DialogHeader>
                                     <div className="space-y-4">
                                       <div>
-                                        <label className="text-sm font-semibold">
-                                          Booking ID
+                                        <label className="text-sm font-semibold text-gray-700">
+                                          Захиалгын ID
                                         </label>
-                                        <p className="text-sm text-gray-600 font-medium">
-                                          #{booking.id}
+                                        <p className="text-sm text-gray-900 font-mono">
+                                          {booking.id}
+                                        </p>
+                                      </div>
+                                      <div className="border-t pt-3">
+                                        <label className="text-sm font-semibold text-gray-700">
+                                          Захиалагчийн мэдээлэл
+                                        </label>
+                                        <p className="text-sm text-gray-900 mt-1">
+                                          <span className="font-medium">Нэр:</span> {booking.customer}
+                                        </p>
+                                        {booking.customerEmail && (
+                                          <p className="text-sm text-gray-900">
+                                            <span className="font-medium">Имэйл:</span> {booking.customerEmail}
+                                          </p>
+                                        )}
+                                        {booking.customerPhone && (
+                                          <p className="text-sm text-gray-900">
+                                            <span className="font-medium">Утас:</span> {booking.customerPhone}
+                                          </p>
+                                        )}
+                                      </div>
+                                      <div className="border-t pt-3">
+                                        <label className="text-sm font-semibold text-gray-700">
+                                          Баазын мэдээлэл
+                                        </label>
+                                        <p className="text-sm text-gray-900 mt-1">
+                                          <span className="font-medium">Нэр:</span> {booking.yurtName}
+                                        </p>
+                                        {booking.yurtLocation && (
+                                          <p className="text-sm text-gray-900">
+                                            <span className="font-medium">Байршил:</span> {booking.yurtLocation}
+                                          </p>
+                                        )}
+                                      </div>
+                                      {booking.yurtOwnerName && (
+                                        <div className="border-t pt-3">
+                                          <label className="text-sm font-semibold text-gray-700">
+                                            Эзэмшигчийн мэдээлэл
+                                          </label>
+                                          <p className="text-sm text-gray-900 mt-1">
+                                            <span className="font-medium">Нэр:</span> {booking.yurtOwnerName}
+                                          </p>
+                                          {booking.yurtOwnerEmail && (
+                                            <p className="text-sm text-gray-900">
+                                              <span className="font-medium">Имэйл:</span> {booking.yurtOwnerEmail}
+                                            </p>
+                                          )}
+                                          {booking.yurtOwnerPhone && (
+                                            <p className="text-sm text-gray-900">
+                                              <span className="font-medium">Утас:</span> {booking.yurtOwnerPhone}
+                                            </p>
+                                          )}
+                                        </div>
+                                      )}
+                                      <div className="border-t pt-3">
+                                        <label className="text-sm font-semibold text-gray-700">
+                                          Хугацаа
+                                        </label>
+                                        <p className="text-sm text-gray-900 mt-1">
+                                          <span className="font-medium">Эхлэх:</span> {formatDate(booking.startDate)}
+                                        </p>
+                                        <p className="text-sm text-gray-900">
+                                          <span className="font-medium">Дуусах:</span> {formatDate(booking.endDate)}
+                                        </p>
+                                        <p className="text-sm font-semibold text-emerald-600 mt-1">
+                                          📅 {calculateNights(booking.startDate, booking.endDate)} хоног
+                                        </p>
+                                      </div>
+                                      <div className="border-t pt-3">
+                                        <label className="text-sm font-semibold text-gray-700">
+                                          Үнийн тооцоо
+                                        </label>
+                                        <p className="text-sm text-gray-700 mt-1">
+                                          {calculateNights(booking.startDate, booking.endDate)} хоног × {formatCurrency(booking.amount / calculateNights(booking.startDate, booking.endDate) || 0)}
+                                        </p>
+                                        <p className="text-lg font-bold text-emerald-600 mt-1">
+                                          = {formatCurrency(booking.amount)}
                                         </p>
                                       </div>
                                       <div>
-                                        <label className="text-sm font-semibold">
-                                          Customer
+                                        <label className="text-sm font-semibold text-gray-700">
+                                          Төлөв
                                         </label>
-                                        <p className="text-sm text-gray-600 font-medium">
-                                          {booking.customer}
-                                        </p>
+                                        <div className="mt-1">
+                                          <Badge className={getStatusBadgeColor(booking.status)}>
+                                            {translateStatus(booking.status)}
+                                          </Badge>
+                                        </div>
                                       </div>
                                       <div>
-                                        <label className="text-sm font-semibold">
-                                          Camp
+                                        <label className="text-sm font-semibold text-gray-700">
+                                          Захиалга үүссэн огноо
                                         </label>
-                                        <p className="text-sm text-gray-600 font-medium">
-                                          {booking.yurtName}
-                                        </p>
-                                      </div>
-                                      <div>
-                                        <label className="text-sm font-semibold">
-                                          Amount
-                                        </label>
-                                        <p className="text-sm text-gray-600 font-medium">
-                                          ${booking.amount}
-                                        </p>
-                                      </div>
-                                      <div>
-                                        <label className="text-sm font-semibold">
-                                          Status
-                                        </label>
-                                        <p className="text-sm text-gray-600 font-medium">
-                                          {booking.status}
+                                        <p className="text-sm text-gray-900 mt-1">
+                                          {formatDateTime(booking.createdAt)}
                                         </p>
                                       </div>
                                     </div>
                                   </DialogContent>
                                 </Dialog>
-                                <Button variant="outline" size="sm">
-                                  <Edit className="w-4 h-4" />
-                                </Button>
                               </div>
                             </TableCell>
                           </TableRow>
@@ -2294,7 +3432,7 @@ export default function AdminDashboardContent() {
                       className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
                       onClick={() => handleAddContent({})}
                     >
-                      Save Content
+                      Агуулга хадгалах
                     </Button>
                     <Button
                       variant="outline"

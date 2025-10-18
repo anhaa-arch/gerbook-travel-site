@@ -3,7 +3,14 @@
 import { use, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { gql, useQuery, useMutation } from "@apollo/client";
-import { parseImagePaths } from "@/lib/imageUtils";
+import { parseImagePaths, getPrimaryImage } from "@/lib/imageUtils";
+import {
+  amenitiesOptions,
+  activitiesOptions,
+  accommodationTypes,
+  facilitiesOptions,
+  policiesOptions,
+} from "@/data/camp-options";
 import {
   ArrowLeft,
   Star,
@@ -18,6 +25,8 @@ import {
   Share2,
   MessageCircle,
   Camera,
+  Check,
+  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -32,6 +41,9 @@ import {
   CREATE_BOOKING,
   GET_USER_BOOKINGS,
 } from "@/app/user-dashboard/queries";
+import { DatePickerModal } from "@/components/search/date-picker-modal";
+import { PaymentModal } from "@/components/payment-modal";
+import { CommentSection } from "@/components/comment-section";
 
 const GET_YURT = gql`
   query GetYurt($id: ID!) {
@@ -44,8 +56,30 @@ const GET_YURT = gql`
       capacity
       amenities
       images
+      ownerId
+      owner {
+        id
+        name
+        email
+        phone
+        role
+        hostBio
+        hostExperience
+        hostLanguages
+      }
       createdAt
       updatedAt
+      bookings {
+        id
+        startDate
+        endDate
+        status
+        totalPrice
+        user {
+          id
+          name
+        }
+      }
     }
   }
 `;
@@ -76,6 +110,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     variables: { id: campId },
     skip: !campId,
     errorPolicy: "all",
+    fetchPolicy: "cache-and-network", // Always fetch fresh data
+    nextFetchPolicy: "cache-first",
   });
 
   const [createBooking, { loading: bookingLoading, error: bookingError }] =
@@ -84,6 +120,10 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         {
           query: GET_USER_BOOKINGS,
           variables: { userId: user?.id },
+        },
+        {
+          query: GET_YURT,
+          variables: { id: campId },
         },
       ],
       awaitRefetchQueries: true,
@@ -107,8 +147,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         localStorage.setItem("userBookings", JSON.stringify(userBookings));
 
         toast({
-          title: "Захиалга амжилттай",
-          description: "Таны camp захиалга баталгаажлаа!",
+          title: "✅ Захиалга амжилттай",
+          description: "Таны camp захиалга баталгаажлаа! Dashboard дээр харагдана.",
         });
         setCheckIn("");
         setCheckOut("");
@@ -118,11 +158,25 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         router.push("/user-dashboard");
       },
       onError: (error) => {
+        console.error('❌ Booking error:', error);
+        
+        let errorMessage = "Захиалга үүсгэхэд алдаа гарлаа.";
+        
+        if (error.message.includes("not available")) {
+          errorMessage = "Таны сонгосон огноо захиалагдсан байна. Өөр огноо сонгоно уу.";
+        } else if (error.message.includes("End date must be after start date")) {
+          errorMessage = "Гарах өдөр ирэх өдрөөс хойш байх ёстой.";
+        } else if (error.message.includes("Not authorized")) {
+          errorMessage = "Та захиалга хийх эрхгүй байна.";
+        } else if (error.message.includes("Yurt not found")) {
+          errorMessage = "Camp олдсонгүй. Дахин оролдоно уу.";
+        } else {
+          errorMessage = error.message || errorMessage;
+        }
+        
         toast({
-          title: "Захиалга амжилтгүй",
-          description:
-            error.message ||
-            "Захиалга үүсгэхэд алдаа гарлаа. Дахин оролдоно уу.",
+          title: "❌ Захиалга амжилтгүй",
+          description: errorMessage,
           variant: "destructive",
         });
       },
@@ -134,7 +188,92 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
-  const [showAllReviews, setShowAllReviews] = useState(false);
+  const [showCheckInPicker, setShowCheckInPicker] = useState(false);
+  const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
+  // Calculate disabled dates from bookings
+  const getDisabledDates = (): Date[] => {
+    if (!camp?.bookings) {
+      console.log('⚠️ No camp bookings data');
+      return [];
+    }
+    
+    console.log('📋 All bookings:', camp.bookings);
+    
+    const disabledDates: Date[] = [];
+    const activeBookings = camp.bookings.filter(
+      (booking: any) => booking.status === 'PENDING' || booking.status === 'CONFIRMED'
+    );
+    
+    console.log('🔍 Active bookings (PENDING/CONFIRMED):', activeBookings.length);
+    console.log('🔍 Active bookings details:', activeBookings.map((b: any) => ({
+      id: b.id,
+      status: b.status,
+      startDate: b.startDate,
+      endDate: b.endDate
+    })));
+    
+    activeBookings.forEach((booking: any) => {
+      try {
+        // Validate booking data
+        if (!booking.startDate || !booking.endDate) {
+          console.warn('⚠️ Booking missing dates:', booking);
+          return;
+        }
+        
+        // Handle both timestamp strings and ISO date strings
+        let start: Date;
+        let end: Date;
+        
+        // Check if it's a timestamp string (all digits)
+        if (typeof booking.startDate === 'string' && /^\d+$/.test(booking.startDate)) {
+          start = new Date(parseInt(booking.startDate));
+          end = new Date(parseInt(booking.endDate));
+        } else {
+          start = new Date(booking.startDate);
+          end = new Date(booking.endDate);
+        }
+        
+        // Check if dates are valid
+        if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+          console.warn('⚠️ Invalid date format after parsing:', {
+            startDate: booking.startDate,
+            endDate: booking.endDate,
+            parsedStart: start,
+            parsedEnd: end
+          });
+          return;
+        }
+        
+        console.log(`📅 Processing booking: ${start.toISOString()} to ${end.toISOString()}`);
+        
+        // Normalize to midnight UTC to avoid timezone issues
+        start.setUTCHours(0, 0, 0, 0);
+        end.setUTCHours(0, 0, 0, 0);
+        
+        // Add all dates in the booking range (including start, excluding end for standard hotel logic)
+        const current = new Date(start);
+        while (current < end) {
+          const dateToDisable = new Date(current);
+          disabledDates.push(dateToDisable);
+          console.log(`  🚫 Disabling: ${dateToDisable.toISOString().split('T')[0]}`);
+          current.setDate(current.getDate() + 1);
+        }
+      } catch (error) {
+        console.error('❌ Error processing booking:', booking, error);
+      }
+    });
+    
+    console.log('🚫 Total disabled dates:', disabledDates.length);
+    console.log('🚫 Disabled date list:', disabledDates.map(d => d.toISOString().split('T')[0]));
+    
+    return disabledDates;
+  };
+
+  const disabledDates = getDisabledDates();
+  
+  console.log('🎯 Passing disabled dates to modal:', disabledDates.length);
 
   // Handle save/unsave camp
   const handleSaveCamp = () => {
@@ -242,6 +381,49 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     );
   }
 
+  // Parse JSON amenities from backend
+  const parseAmenitiesJSON = (amenitiesStr: string) => {
+    try {
+      const parsed = JSON.parse(amenitiesStr);
+      return {
+        items: parsed.items || [],
+        activities: parsed.activities || [],
+        accommodationType: parsed.accommodationType || "",
+        facilities: parsed.facilities || [],
+        policies: parsed.policies || {},
+      };
+    } catch (error) {
+      console.log("⚠️ Failed to parse amenities JSON, trying comma-separated:", amenitiesStr);
+      // Fallback to old comma-separated format
+      if (amenitiesStr && typeof amenitiesStr === 'string') {
+        return {
+          items: amenitiesStr.split(",").map((a: string) => a.trim()),
+          activities: [],
+          accommodationType: "",
+          facilities: [],
+          policies: {},
+        };
+      }
+      return {
+        items: [],
+        activities: [],
+        accommodationType: "",
+        facilities: [],
+        policies: {},
+      };
+    }
+  };
+
+  const parsedAmenities = parseAmenitiesJSON(camp.amenities || "");
+  
+  console.log("🏕️ Parsed amenities:", parsedAmenities);
+
+  // Get labels from camp-options
+  const getLabel = (value: string, optionsArray: any[]) => {
+    const found = optionsArray.find((opt) => opt.value === value);
+    return found ? found.label : value;
+  };
+
   // Transform backend data to match frontend expectations
   const campData = {
     id: camp.id,
@@ -250,45 +432,60 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     price: camp.pricePerNight,
     rating: 4.5, // Default rating since not in backend
     reviewCount: 0, // Default since not in backend
-    images: parseImagePaths(camp.images),
+    images: parseImagePaths(camp.images).length > 0 ? parseImagePaths(camp.images) : [getPrimaryImage(camp.images)],
     description: camp.description,
     longDescription: camp.description, // Use description as long description
-    amenities: camp.amenities
-      ? camp.amenities.split(",").map((amenity: string) => ({
-          icon: Wifi, // Default icon
-          name: amenity.trim(),
-          available: true,
-        }))
-      : [],
-    activities: [], // Not in backend schema
+    amenities: parsedAmenities.items.map((amenity: string) => ({
+      icon: Wifi, // Default icon
+      name: getLabel(amenity, amenitiesOptions),
+      available: true,
+    })),
+    activities: parsedAmenities.activities.map((activity: string) => 
+      getLabel(activity, activitiesOptions)
+    ),
     accommodation: {
-      type: "Traditional Mongolian Ger",
-      capacity: `${camp.capacity} people`,
+      type: getLabel(parsedAmenities.accommodationType, accommodationTypes) || "Уламжлалт гэр",
+      capacity: `${camp.capacity} хүн`,
       totalGers: 1,
-      facilities: ["Traditional furnishing", "Heating", "Basic amenities"],
+      facilities: parsedAmenities.facilities.map((facility: string) => 
+        getLabel(facility, facilitiesOptions)
+      ),
     },
     host: {
-      name: "Local Host",
-      avatar: "/placeholder.svg?height=60&width=60&text=Host",
-      experience: "5+ years",
-      languages: ["Mongolian", "English"],
+      name: camp.owner?.name || "Эзэн",
+      avatar: "/placeholder-user.jpg",
+      experience: camp.owner?.hostExperience || "5+ жил",
+      languages: camp.owner?.hostLanguages ? camp.owner.hostLanguages.split(',').map((l: string) => l.trim()) : ["Монгол", "Англи"],
       rating: 4.5,
-      description:
-        "Experienced local host providing authentic Mongolian hospitality.",
+      description: camp.owner?.hostBio || "Монголын уламжлалт зочломтгой байдлыг санал болгож байна.",
+      email: camp.owner?.email || "",
+      phone: camp.owner?.phone || "",
+      id: camp.owner?.id || "",
     },
     reviews: [], // Not in backend schema
     policies: {
-      checkIn: "14:00",
-      checkOut: "11:00",
-      cancellation: "Free cancellation up to 48 hours before arrival",
-      children: "Children of all ages welcome",
-      pets: "Pets not allowed",
-      smoking: "No smoking inside gers",
+      checkIn: parsedAmenities.policies?.checkIn || "14:00",
+      checkOut: parsedAmenities.policies?.checkOut || "11:00",
+      cancellation: getLabel(
+        parsedAmenities.policies?.cancellation || "free_48h",
+        policiesOptions.cancellationPolicy
+      ),
+      children: getLabel(
+        parsedAmenities.policies?.children || "all_ages",
+        policiesOptions.childrenPolicy
+      ),
+      pets: getLabel(
+        parsedAmenities.policies?.pets || "not_allowed",
+        policiesOptions.petsPolicy
+      ),
+      smoking: getLabel(
+        parsedAmenities.policies?.smoking || "no_smoking",
+        policiesOptions.smokingPolicy
+      ),
     },
     location_details: {
       nearbyAttractions: [],
-      transportation:
-        "4WD vehicle recommended. Contact host for transfer arrangements.",
+      transportation: "Дөрвөн дугуйт машин зөвлөмжтэй. Тээврийн үйлчилгээний талаар эзэнтэй холбогдоно уу.",
     },
   };
 
@@ -304,6 +501,11 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
   const handleBooking = () => {
     if (!checkIn || !checkOut) {
+      toast({
+        title: "Огноо сонгоно уу",
+        description: "Ирэх болон гарах огноо сонгоно уу.",
+        variant: "destructive",
+      });
       return;
     }
 
@@ -333,6 +535,83 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       });
       return;
     }
+
+    // Validate dates
+    const checkInDate = new Date(checkIn);
+    const checkOutDate = new Date(checkOut);
+    
+    if (checkOutDate <= checkInDate) {
+      toast({
+        title: "Огноо буруу байна",
+        description: "Гарах өдөр ирэх өдрөөс хойш байх ёстой.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if dates overlap with any booked dates
+    // Use the same logic as backend checkYurtAvailability
+    const activeBookings = camp.bookings?.filter(
+      (booking: any) => booking.status === 'PENDING' || booking.status === 'CONFIRMED'
+    ) || [];
+    
+    console.log('📅 Selected range:', checkInDate.toISOString(), '-', checkOutDate.toISOString());
+    console.log('🔍 Checking against bookings:', activeBookings);
+    
+    const hasOverlap = activeBookings.some((booking: any) => {
+      // Handle timestamp strings
+      let bookingStart: Date;
+      let bookingEnd: Date;
+      
+      if (typeof booking.startDate === 'string' && /^\d+$/.test(booking.startDate)) {
+        bookingStart = new Date(parseInt(booking.startDate));
+        bookingEnd = new Date(parseInt(booking.endDate));
+      } else {
+        bookingStart = new Date(booking.startDate);
+        bookingEnd = new Date(booking.endDate);
+      }
+      
+      // Backend overlap logic (exact same as checkYurtAvailability)
+      const overlap = (
+        // Booking starts during requested period
+        (bookingStart >= checkInDate && bookingStart < checkOutDate) ||
+        // Booking ends during requested period
+        (bookingEnd > checkInDate && bookingEnd <= checkOutDate) ||
+        // Booking spans entire requested period
+        (bookingStart <= checkInDate && bookingEnd >= checkOutDate)
+      );
+      
+      if (overlap) {
+        console.log('❌ Overlap detected with booking:', {
+          id: booking.id,
+          start: bookingStart.toISOString(),
+          end: bookingEnd.toISOString()
+        });
+      }
+      
+      return overlap;
+    });
+    
+    if (hasOverlap) {
+      toast({
+        title: "Огноо захиалагдсан байна",
+        description: "Таны сонгосон огнооны хооронд захиалагдсан өдрүүд байна. Өөр огноо сонгоно уу.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
+    console.log('✅ No overlap detected, proceeding to payment');
+
+    // Open payment modal instead of immediately creating booking
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentComplete = (paymentMethod: string) => {
+    console.log('💳 Payment completed with method:', paymentMethod);
+    
+    // Close payment modal
+    setShowPaymentModal(false);
 
     // Calculate dates
     const startDate = new Date(checkIn).toISOString();
@@ -373,7 +652,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             <div className="space-y-4">
               <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden">
                 <img
-                  src={campData.images[selectedImage] || "/placeholder.svg"}
+                  src={campData.images[selectedImage] || getPrimaryImage(camp.images) || "/placeholder.svg"}
                   alt={campData.name}
                   className="w-full h-full object-cover"
                 />
@@ -392,7 +671,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       }`}
                     >
                       <img
-                        src={image || "/placeholder.svg"}
+                        src={image || getPrimaryImage(camp.images) || "/placeholder.svg"}
                         alt={`${campData.name} ${index + 1}`}
                         className="w-full h-full object-cover"
                       />
@@ -417,7 +696,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
                       <span className="font-semibold">{campData.rating}</span>
                       <span className="text-gray-600 ml-1 font-medium">
-                        ({campData.reviewCount} reviews)
+                        ({campData.reviewCount} сэтгэгдэл)
                       </span>
                     </div>
                   </div>
@@ -442,9 +721,24 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     variant="outline"
                     size="sm"
                     className="font-medium bg-transparent"
+                    onClick={() => {
+                      if (navigator.share) {
+                        navigator.share({
+                          title: campData.name,
+                          text: campData.description,
+                          url: window.location.href,
+                        }).catch((error) => console.log('Error sharing:', error));
+                      } else {
+                        navigator.clipboard.writeText(window.location.href);
+                        toast({
+                          title: "Холбоос хуулагдлаа",
+                          description: "Холбоос амжилттай хуулагдлаа.",
+                        });
+                      }
+                    }}
                   >
                     <Share2 className="w-4 h-4 mr-2" />
-                    Share
+                    Хуваалцах
                   </Button>
                 </div>
               </div>
@@ -460,7 +754,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             {/* Amenities */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Amenities
+                Тав тухтай байдал
               </h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
                 {campData.amenities.map((amenity: any, index: number) => (
@@ -487,7 +781,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             {/* Activities */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Activities & Experiences
+                Үйл ажиллагаа ба туршлага
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {campData.activities.map((activity: string, index: number) => (
@@ -507,39 +801,39 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             {/* Accommodation Details */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Accommodation
+                Байршуулалт
               </h2>
               <Card>
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="grid grid-cols-1 gap-6">
                     <div>
-                      <h3 className="font-bold text-gray-900 mb-2">
+                      <h3 className="font-bold text-gray-900 mb-3 text-base sm:text-lg">
                         {campData.accommodation.type}
                       </h3>
                       <div className="space-y-2 text-sm text-gray-600">
-                        <div className="flex justify-between">
-                          <span className="font-medium">Capacity:</span>
-                          <span className="font-semibold">
+                        <div className="flex justify-between items-start gap-4">
+                          <span className="font-medium">Багтаамж:</span>
+                          <span className="font-semibold text-right">
                             {campData.accommodation.capacity}
                           </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="font-medium">Total Units:</span>
-                          <span className="font-semibold">
+                        <div className="flex justify-between items-start gap-4">
+                          <span className="font-medium">Нийт тоо:</span>
+                          <span className="font-semibold text-right">
                             {campData.accommodation.totalGers}
                           </span>
                         </div>
                       </div>
                     </div>
                     <div>
-                      <h3 className="font-bold text-gray-900 mb-2">
-                        Facilities
+                      <h3 className="font-bold text-gray-900 mb-3 text-base sm:text-lg">
+                        Тоног төхөөрөмж
                       </h3>
-                      <ul className="space-y-1 text-sm text-gray-600">
+                      <ul className="space-y-2 text-sm text-gray-600">
                         {campData.accommodation.facilities.map(
                           (facility: string, index: number) => (
-                            <li key={index} className="flex items-center">
-                              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2"></div>
+                            <li key={index} className="flex items-start">
+                              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2 mt-2 flex-shrink-0"></div>
                               <span className="font-medium">{facility}</span>
                             </li>
                           )
@@ -554,13 +848,13 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             {/* Host Information */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Meet Your Host
+                Эзэнтэй танилцах
               </h2>
               <Card>
                 <CardContent className="p-6">
                   <div className="flex items-start space-x-4">
                     <img
-                      src={campData.host.avatar || "/placeholder.svg"}
+                      src={campData.host.avatar || "/placeholder-user.jpg"}
                       alt={campData.host.name}
                       className="w-16 h-16 rounded-full object-cover"
                     />
@@ -578,104 +872,73 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       </div>
                       <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
                         <span className="font-medium">
-                          {campData.host.experience} hosting experience
+                          {campData.host.experience} туршлагатай
                         </span>
                         <span className="font-medium">
-                          Languages: {campData.host.languages.join(", ")}
+                          Хэл: {campData.host.languages.join(", ")}
                         </span>
                       </div>
-                      <p className="text-gray-700 text-sm font-medium">
+                      <p className="text-gray-700 text-sm font-medium mb-3">
                         {campData.host.description}
                       </p>
+                      <div className="flex flex-col gap-2 text-sm">
+                        {campData.host.phone && (
+                          <div className="flex items-center text-gray-600">
+                            <span className="font-medium">Утас: </span>
+                            <span className="ml-2">{campData.host.phone}</span>
+                          </div>
+                        )}
+                        {campData.host.email && (
+                          <div className="flex items-center text-gray-600">
+                            <span className="font-medium">Имэйл: </span>
+                            <span className="ml-2">{campData.host.email}</span>
+                          </div>
+                        )}
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="mt-4 font-medium w-full sm:w-auto"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          
+                          if (campData.host.phone) {
+                            window.location.href = `tel:${campData.host.phone}`;
+                          } else if (campData.host.email) {
+                            window.location.href = `mailto:${campData.host.email}`;
+                          } else {
+                            toast({
+                              title: "Холбогдох мэдээлэл олдсонгүй",
+                              description: "Эзний холбогдох мэдээлэл олдсонгүй.",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                      >
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                        Эзэнтэй холбогдох
+                      </Button>
                     </div>
                   </div>
                 </CardContent>
               </Card>
             </div>
 
-            {/* Reviews */}
-            <div>
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-xl font-bold text-gray-900">
-                  Reviews ({campData.reviewCount})
-                </h2>
-                <div className="flex items-center">
-                  <Star className="w-5 h-5 fill-yellow-400 text-yellow-400 mr-1" />
-                  <span className="font-bold text-lg">{campData.rating}</span>
-                </div>
-              </div>
-
-              <div className="space-y-6">
-                {campData.reviews
-                  .slice(0, showAllReviews ? campData.reviews.length : 3)
-                  .map((review: any) => (
-                    <div
-                      key={review.id}
-                      className="border-b border-gray-200 pb-6 last:border-b-0"
-                    >
-                      <div className="flex items-start space-x-4">
-                        <img
-                          src={review.avatar || "/placeholder.svg"}
-                          alt={review.author}
-                          className="w-10 h-10 rounded-full object-cover"
-                        />
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-2">
-                            <div>
-                              <h4 className="font-semibold text-gray-900">
-                                {review.author}
-                              </h4>
-                              <div className="flex items-center gap-2">
-                                <div className="flex">
-                                  {[...Array(review.rating)].map((_, i) => (
-                                    <Star
-                                      key={i}
-                                      className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                                    />
-                                  ))}
-                                </div>
-                                <span className="text-sm text-gray-600 font-medium">
-                                  {review.date}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-                          <p className="text-gray-700 mb-2 font-medium">
-                            {review.comment}
-                          </p>
-                          <button className="text-sm text-gray-500 hover:text-gray-700 font-medium">
-                            Helpful ({review.helpful})
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-              </div>
-
-              {campData.reviews.length > 3 && (
-                <Button
-                  variant="outline"
-                  onClick={() => setShowAllReviews(!showAllReviews)}
-                  className="mt-4 font-medium"
-                >
-                  {showAllReviews
-                    ? "Show Less"
-                    : `Show All ${campData.reviewCount} Reviews`}
-                </Button>
-              )}
-            </div>
+            {/* Comments Section */}
+            <CommentSection yurtId={campId} />
 
             {/* Location & Transportation */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Location & Getting There
+                Байршил ба Хүрэх арга
               </h2>
               <Card>
                 <CardContent className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                       <h3 className="font-bold text-gray-900 mb-3">
-                        Nearby Attractions
+                        Ойролцоох үзвэр газрууд
                       </h3>
                       <div className="space-y-2">
                         {campData.location_details.nearbyAttractions.map(
@@ -697,7 +960,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     </div>
                     <div>
                       <h3 className="font-bold text-gray-900 mb-3">
-                        Transportation
+                        Тээвэр
                       </h3>
                       <p className="text-sm text-gray-700 font-medium">
                         {campData.location_details.transportation}
@@ -710,48 +973,46 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
             {/* Policies */}
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Policies</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">Дүрэм журам</h2>
               <Card>
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <CardContent className="p-4 sm:p-6">
+                  <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 font-medium">
-                          Check-in:
+                      <div className="flex justify-between items-start gap-4">
+                        <span className="text-gray-600 font-medium text-sm sm:text-base">
+                          Бүртгүүлэх:
                         </span>
-                        <span className="font-semibold">
+                        <span className="font-semibold text-sm sm:text-base text-right">
                           {campData.policies.checkIn}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 font-medium">
-                          Check-out:
+                      <div className="flex justify-between items-start gap-4">
+                        <span className="text-gray-600 font-medium text-sm sm:text-base">
+                          Гарах:
                         </span>
-                        <span className="font-semibold">
+                        <span className="font-semibold text-sm sm:text-base text-right">
                           {campData.policies.checkOut}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 font-medium">
-                          Children:
+                      <div className="flex justify-between items-start gap-4">
+                        <span className="text-gray-600 font-medium text-sm sm:text-base">
+                          Хүүхэд:
                         </span>
-                        <span className="font-semibold">
+                        <span className="font-semibold text-sm sm:text-base text-right">
                           {campData.policies.children}
                         </span>
                       </div>
-                    </div>
-                    <div className="space-y-3">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 font-medium">Pets:</span>
-                        <span className="font-semibold">
+                      <div className="flex justify-between items-start gap-4">
+                        <span className="text-gray-600 font-medium text-sm sm:text-base">Тэжээвэр амьтан:</span>
+                        <span className="font-semibold text-sm sm:text-base text-right">
                           {campData.policies.pets}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600 font-medium">
-                          Smoking:
+                      <div className="flex justify-between items-start gap-4">
+                        <span className="text-gray-600 font-medium text-sm sm:text-base">
+                          Тамхи татах:
                         </span>
-                        <span className="font-semibold">
+                        <span className="font-semibold text-sm sm:text-base text-right">
                           {campData.policies.smoking}
                         </span>
                       </div>
@@ -759,8 +1020,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                   </div>
                   <Separator className="my-4" />
                   <div>
-                    <h4 className="font-semibold text-gray-900 mb-2">
-                      Cancellation Policy
+                    <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
+                      Цуцлалтын бодлого
                     </h4>
                     <p className="text-sm text-gray-700 font-medium">
                       {campData.policies.cancellation}
@@ -778,10 +1039,10 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                 <CardHeader className="p-4 lg:p-6">
                   <CardTitle className="flex items-center justify-between">
                     <span className="text-xl lg:text-2xl font-bold">
-                      ${campData.price}
+                      ₮{campData.price.toLocaleString()}
                     </span>
                     <span className="text-sm text-gray-600 font-medium">
-                      per night
+                      шөнө
                     </span>
                   </CardTitle>
                 </CardHeader>
@@ -789,33 +1050,39 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-1">
-                        Check-in
+                        Ирэх өдөр
                       </label>
-                      <Input
-                        type="date"
-                        value={checkIn}
-                        onChange={(e) => setCheckIn(e.target.value)}
-                        min={new Date().toISOString().split("T")[0]}
-                        className="font-medium"
-                      />
+                      <div
+                        className="flex items-center border rounded-md px-3 py-2 cursor-pointer hover:border-emerald-600 transition-colors font-medium"
+                        onClick={() => setShowCheckInPicker(true)}
+                      >
+                        <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                        <span className={checkIn ? "text-gray-900" : "text-gray-500"}>
+                          {checkIn ? new Date(checkIn).toLocaleDateString('mn-MN') : "Ирэх өдөр сонгох"}
+                        </span>
+                      </div>
                     </div>
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-1">
-                        Check-out
+                        Гарах өдөр
                       </label>
-                      <Input
-                        type="date"
-                        value={checkOut}
-                        onChange={(e) => setCheckOut(e.target.value)}
-                        min={checkIn || new Date().toISOString().split("T")[0]}
-                        className="font-medium"
-                      />
+                      <div
+                        className={`flex items-center border rounded-md px-3 py-2 cursor-pointer transition-colors font-medium ${
+                          checkIn ? "hover:border-emerald-600" : "opacity-50 cursor-not-allowed"
+                        }`}
+                        onClick={() => checkIn && setShowCheckOutPicker(true)}
+                      >
+                        <Calendar className="w-4 h-4 mr-2 text-gray-500" />
+                        <span className={checkOut ? "text-gray-900" : "text-gray-500"}>
+                          {checkOut ? new Date(checkOut).toLocaleDateString('mn-MN') : "Гарах өдөр сонгох"}
+                        </span>
+                      </div>
                     </div>
                   </div>
 
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-1">
-                      Guests
+                      Зочдын тоо
                     </label>
                     <div className="flex items-center space-x-3">
                       <Button
@@ -826,47 +1093,52 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       >
                         -
                       </Button>
-                      <span className="font-semibold">{guests}</span>
+                      <span className="font-semibold">{guests} хүн</span>
                       <Button
                         variant="outline"
                         size="sm"
-                        onClick={() => setGuests(Math.min(6, guests + 1))}
-                        disabled={guests >= 6}
+                        onClick={() => setGuests(Math.min(camp.capacity || 6, guests + 1))}
+                        disabled={guests >= (camp.capacity || 6)}
                       >
                         +
                       </Button>
                     </div>
+                    {guests >= (camp.capacity || 6) && (
+                      <p className="text-xs text-orange-600 mt-1 font-medium">
+                        ⚠️ Багтаамж: {camp.capacity} хүн
+                      </p>
+                    )}
                   </div>
 
                   {checkIn && checkOut && (
                     <div className="space-y-2 pt-4 border-t">
                       <div className="flex justify-between text-sm">
                         <span className="font-medium">
-                          ${campData.price} ×{" "}
+                          ₮{campData.price.toLocaleString()} ×{" "}
                           {Math.ceil(
                             (new Date(checkOut).getTime() -
                               new Date(checkIn).getTime()) /
                               (1000 * 60 * 60 * 24)
                           )}{" "}
-                          nights
+                          шөнө
                         </span>
                         <span className="font-semibold">
-                          ${calculateTotal()}
+                          ₮{calculateTotal().toLocaleString()}
                         </span>
                       </div>
                       <div className="flex justify-between text-sm">
-                        <span className="font-medium">Service fee</span>
+                        <span className="font-medium">Үйлчилгээний хураамж</span>
                         <span className="font-semibold">
-                          ${Math.round(calculateTotal() * 0.1)}
+                          ₮{Math.round(calculateTotal() * 0.1).toLocaleString()}
                         </span>
                       </div>
                       <Separator />
                       <div className="flex justify-between font-bold">
-                        <span>Total</span>
+                        <span>Нийт</span>
                         <span>
-                          $
-                          {calculateTotal() +
-                            Math.round(calculateTotal() * 0.1)}
+                          ₮
+                          {(calculateTotal() +
+                            Math.round(calculateTotal() * 0.1)).toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -880,11 +1152,14 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     {!checkIn || !checkOut ? "Огноо сонгоно уу" : "Захиалах"}
                   </Button>
 
-                  <div className="text-center">
-                    <p className="text-sm text-gray-600 font-medium">
-                      Та одоохондоо төлбөр төлөхгүй
-                    </p>
-                  </div>
+                  <Button
+                    variant="outline"
+                    className="w-full font-semibold"
+                    onClick={() => setShowCheckInPicker(true)}
+                  >
+                    <Calendar className="w-4 h-4 mr-2" />
+                    Боломжит огноо шалгах
+                    </Button>
 
                   <Separator />
 
@@ -892,6 +1167,22 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     <Button
                       variant="outline"
                       className="w-full bg-transparent font-medium"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        if (campData.host.phone) {
+                          window.location.href = `tel:${campData.host.phone}`;
+                        } else if (campData.host.email) {
+                          window.location.href = `mailto:${campData.host.email}`;
+                        } else {
+                          toast({
+                            title: "Холбогдох мэдээлэл олдсонгүй",
+                            description: "Эзний холбогдох мэдээлэл олдсонгүй.",
+                            variant: "destructive",
+                          });
+                        }
+                      }}
                     >
                       <MessageCircle className="w-4 h-4 mr-2" />
                       Эзэнтэй холбогдох
@@ -899,6 +1190,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     <Button
                       variant="outline"
                       className="w-full bg-transparent font-medium"
+                      onClick={() => setShowCheckInPicker(true)}
                     >
                       <Calendar className="w-4 h-4 mr-2" />
                       Боломжит огноо шалгах
@@ -910,6 +1202,78 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
           </div>
         </div>
       </div>
+
+      {/* Check-in Date Picker */}
+      <DatePickerModal
+        isOpen={showCheckInPicker}
+        onClose={() => setShowCheckInPicker(false)}
+        onSelect={(date) => {
+          if (date) {
+            // Fix timezone issue: use local date string
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dateString = `${year}-${month}-${day}`;
+            
+            console.log('✅ Check-in selected:', dateString);
+            setCheckIn(dateString);
+            
+            // Clear check-out if it's before the new check-in
+            if (checkOut && new Date(checkOut) <= date) {
+              setCheckOut("");
+            }
+          }
+          setShowCheckInPicker(false);
+        }}
+        disabledDates={disabledDates}
+        title="Ирэх өдөр сонгох"
+      />
+
+      {/* Check-out Date Picker */}
+      <DatePickerModal
+        isOpen={showCheckOutPicker}
+        onClose={() => setShowCheckOutPicker(false)}
+        onSelect={(date) => {
+          if (date) {
+            // Fix timezone issue: use local date string
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const dateString = `${year}-${month}-${day}`;
+            
+            console.log('✅ Check-out selected:', dateString);
+            setCheckOut(dateString);
+          }
+          setShowCheckOutPicker(false);
+        }}
+        disabledDates={disabledDates}
+        minDate={checkIn ? new Date(checkIn) : null}
+        title="Гарах өдөр сонгох"
+      />
+
+      {/* Payment Modal */}
+      {checkIn && checkOut && (
+        <PaymentModal
+          isOpen={showPaymentModal}
+          onClose={() => setShowPaymentModal(false)}
+          onPaymentComplete={handlePaymentComplete}
+          bookingDetails={{
+            campName: campData.name,
+            location: campData.location,
+            checkIn: checkIn,
+            checkOut: checkOut,
+            guests: guests,
+            nights: Math.ceil(
+              (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
+                (1000 * 60 * 60 * 24)
+            ),
+            pricePerNight: campData.price,
+            serviceFee: Math.round(calculateTotal() * 0.1),
+            total: calculateTotal() + Math.round(calculateTotal() * 0.1),
+            image: campData.images[0] || getPrimaryImage(camp.images),
+          }}
+        />
+      )}
     </div>
   );
 }
