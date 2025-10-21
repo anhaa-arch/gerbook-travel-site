@@ -91,22 +91,22 @@ export default function HomePage() {
   return (
     <div className="h-full bg-white">
       <div className="max-w-6xl mx-auto">
-        <div className="bg-white py-8 ">
+        <div className="bg-white py-4 sm:py-6 md:py-8">
           <SearchSection />
         </div>
       </div>
 
       {/* Featured Camps Section */}
-      <section className="py-12 md:py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
-            <h2 className="text-2xl md:text-3xl font-bold font-display text-gray-900">
+      <section className="py-6 sm:py-8 md:py-12 lg:py-16">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-gray-900">
               {t("home.featured_camps")}
             </h2>
-            <Link href="/camps">
+            <Link href="/camps" className="w-full sm:w-auto">
               <Button
                 variant="outline"
-                className="font-semibold bg-transparent"
+                className="font-semibold bg-transparent w-full sm:w-auto text-sm sm:text-base"
               >
                 {t("common.details")}
               </Button>
@@ -114,11 +114,11 @@ export default function HomePage() {
           </div>
 
           {/* Featured Camps - Responsive grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 mb-8 md:mb-12">
+          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-6 sm:mb-8 md:mb-10 lg:mb-12">
             {topFeaturedCamps.map((camp: any) => (
               <Card
                 key={camp.id}
-                className="overflow-hidden hover:shadow-lg transition-shadow"
+                className="overflow-hidden hover:shadow-lg transition-all duration-200"
               >
                 <div className="relative">
                   <Image
@@ -126,43 +126,43 @@ export default function HomePage() {
                     alt={camp.name}
                     width={300}
                     height={200}
-                    className="w-full h-40 md:h-48 object-cover"
+                    className="w-full h-36 xs:h-40 sm:h-44 md:h-48 object-cover"
                   />
-                  <div className="absolute top-2 right-2 bg-emerald-600 text-white px-2 py-1 rounded text-[10px] font-normal">
+                  <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 bg-emerald-600 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] xs:text-[10px] font-medium">
                     Онцгой хамтрагч
                   </div>
                 </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-base md:text-lg mb-2 truncate">
+                <CardContent className="p-2.5 xs:p-3 sm:p-4">
+                  <h3 className="font-semibold text-sm xs:text-base md:text-lg mb-1.5 sm:mb-2 truncate">
                     {camp.name}
                   </h3>
-                  <div className="flex items-center text-gray-600 mb-2">
-                    <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                    <span className="text-sm truncate font-medium">
+                  <div className="flex items-center text-gray-600 mb-1.5 sm:mb-2">
+                    <MapPin className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                    <span className="text-xs xs:text-sm truncate font-medium">
                       {camp.location}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-2.5 xs:mb-3 sm:mb-4">
                     <div className="flex items-center text-gray-600">
-                      <Users className="w-4 h-4 mr-1" />
-                      <span className="text-sm font-medium">
+                      <Users className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1" />
+                      <span className="text-xs xs:text-sm font-medium">
                         {camp.capacity} {t("camps.guests")}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-lg md:text-xl font-bold">
-                        {camp.pricePerNight}₮
+                      <span className="text-base xs:text-lg md:text-xl font-bold">
+                        {camp.pricePerNight?.toLocaleString()}₮
                       </span>
-                      <span className="text-gray-600 ml-1 text-sm font-medium">
+                      <span className="text-gray-600 ml-0.5 sm:ml-1 text-[10px] xs:text-xs sm:text-sm font-medium">
                         хоног
                       </span>
                     </div>
                     <Link href={`/camp/${camp.id}`}>
                       <Button
                         size="sm"
-                        className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                        className="bg-emerald-600 hover:bg-emerald-700 font-semibold text-[10px] xs:text-xs sm:text-sm px-2 xs:px-3 h-7 xs:h-8 sm:h-9"
                       >
                         {t("common.book_now")}
                       </Button>
@@ -174,11 +174,11 @@ export default function HomePage() {
           </div>
 
           {/* Regular Camps - Second row */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6">
             {regularCamps.map((camp: any) => (
               <Card
                 key={camp.id}
-                className="overflow-hidden hover:shadow-lg transition-shadow"
+                className="overflow-hidden hover:shadow-lg transition-all duration-200"
               >
                 <div className="relative">
                   <Image
@@ -186,40 +186,40 @@ export default function HomePage() {
                     alt={camp.name}
                     width={300}
                     height={200}
-                    className="w-full h-40 md:h-48 object-cover"
+                    className="w-full h-36 xs:h-40 sm:h-44 md:h-48 object-cover"
                   />
                 </div>
-                <CardContent className="p-4">
-                  <h3 className="font-semibold text-base md:text-lg mb-2 truncate">
+                <CardContent className="p-2.5 xs:p-3 sm:p-4">
+                  <h3 className="font-semibold text-sm xs:text-base md:text-lg mb-1.5 sm:mb-2 truncate">
                     {camp.name}
                   </h3>
-                  <div className="flex items-center text-gray-600 mb-2">
-                    <MapPin className="w-4 h-4 mr-1 flex-shrink-0" />
-                    <span className="text-sm truncate font-medium">
+                  <div className="flex items-center text-gray-600 mb-1.5 sm:mb-2">
+                    <MapPin className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                    <span className="text-xs xs:text-sm truncate font-medium">
                       {camp.location}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between mb-4">
+                  <div className="flex items-center justify-between mb-2.5 xs:mb-3 sm:mb-4">
                     <div className="flex items-center text-gray-600">
-                      <Users className="w-4 h-4 mr-1" />
-                      <span className="text-sm font-medium">
+                      <Users className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1" />
+                      <span className="text-xs xs:text-sm font-medium">
                         {camp.capacity} {t("camps.guests")}
                       </span>
                     </div>
                   </div>
                   <div className="flex items-center justify-between">
                     <div>
-                      <span className="text-lg md:text-xl font-bold">
-                        {camp.pricePerNight}₮
+                      <span className="text-base xs:text-lg md:text-xl font-bold">
+                        {camp.pricePerNight?.toLocaleString()}₮
                       </span>
-                      <span className="text-gray-600 ml-1 text-sm font-medium">
+                      <span className="text-gray-600 ml-0.5 sm:ml-1 text-[10px] xs:text-xs sm:text-sm font-medium">
                         хоног
                       </span>
                     </div>
                     <Link href={`/camp/${camp.id}`}>
                       <Button
                         size="sm"
-                        className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                        className="bg-emerald-600 hover:bg-emerald-700 font-semibold text-[10px] xs:text-xs sm:text-sm px-2 xs:px-3 h-7 xs:h-8 sm:h-9"
                       >
                         {t("common.book_now")}
                       </Button>
@@ -280,29 +280,29 @@ export default function HomePage() {
       </section> */}
 
       {/* Featured Products */}
-      <section className="py-12 md:py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-8 gap-4">
-            <h2 className="text-2xl md:text-3xl font-bold font-display text-gray-900">
+      <section className="py-6 sm:py-8 md:py-12 lg:py-16 bg-white">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-gray-900">
               {t("products.title")}
             </h2>
-            <Link href="/products">
+            <Link href="/products" className="w-full sm:w-auto">
               <Button
                 variant="outline"
-                className="font-semibold bg-transparent"
+                className="font-semibold bg-transparent w-full sm:w-auto text-sm sm:text-base"
               >
                 {t("common.details")}
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
             {productEdges.map((edge: any) => {
               const product = edge.node;
               const imageSrc = getPrimaryImage(product.images);
               return (
                 <Card
                   key={product.id}
-                  className="overflow-hidden hover:shadow-lg transition-shadow"
+                  className="overflow-hidden hover:shadow-lg transition-all duration-200"
                 >
                   <div className="relative">
                     <Image
@@ -310,20 +310,20 @@ export default function HomePage() {
                       alt={product.name}
                       width={200}
                       height={200}
-                      className="w-full h-40 md:h-48 object-cover"
+                      className="w-full h-36 xs:h-40 sm:h-44 md:h-48 object-cover"
                     />
                   </div>
-                  <CardContent className="p-4 md:p-6">
-                    <h3 className="font-semibold text-base md:text-lg mb-2">
+                  <CardContent className="p-3 sm:p-4 md:p-6">
+                    <h3 className="font-semibold text-sm xs:text-base md:text-lg mb-2 sm:mb-3 truncate">
                       {product.name}
                     </h3>
                     <div className="flex items-center justify-between">
-                      <span className="text-xl md:text-2xl font-bold">
-                        {product.price}₮
+                      <span className="text-lg xs:text-xl md:text-2xl font-bold">
+                        {product.price?.toLocaleString()}₮
                       </span>
                       <Button
                         size="sm"
-                        className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                        className="bg-emerald-600 hover:bg-emerald-700 font-semibold text-[10px] xs:text-xs sm:text-sm px-2 xs:px-3 h-7 xs:h-8 sm:h-9"
                       >
                         {t("common.add_to_cart")}
                       </Button>

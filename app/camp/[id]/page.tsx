@@ -631,25 +631,25 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-6 lg:py-8">
         {/* Back Button */}
-        <div className="mb-6">
+        <div className="mb-3 sm:mb-4 md:mb-6">
           <Link href="/camps">
             <Button
               variant="ghost"
-              className="p-0 h-auto font-medium text-gray-600 hover:text-gray-900"
+              className="p-0 h-auto font-medium text-gray-600 hover:text-gray-900 text-xs sm:text-sm"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Camps
+              <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+              Буцах
             </Button>
           </Link>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
           {/* Main Content */}
-          <div className="lg:col-span-2 space-y-6 lg:space-y-8">
+          <div className="lg:col-span-2 space-y-4 sm:space-y-5 md:space-y-6 lg:space-y-8">
             {/* Image Gallery */}
-            <div className="space-y-4">
+            <div className="space-y-2 sm:space-y-3 md:space-y-4">
               <div className="aspect-video bg-gray-200 rounded-lg overflow-hidden">
                 <img
                   src={campData.images[selectedImage] || getPrimaryImage(camp.images) || "/placeholder.svg"}
@@ -657,14 +657,14 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div className="grid grid-cols-3 xs:grid-cols-4 gap-1.5 sm:gap-2">
                 {campData.images
                   .slice(0, 4)
                   .map((image: string, index: number) => (
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`aspect-video bg-gray-200 rounded-lg overflow-hidden border-2 ${
+                      className={`aspect-video bg-gray-200 rounded-md sm:rounded-lg overflow-hidden border-2 transition-colors ${
                         selectedImage === index
                           ? "border-emerald-500"
                           : "border-transparent"
@@ -682,45 +682,45 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
             {/* Camp Info */}
             <div>
-              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-6">
-                <div>
-                  <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2 font-display">
+              <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6">
+                <div className="flex-1 min-w-0">
+                  <h1 className="text-xl xs:text-2xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 font-display">
                     {campData.name}
                   </h1>
-                  <div className="flex items-center text-gray-600 mb-2">
-                    <MapPin className="w-4 h-4 mr-1" />
-                    <span className="font-medium">{campData.location}</span>
+                  <div className="flex items-center text-gray-600 mb-1.5 sm:mb-2">
+                    <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                    <span className="font-medium text-xs sm:text-sm truncate">{campData.location}</span>
                   </div>
-                  <div className="flex items-center gap-4">
+                  <div className="flex items-center gap-3 sm:gap-4">
                     <div className="flex items-center">
-                      <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
-                      <span className="font-semibold">{campData.rating}</span>
-                      <span className="text-gray-600 ml-1 font-medium">
+                      <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400 mr-1" />
+                      <span className="font-semibold text-xs sm:text-sm">{campData.rating}</span>
+                      <span className="text-gray-600 ml-1 font-medium text-xs sm:text-sm">
                         ({campData.reviewCount} сэтгэгдэл)
                       </span>
                     </div>
                   </div>
                 </div>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-shrink-0">
                   <Button
                     variant="outline"
                     size="sm"
-                    className={`font-medium bg-transparent ${
+                    className={`font-medium bg-transparent text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-3 ${
                       isSaved ? "text-red-600 border-red-600" : ""
                     }`}
                     onClick={handleSaveCamp}
                   >
                     <Heart
-                      className={`w-4 h-4 mr-2 ${
+                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 ${
                         isSaved ? "fill-current" : ""
                       }`}
                     />
-                    {isSaved ? "Хадгалсан" : "Хадгалах"}
+                    <span className="hidden xs:inline">{isSaved ? "Хадгалсан" : "Хадгалах"}</span>
                   </Button>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="font-medium bg-transparent"
+                    className="font-medium bg-transparent text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-3"
                     onClick={() => {
                       if (navigator.share) {
                         navigator.share({
@@ -737,16 +737,16 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       }
                     }}
                   >
-                    <Share2 className="w-4 h-4 mr-2" />
-                    Хуваалцах
+                    <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden xs:inline">Хуваалцах</span>
                   </Button>
                 </div>
               </div>
 
-              <p className="text-gray-700 mb-6 font-medium">
+              <p className="text-gray-700 mb-3 sm:mb-4 md:mb-6 font-medium text-sm sm:text-base">
                 {campData.description}
               </p>
-              <p className="text-gray-600 text-sm leading-relaxed font-medium">
+              <p className="text-gray-600 text-xs sm:text-sm leading-relaxed font-medium">
                 {campData.longDescription}
               </p>
             </div>
@@ -1036,67 +1036,69 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
           <div className="lg:col-span-1">
             <div className="sticky top-4 lg:top-8">
               <Card>
-                <CardHeader className="p-4 lg:p-6">
+                <CardHeader className="p-3 xs:p-4 sm:p-5 lg:p-6">
                   <CardTitle className="flex items-center justify-between">
-                    <span className="text-xl lg:text-2xl font-bold">
+                    <span className="text-lg xs:text-xl lg:text-2xl font-bold">
                       ₮{campData.price.toLocaleString()}
                     </span>
-                    <span className="text-sm text-gray-600 font-medium">
+                    <span className="text-xs sm:text-sm text-gray-600 font-medium">
                       шөнө
                     </span>
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="p-4 lg:p-6 space-y-4">
-                  <div className="grid grid-cols-2 gap-4">
+                <CardContent className="p-3 xs:p-4 sm:p-5 lg:p-6 space-y-3 sm:space-y-4">
+                  <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
                         Ирэх өдөр
                       </label>
                       <div
-                        className="flex items-center border rounded-md px-3 py-2 cursor-pointer hover:border-emerald-600 transition-colors font-medium"
+                        className="flex items-center border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 cursor-pointer hover:border-emerald-600 transition-colors font-medium"
                         onClick={() => setShowCheckInPicker(true)}
                       >
-                        <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                        <span className={checkIn ? "text-gray-900" : "text-gray-500"}>
-                          {checkIn ? new Date(checkIn).toLocaleDateString('mn-MN') : "Ирэх өдөр сонгох"}
+                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-500 flex-shrink-0" />
+                        <span className={`text-[10px] xs:text-xs sm:text-sm truncate ${checkIn ? "text-gray-900" : "text-gray-500"}`}>
+                          {checkIn ? new Date(checkIn).toLocaleDateString('mn-MN') : "Ирэх өдөр"}
                         </span>
                       </div>
                     </div>
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-1">
+                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
                         Гарах өдөр
                       </label>
                       <div
-                        className={`flex items-center border rounded-md px-3 py-2 cursor-pointer transition-colors font-medium ${
+                        className={`flex items-center border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 cursor-pointer transition-colors font-medium ${
                           checkIn ? "hover:border-emerald-600" : "opacity-50 cursor-not-allowed"
                         }`}
                         onClick={() => checkIn && setShowCheckOutPicker(true)}
                       >
-                        <Calendar className="w-4 h-4 mr-2 text-gray-500" />
-                        <span className={checkOut ? "text-gray-900" : "text-gray-500"}>
-                          {checkOut ? new Date(checkOut).toLocaleDateString('mn-MN') : "Гарах өдөр сонгох"}
+                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-500 flex-shrink-0" />
+                        <span className={`text-[10px] xs:text-xs sm:text-sm truncate ${checkOut ? "text-gray-900" : "text-gray-500"}`}>
+                          {checkOut ? new Date(checkOut).toLocaleDateString('mn-MN') : "Гарах өдөр"}
                         </span>
                       </div>
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-1">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
                       Зочдын тоо
                     </label>
-                    <div className="flex items-center space-x-3">
+                    <div className="flex items-center space-x-2 sm:space-x-3">
                       <Button
                         variant="outline"
                         size="sm"
+                        className="h-8 w-8 sm:h-9 sm:w-9 p-0"
                         onClick={() => setGuests(Math.max(1, guests - 1))}
                         disabled={guests <= 1}
                       >
                         -
                       </Button>
-                      <span className="font-semibold">{guests} хүн</span>
+                      <span className="font-semibold text-sm sm:text-base min-w-[60px] xs:min-w-[70px] text-center">{guests} хүн</span>
                       <Button
                         variant="outline"
                         size="sm"
+                        className="h-8 w-8 sm:h-9 sm:w-9 p-0"
                         onClick={() => setGuests(Math.min(camp.capacity || 6, guests + 1))}
                         disabled={guests >= (camp.capacity || 6)}
                       >
@@ -1104,7 +1106,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       </Button>
                     </div>
                     {guests >= (camp.capacity || 6) && (
-                      <p className="text-xs text-orange-600 mt-1 font-medium">
+                      <p className="text-[10px] xs:text-xs text-orange-600 mt-1 font-medium">
                         ⚠️ Багтаамж: {camp.capacity} хүн
                       </p>
                     )}
@@ -1145,7 +1147,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                   )}
 
                   <Button
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 font-semibold text-xs sm:text-sm md:text-base h-9 sm:h-10 md:h-11"
                     disabled={!checkIn || !checkOut}
                     onClick={handleBooking}
                   >
@@ -1154,19 +1156,19 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
                   <Button
                     variant="outline"
-                    className="w-full font-semibold"
+                    className="w-full font-semibold text-xs sm:text-sm h-9 sm:h-10"
                     onClick={() => setShowCheckInPicker(true)}
                   >
-                    <Calendar className="w-4 h-4 mr-2" />
+                    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                     Боломжит огноо шалгах
-                    </Button>
+                  </Button>
 
                   <Separator />
 
-                  <div className="space-y-3">
+                  <div className="space-y-2 sm:space-y-3">
                     <Button
                       variant="outline"
-                      className="w-full bg-transparent font-medium"
+                      className="w-full bg-transparent font-medium text-xs sm:text-sm h-9 sm:h-10"
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
@@ -1184,15 +1186,15 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                         }
                       }}
                     >
-                      <MessageCircle className="w-4 h-4 mr-2" />
+                      <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                       Эзэнтэй холбогдох
                     </Button>
                     <Button
                       variant="outline"
-                      className="w-full bg-transparent font-medium"
+                      className="w-full bg-transparent font-medium text-xs sm:text-sm h-9 sm:h-10"
                       onClick={() => setShowCheckInPicker(true)}
                     >
-                      <Calendar className="w-4 h-4 mr-2" />
+                      <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                       Боломжит огноо шалгах
                     </Button>
                   </div>
