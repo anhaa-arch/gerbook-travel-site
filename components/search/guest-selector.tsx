@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useref } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface GuestSelectorProps {
   isOpen: boolean;
@@ -14,7 +14,7 @@ export function GuestSelector({
   onSelect,
 }: GuestSelectorProps) {
   const [guests, setGuests] = useState(1);
-  const dropdownRef = useref<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Outside click handler
   useEffect(() => {

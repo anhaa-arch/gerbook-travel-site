@@ -1,7 +1,7 @@
 "use client";
 import mnData from "@/data";
 import { MapPin, ChevronRight, X, ArrowLeft } from "lucide-react";
-import { useState, useEffect, useref } from "react";
+import { useState, useEffect, useRef } from "react";
 
 interface LocationDropdownProps {
   isOpen: boolean;
@@ -17,7 +17,7 @@ export function LocationDropdown({
   const [showProvinceInfo, setShowProvinceInfo] = useState(false);
   const [selectedProvince, setSelectedProvince] = useState<string | null>(null);
   const [selectedLocation, setSelectedLocation] = useState<string>("");
-  const dropdownRef = useref<HTMLDivElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Outside click handler
   useEffect(() => {

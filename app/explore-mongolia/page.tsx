@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useMemo, useref } from "react"
+import { useState, useMemo, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import {
   MapPin,
@@ -329,7 +329,7 @@ export default function ExploreMongoliaPage() {
   const [durationType, setDurationType] = useState("days")
   const [selectedAttraction, setSelectedAttraction] = useState<any>(null)
   const [showFilters, setShowFilters] = useState(false)
-  const mapSectionRef = useref<HTMLDivElement>(null)
+  const mapSectionRef = useRef<HTMLDivElement>(null)
   const [highlightedId, setHighlightedId] = useState<number | null>(null)
   const router = userouter()
 

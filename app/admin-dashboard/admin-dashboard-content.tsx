@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useref } from "react";
+import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdleLogout } from "@/hooks/use-idle-logout";
 import {
@@ -113,7 +113,7 @@ export default function AdminDashboardContent() {
     "file"
   );
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-  const fileInputRef = useref<HTMLInputElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { logout } = useAuth();
   const { toast } = useToast();
   

@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { Globe, ChevronDown, user, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect, useref } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 
 export function Header() {
@@ -12,9 +12,9 @@ export function Header() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
 
-  const languageRef = useref<HTMLDivElement>(null);
-  const userMenuRef = useref<HTMLDivElement>(null);
-  const mobileMenuRef = useref<HTMLDivElement>(null);
+  const languageRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+  const mobileMenuRef = useRef<HTMLDivElement>(null);
 
   // Outside click handler for language menu
   useEffect(() => {

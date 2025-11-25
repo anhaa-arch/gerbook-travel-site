@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useref } from "react"
+import { useState, useEffect, useRef } from "react"
 import { useTranslation } from "react-i18next"
 import {
   MapPin,
@@ -139,7 +139,7 @@ export default function TravelRoutesPage() {
   const [campModalOpen, setCampModalOpen] = useState(false)
   const [mapCenter, setMapCenter] = useState<[number, number]>([47.5, 105])
   const [selectedCampIndex, setSelectedCampIndex] = useState<number | null>(null)
-  const mapRef = useref<any>(null)
+  const mapRef = useRef<any>(null)
 
   // Mock data for demonstration
   const mockRouteSegments: RouteSegment[] = [
