@@ -2,7 +2,7 @@
 
 ## 🎯 Шинэ функц:
 
-User Dashboard болон Herder Dashboard дээр **Profile шинэчлэх** боломж нэмэгдлээ!
+user Dashboard болон Herder Dashboard дээр **Profile шинэчлэх** боломж нэмэгдлээ!
 
 ---
 
@@ -23,8 +23,8 @@ User Dashboard болон Herder Dashboard дээр **Profile шинэчлэх**
 
 **GraphQL Mutation:**
 ```graphql
-mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
-  updateUser(id: $id, input: $input) {
+mutation Updateuser($id: ID!, $input: UpdateuserInput!) {
+  updateuser(id: $id, input: $input) {
     id
     name
     email
@@ -55,7 +55,7 @@ mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
 ### Form Fields:
 1. **Нэр** (Name)
    - Required field
-   - Icon: User
+   - Icon: user
    - Placeholder: "Таны нэр"
 
 2. **Имэйл** (Email)
@@ -116,14 +116,14 @@ if (newPassword) {
 
 ### GraphQL Schema:
 ```graphql
-input UpdateUserInput {
+input UpdateuserInput {
   email: String
   password: String
   name: String
   role: Role
 }
 
-type User {
+type user {
   id: ID!
   email: String!
   phone: String
@@ -133,9 +133,9 @@ type User {
 ```
 
 ### Authorization:
-- ✅ Users can update their own profile
+- ✅ users can update their own profile
 - ✅ Admins can update any user
-- ❌ Users cannot update other users' profiles
+- ❌ users cannot update other users' profiles
 - ✅ Password is automatically hashed on backend
 
 ### Audit Logging:
@@ -178,7 +178,7 @@ type User {
 
 ## 🧪 Туршилт:
 
-### User Dashboard:
+### user Dashboard:
 1. Login as customer
 2. Navigate to `/user-dashboard`
 3. Click "Профайл" tab
@@ -241,7 +241,7 @@ Expected: ✅ "Таны мэдээлэл шинэчлэгдлээ"
 
 ## 📊 Database Updates:
 
-### User Table:
+### user Table:
 ```sql
 UPDATE users
 SET
@@ -257,7 +257,7 @@ WHERE id = ?
 INSERT INTO audits
 (userId, action, entityId, description, timestamp)
 VALUES
-(?, 'UPDATE', ?, 'User updated: ["name", "email"]', NOW())
+(?, 'UPDATE', ?, 'user updated: ["name", "email"]', NOW())
 ```
 
 ---
@@ -294,7 +294,7 @@ VALUES
 ## 📝 Usage Example:
 
 ```typescript
-// User Dashboard
+// user Dashboard
 <ProfileSettings 
   user={{
     id: user.id,
@@ -310,7 +310,7 @@ VALUES
 
 ## ✅ Амжилттай хэрэгжүүлэгдсэн!
 
-- ✅ Profile editing for Users
+- ✅ Profile editing for users
 - ✅ Profile editing for Herders
 - ✅ Password change functionality
 - ✅ Form validation

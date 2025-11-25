@@ -31,8 +31,8 @@ export function useIdleLogout({
   timeout = 5 * 60 * 1000, // 5 minutes default
   onLogout 
 }: UseIdleLogoutProps = {}) {
-  const router = useRouter();
-  const timeoutId = useRef<NodeJS.Timeout | null>(null);
+  const router = userouter();
+  const timeoutId = useref<NodeJS.Timeout | null>(null);
 
   const handleLogout = () => {
     console.log("🔴 Auto-logout triggered");
@@ -78,9 +78,9 @@ export function useIdleLogout({
 
 ## 🔧 Dashboard integration:
 
-### User Dashboard:
+### user Dashboard:
 ```typescript
-export default function UserDashboardContent() {
+export default function userDashboardContent() {
   const { logout, user } = useAuth();
   
   useIdleLogout({
@@ -183,11 +183,11 @@ export default function AdminDashboardContent() {
 ## 📊 Timer Flow:
 
 ```
-User logs in
+user logs in
      ↓
 [5:00 Timer starts]
      ↓
-User activity (e.g., click)
+user activity (e.g., click)
      ↓
 [5:00 Timer resets]
      ↓
@@ -206,7 +206,7 @@ Auto-logout:
 ## 🔐 Security Benefits:
 
 ### 1. **Unattended Sessions**
-- User forgets to logout
+- user forgets to logout
 - Computer left unattended
 - ✅ Auto-logout after 5 minutes
 
@@ -250,7 +250,7 @@ useIdleLogout({
   onLogout: () => {
     // Custom cleanup
     console.log("Logging out...");
-    clearUserData();
+    clearuserData();
     logout();
   },
 });
@@ -327,7 +327,7 @@ const logActivity = (event: string) => {
 ✅ Activity tracking (6 events)
 ✅ localStorage cleared on logout
 ✅ Redirect to login page
-✅ Works on all dashboards (User, Herder, Admin)
+✅ Works on all dashboards (user, Herder, Admin)
 ✅ Configurable timeout
 ✅ Custom logout handler support
 ✅ Clean event listener cleanup
@@ -339,7 +339,7 @@ const logActivity = (event: string) => {
 - ✅ Session timeout implemented
 - ✅ localStorage cleared
 - ✅ Tokens removed
-- ✅ User redirected
+- ✅ user redirected
 - ✅ No sensitive data left
 - ✅ Works on mobile (touch events)
 - ✅ Works on desktop (mouse/keyboard)

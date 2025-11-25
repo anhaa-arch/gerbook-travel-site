@@ -1,8 +1,8 @@
-# ✅ User Dashboard - Owner Contact Info Fix
+# ✅ user Dashboard - Owner Contact Info Fix
 
 ## 🔧 **Асуудал:**
 
-User Dashboard дээр захиалгуудыг харахад малчинтай (yurt owner) холбогдох email болон утасны дугаар харагдахгүй байсан.
+user Dashboard дээр захиалгуудыг харахад малчинтай (yurt owner) холбогдох email болон утасны дугаар харагдахгүй байсан.
 
 ---
 
@@ -10,7 +10,7 @@ User Dashboard дээр захиалгуудыг харахад малчинта
 
 ### **1. GraphQL Query Update**
 
-`app/user-dashboard/queries.ts` дээр `GET_USER_BOOKINGS` query-д owner мэдээлэл нэмсэн:
+`app/user-dashboard/queries.ts` дээр `GET_user_BOOKINGS` query-д owner мэдээлэл нэмсэн:
 
 **Өмнө:**
 ```graphql
@@ -148,7 +148,7 @@ http://localhost:3000/user-dashboard
 ```
 
 **Test Case:**
-1. User Dashboard → "Миний захиалгууд" tab
+1. user Dashboard → "Миний захиалгууд" tab
 2. Захиалга card дээр:
    - ✅ "Малчин: [name]" харагдана
    - ✅ "📞 [phone]" харагдана (байвал)
@@ -162,7 +162,7 @@ http://localhost:3000/user-dashboard
 ## 🔗 **Files Changed:**
 
 1. `app/user-dashboard/queries.ts`
-   - ✅ Added `owner { id, name, email, phone }` to GET_USER_BOOKINGS
+   - ✅ Added `owner { id, name, email, phone }` to GET_user_BOOKINGS
 
 2. `app/user-dashboard/user-dashboard-content.tsx`
    - ✅ Updated `Booking` interface

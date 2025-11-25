@@ -189,7 +189,7 @@ model Review {
   yurtId String
   yurt Yurt @relation(fields: [yurtId], references: [id])
   userId String
-  user User @relation(fields: [userId], references: [id])
+  user user @relation(fields: [userId], references: [id])
   rating Int
   comment String
   createdAt DateTime @default(now())
@@ -251,7 +251,7 @@ Already has the structure, just needs data!
 type Review {
   id: ID!
   yurt: Yurt!
-  user: User!
+  user: user!
   rating: Int!
   comment: String!
   createdAt: String!

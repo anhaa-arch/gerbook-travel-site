@@ -2,7 +2,7 @@
 
 ## 🎯 Үндсэн Зарчим
 
-User dashboard дээр хийсэн бүх өөрчлөлтүүдийг **Herder** болон **Admin** dashboard дээр ижилхэн хэрэглэнэ.
+user dashboard дээр хийсэн бүх өөрчлөлтүүдийг **Herder** болон **Admin** dashboard дээр ижилхэн хэрэглэнэ.
 
 ## 📱 Mobile Responsive Template
 
@@ -212,7 +212,7 @@ Priority fixes:
 1. Container padding
 2. Title sizes
 3. Stats cards
-4. User management table → Mobile cards
+4. user management table → Mobile cards
 5. All tables → Mobile alternatives
 
 ## 💡 Pro Tips
@@ -234,6 +234,6 @@ Priority fixes:
 ---
 
 **Template үүсгэсэн огноо:** 2025-01-18  
-**Үндэслэсэн:** User Dashboard Mobile Responsive Fixes  
+**Үндэслэсэн:** user Dashboard Mobile Responsive Fixes  
 **Зориулалт:** Herder & Admin Dashboard хурдан засварлахад
 

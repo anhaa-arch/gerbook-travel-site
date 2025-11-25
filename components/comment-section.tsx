@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, Trash2, User } from "lucide-react";
+import { Star, Trash2, user } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const GET_COMMENTS = gql`
@@ -257,7 +257,7 @@ export function CommentSection({ yurtId }: CommentSectionProps) {
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3">
                     <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                      <User className="w-5 h-5 text-emerald-600" />
+                      <user className="w-5 h-5 text-emerald-600" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">

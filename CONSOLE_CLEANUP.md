@@ -5,7 +5,7 @@
 Browser console дээр их хэмжээний мэдээлэл хэвлэгдэж байсан:
 - GraphQL responses
 - Base64 encoded images (data URLs)
-- User data
+- user data
 - Booking information
 - Debug messages
 
@@ -115,7 +115,7 @@ Console дээр зөвхөн алдаанууд:
 import debug from '@/lib/debug';
 
 // Development-д л ажиллана
-debug.log('User data:', user);
+debug.log('user data:', user);
 
 // Production + Development-д ажиллана
 debug.error('Failed to load:', error);

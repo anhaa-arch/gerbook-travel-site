@@ -49,7 +49,7 @@ npm run dev
 
 ### Backend шалгах:
 ```
-http://localhost:8000/graphql
+http://"http://152.42.163.155:8000/graphql"
 
 ✅ Apollo GraphQL Playground гарч ирвэл зөв!
 ```
@@ -100,7 +100,7 @@ taskkill /PID <process_id> /F
 
 ## ✅ Бүгд зөв бол:
 
-1. ✅ Backend: `http://localhost:8000/graphql`
+1. ✅ Backend: `http://"http://152.42.163.155:8000/graphql"`
 2. ✅ Frontend: `http://localhost:3000`
 3. ✅ Apollo Client холбогдоно
 4. ✅ GraphQL queries ажиллана

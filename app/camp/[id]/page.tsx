@@ -15,7 +15,7 @@ import {
   ArrowLeft,
   Star,
   MapPin,
-  Users,
+  users,
   Wifi,
   Car,
   Utensils,
@@ -34,12 +34,12 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import "../../../lib/i18n";
-import { useRouter } from "next/navigation";
+import { userouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import {
   CREATE_BOOKING,
-  GET_USER_BOOKINGS,
+  GET_user_BOOKINGS,
 } from "@/app/user-dashboard/queries";
 import { DatePickerModal } from "@/components/search/date-picker-modal";
 import { PaymentModal } from "@/components/payment-modal";
@@ -92,7 +92,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
-  const router = useRouter();
+  const router = userouter();
   const resolvedParams = use(params);
   const campId = resolvedParams.id;
 
@@ -118,7 +118,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     useMutation(CREATE_BOOKING, {
       refetchQueries: [
         {
-          query: GET_USER_BOOKINGS,
+          query: GET_user_BOOKINGS,
           variables: { userId: user?.id },
         },
         {
@@ -527,7 +527,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     // Note: Frontend normalizes CUSTOMER to "user", so we accept both
     const userRole = (user.role || "").toString().toUpperCase();
 
-    if (userRole !== "CUSTOMER" && userRole !== "USER") {
+    if (userRole !== "CUSTOMER" && userRole !== "user") {
       toast({
         title: "Зөвшөөрөлгүй",
         description: "Зөвхөн CUSTOMER хэрэглэгчид захиалга үүсгэж болно.",

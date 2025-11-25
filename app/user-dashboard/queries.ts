@@ -1,7 +1,7 @@
 import { gql } from '@apollo/client'
 
-export const GET_USER_STATS = gql`
-  query GetUserStats {
+export const GET_user_STATS = gql`
+  query GetuserStats {
     me {
       id
       name
@@ -16,8 +16,8 @@ export const GET_USER_STATS = gql`
   }
 `
 
-export const GET_USER_BOOKINGS = gql`
-  query GetUserBookings($userId: ID!) {
+export const GET_user_BOOKINGS = gql`
+  query GetuserBookings($userId: ID!) {
     bookings(userId: $userId) {
       edges {
         node {
@@ -45,8 +45,8 @@ export const GET_USER_BOOKINGS = gql`
   }
 `
 
-export const GET_USER_ORDERS = gql`
-  query GetUserOrders($userId: ID!) {
+export const GET_user_ORDERS = gql`
+  query GetuserOrders($userId: ID!) {
     orders(userId: $userId) {
       edges {
         node {
@@ -70,8 +70,8 @@ export const GET_USER_ORDERS = gql`
   }
 `
 
-export const GET_USER_TRAVEL_BOOKINGS = gql`
-  query GetUserTravelBookings($userId: ID!) {
+export const GET_user_TRAVEL_BOOKINGS = gql`
+  query GetuserTravelBookings($userId: ID!) {
     travelBookings(userId: $userId) {
       edges {
         node {

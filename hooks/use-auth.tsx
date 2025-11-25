@@ -6,7 +6,7 @@ import { useState, useEffect, createContext, useContext } from "react"
 import client from '@/lib/apolloClient'
 import { gql } from '@apollo/client'
 
-interface User {
+interface user {
   id: string
   name: string
   email: string
@@ -20,9 +20,9 @@ interface User {
 }
 
 interface AuthContextType {
-  user: User | null
+  user: user | null
   isAuthenticated: boolean
-  saveUserData: (user:User) => void
+  saveuserData: (user:user) => void
   logout: () => Promise<void>
   register: (userData: any) => Promise<void>
   login: (credentials: { email?: string; password?: string; phone?: string }) => Promise<void>
@@ -35,44 +35,44 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null | undefined>(undefined)
+  const [user, setuser] = useState<user | null | undefined>(undefined)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user")
-    if (storedUser) {
+    const storeduser = localStorage.getItem("user")
+    if (storeduser) {
       try {
-        const rawUser = JSON.parse(storedUser)
+        const rawuser = JSON.parse(storeduser)
         const isHerder = localStorage.getItem('isHerder') === 'true'
         // Normalize role in case older storage used backend enums or missing fields
-        const normalizedRole: User["role"] = (() => {
-          const roleValue = (rawUser.role || "").toString()
+        const normalizedRole: user["role"] = (() => {
+          const roleValue = (rawuser.role || "").toString()
           if (roleValue === "ADMIN" || roleValue.toLowerCase() === "admin") return "admin"
           if (roleValue === "HERDER" || roleValue.toLowerCase() === "herder") return "herder"
           // Treat any other as customer
           return "user"
         })()
-        const normalizedUser: User = {
-          id: rawUser.id,
-          name: rawUser.name,
-          email: rawUser.email,
-          avatar: rawUser.avatar,
+        const normalizeduser: user = {
+          id: rawuser.id,
+          name: rawuser.name,
+          email: rawuser.email,
+          avatar: rawuser.avatar,
           isHerder,
           role: normalizedRole,
-          hostBio: rawUser.hostBio,
-          hostExperience: rawUser.hostExperience,
-          hostLanguages: rawUser.hostLanguages,
+          hostBio: rawuser.hostBio,
+          hostExperience: rawuser.hostExperience,
+          hostLanguages: rawuser.hostLanguages,
         }
-        setUser(normalizedUser)
+        setuser(normalizeduser)
         setIsAuthenticated(true)
       } catch (error) {
         console.error("Error parsing stored user data:", error)
         localStorage.removeItem("user")
-        setUser(null)
+        setuser(null)
         setIsAuthenticated(false)
       }
     } else {
-      setUser(null)
+      setuser(null)
       setIsAuthenticated(false)
     }
   }, [])
@@ -81,7 +81,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null // Or a loading spinner if you want
   }
 
-  const saveUserData = async (user:User | any) => {
+  const saveuserData = async (user:user | any) => {
       if(!user){
         throw new Error("Хэрэглэгчийн дата олдсонгүй")
       }
@@ -89,14 +89,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       // Add herder flag from localStorage
       const isHerder = localStorage.getItem('isHerder') === 'true';
       // Normalize role from backend enums (ADMIN/CUSTOMER/HERDER) to frontend roles
-      const normalizedRole: User["role"] = (() => {
+      const normalizedRole: user["role"] = (() => {
         const roleValue = (user.role || "").toString()
         if (roleValue === "ADMIN" || roleValue.toLowerCase() === "admin") return "admin"
         if (roleValue === "HERDER" || roleValue.toLowerCase() === "herder") return "herder"
         // Treat any other as customer
         return "user"
       })()
-      const userWithHerderFlag: User = {
+      const userWithHerderFlag: user = {
         id: user.id,
         name: user.name,
         email: user.email,
@@ -108,13 +108,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         hostLanguages: user.hostLanguages,
       };
       
-      setUser(userWithHerderFlag)
+      setuser(userWithHerderFlag)
       setIsAuthenticated(true)
       localStorage.setItem("user", JSON.stringify(userWithHerderFlag))
   }
 
   const logout = async () => {
-    setUser(null)
+    setuser(null)
     setIsAuthenticated(false)
     localStorage.removeItem("user")
     localStorage.removeItem("isHerder")
@@ -122,7 +122,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }
   // GraphQL operations
   const REGISTER_MUTATION = gql`
-    mutation Register($input: CreateUserInput!) {
+    mutation Register($input: CreateuserInput!) {
       register(input: $input) { token user { id name email role hostBio hostExperience hostLanguages } }
     }
   `
@@ -154,7 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (data?.register) {
       const { token, user } = data.register
       localStorage.setItem('token', token)
-      saveUserData(user)
+      saveuserData(user)
     } else {
       throw new Error('Registration failed')
     }
@@ -168,7 +168,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (data?.login) {
       const { token, user } = data.login
       localStorage.setItem('token', token)
-      saveUserData(user)
+      saveuserData(user)
     } else {
       throw new Error('Login failed')
     }
@@ -183,7 +183,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (data?.verifyOtp) {
       const { token, user } = data.verifyOtp
       localStorage.setItem('token', token)
-      saveUserData(user)
+      saveuserData(user)
     } else {
       throw new Error('OTP verification failed')
     }
@@ -194,7 +194,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     if (data?.resetPassword) {
       const { token: newToken, user } = data.resetPassword
       localStorage.setItem('token', newToken)
-      saveUserData(user)
+      saveuserData(user)
     } else {
       throw new Error('Reset password failed')
     }
@@ -207,7 +207,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const value: AuthContextType = {
     user,
     isAuthenticated,
-    saveUserData,
+    saveuserData,
     logout,
     register,
     login,

@@ -15,10 +15,10 @@ const token = localStorage.getItem('token');
 console.log('🔑 Token:', token ? 'EXISTS ✅' : 'MISSING ❌');
 console.log('Token preview:', token ? token.substring(0, 50) + '...' : 'none');
 
-// === USER ШАЛГАЛТ ===
+// === user ШАЛГАЛТ ===
 const user = JSON.parse(localStorage.getItem('user') || 'null');
-console.log('👤 User:', user ? `${user.name} (${user.email})` : 'MISSING ❌');
-console.log('User role:', user?.role || 'none');
+console.log('👤 user:', user ? `${user.name} (${user.email})` : 'MISSING ❌');
+console.log('user role:', user?.role || 'none');
 
 // === AUTHENTICATION STATUS ===
 const isAuth = !!token && !!user;
@@ -39,7 +39,7 @@ if (!isAuth) {
 ```
 ШАЛГУУР:
 Token: MISSING ❌
-User: MISSING ❌
+user: MISSING ❌
 isAuthenticated: false
 
 ➡️ ШИЙДЭЛ: ДАХИН LOGIN ХИЙХ!
@@ -106,7 +106,7 @@ Backend terminal дээр (tusul_back folder) энэ log харагдах ёст
 
 ## 📋 **STEP-BY-STEP FIX:**
 
-### **Step 1: Current User Check**
+### **Step 1: Current user Check**
 ```javascript
 // Browser Console:
 const user = JSON.parse(localStorage.getItem('user') || 'null');
@@ -196,7 +196,7 @@ Password: password123
 
 ---
 
-**⚠️ АНХААРУУЛГА:** GraphQL Explorer (`http://localhost:8000/graphql`) дээр **БИШL** frontend app (`http://localhost:3000`) дээр test хийж байгаа эсэхээ баталгаажуулаарай!
+**⚠️ АНХААРУУЛГА:** GraphQL Explorer (`http://"http://152.42.163.155:8000/graphql"`) дээр **БИШL** frontend app (`http://localhost:3000`) дээр test хийж байгаа эсэхээ баталгаажуулаарай!
 
 **🎯 90% нь: Token expired эсвэл нэвтрээгүй байна. Дахин login хийвэл ажиллана!** 🚀
 

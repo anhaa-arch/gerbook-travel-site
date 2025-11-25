@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useref } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import type { Matcher } from "react-day-picker";
 
@@ -22,7 +22,7 @@ export function DatePickerModal({
   title = "Огноо сонгох",
 }: DatePickerModalProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>();
-  const modalRef = useRef<HTMLDivElement>(null);
+  const modalRef = useref<HTMLDivElement>(null);
   
   // Debug: Log disabled dates when modal opens
   React.useEffect(() => {

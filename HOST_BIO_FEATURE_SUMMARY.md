@@ -1,7 +1,7 @@
 # 👤 Host Bio Feature - Implementation Summary
 
 ## Overview:
-Add "Эзэнтэй танилцах" (Host Bio) customization to User/Herder Profile Settings.
+Add "Эзэнтэй танилцах" (Host Bio) customization to user/Herder Profile Settings.
 
 ---
 
@@ -9,7 +9,7 @@ Add "Эзэнтэй танилцах" (Host Bio) customization to User/Herder Pr
 
 ### 1. **Prisma Schema** (`tusul_back/prisma/schema.prisma`):
 ```prisma
-model User {
+model user {
   ...
   // Host Bio fields (for HERDER role)
   hostBio         String?         @db.Text
@@ -29,7 +29,7 @@ npx prisma migrate dev --name add_host_bio_fields
 
 ### 2. **GraphQL Schema** (`tusul_back/graphql/schema/user.ts`):
 ```graphql
-type User {
+type user {
   ...
   hostBio: String
   hostExperience: String
@@ -37,7 +37,7 @@ type User {
   ...
 }
 
-input UpdateUserInput {
+input UpdateuserInput {
   ...
   hostBio: String
   hostExperience: String
@@ -122,10 +122,10 @@ const [hostBioData, setHostBioData] = useState({
 
 ---
 
-### 2. **UPDATE_USER Mutation Update:**
+### 2. **UPDATE_user Mutation Update:**
 ```graphql
-mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
-  updateUser(id: $id, input: $input) {
+mutation Updateuser($id: ID!, $input: UpdateuserInput!) {
+  updateuser(id: $id, input: $input) {
     id
     name
     email
@@ -282,7 +282,7 @@ npm run dev
 1. ✅ **Customizable** - Each herder can personalize their profile
 2. ✅ **Dynamic** - Real data from database
 3. ✅ **Role-based** - Only HERDER role sees this section
-4. ✅ **User-friendly** - Simple form inputs
+4. ✅ **user-friendly** - Simple form inputs
 5. ✅ **Validated** - Backend validation ensures data integrity
 
 ---

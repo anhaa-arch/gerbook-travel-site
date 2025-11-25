@@ -7,13 +7,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Globe, ChevronDown, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { userouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { gql, useMutation } from "@apollo/client";
 
 const REGISTER_MUTATION = gql`
-  mutation Register($input: CreateUserInput!) {
+  mutation Register($input: CreateuserInput!) {
     register(input: $input) {
       token
       user {
@@ -39,7 +39,7 @@ export default function RegisterPage() {
     confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
-  const router = useRouter();
+  const router = userouter();
   const { toast } = useToast();
   const { user } = useAuth();
   const [registerMutation] = useMutation(REGISTER_MUTATION);
@@ -99,18 +99,18 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      // Build CreateUserInput as required by backend schema
+      // Build CreateuserInput as required by backend schema
       const generatedName = isEmailInput
         ? String(formData.identifier).split("@")[0]
-        : `User_${digits}`;
+        : `user_${digits}`;
 
       // Determine if current user is admin
-      const isCurrentUserAdmin =
+      const isCurrentuserAdmin =
         user && (user as any).role?.toUpperCase() === "ADMIN";
 
       // Allow admin registration for testing purposes
       // TODO: Remove this in production - only admins should create ADMIN users
-      // if (activeTab === "admin" && !isCurrentUserAdmin) {
+      // if (activeTab === "admin" && !isCurrentuserAdmin) {
       //   toast({
       //     title: "Зөвшөөрөлгүй үйлдэл",
       //     description: "Зөвхөн админ хэрэглэгчид шинэ админ бүртгэж болно",
@@ -133,7 +133,7 @@ export default function RegisterPage() {
       const input: any = {
         email: isEmailInput ? formData.identifier : `${digits}@phone.local`,
         password: formData.password,
-        name: generatedName || "User",
+        name: generatedName || "user",
         ...(isPhoneInput ? { phone: digits } : {}),
         role,
       };

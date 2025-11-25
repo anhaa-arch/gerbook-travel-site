@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Star, Users, Filter, Package, Home } from "lucide-react";
+import { MapPin, Star, users, Filter, Package, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -327,7 +327,7 @@ export default function ListingsPage() {
                               </span>
                             </div>
                             <div className="flex items-center text-gray-600">
-                              <Users className="w-4 h-4 mr-1" />
+                              <users className="w-4 h-4 mr-1" />
                               <span className="text-sm font-medium">
                                 {camp.capacity} зочин
                               </span>

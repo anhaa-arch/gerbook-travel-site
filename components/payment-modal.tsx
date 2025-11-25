@@ -12,7 +12,7 @@ import {
   CheckCircle,
   X,
   Calendar,
-  Users,
+  users,
   MapPin,
   Home
 } from "lucide-react";
@@ -205,7 +205,7 @@ export function PaymentModal({
                   </div>
 
                   <div className="flex items-start gap-2">
-                    <Users className="w-4 h-4 mt-1 text-gray-500" />
+                    <users className="w-4 h-4 mt-1 text-gray-500" />
                     <p className="text-sm">
                       {bookingDetails.guests} зочин
                     </p>

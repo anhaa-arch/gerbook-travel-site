@@ -45,7 +45,7 @@ Write-Host "[3/3] Starting Backend Server..." -ForegroundColor Yellow
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "  Backend will start on Port 8000" -ForegroundColor Cyan
-Write-Host "  GraphQL: http://localhost:8000/graphql" -ForegroundColor Cyan
+Write-Host "  GraphQL: http://152.42.163.155:8000/graphql" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  Press Ctrl+C to stop the server" -ForegroundColor Yellow
 Write-Host "========================================" -ForegroundColor Cyan

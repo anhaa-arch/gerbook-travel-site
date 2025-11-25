@@ -1,17 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { userouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, MapPin, Calendar, Users, X } from "lucide-react";
+import { Search, MapPin, Calendar, users, X } from "lucide-react";
 import { LocationDropdown } from "@/components/search/location-dropdown";
 import { DatePickerModal } from "@/components/search/date-picker-modal";
 import { GuestSelector } from "@/components/search/guest-selector";
 import mnData from "@/data";
 
 export function SearchSection() {
-  const router = useRouter();
+  const router = userouter();
   const [selectedLocation, setSelectedLocation] = useState("");
   const [selectedDates, setSelectedDates] = useState<{
     start: Date | null;
@@ -157,7 +157,7 @@ export function SearchSection() {
                 Хэдэн
               </label>
               <div className="relative">
-                <Users className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
+                <users className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-400" />
                 <Input
                   placeholder="Зочин нэмэх"
                   value={formatGuests()}

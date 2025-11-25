@@ -1,5 +1,5 @@
 # Энэ query-г Apollo Studio эсвэл GraphQL Playground дээр ажиллуулна
-# http://localhost:8000/graphql
+# http://"http://152.42.163.155:8000/graphql"
 
 # 1. Тухайн yurt-ийн бүх захиалгуудыг харах
 query GetYurtBookings {

@@ -38,7 +38,7 @@ export default function MapPage() {
   const [selectedLocation, setSelectedLocation] = useState<MapLocation | null>(null)
   const [searchQuery, setSearchQuery] = useState("")
   const [showChildFriendly, setShowChildFriendly] = useState(false)
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null)
+  const [userLocation, setuserLocation] = useState<[number, number] | null>(null)
   const [routeCoords, setRouteCoords] = useState<[number, number][]>([])
   const [routeLoading, setRouteLoading] = useState(false)
   const [geoError, setGeoError] = useState<string | null>(null)
@@ -242,7 +242,7 @@ export default function MapPage() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          setUserLocation([pos.coords.latitude, pos.coords.longitude])
+          setuserLocation([pos.coords.latitude, pos.coords.longitude])
         },
         (err) => {
           setGeoError("Байршил авах боломжгүй байна.")

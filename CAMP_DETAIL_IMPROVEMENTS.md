@@ -106,7 +106,7 @@ $840000 total
   ```graphql
   type Yurt {
     ...
-    owner: User
+    owner: user
   }
   ```
 - Resolver нэмсэн:
@@ -168,7 +168,7 @@ images: yurt.images || "",  // Fixed from yurt.image
 
 ### Backend:
 3. **tusul_back/graphql/schema/yurt.ts**
-   - Added `owner: User` field to `Yurt` type
+   - Added `owner: user` field to `Yurt` type
 
 4. **tusul_back/graphql/resolvers/yurt.ts**
    - Added `owner` resolver to `Yurt` type

@@ -1,20 +1,20 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Globe, ChevronDown, User, Menu, X } from "lucide-react";
+import { Globe, ChevronDown, user, Menu, X } from "lucide-react";
 import Link from "next/link";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useref } from "react";
 import { useAuth } from "@/hooks/use-auth";
 
 export function Header() {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
+  const [isuserMenuOpen, setIsuserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
 
-  const languageRef = useRef<HTMLDivElement>(null);
-  const userMenuRef = useRef<HTMLDivElement>(null);
-  const mobileMenuRef = useRef<HTMLDivElement>(null);
+  const languageRef = useref<HTMLDivElement>(null);
+  const userMenuRef = useref<HTMLDivElement>(null);
+  const mobileMenuRef = useref<HTMLDivElement>(null);
 
   // Outside click handler for language menu
   useEffect(() => {
@@ -43,18 +43,18 @@ export function Header() {
         userMenuRef.current &&
         !userMenuRef.current.contains(event.target as Node)
       ) {
-        setIsUserMenuOpen(false);
+        setIsuserMenuOpen(false);
       }
     };
 
-    if (isUserMenuOpen) {
+    if (isuserMenuOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
 
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isUserMenuOpen]);
+  }, [isuserMenuOpen]);
 
   // Outside click handler for mobile menu
   useEffect(() => {
@@ -161,16 +161,16 @@ export function Header() {
             {isAuthenticated ? (
               <div className="relative" ref={userMenuRef}>
                 <button
-                  onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
+                  onClick={() => setIsuserMenuOpen(!isuserMenuOpen)}
                   className="flex items-center space-x-1 sm:space-x-2 hover:bg-gray-50 p-1 sm:p-1.5 rounded-lg transition-colors"
                   aria-label="Хэрэглэгчийн цэс"
                 >
                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                    <user className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                   </div>
                 </button>
 
-                {isUserMenuOpen && (
+                {isuserMenuOpen && (
                   <div className="absolute right-0 top-full mt-2 w-48 sm:w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
                     <div className="p-2.5 sm:p-3 border-b border-gray-100">
                       <div className="text-xs sm:text-sm font-medium truncate">
@@ -190,7 +190,7 @@ export function Header() {
                             : "/user-dashboard"
                         }
                         className="w-full flex items-center p-2 sm:p-2.5 hover:bg-gray-50 rounded-md text-left transition-colors"
-                        onClick={() => setIsUserMenuOpen(false)}
+                        onClick={() => setIsuserMenuOpen(false)}
                       >
                         <span className="text-xs sm:text-sm text-gray-700 font-medium">
                           Хянах самбар
@@ -200,7 +200,7 @@ export function Header() {
                         className="w-full flex items-center p-2 sm:p-2.5 hover:bg-red-50 rounded-md text-left transition-colors"
                         onClick={() => {
                           logout();
-                          setIsUserMenuOpen(false);
+                          setIsuserMenuOpen(false);
                         }}
                       >
                         <span className="text-xs sm:text-sm font-semibold text-red-600">
@@ -265,10 +265,10 @@ export function Header() {
                     {/* Divider */}
                     <div className="border-t border-gray-100 my-2"></div>
                     
-                    {/* User Section */}
+                    {/* user Section */}
                     {isAuthenticated ? (
                       <>
-                        {/* User Info */}
+                        {/* user Info */}
                         <div className="px-2.5 sm:px-3 py-2 bg-gray-50 rounded-md mb-2">
                           <div className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
                             {user?.name || user?.email}
@@ -290,7 +290,7 @@ export function Header() {
                           className="w-full flex items-center p-2.5 sm:p-3 hover:bg-gray-50 rounded-md text-left transition-colors"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <User className="w-4 h-4 mr-2 text-gray-600" />
+                          <user className="w-4 h-4 mr-2 text-gray-600" />
                           <span className="text-xs sm:text-sm text-gray-700 font-medium">
                             Хянах самбар
                           </span>

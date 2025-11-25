@@ -45,7 +45,7 @@ npm start
 
 **Browser дээр:**
 ```
-http://localhost:8000/graphql
+http://"http://152.42.163.155:8000/graphql"
 ```
 → Apollo GraphQL Playground гарч ирвэл ✅
 

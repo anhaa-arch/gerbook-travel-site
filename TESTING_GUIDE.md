@@ -1,4 +1,4 @@
-# User Dashboard Testing Guide
+# user Dashboard Testing Guide
 
 ## Өөрчлөлтүүдийг шалгах заавар (How to Test the Changes)
 

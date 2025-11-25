@@ -10,7 +10,7 @@ import { Globe, ChevronDown, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import OtpModal from "@/components/otp-modal";
-import { useRouter } from "next/navigation";
+import { userouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { gql, useMutation } from "@apollo/client";
 
@@ -36,8 +36,8 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { saveUserData, login, sendOtp, verifyOtp } = useAuth();
-  const router = useRouter();
+  const { saveuserData, login, sendOtp, verifyOtp } = useAuth();
+  const router = userouter();
   const { toast } = useToast();
   const [loginMutation] = useMutation(LOGIN_MUTATION);
 
@@ -107,7 +107,7 @@ export default function LoginPage() {
         localStorage.removeItem("isHerder");
       }
 
-      await saveUserData(user);
+      await saveuserData(user);
 
       toast({
         title: "Амжилттай нэвтэрлээ",

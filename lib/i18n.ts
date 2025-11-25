@@ -17,7 +17,7 @@ const resources = {
         logout: "Logout",
         admin_dashboard: "Admin Dashboard",
         herder_dashboard: "Herder Dashboard",
-        user_dashboard: "User Dashboard",
+        user_dashboard: "user Dashboard",
       },
       hero: {
         title: "Discover Authentic Mongolia",
@@ -138,7 +138,7 @@ const resources = {
         subtitle: "Manage your platform and monitor all activities",
         tabs: {
           overview: "Overview",
-          users: "Users",
+          users: "users",
           camps: "Camps",
           products: "Products",
           orders: "Orders",
@@ -146,7 +146,7 @@ const resources = {
         },
       },
       user: {
-        dashboard: "User Dashboard",
+        dashboard: "user Dashboard",
         update_profile: "Update Profile",
       },
       footer: {

@@ -267,7 +267,7 @@
 ✅ 5 төлбөрийн арга
 ✅ Банк сонгох система
 ✅ Карт form validation
-✅ User-friendly interface
+✅ user-friendly interface
 ✅ Responsive design
 ✅ Security notices
 ✅ Clear instructions

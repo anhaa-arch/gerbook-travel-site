@@ -28,7 +28,7 @@ updateYurt: async (_: any, { id, input }, context) => {
 ### Одоо (Admin OR Owner Herder):
 ```typescript
 updateYurt: async (_: any, { id, input }, context) => {
-  const userId = getUserId(context);
+  const userId = getuserId(context);
   const admin = isAdmin(context);
   const herder = isHerder(context);
 
@@ -94,7 +94,7 @@ updateYurt: async (_: any, { id, input }, context) => {
 
 ```typescript
 // Step 1: Get userId from JWT token
-const userId = getUserId(context);
+const userId = getuserId(context);
 
 // Step 2: Check role
 const admin = isAdmin(context);
@@ -257,7 +257,7 @@ query {
 -   if (!isAdmin(context)) {
 -     throw new ForbiddenError('Not authorized to update yurts');
 -   }
-+   const userId = getUserId(context);
++   const userId = getuserId(context);
 +   const admin = isAdmin(context);
 +   const herder = isHerder(context);
 +
@@ -286,7 +286,7 @@ query {
 -   if (!isAdmin(context)) {
 -     throw new ForbiddenError('Not authorized to delete yurts');
 -   }
-+   const userId = getUserId(context);
++   const userId = getuserId(context);
 +   const admin = isAdmin(context);
 +   const herder = isHerder(context);
 +
@@ -327,7 +327,7 @@ npm run dev
 ### Console (Backend):
 ```
 ✅ UpdateYurt mutation executed successfully
-User: herder-user-id
+user: herder-user-id
 Yurt: 6f74c9a7-f197-45dd-a19f-a16b5a46813f
 Owner: herder-user-id (matches!)
 Authorization: GRANTED

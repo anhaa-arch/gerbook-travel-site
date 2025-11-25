@@ -33,7 +33,7 @@ echo ========================================
 echo   SERVERS STARTED!
 echo ========================================
 echo.
-echo Backend:  http://localhost:8000/graphql
+echo Backend:  http://"http://152.42.163.155:8000/graphql"
 echo Frontend: Starting now...
 echo.
 echo Press Ctrl+C to stop the frontend

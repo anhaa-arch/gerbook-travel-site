@@ -2,7 +2,7 @@
 
 ## 🎯 Асуудал:
 
-User тайлбарлаж байна:
+user тайлбарлаж байна:
 > "баазийн мэдээлэл засах болон нэмэх үед аймгаас сонгох үед дараа яг тухайн аймгийн сумаас сонгох боломжтой болгоно уу. Зөвхөн аймагаар сонгож болоод байна."
 
 ---
@@ -135,7 +135,7 @@ console.log('📍 Districts available:', districts.length);
 
 ### Step 1: Аймаг сонгох
 ```
-User clicks "Аймаг" dropdown
+user clicks "Аймаг" dropdown
   ↓
 Selects "Архангай"
   ↓
@@ -156,7 +156,7 @@ districts = selectedProvince.sub_items
   ↓
 Console: 📍 Districts available: 19
   ↓
-User clicks "Сум/Дүүрэг" dropdown
+user clicks "Сум/Дүүрэг" dropdown
   ↓
 Sees list of 19 districts
   ↓
@@ -327,7 +327,7 @@ const districts = Array.isArray(selectedProvince?.sub_items)
 - ✅ **Дата бүрэн** - 21 аймаг, 300+ сум/дүүрэг
 - ✅ **Монгол хэл** - Бүх нэршлэл монголоор
 - ✅ **Зөв бүтэц** - Аймаг → Сум cascade
-- ✅ **User-friendly** - Disabled state, placeholders
+- ✅ **user-friendly** - Disabled state, placeholders
 - ✅ **Debug logs** - Easy troubleshooting
 - ✅ **Validation** - Province required for district
 - ✅ **Reset logic** - District clears on province change

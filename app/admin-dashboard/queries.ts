@@ -20,8 +20,8 @@ export const GET_ADMIN_STATS = gql`
   }
 `
 
-export const GET_ALL_USERS = gql`
-  query GetAllUsers {
+export const GET_ALL_userS = gql`
+  query GetAllusers {
     users {
       edges {
         node {
@@ -154,8 +154,8 @@ export const GET_ALL_BOOKINGS = gql`
 
 // Mutations for CRUD operations
 
-export const CREATE_USER = gql`
-  mutation CreateUser($input: CreateUserInput!) {
+export const CREATE_user = gql`
+  mutation Createuser($input: CreateuserInput!) {
     register(input: $input) {
       token
       user {
@@ -169,9 +169,9 @@ export const CREATE_USER = gql`
   }
 `
 
-export const UPDATE_USER = gql`
-  mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
-    updateUser(id: $id, input: $input) {
+export const UPDATE_user = gql`
+  mutation Updateuser($id: ID!, $input: UpdateuserInput!) {
+    updateuser(id: $id, input: $input) {
       id
       name
       email
@@ -181,9 +181,9 @@ export const UPDATE_USER = gql`
   }
 `
 
-export const DELETE_USER = gql`
-  mutation DeleteUser($id: ID!) {
-    deleteUser(id: $id)
+export const DELETE_user = gql`
+  mutation Deleteuser($id: ID!) {
+    deleteuser(id: $id)
   }
 `
 

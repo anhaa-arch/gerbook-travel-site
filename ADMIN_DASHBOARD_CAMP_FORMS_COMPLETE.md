@@ -181,7 +181,7 @@ Amenities: [wifi, hot_water]         <-- Plain text (confusing!)
 
 ## 🚀 **Performance Improvements**
 
-1. **User Experience:**
+1. **user Experience:**
    - ⚡ No more manual typing of province/district
    - ⚡ No more JSON confusion
    - ⚡ Visual checkboxes instead of comma-separated strings

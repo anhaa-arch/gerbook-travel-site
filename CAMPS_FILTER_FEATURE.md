@@ -333,7 +333,7 @@ Original camps: 15
 - 🎯 **Accurate filtering**: Uses actual province/district names
 - 🗺️ **Complete data**: All 21 provinces + districts
 - 🚀 **Fast**: Client-side filtering
-- 💡 **User-friendly**: Clear placeholders and disabled states
+- 💡 **user-friendly**: Clear placeholders and disabled states
 - 🧹 **Easy to clear**: Multiple clear buttons
 
 ---

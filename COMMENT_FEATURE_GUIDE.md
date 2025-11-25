@@ -152,7 +152,7 @@ http://localhost:3000/login
 ```prisma
 model Comment {
   id        String   @id @default(uuid())
-  user      User     @relation(fields: [userId], references: [id])
+  user      user     @relation(fields: [userId], references: [id])
   userId    String
   yurt      Yurt     @relation(fields: [yurtId], references: [id])
   yurtId    String

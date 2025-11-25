@@ -103,7 +103,7 @@ npx prisma studio
 ### GraphQL ашиглах:
 
 ```bash
-# Apollo Studio: http://localhost:8000/graphql
+# Apollo Studio: http://"http://152.42.163.155:8000/graphql"
 ```
 
 ```graphql

@@ -13,14 +13,14 @@
 - ✅ Booking table: "3 хоног × ₮48 = ₮144" гэх мэт харагдана
 - ✅ Dialog дээр: "📅 3 хоног" болон "Үнийн тооцоо" section
 
-### 2️⃣ User Edit/Delete ✅
+### 2️⃣ user Edit/Delete ✅
 **Асуудал:** Хэрэглэгчийг засаж болохгүй, устгаж болохгүй байсан  
 **Шийдэл:**
 - ✅ "Хэрэглэгч засах" Dialog нэмэгдсэн
 - ✅ Нэр, имэйл, утас, эрх засах боломжтой
 - ✅ Edit button ажиллана
 - ✅ Delete button ажиллана (confirmation dialog-той)
-- ✅ `handleEditUser()` function бүрэн ажиллана
+- ✅ `handleEdituser()` function бүрэн ажиллана
 
 ### 3️⃣ Camp Form Improvement 🔄
 **Асуудал:** Admin Dashboard-ын Add Camp form муу, Herder Dashboard шиг болгох хэрэгтэй  
@@ -49,7 +49,7 @@ Line 1799-2020 дахь хуучин form-ийг Herder Dashboard-ийн form-о
 ```bash
 PS> npx ts-node check-phone-data.ts
 
-📱 Users with phone numbers: 6/6
+📱 users with phone numbers: 6/6
 💰 Bookings with prices:
   - aylagch: ₮84 (phone: 839597260)
   - ecustomer: ₮48 (phone: 874219447)
@@ -57,9 +57,9 @@ PS> npx ts-node check-phone-data.ts
 ```
 
 ### ✅ Admin Dashboard Features:
-- ✅ Утасны дугаарууд Users table дээр харагдана
+- ✅ Утасны дугаарууд users table дээр харагдана
 - ✅ Захиалгын үнэ "3 хоног × ₮48" гэж харагдана
-- ✅ User Edit button ажиллана
+- ✅ user Edit button ажиллана
 - ✅ Эзэмшигчийн phone Camps table дээр харагдана
 - ✅ Excel export ажиллана
 
@@ -89,7 +89,7 @@ PS> npx ts-node check-phone-data.ts
    - ✅ `campForm` state
    - ✅ `provinces` and `districts` calculation
    - ✅ `handleAddCamp()` with JSON amenities
-   - ✅ Edit User Dialog
+   - ✅ Edit user Dialog
    - ✅ Booking table with nights calculation
    - 🔄 Add Camp form (old form still there, needs replacement)
 
@@ -100,7 +100,7 @@ PS> npx ts-node check-phone-data.ts
 
 ## ✅ What's Working:
 
-1. **Users Tab:**
+1. **users Tab:**
    - ✅ Phone numbers visible
    - ✅ Edit button opens form
    - ✅ Delete button works
@@ -141,7 +141,7 @@ Replace old Add Camp form (lines 1799-2020) with new Herder-style form.
 Хэрэглэгч одоо test хийж болно:
 1. ✅ Phone numbers харагдаж байна уу?
 2. ✅ Booking үнэ тооцоо зөв үү?
-3. ✅ User edit ажиллаж байна уу?
+3. ✅ user edit ажиллаж байна уу?
 4. 🔄 Add Camp form (одоогоор хуучин байдлаар, checkboxes-гүй)
 
 **Дараагийн алхам:** Camp form UI солих эсвэл та эхлээд test хийх үү?

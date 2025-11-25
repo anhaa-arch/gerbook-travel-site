@@ -7,7 +7,7 @@
 code: "UNAUTHENTICATED"
 ```
 
-User нэвтэрсэн боловч comment бичиж чадахгүй байна.
+user нэвтэрсэн боловч comment бичиж чадахгүй байна.
 
 ---
 
@@ -37,7 +37,7 @@ null  ← Token байхгүй! Дахин нэвтрэх!
 
 ### **2. GraphQL Explorer vs Frontend App:**
 
-#### ❌ **GraphQL Explorer (http://localhost:8000/graphql)**
+#### ❌ **GraphQL Explorer (http://"http://152.42.163.155:8000/graphql")**
 - Manual authorization header нэмэх хэрэгтэй
 - HTTP Headers section дээр:
   ```json
@@ -53,7 +53,7 @@ null  ← Token байхгүй! Дахин нэвтрэх!
 
 ---
 
-### **3. User нэвтэрсэн эсэхийг шалгах:**
+### **3. user нэвтэрсэн эсэхийг шалгах:**
 
 ```javascript
 // Browser Console:
@@ -156,7 +156,7 @@ useAuth hook
 Apollo Client (authLink)
   ↓ (Authorization: Bearer ...)
 Backend (server.ts context)
-  ↓ (getUserFromToken)
+  ↓ (getuserFromToken)
 Comment Resolver
   ↓ (context.user?.id check)
 Success / Error
@@ -170,7 +170,7 @@ Success / Error
 
 **Frontend:**
 ```
-1. User нэвтэрсэн (isAuthenticated: true)
+1. user нэвтэрсэн (isAuthenticated: true)
 2. Comment бичих
 3. "Сэтгэгдэл үлдээх" дарах
 4. Toast: "✅ Амжилттай - Сэтгэгдэл амжилттай нэмэгдлээ"
@@ -211,7 +211,7 @@ console.log('Token:', token ? 'EXISTS ✅' : 'MISSING ❌');
 
 // 2. Check user
 const user = JSON.parse(localStorage.getItem('user') || 'null');
-console.log('User:', user ? `${user.name} (${user.role}) ✅` : 'MISSING ❌');
+console.log('user:', user ? `${user.name} (${user.role}) ✅` : 'MISSING ❌');
 
 // 3. Check authentication
 console.log('isAuthenticated:', !!token && !!user ? 'YES ✅' : 'NO ❌');

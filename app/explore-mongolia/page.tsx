@@ -1,11 +1,11 @@
 "use client"
 
-import { useState, useMemo, useRef } from "react"
+import { useState, useMemo, useref } from "react"
 import { useTranslation } from "react-i18next"
 import {
   MapPin,
   Calendar,
-  Users,
+  users,
   Thermometer,
   Mountain,
   Waves,
@@ -38,7 +38,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import '../../lib/i18n'
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
-import { useRouter } from "next/navigation"
+import { userouter } from "next/navigation"
 
 // Mongolia's Natural Attractions Database
 const mongoliaAttractions = [
@@ -329,9 +329,9 @@ export default function ExploreMongoliaPage() {
   const [durationType, setDurationType] = useState("days")
   const [selectedAttraction, setSelectedAttraction] = useState<any>(null)
   const [showFilters, setShowFilters] = useState(false)
-  const mapSectionRef = useRef<HTMLDivElement>(null)
+  const mapSectionRef = useref<HTMLDivElement>(null)
   const [highlightedId, setHighlightedId] = useState<number | null>(null)
-  const router = useRouter()
+  const router = userouter()
 
   // Convert duration to days for filtering
   const convertDurationToDays = (duration: number, type: string) => {
@@ -706,7 +706,7 @@ export default function ExploreMongoliaPage() {
                   <div className="flex items-center space-x-2">
                     <Checkbox id="childFriendly" checked={childFriendlyOnly} onCheckedChange={(checked) => setChildFriendlyOnly(!!checked)} />
                     <Label htmlFor="childFriendly" className="text-sm cursor-pointer font-medium">
-                      <Users className="w-4 h-4 inline mr-1" />
+                      <users className="w-4 h-4 inline mr-1" />
                       {t("map.child_friendly_only", "Зөвхөн хүүхдэд ээлтэй")}
                     </Label>
                   </div>
@@ -811,7 +811,7 @@ export default function ExploreMongoliaPage() {
                   ))}
                   {attraction.childFriendly && (
                     <Badge variant="outline" className="text-xs text-green-600 border-green-300 font-medium">
-                      <Users className="w-3 h-3 mr-1" />
+                      <users className="w-3 h-3 mr-1" />
                       {t("map.child_friendly", "Хүүхдэд ээлтэй")}
                     </Badge>
                   )}

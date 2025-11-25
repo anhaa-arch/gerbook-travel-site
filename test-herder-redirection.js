@@ -30,18 +30,18 @@ const mockLocalStorage = {
   }
 };
 
-// Mock saveUserData function
-const mockSaveUserData = async (user) => {
+// Mock saveuserData function
+const mockSaveuserData = async (user) => {
   console.log(`Saving user data: ${JSON.stringify(user)}`);
   return user;
 };
 
 // Test cases for different user roles
 const testCases = [
-  { role: "HERDER", name: "Herder User", email: "herder@example.com" },
+  { role: "HERDER", name: "Herder user", email: "herder@example.com" },
   { role: "herder", name: "Lowercase Herder", email: "lowercase.herder@example.com" },
-  { role: "CUSTOMER", name: "Customer User", email: "customer@example.com" },
-  { role: "ADMIN", name: "Admin User", email: "admin@example.com" },
+  { role: "CUSTOMER", name: "Customer user", email: "customer@example.com" },
+  { role: "ADMIN", name: "Admin user", email: "admin@example.com" },
   { role: "unknown", name: "Unknown Role", email: "unknown@example.com" }
 ];
 
@@ -57,7 +57,7 @@ async function testLoginRedirection(user) {
     mockLocalStorage.removeItem('isHerder');
   }
   
-  await mockSaveUserData(user);
+  await mockSaveuserData(user);
 
   mockToast.toast({ 
     title: "Амжилттай нэвтэрлээ", 
@@ -96,7 +96,7 @@ async function runTests() {
       }
     } else if (testCase.role === "CUSTOMER") {
       if (redirectPath === "/user-dashboard") {
-        console.log("✅ PASS: Customer user correctly redirected to User Dashboard");
+        console.log("✅ PASS: Customer user correctly redirected to user Dashboard");
       } else {
         console.log(`❌ FAIL: Customer user incorrectly redirected to ${redirectPath}`);
       }
@@ -108,7 +108,7 @@ async function runTests() {
       }
     } else {
       if (redirectPath === "/user-dashboard") {
-        console.log("✅ PASS: Unknown role user correctly redirected to User Dashboard");
+        console.log("✅ PASS: Unknown role user correctly redirected to user Dashboard");
       } else {
         console.log(`❌ FAIL: Unknown role user incorrectly redirected to ${redirectPath}`);
       }

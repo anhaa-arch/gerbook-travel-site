@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useref } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdleLogout } from "@/hooks/use-idle-logout";
 import {
-  Users,
+  users,
   Home,
   Package,
   MapPin,
@@ -55,14 +55,14 @@ import { useAuth } from "@/hooks/use-auth";
 import { useToast } from "@/components/ui/use-toast";
 import {
   GET_ADMIN_STATS,
-  GET_ALL_USERS,
+  GET_ALL_userS,
   GET_ALL_YURTS,
   GET_ALL_PRODUCTS,
   GET_ALL_ORDERS,
   GET_ALL_BOOKINGS,
-  CREATE_USER,
-  UPDATE_USER,
-  DELETE_USER,
+  CREATE_user,
+  UPDATE_user,
+  DELETE_user,
   CREATE_YURT,
   UPDATE_YURT,
   DELETE_YURT,
@@ -82,7 +82,7 @@ import {
   exportToExcel,
   prepareBookingsForExport,
   prepareOrdersForExport,
-  prepareUsersForExport,
+  prepareusersForExport,
   prepareYurtsForExport,
   calculateNights,
 } from "@/lib/admin-utils";
@@ -102,8 +102,8 @@ export default function AdminDashboardContent() {
   const [showAddProduct, setShowAddProduct] = useState(false);
   const [showAddCamp, setShowAddCamp] = useState(false);
   const [showAddContent, setShowAddContent] = useState(false);
-  const [showAddUser, setShowAddUser] = useState(false);
-  const [showEditUser, setShowEditUser] = useState(false);
+  const [showAdduser, setShowAdduser] = useState(false);
+  const [showEdituser, setShowEdituser] = useState(false);
   const [showEditYurt, setShowEditYurt] = useState(false);
   const [showEditProduct, setShowEditProduct] = useState(false);
   const [selectedItem, setSelectedItem] = useState<any>(null);
@@ -113,7 +113,7 @@ export default function AdminDashboardContent() {
     "file"
   );
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useref<HTMLInputElement>(null);
   const { logout } = useAuth();
   const { toast } = useToast();
   
@@ -153,8 +153,8 @@ export default function AdminDashboardContent() {
   const {
     data: usersData,
     loading: usersLoading,
-    refetch: refetchUsers,
-  } = useQuery(GET_ALL_USERS);
+    refetch: refetchusers,
+  } = useQuery(GET_ALL_userS);
   const {
     data: yurtsData,
     loading: yurtsLoading,
@@ -179,9 +179,9 @@ export default function AdminDashboardContent() {
     useQuery(GET_CATEGORIES);
 
   // Mutations
-  const [createUser] = useMutation(CREATE_USER);
-  const [updateUser] = useMutation(UPDATE_USER);
-  const [deleteUser] = useMutation(DELETE_USER);
+  const [createuser] = useMutation(CREATE_user);
+  const [updateuser] = useMutation(UPDATE_user);
+  const [deleteuser] = useMutation(DELETE_user);
   const [createYurt] = useMutation(CREATE_YURT);
   const [updateYurt] = useMutation(UPDATE_YURT);
   const [deleteYurt] = useMutation(DELETE_YURT);
@@ -191,7 +191,7 @@ export default function AdminDashboardContent() {
 
   // Transform data for display
   const stats = {
-    totalUsers: statsData?.users?.totalCount || 0,
+    totalusers: statsData?.users?.totalCount || 0,
     totalCamps: statsData?.yurts?.totalCount || 0,
     totalProducts: statsData?.products?.totalCount || 0,
     totalOrders:
@@ -312,7 +312,7 @@ export default function AdminDashboardContent() {
     }) || [];
 
   // Now calculate stats after data is available using utility function
-  const todayUsers = getTodayCount(users);
+  const todayusers = getTodayCount(users);
   const todayCamps = getTodayCount(camps);
   const todayProducts = getTodayCount(products);
   const todayBookings = getTodayCount(bookings);
@@ -342,8 +342,8 @@ export default function AdminDashboardContent() {
       let refetchFunction;
 
       if (selectedItem.type === "user") {
-        mutation = deleteUser;
-        refetchFunction = refetchUsers;
+        mutation = deleteuser;
+        refetchFunction = refetchusers;
       } else if (selectedItem.type === "yurt") {
         mutation = deleteYurt;
         refetchFunction = refetchYurts;
@@ -373,7 +373,7 @@ export default function AdminDashboardContent() {
     setSelectedItem(null);
   };
 
-  const handleAddUser = async () => {
+  const handleAdduser = async () => {
     try {
       const form = document.querySelector("#add-user-form") as HTMLFormElement;
       if (!form) {
@@ -403,14 +403,14 @@ export default function AdminDashboardContent() {
         return;
       }
 
-      await createUser({ variables: { input } });
-      await refetchUsers();
+      await createuser({ variables: { input } });
+      await refetchusers();
       await refetchStats();
       toast({
         title: "Амжилттай",
         description: "Хэрэглэгч амжилттай үүсгэгдлээ",
       });
-      setShowAddUser(false);
+      setShowAdduser(false);
     } catch (error: any) {
       toast({
         title: "Алдаа",
@@ -420,15 +420,15 @@ export default function AdminDashboardContent() {
     }
   };
 
-  const handleEditUser = async (formData: any) => {
+  const handleEdituser = async (formData: any) => {
     try {
-      await updateUser({ variables: { id: editingItem.id, input: formData } });
-      await refetchUsers();
+      await updateuser({ variables: { id: editingItem.id, input: formData } });
+      await refetchusers();
       toast({
         title: "Амжилттай",
         description: "Хэрэглэгч амжилттай шинэчлэгдлээ",
       });
-      setShowEditUser(false);
+      setShowEdituser(false);
       setEditingItem(null);
     } catch (error: any) {
       toast({
@@ -911,11 +911,11 @@ export default function AdminDashboardContent() {
                   <CardTitle className="text-xs sm:text-sm font-semibold">
                     {t("admin.stats.total_users", "Нийт хэрэглэгчид")}
                   </CardTitle>
-                  <Users className="h-4 w-4 text-muted-foreground" />
+                  <users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl sm:text-2xl font-bold">
-                    {stats.totalUsers}
+                    {stats.totalusers}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
                     +12% өнгөрсөн сараас
@@ -1031,7 +1031,7 @@ export default function AdminDashboardContent() {
                         Шинэ хэрэглэгч бүртгэл
                       </span>
                       <span className="font-bold text-sm sm:text-base">
-                        +{todayUsers} өнөөдөр
+                        +{todayusers} өнөөдөр
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
@@ -1064,7 +1064,7 @@ export default function AdminDashboardContent() {
             </div>
           </TabsContent>
 
-          {/* Users Tab */}
+          {/* users Tab */}
           <TabsContent value="users" className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl sm:text-2xl font-bold">
@@ -1072,21 +1072,21 @@ export default function AdminDashboardContent() {
               </h2>
               <Button
                 className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold"
-                onClick={() => setShowAddUser(true)}
+                onClick={() => setShowAdduser(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
                 Хэрэглэгч нэмэх
               </Button>
             </div>
 
-            {showAddUser && (
+            {showAdduser && (
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="font-bold">Шинэ хэрэглэгч нэмэх</CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => setShowAddUser(false)}
+                    onClick={() => setShowAdduser(false)}
                   >
                     <X className="w-4 h-4" />
                   </Button>
@@ -1159,13 +1159,13 @@ export default function AdminDashboardContent() {
                   <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <Button
                       className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                      onClick={handleAddUser}
+                      onClick={handleAdduser}
                     >
                       Хэрэглэгч нэмэх
                     </Button>
                     <Button
                       variant="outline"
-                      onClick={() => setShowAddUser(false)}
+                      onClick={() => setShowAdduser(false)}
                       className="font-medium"
                     >
                       Цуцлах
@@ -1175,7 +1175,7 @@ export default function AdminDashboardContent() {
               </Card>
             )}
 
-            {showEditUser && editingItem && (
+            {showEdituser && editingItem && (
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <CardTitle className="font-bold">Хэрэглэгч засах</CardTitle>
@@ -1183,7 +1183,7 @@ export default function AdminDashboardContent() {
                     variant="ghost"
                     size="sm"
                     onClick={() => {
-                      setShowEditUser(false);
+                      setShowEdituser(false);
                       setEditingItem(null);
                     }}
                   >
@@ -1255,7 +1255,7 @@ export default function AdminDashboardContent() {
                           if (!form) return;
                           
                           const formData = new FormData(form);
-                          await handleEditUser({
+                          await handleEdituser({
                             name: formData.get("name") as string,
                             email: formData.get("email") as string,
                             phone: formData.get("phone") as string,
@@ -1275,7 +1275,7 @@ export default function AdminDashboardContent() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        setShowEditUser(false);
+                        setShowEdituser(false);
                         setEditingItem(null);
                       }}
                       className="font-medium"
@@ -1409,7 +1409,7 @@ export default function AdminDashboardContent() {
                                 size="sm"
                                 onClick={() => {
                                   setEditingItem(user);
-                                  setShowEditUser(true);
+                                  setShowEdituser(true);
                                 }}
                               >
                                 <Edit className="w-4 h-4" />

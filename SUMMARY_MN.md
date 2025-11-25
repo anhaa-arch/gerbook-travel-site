@@ -121,12 +121,12 @@ Production горимд (npm run build) эдгээр мессежүүд авто
 ## Тохиргоо
 
 Дараах environment variable-уудыг тохируулна:
-- `NEXT_PUBLIC_GRAPHQL_URL`: Backend URL (анхдагч: `http://localhost:8000/graphql`)
+- `NEXT_PUBLIC_GRAPHQL_URL`: Backend URL (анхдагч: `http://"http://152.42.163.155:8000/graphql"`)
 - `NODE_ENV`: `development` эсвэл `production`
 
 ## Туслах файлууд
 
-- 📖 `USER_DASHBOARD_FIXES.md` - Англи хэл дээрх дэлгэрэнгүй тайлбар
+- 📖 `user_DASHBOARD_FIXES.md` - Англи хэл дээрх дэлгэрэнгүй тайлбар
 - 📋 `TESTING_GUIDE.md` - Шалгах заавар
 - 📝 `SUMMARY_MN.md` - Энэ файл
 

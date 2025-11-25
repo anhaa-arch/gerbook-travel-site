@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useref } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdleLogout } from "@/hooks/use-idle-logout";
 import {
@@ -21,7 +21,7 @@ import {
   Mail,
   MapPin,
   Calendar,
-  Users,
+  users,
   CreditCard,
   AlertTriangle,
 } from "lucide-react";
@@ -100,7 +100,7 @@ export default function HerderDashboardContent() {
     "file"
   );
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const fileInputRef = useref<HTMLInputElement>(null);
   const { toast } = useToast();
 
   // Form states
@@ -2170,7 +2170,7 @@ export default function HerderDashboardContent() {
 
                                 <div className="flex items-center justify-between pt-2 border-t">
                                   <div className="flex items-center text-sm text-gray-600">
-                                    <Users className="w-4 h-4 mr-2" />
+                                    <users className="w-4 h-4 mr-2" />
                                     {booking.guests} зочин
                                   </div>
                                   <div className="text-right">
@@ -2203,7 +2203,7 @@ export default function HerderDashboardContent() {
                                   </h4>
                                   <div className="space-y-2">
                                     <div className="flex items-center text-sm">
-                                      <Users className="w-4 h-4 mr-2 text-gray-500" />
+                                      <users className="w-4 h-4 mr-2 text-gray-500" />
                                       <span className="font-medium">
                                         {booking.customer}
                                       </span>

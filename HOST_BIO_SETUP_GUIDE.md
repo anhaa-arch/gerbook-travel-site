@@ -3,12 +3,12 @@
 ## ✅ Хийгдсэн өөрчлөлтүүд
 
 ### Backend
-1. ✅ `tusul_back/prisma/schema.prisma` - User model-д `hostBio`, `hostExperience`, `hostLanguages` field-үүд нэмсэн
+1. ✅ `tusul_back/prisma/schema.prisma` - user model-д `hostBio`, `hostExperience`, `hostLanguages` field-үүд нэмсэн
 2. ✅ `tusul_back/graphql/schema/user.ts` - GraphQL schema шинэчилсэн
 3. ✅ `tusul_back/utils/validation/index.ts` - Validation schema шинэчилсэн
 
 ### Frontend
-1. ✅ `hooks/use-auth.tsx` - User interface болон GraphQL queries шинэчилсэн
+1. ✅ `hooks/use-auth.tsx` - user interface болон GraphQL queries шинэчилсэн
 2. ✅ `components/profile-settings.tsx` - "Эзэнтэй танилцах" хэсэг нэмсэн (Herder-үүдэд харагдана)
 3. ✅ `app/herder-dashboard/herder-dashboard-content.tsx` - ProfileSettings-д host bio fields дамжуулж байна
 4. ✅ `app/user-dashboard/user-dashboard-content.tsx` - ProfileSettings-д host bio fields дамжуулж байна
@@ -104,7 +104,7 @@ http://localhost:3000/camp/[YURT_ID]
 
 4. **Role шалгах:**
    - "Эзэнтэй танилцах" хэсэг зөвхөн `HERDER` role-той хэрэглэгчдэд харагдана
-   - User dashboard дээр энэ хэсэг харагдахгүй (зөвхөн admin/herder-үүд үүсгэдэг)
+   - user dashboard дээр энэ хэсэг харагдахгүй (зөвхөн admin/herder-үүд үүсгэдэг)
 
 ### Database асуудал:
 

@@ -67,7 +67,7 @@ npm run dev
 
 ### Backend:
 ```
-http://localhost:8000/graphql
+http://"http://152.42.163.155:8000/graphql"
 ```
 → Apollo GraphQL Playground харагдвал ✅
 

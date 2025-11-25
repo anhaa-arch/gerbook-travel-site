@@ -5,7 +5,7 @@ import { useSearchParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 import Image from "next/image"
 import Link from "next/link"
-import { MapPin, Star, Users, Filter, X } from "lucide-react"
+import { MapPin, Star, users, Filter, X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -360,7 +360,7 @@ export default function CampsPage() {
                         <span className="text-xs xs:text-sm font-medium truncate">{camp.location}</span>
                       </div>
                       <div className="flex items-center text-gray-600 flex-shrink-0">
-                        <Users className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
+                        <users className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
                         <span className="text-xs xs:text-sm font-medium whitespace-nowrap">
                           {camp.capacity} зочин
                         </span>

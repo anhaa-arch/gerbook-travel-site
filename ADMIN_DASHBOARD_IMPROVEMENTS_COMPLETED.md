@@ -44,7 +44,7 @@
 - ✅ Бүртгүүлсэн огноо
 
 ### 4️⃣ **Хэрэглэгчийн засварлах/устгах** ✅
-**Users table:**
+**users table:**
 - ✅ Утасны дугаар харагдана
 - ✅ Имэйл, утас хамт харуулах
 - ✅ Эрх өнгөөр ялгагдана (Admin: улаан, Herder: цэнхэр, Customer: саарал)
@@ -87,17 +87,17 @@
 - ✅ `exportToExcel()` - Excel үүсгэх
 - ✅ `prepareBookingsForExport()` - booking data бэлтгэх
 - ✅ `prepareOrdersForExport()` - order data бэлтгэх
-- ✅ `prepareUsersForExport()` - user data бэлтгэх
+- ✅ `prepareusersForExport()` - user data бэлтгэх
 - ✅ `prepareYurtsForExport()` - yurt data бэлтгэх
 
 ### 7️⃣ **Админ хэрэглэгч нэмэх** ✅
-**Add User form:**
+**Add user form:**
 - ✅ "Хэрэглэгч нэмэх" button
 - ✅ Нэр, имэйл, утас, нууц үг, эрх
 - ✅ Эрх сонголт: Хэрэглэгч, Малчин, Админ
 - ✅ Validation
 - ✅ Монгол хэл орчуулга
-- ✅ `handleAddUser()` function ажиллана
+- ✅ `handleAdduser()` function ажиллана
 - ✅ Toast notification
 - ✅ Auto-refetch users list
 
@@ -239,12 +239,12 @@ npm start
 
 ### 5. Check features:
 - ✅ Overview statistics (өнөөдрийн тоо)
-- ✅ Users table (phone мэдээлэл)
+- ✅ users table (phone мэдээлэл)
 - ✅ Camps table (owner мэдээлэл)
 - ✅ Orders tab (email, phone, dates)
 - ✅ Bookings (дэлгэрэнгүй dialog)
 - ✅ Export button (Excel татах)
-- ✅ Add User button (шинэ хэрэглэгч нэмэх)
+- ✅ Add user button (шинэ хэрэглэгч нэмэх)
 
 ---
 

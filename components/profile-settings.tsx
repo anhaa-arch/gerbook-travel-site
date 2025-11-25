@@ -10,11 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { User, Mail, Lock, Save, Eye, EyeOff, UserCircle } from "lucide-react";
+import { user, Mail, Lock, Save, Eye, EyeOff, userCircle } from "lucide-react";
 
-const UPDATE_USER = gql`
-  mutation UpdateUser($id: ID!, $input: UpdateUserInput!) {
-    updateUser(id: $id, input: $input) {
+const UPDATE_user = gql`
+  mutation Updateuser($id: ID!, $input: UpdateuserInput!) {
+    updateuser(id: $id, input: $input) {
       id
       name
       email
@@ -57,7 +57,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
     hostLanguages: user.hostLanguages || "",
   });
 
-  const [updateUser, { loading }] = useMutation(UPDATE_USER, {
+  const [updateuser, { loading }] = useMutation(UPDATE_user, {
     onCompleted: (data) => {
       toast({
         title: "✅ Амжилттай",
@@ -65,19 +65,19 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
       });
       
       // Update localStorage with new user data
-      if (data?.updateUser) {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-          const parsedUser = JSON.parse(storedUser);
-          const updatedUser = {
-            ...parsedUser,
-            name: data.updateUser.name,
-            email: data.updateUser.email,
-            hostBio: data.updateUser.hostBio,
-            hostExperience: data.updateUser.hostExperience,
-            hostLanguages: data.updateUser.hostLanguages,
+      if (data?.updateuser) {
+        const storeduser = localStorage.getItem("user");
+        if (storeduser) {
+          const parseduser = JSON.parse(storeduser);
+          const updateduser = {
+            ...parseduser,
+            name: data.updateuser.name,
+            email: data.updateuser.email,
+            hostBio: data.updateuser.hostBio,
+            hostExperience: data.updateuser.hostExperience,
+            hostLanguages: data.updateuser.hostLanguages,
           };
-          localStorage.setItem("user", JSON.stringify(updatedUser));
+          localStorage.setItem("user", JSON.stringify(updateduser));
         }
       }
       
@@ -143,7 +143,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
       updateData.hostLanguages = formData.hostLanguages;
     }
 
-    updateUser({
+    updateuser({
       variables: {
         id: user.id,
         input: updateData,
@@ -155,7 +155,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-          <User className="w-5 h-5 md:w-6 md:h-6" />
+          <user className="w-5 h-5 md:w-6 md:h-6" />
           <span>Хувийн мэдээлэл</span>
         </CardTitle>
       </CardHeader>
@@ -167,7 +167,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
               Нэр
             </Label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <user className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 id="name"
                 type="text"
@@ -226,7 +226,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
           {((user.role || "").toString().toLowerCase() === "herder") && (
             <div className="border-t pt-4 md:pt-6 space-y-4">
               <h3 className="text-base md:text-lg font-semibold flex items-center gap-2">
-                <UserCircle className="w-5 h-5" />
+                <userCircle className="w-5 h-5" />
                 Эзэнтэй танилцах
               </h3>
               <p className="text-xs md:text-sm text-gray-500">

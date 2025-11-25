@@ -5,7 +5,7 @@
 JWT verification failed: JsonWebTokenError: invalid signature
 🔐 CreateComment Auth Debug: {
   hasToken: true,
-  user: 'null'  ← User verify хийгдэхгүй байсан!
+  user: 'null'  ← user verify хийгдэхгүй байсан!
 }
 ```
 
@@ -94,7 +94,7 @@ POST:http://localhost/graphql
     id: 'xxx-xxx-xxx',
     email: 'customer@example.com',
     role: 'CUSTOMER'
-  }  ← ✅ USER ТОДОРХОЙ БАЙНА!
+  }  ← ✅ user ТОДОРХОЙ БАЙНА!
 }
 ```
 

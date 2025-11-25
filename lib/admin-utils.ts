@@ -175,7 +175,7 @@ export const prepareOrdersForExport = (orders: any[]) => {
 };
 
 // Prepare users for export
-export const prepareUsersForExport = (users: any[]) => {
+export const prepareusersForExport = (users: any[]) => {
   return users.map(user => ({
     'ID': user.id,
     'Нэр': user.name,

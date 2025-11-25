@@ -274,7 +274,7 @@ await createYurt({
 | Feature | Өмнө | Одоо |
 |---------|------|------|
 | Data quality | ❌ Low | ✅ High |
-| User errors | ❌ Many | ✅ Zero |
+| user errors | ❌ Many | ✅ Zero |
 | Language | ❌ Mixed | ✅ Mongolian |
 | UI/UX | ❌ Plain input | ✅ Visual checkboxes |
 | Validation | ❌ None | ✅ Built-in |

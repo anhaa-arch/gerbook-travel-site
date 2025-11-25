@@ -11,7 +11,7 @@
 - ❌ Yurt owner мэдээлэл харагдахгүй
 - ✅ Phone, email, owner info нэмэх
 
-### 3. **Хэрэглэгчийн засварлах/устгах (User Edit/Delete)**
+### 3. **Хэрэглэгчийн засварлах/устгах (user Edit/Delete)**
 - ❌ Ажиллахгүй байна
 - ✅ Mutation-ууд зөв ажиллуулах
 
@@ -79,7 +79,7 @@ orders {
 
 **Sections:**
 - Overview → Тойм
-- Users → Хэрэглэгчид
+- users → Хэрэглэгчид
 - Camps → Гэр амралт
 - Products → Бүтээгдэхүүн
 - Orders → Захиалга
@@ -95,7 +95,7 @@ orders {
 - Export → Экспорт
 
 **Stats:**
-- Total Users → Нийт хэрэглэгч
+- Total users → Нийт хэрэглэгч
 - Total Camps → Нийт бааз
 - Total Products → Нийт бүтээгдэхүүн
 - Total Orders → Нийт захиалга
@@ -154,13 +154,13 @@ orders {
 </TableCell>
 ```
 
-### Шат 4: User edit/delete функц
+### Шат 4: user edit/delete функц
 
 **Edit user:**
 ```tsx
-const handleUpdateUser = async (userId: string, data: any) => {
+const handleUpdateuser = async (userId: string, data: any) => {
   try {
-    await updateUser({
+    await updateuser({
       variables: {
         id: userId,
         input: {
@@ -177,7 +177,7 @@ const handleUpdateUser = async (userId: string, data: any) => {
       description: "Хэрэглэгч шинэчлэгдлээ"
     });
     
-    refetchUsers();
+    refetchusers();
   } catch (error) {
     toast({
       title: "❌ Алдаа",
@@ -190,16 +190,16 @@ const handleUpdateUser = async (userId: string, data: any) => {
 
 **Delete user:**
 ```tsx
-const handleDeleteUser = async (userId: string) => {
+const handleDeleteuser = async (userId: string) => {
   if (!window.confirm("Хэрэглэгчийг устгах уу?")) return;
   
   try {
-    await deleteUser({ variables: { id: userId } });
+    await deleteuser({ variables: { id: userId } });
     toast({
       title: "✅ Устгагдлаа",
       description: "Хэрэглэгч амжилттай устгагдлаа"
     });
-    refetchUsers();
+    refetchusers();
   } catch (error) {
     toast({
       title: "❌ Алдаа",
@@ -259,14 +259,14 @@ const exportToExcel = (data: any[], filename: string) => {
 
 ### Шат 7: Admin user creation
 
-**Add User Dialog:**
+**Add user Dialog:**
 ```tsx
-<Dialog open={showAddUser} onOpenChange={setShowAddUser}>
+<Dialog open={showAdduser} onOpenChange={setShowAdduser}>
   <DialogContent>
     <DialogHeader>
       <DialogTitle>Шинэ хэрэглэгч нэмэх</DialogTitle>
     </DialogHeader>
-    <form onSubmit={handleCreateUser}>
+    <form onSubmit={handleCreateuser}>
       <Input name="name" placeholder="Нэр" required />
       <Input name="email" type="email" placeholder="Имэйл" required />
       <Input name="phone" placeholder="Утас" required />
@@ -309,7 +309,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend } from 'recharts';
 
 1. **High:** Монгол хэл орчуулга
 2. **High:** Booking/Order details дэлгэрэнгүй
-3. **High:** User edit/delete засах
+3. **High:** user edit/delete засах
 4. **Medium:** Statistics real data
 5. **Medium:** Export functionality
 6. **Low:** Admin user creation
@@ -329,7 +329,7 @@ pnpm add xlsx recharts
 1. Queries шинэчилгдсэн ✅
 2. Component-ийг дараалалаар шинэчлэх
 3. Тест хийх
-4. User feedback авах
+4. user feedback авах
 
 Та эдгээр сайжруулалтуудыг хийхийг хүсч байна уу? Эсвэл зарим нэгийг л хийх үү?
 

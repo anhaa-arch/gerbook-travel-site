@@ -17,7 +17,7 @@ code: "UNAUTHENTICATED"
 ```typescript
 // tusul_back/server.ts
 
-const getUserFromToken = (token: string | undefined) => {
+const getuserFromToken = (token: string | undefined) => {
   if (!token) return null;
   
   try {
@@ -45,12 +45,12 @@ const apolloServer = new ApolloServer({
   schema,
   context: ({ req }): ApolloContext => {
     const token = req.headers.authorization;
-    const user = getUserFromToken(token);
+    const user = getuserFromToken(token);
     
     return {
       prisma,
       req,
-      user: user || undefined  // ← User мэдээлэл нэмэгдлээ
+      user: user || undefined  // ← user мэдээлэл нэмэгдлээ
     };
   }
 });
@@ -143,7 +143,7 @@ Token байгаа эсэхийг шалгах.
 
 Server дээр:
 ```
-🔓 User authenticated: { id: '...', email: 'user@email.com', role: 'CUSTOMER' }
+🔓 user authenticated: { id: '...', email: 'user@email.com', role: 'CUSTOMER' }
 ```
 
 Эсвэл алдаа гарвал:
@@ -184,7 +184,7 @@ JWT_SECRET=your-secret-key-here
 2. localStorage-д хадгална
 3. GraphQL request → Authorization header-т илгээнэ
 4. Apollo Server → JWT verify хийнэ
-5. Context.user → User мэдээлэл гарна
+5. Context.user → user мэдээлэл гарна
 6. createComment resolver → context.user.id ашиглана
 ```
 

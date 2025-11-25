@@ -1,4 +1,4 @@
-# User Dashboard Fixes - Technical Documentation
+# user Dashboard Fixes - Technical Documentation
 
 ## Issues Fixed
 
@@ -86,7 +86,7 @@ return {
 - Verified GraphQL queries fetch all required fields:
   - Yurt name, location, images
   - Booking dates, price, status
-  - User information
+  - user information
 
 ### 4. Loading States and Error Handling ✅
 **Problem**: No feedback when data was loading or when errors occurred.
@@ -130,8 +130,8 @@ return {
    └─> Backend updates database
    └─> Mutation refetches GET_HERDER_BOOKINGS
    
-4. User Dashboard
-   └─> Automatically refetches GET_USER_BOOKINGS
+4. user Dashboard
+   └─> Automatically refetches GET_user_BOOKINGS
    └─> Status updates to "CONFIRMED"
    └─> Badge turns green with "Баталгаажсан"
 ```
@@ -158,10 +158,10 @@ Display: <img src={processedUrl} onError={fallback} />
 
 ### GraphQL Queries
 
-**User Dashboard Queries**:
-- `GET_USER_BOOKINGS` - Fetches camp/yurt bookings with yurt details
-- `GET_USER_ORDERS` - Fetches product orders with product details
-- `GET_USER_TRAVEL_BOOKINGS` - Fetches travel package bookings
+**user Dashboard Queries**:
+- `GET_user_BOOKINGS` - Fetches camp/yurt bookings with yurt details
+- `GET_user_ORDERS` - Fetches product orders with product details
+- `GET_user_TRAVEL_BOOKINGS` - Fetches travel package bookings
 
 **Herder Dashboard Mutations**:
 - `UPDATE_BOOKING_STATUS` - Updates booking status (calls `updateBooking` mutation)
@@ -183,7 +183,7 @@ Display: <img src={processedUrl} onError={fallback} />
 ### Environment Variables
 ```bash
 # Frontend (.env.local)
-NEXT_PUBLIC_GRAPHQL_URL=http://localhost:8000/graphql
+NEXT_PUBLIC_GRAPHQL_URL=http://"http://152.42.163.155:8000/graphql"
 NODE_ENV=development # or production
 
 # Backend (tusul_back/config/config.env)
@@ -213,7 +213,7 @@ Debug logging is controlled by `NODE_ENV`:
 ### Automated Testing (Future)
 ```typescript
 // Example test cases
-describe('User Dashboard', () => {
+describe('user Dashboard', () => {
   test('should display booking with confirmed status', () => {
     // Render dashboard with mock confirmed booking
     // Verify green badge shows "Баталгаажсан"

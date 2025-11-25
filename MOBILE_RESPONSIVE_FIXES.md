@@ -1,7 +1,7 @@
-# Mobile Responsive Design Fixes - User Dashboard
+# Mobile Responsive Design Fixes - user Dashboard
 
 ## Асуудал
-User dashboard mobile device дээр маш муу харагдаж байсан:
+user dashboard mobile device дээр маш муу харагдаж байсан:
 - Tabs хэт том, horizontal scroll үүсгэж байсан
 - Stats cards хэт ихээр багтаж байсан
 - Text-ийн хэмжээ хэт том байсан

@@ -2,7 +2,7 @@
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, MapPin, Calendar, Users, Route, Compass } from "lucide-react";
+import { Search, MapPin, Calendar, users, Route, Compass } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -144,7 +144,7 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-center justify-between mb-2.5 xs:mb-3 sm:mb-4">
                     <div className="flex items-center text-gray-600">
-                      <Users className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1" />
+                      <users className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1" />
                       <span className="text-xs xs:text-sm font-medium">
                         {camp.capacity} {t("camps.guests")}
                       </span>
@@ -201,7 +201,7 @@ export default function HomePage() {
                   </div>
                   <div className="flex items-center justify-between mb-2.5 xs:mb-3 sm:mb-4">
                     <div className="flex items-center text-gray-600">
-                      <Users className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1" />
+                      <users className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1" />
                       <span className="text-xs xs:text-sm font-medium">
                         {camp.capacity} {t("camps.guests")}
                       </span>

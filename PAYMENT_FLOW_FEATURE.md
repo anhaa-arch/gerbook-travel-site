@@ -167,7 +167,7 @@ handlePaymentComplete(paymentMethod) {
 - Camp: 🏠 `<Home />`
 - Location: 📍 `<MapPin />`
 - Calendar: 📅 `<Calendar />`
-- Guests: 👥 `<Users />`
+- Guests: 👥 `<users />`
 - Success: ✅ `<CheckCircle />`
 - Close: ✖️ `<X />`
 
@@ -175,7 +175,7 @@ handlePaymentComplete(paymentMethod) {
 
 ## 💾 Data Flow:
 
-### 1. User clicks "Захиалах":
+### 1. user clicks "Захиалах":
 ```typescript
 handleBooking() {
   // Validation...
@@ -201,15 +201,15 @@ handleBooking() {
 />
 ```
 
-### 3. User selects payment method:
+### 3. user selects payment method:
 ```typescript
 const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
 
-// User clicks QPay
+// user clicks QPay
 setSelectedMethod("qpay");
 ```
 
-### 4. User clicks "Төлөх":
+### 4. user clicks "Төлөх":
 ```typescript
 handlePayment() {
   setIsProcessing(true);
@@ -250,8 +250,8 @@ handlePaymentComplete(paymentMethod) {
 1. ✅ Dates selected
 2. ✅ Dates valid (end > start)
 3. ✅ No overlaps with existing bookings
-4. ✅ User authenticated
-5. ✅ User has CUSTOMER role
+4. ✅ user authenticated
+5. ✅ user has CUSTOMER role
 
 ### Payment validation:
 1. ✅ Payment method selected
@@ -415,7 +415,7 @@ enum PaymentStatus {
 
 ### Benefits:
 - ✅ Better UX (clear payment flow)
-- ✅ User sees total before paying
+- ✅ user sees total before paying
 - ✅ Multiple payment options
 - ✅ Professional appearance
 - ✅ Mobile-friendly

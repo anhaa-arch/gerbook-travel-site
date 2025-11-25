@@ -33,9 +33,9 @@ import Link from "next/link";
 import { getPrimaryImage } from "@/lib/imageUtils";
 import { ProfileSettings } from "@/components/profile-settings";
 import {
-  GET_USER_BOOKINGS,
-  GET_USER_ORDERS,
-  GET_USER_TRAVEL_BOOKINGS,
+  GET_user_BOOKINGS,
+  GET_user_ORDERS,
+  GET_user_TRAVEL_BOOKINGS,
   GET_AVAILABLE_YURTS,
   GET_AVAILABLE_PRODUCTS,
   GET_AVAILABLE_TRAVELS,
@@ -123,7 +123,7 @@ interface TravelRoute {
 // Enable debug logging (set to false in production)
 const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
-export default function UserDashboardContent() {
+export default function userDashboardContent() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("overview");
   const { logout, user } = useAuth();
@@ -136,7 +136,7 @@ export default function UserDashboardContent() {
 
   // Fetch real data from database
   const { data: bookingsData, loading: bookingsLoading, error: bookingsError } = useQuery(
-    GET_USER_BOOKINGS,
+    GET_user_BOOKINGS,
     {
       variables: { userId: user?.id },
       skip: !user?.id,
@@ -144,7 +144,7 @@ export default function UserDashboardContent() {
   );
 
   const { data: ordersData, loading: ordersLoading, error: ordersError } = useQuery(
-    GET_USER_ORDERS,
+    GET_user_ORDERS,
     {
       variables: { userId: user?.id },
       skip: !user?.id,
@@ -152,7 +152,7 @@ export default function UserDashboardContent() {
   );
 
   const { data: travelBookingsData, loading: travelBookingsLoading, error: travelBookingsError } = useQuery(
-    GET_USER_TRAVEL_BOOKINGS,
+    GET_user_TRAVEL_BOOKINGS,
     {
       variables: { userId: user?.id },
       skip: !user?.id,

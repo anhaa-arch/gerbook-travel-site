@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useref } from "react";
+import { userouter } from "next/navigation";
 
 interface UseIdleLogoutProps {
   timeout?: number; // milliseconds (default: 5 minutes)
@@ -12,8 +12,8 @@ export function useIdleLogout({
   timeout = 5 * 60 * 1000, // 5 minutes default
   onLogout 
 }: UseIdleLogoutProps = {}) {
-  const router = useRouter();
-  const timeoutId = useRef<NodeJS.Timeout | null>(null);
+  const router = userouter();
+  const timeoutId = useref<NodeJS.Timeout | null>(null);
 
   const handleLogout = () => {
     console.log("🔴 Auto-logout triggered due to inactivity");
