@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Globe, ChevronDown, user, Menu, X } from "lucide-react";
+import { Globe, ChevronDown, Menu, X, User } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -166,7 +166,7 @@ export function Header() {
                   aria-label="Хэрэглэгчийн цэс"
                 >
                   <div className="w-7 h-7 sm:w-8 sm:h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                    <user className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                   </div>
                 </button>
 
@@ -290,7 +290,7 @@ export function Header() {
                           className="w-full flex items-center p-2.5 sm:p-3 hover:bg-gray-50 rounded-md text-left transition-colors"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <user className="w-4 h-4 mr-2 text-gray-600" />
+                          <User className="w-4 h-4 mr-2 text-gray-600" />
                           <span className="text-xs sm:text-sm text-gray-700 font-medium">
                             Хянах самбар
                           </span>
