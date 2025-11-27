@@ -29,7 +29,7 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
         return [
           { href: "/herder-dashboard", label: "Overview", icon: BarChart3 },
           { href: "/herder-dashboard?tab=products", label: "My Products", icon: Package },
-          { href: "/herder-dashboard?tab=camps", label: "My Camps", icon: Home },
+          { href: "/herder-dashboard?tab=camps", label: "My Caamps", icon: Home },
           { href: "/herder-dashboard?tab=orders", label: "Orders", icon: Settings },
           { href: "/herder-dashboard?tab=profile", label: "Profile", icon: user },
         ]
