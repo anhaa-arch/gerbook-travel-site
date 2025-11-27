@@ -2,7 +2,7 @@ import { Phone, Mail, Facebook, Instagram } from "lucide-react";
 
 export function Footer() {
   return (
-    <footer className="w-full bg-white text-gray-600 border-t border-gray-200">
+    <footer className="w-full bg-white text-gray-580 border-t border-gray-200">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pt-6 sm:pt-8 md:pt-12 pb-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
           {/* Column 1 */}
@@ -16,7 +16,7 @@ export function Footer() {
                   href="#" 
                   className="hover:text-green-600 transition-colors inline-block"
                 >
-                  Малчин Camp хэрхэн ажилладаг вэ?
+                  Малчин Camp хэрхэн ажилладаг ?
                 </a>
               </li>
               <li>
