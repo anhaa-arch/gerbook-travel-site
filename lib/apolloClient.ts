@@ -21,7 +21,7 @@ const errorLink = onError(({ graphQLErrors, networkError }) => {
 });
 
 const httpLink = new HttpLink({
-  uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || "http://152.42.163.155:8000/graphql",
+  uri: process.env.NEXT_PUBLIC_GRAPHQL_URL || "https://api.malchincamp.mn/graphql",
   // Add headers if needed for authentication
   // headers: { 
   //   Authorization: `Bearer ${token}` 
