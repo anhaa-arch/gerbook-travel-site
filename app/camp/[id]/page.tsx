@@ -34,7 +34,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import "../../../lib/i18n";
-import { userouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import {
@@ -92,7 +92,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
-  const router = userouter();
+  const router = useRouter();
   const resolvedParams = use(params);
   const campId = resolvedParams.id;
 

@@ -10,7 +10,7 @@ import { Globe, ChevronDown, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
 import OtpModal from "@/components/otp-modal";
-import { userouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { gql, useMutation } from "@apollo/client";
 
@@ -37,7 +37,7 @@ export default function LoginPage() {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const { saveuserData, login, sendOtp, verifyOtp } = useAuth();
-  const router = userouter();
+  const router = useRouter();
   const { toast } = useToast();
   const [loginMutation] = useMutation(LOGIN_MUTATION);
 

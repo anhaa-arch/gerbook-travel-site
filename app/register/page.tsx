@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Globe, ChevronDown, Eye, EyeOff } from "lucide-react";
 import Link from "next/link";
-import { userouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { gql, useMutation } from "@apollo/client";
@@ -39,7 +39,7 @@ export default function RegisterPage() {
     confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
-  const router = userouter();
+  const router = useRouter();
   const { toast } = useToast();
   const { user } = useAuth();
   const [registerMutation] = useMutation(REGISTER_MUTATION);

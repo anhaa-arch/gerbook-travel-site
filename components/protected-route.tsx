@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useAuth } from "@/hooks/use-auth"
-import { userouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { useEffect } from "react"
 
 interface ProtectedRouteProps {
@@ -14,7 +14,7 @@ interface ProtectedRouteProps {
 
 export function ProtectedRoute({ children, requiredRole, redirectTo = "/login" }: ProtectedRouteProps) {
   const { user, isAuthenticated } = useAuth()
-  const router = userouter()
+  const router = useRouter()
 
   useEffect(() => {
     if (!isAuthenticated) {

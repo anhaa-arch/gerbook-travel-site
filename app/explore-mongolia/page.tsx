@@ -38,7 +38,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import '../../lib/i18n'
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet"
 import "leaflet/dist/leaflet.css"
-import { userouter } from "next/navigation"
+import { useRouter } from "next/navigation"
 
 // Mongolia's Natural Attractions Database
 const mongoliaAttractions = [
@@ -331,7 +331,7 @@ export default function ExploreMongoliaPage() {
   const [showFilters, setShowFilters] = useState(false)
   const mapSectionRef = useRef<HTMLDivElement>(null)
   const [highlightedId, setHighlightedId] = useState<number | null>(null)
-  const router = userouter()
+  const router = useRouter()
 
   // Convert duration to days for filtering
   const convertDurationToDays = (duration: number, type: string) => {

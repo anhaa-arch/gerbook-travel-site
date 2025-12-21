@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react'
-import { useSearchParams, userouter } from 'next/navigation'
+import { useSearchParams, useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
@@ -15,7 +15,7 @@ export default function ResetPasswordPage() {
   const [loading, setLoading] = useState(false)
   const { toast } = useToast()
   const { resetPassword } = useAuth()
-  const router = userouter()
+  const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
