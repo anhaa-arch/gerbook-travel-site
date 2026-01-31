@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
-import { user, Mail, Lock, Save, Eye, EyeOff, userCircle } from "lucide-react";
+import { User, Mail, Lock, Save, Eye, EyeOff, UserCircle } from "lucide-react";
 
 const UPDATE_user = gql`
   mutation Updateuser($id: ID!, $input: UpdateuserInput!) {
@@ -45,7 +45,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
   const { toast } = useToast();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   const [formData, setFormData] = useState({
     name: user.name || "",
     email: user.email || "",
@@ -63,7 +63,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
         title: "✅ Амжилттай",
         description: "Таны мэдээлэл шинэчлэгдлээ.",
       });
-      
+
       // Update localStorage with new user data
       if (data?.updateuser) {
         const storeduser = localStorage.getItem("user");
@@ -80,7 +80,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
           localStorage.setItem("user", JSON.stringify(updateduser));
         }
       }
-      
+
       // Clear password fields
       setFormData(prev => ({
         ...prev,
@@ -88,7 +88,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
         newPassword: "",
         confirmPassword: "",
       }));
-      
+
       if (onUpdate) onUpdate();
     },
     onError: (error) => {
@@ -155,7 +155,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
     <Card className="w-full max-w-2xl mx-auto">
       <CardHeader>
         <CardTitle className="text-xl md:text-2xl flex items-center gap-2">
-          <user className="w-5 h-5 md:w-6 md:h-6" />
+          <User className="w-5 h-5 md:w-6 md:h-6" />
           <span>Хувийн мэдээлэл</span>
         </CardTitle>
       </CardHeader>
@@ -167,7 +167,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
               Нэр
             </Label>
             <div className="relative">
-              <user className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <Input
                 id="name"
                 type="text"
@@ -226,7 +226,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
           {((user.role || "").toString().toLowerCase() === "herder") && (
             <div className="border-t pt-4 md:pt-6 space-y-4">
               <h3 className="text-base md:text-lg font-semibold flex items-center gap-2">
-                <userCircle className="w-5 h-5" />
+                <UserCircle className="w-5 h-5" />
                 Эзэнтэй танилцах
               </h3>
               <p className="text-xs md:text-sm text-gray-500">
