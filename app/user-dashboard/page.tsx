@@ -1,12 +1,12 @@
 "use client"
 
 import { ProtectedRoute } from "@/components/protected-route"
-import userDashboardContent from "./user-dashboard-content"
+import UserDashboardContent from "./user-dashboard-content"
 
-export default function userDashboardPage() {
+export default function UserDashboardPage() {
   return (
     <ProtectedRoute requiredRole="user">
-      <userDashboardContent />
+      <UserDashboardContent />
     </ProtectedRoute>
   )
 }

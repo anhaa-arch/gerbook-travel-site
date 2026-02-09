@@ -123,11 +123,11 @@ interface TravelRoute {
 // Enable debug logging (set to false in production)
 const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
-export default function userDashboardContent() {
+export default function UserDashboardContent() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("overview");
   const { logout, user } = useAuth();
-  
+
   // Auto-logout after 5 minutes of inactivity
   useIdleLogout({
     timeout: 5 * 60 * 1000, // 5 minutes
@@ -181,15 +181,15 @@ export default function userDashboardContent() {
       const yurt = edge.node?.yurt || {};
       const images = yurt.images;
       const primaryImage = getPrimaryImage(images);
-      
+
       if (DEBUG_MODE) {
-        console.log("Booking image data:", { 
-          yurtId: yurt.id, 
-          rawImages: images, 
-          primaryImage 
+        console.log("Booking image data:", {
+          yurtId: yurt.id,
+          rawImages: images,
+          primaryImage
         });
       }
-      
+
       // Format dates properly
       const formatDate = (dateString: string) => {
         try {
@@ -209,7 +209,7 @@ export default function userDashboardContent() {
           return dateString;
         }
       };
-      
+
       return {
         id: edge.node.id,
         camp: yurt.name || "Unknown Camp",
@@ -235,16 +235,16 @@ export default function userDashboardContent() {
       const product = firstItem?.product || {};
       const images = product.images;
       const primaryImage = getPrimaryImage(images);
-      
+
       if (DEBUG_MODE) {
-        console.log("Order image data:", { 
-          orderId: edge.node.id, 
+        console.log("Order image data:", {
+          orderId: edge.node.id,
           productId: product.id,
-          rawImages: images, 
-          primaryImage 
+          rawImages: images,
+          primaryImage
         });
       }
-      
+
       return {
         id: edge.node.id,
         product: firstItem?.product?.name || "Multiple items",
@@ -265,15 +265,15 @@ export default function userDashboardContent() {
       const travel = edge.node?.travel || {};
       const images = travel.images;
       const primaryImage = getPrimaryImage(images);
-      
+
       if (DEBUG_MODE) {
-        console.log("Travel booking image data:", { 
-          travelId: travel.id, 
-          rawImages: images, 
-          primaryImage 
+        console.log("Travel booking image data:", {
+          travelId: travel.id,
+          rawImages: images,
+          primaryImage
         });
       }
-      
+
       // Format travel date
       const formatTravelDate = (dateString: string) => {
         try {
@@ -291,7 +291,7 @@ export default function userDashboardContent() {
           return dateString;
         }
       };
-      
+
       return {
         id: edge.node.id,
         travel: travel.name || "Unknown Travel",
@@ -434,7 +434,7 @@ export default function userDashboardContent() {
             onClick={logout}
             className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base px-3 py-2 sm:px-4 sm:py-2"
           >
-            <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> 
+            <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span className="hidden xs:inline">Гарах</span>
             <span className="xs:hidden">Гарах</span>
           </Button>
@@ -620,17 +620,16 @@ export default function userDashboardContent() {
                                       ? "default"
                                       : "secondary"
                                   }
-                                  className={`text-[10px] xs:text-xs font-medium mt-1 ${
-                                    booking.status === "confirmed"
+                                  className={`text-[10px] xs:text-xs font-medium mt-1 ${booking.status === "confirmed"
                                       ? "bg-green-100 text-green-800"
                                       : ""
-                                  }`}
+                                    }`}
                                 >
                                   {booking.status === "confirmed"
                                     ? "Баталгаажсан"
                                     : booking.status === "pending"
-                                    ? "Хүлээгдэж байна"
-                                    : booking.status}
+                                      ? "Хүлээгдэж байна"
+                                      : booking.status}
                                 </Badge>
                               </div>
                             </div>
@@ -755,26 +754,25 @@ export default function userDashboardContent() {
                                 booking.status === "completed"
                                   ? "default"
                                   : booking.status === "confirmed"
-                                  ? "secondary"
-                                  : "outline"
+                                    ? "secondary"
+                                    : "outline"
                               }
-                              className={`text-[10px] xs:text-xs ml-1 sm:ml-2 font-medium flex-shrink-0 ${
-                                booking.status === "confirmed"
+                              className={`text-[10px] xs:text-xs ml-1 sm:ml-2 font-medium flex-shrink-0 ${booking.status === "confirmed"
                                   ? "bg-green-100 text-green-800 border-green-300"
                                   : booking.status === "pending"
-                                  ? "bg-yellow-100 text-yellow-800 border-yellow-300"
-                                  : ""
-                              }`}
+                                    ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                                    : ""
+                                }`}
                             >
                               {booking.status === "confirmed"
                                 ? "Баталгаажсан"
                                 : booking.status === "pending"
-                                ? "Хүлээгдэж байна"
-                                : booking.status === "completed"
-                                ? "Дууссан"
-                                : booking.status === "cancelled"
-                                ? "Цуцлагдсан"
-                                : booking.status}
+                                  ? "Хүлээгдэж байна"
+                                  : booking.status === "completed"
+                                    ? "Дууссан"
+                                    : booking.status === "cancelled"
+                                      ? "Цуцлагдсан"
+                                      : booking.status}
                             </Badge>
                           </div>
                           <div className="flex items-center text-gray-600 mb-1.5 sm:mb-2">
@@ -789,7 +787,7 @@ export default function userDashboardContent() {
                               {booking.checkIn} - {booking.checkOut}
                             </span>
                           </div>
-                          
+
                           {/* Owner Contact Info */}
                           {booking.owner && (
                             <div className="bg-gray-50 rounded-md p-2 sm:p-3 mb-3 space-y-1">
@@ -808,7 +806,7 @@ export default function userDashboardContent() {
                               )}
                             </div>
                           )}
-                          
+
                           <div className="flex items-center justify-between">
                             <div>
                               <span className="text-base sm:text-lg md:text-xl font-bold">
@@ -860,26 +858,25 @@ export default function userDashboardContent() {
                                 booking.status === "completed"
                                   ? "default"
                                   : booking.status === "confirmed"
-                                  ? "secondary"
-                                  : "outline"
+                                    ? "secondary"
+                                    : "outline"
                               }
-                              className={`text-xs ml-2 font-medium ${
-                                booking.status === "confirmed"
+                              className={`text-xs ml-2 font-medium ${booking.status === "confirmed"
                                   ? "bg-green-100 text-green-800 border-green-300"
                                   : booking.status === "pending"
-                                  ? "bg-yellow-100 text-yellow-800 border-yellow-300"
-                                  : ""
-                              }`}
+                                    ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                                    : ""
+                                }`}
                             >
                               {booking.status === "confirmed"
                                 ? "Баталгаажсан"
                                 : booking.status === "pending"
-                                ? "Хүлээгдэж байна"
-                                : booking.status === "completed"
-                                ? "Дууссан"
-                                : booking.status === "cancelled"
-                                ? "Цуцлагдсан"
-                                : booking.status}
+                                  ? "Хүлээгдэж байна"
+                                  : booking.status === "completed"
+                                    ? "Дууссан"
+                                    : booking.status === "cancelled"
+                                      ? "Цуцлагдсан"
+                                      : booking.status}
                             </Badge>
                           </div>
                           <div className="flex items-center text-gray-600 mb-2">
@@ -922,7 +919,7 @@ export default function userDashboardContent() {
               ) : orders.length > 0 ? (
                 <div>
                   <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Барааны захиалгууд</h3>
-                  
+
                   {/* Mobile: Card Layout */}
                   <div className="sm:hidden space-y-3">
                     {orders.map((order: Order) => (
@@ -946,15 +943,14 @@ export default function userDashboardContent() {
                               <p className="font-bold text-sm">${order.amount}</p>
                               <Badge
                                 variant={order.status === "delivered" ? "default" : order.status === "shipped" ? "secondary" : "outline"}
-                                className={`text-[10px] mt-1 ${
-                                  order.status === "delivered"
+                                className={`text-[10px] mt-1 ${order.status === "delivered"
                                     ? "bg-green-100 text-green-800"
                                     : order.status === "shipped"
-                                    ? "bg-blue-100 text-blue-800"
-                                    : order.status === "paid"
-                                    ? "bg-purple-100 text-purple-800"
-                                    : ""
-                                }`}
+                                      ? "bg-blue-100 text-blue-800"
+                                      : order.status === "paid"
+                                        ? "bg-purple-100 text-purple-800"
+                                        : ""
+                                  }`}
                               >
                                 {order.status === "delivered" ? "Хүргэгдсэн" : order.status === "shipped" ? "Илгээсэн" : order.status === "paid" ? "Төлсөн" : order.status === "pending" ? "Хүлээгдэж байна" : order.status}
                               </Badge>
@@ -968,7 +964,7 @@ export default function userDashboardContent() {
                       </Card>
                     ))}
                   </div>
-                  
+
                   {/* Desktop: Table Layout */}
                   <Card className="hidden sm:block shadow-sm">
                     <CardContent className="p-0">
@@ -1035,28 +1031,27 @@ export default function userDashboardContent() {
                                       order.status === "delivered"
                                         ? "default"
                                         : order.status === "shipped"
-                                        ? "secondary"
-                                        : "outline"
+                                          ? "secondary"
+                                          : "outline"
                                     }
-                                    className={`font-medium text-[10px] md:text-xs ${
-                                      order.status === "delivered"
+                                    className={`font-medium text-[10px] md:text-xs ${order.status === "delivered"
                                         ? "bg-green-100 text-green-800"
                                         : order.status === "shipped"
-                                        ? "bg-blue-100 text-blue-800"
-                                        : order.status === "paid"
-                                        ? "bg-purple-100 text-purple-800"
-                                        : ""
-                                    }`}
+                                          ? "bg-blue-100 text-blue-800"
+                                          : order.status === "paid"
+                                            ? "bg-purple-100 text-purple-800"
+                                            : ""
+                                      }`}
                                   >
                                     {order.status === "delivered"
                                       ? "Хүргэгдсэн"
                                       : order.status === "shipped"
-                                      ? "Илгээсэн"
-                                      : order.status === "paid"
-                                      ? "Төлсөн"
-                                      : order.status === "pending"
-                                      ? "Хүлээгдэж байна"
-                                      : order.status}
+                                        ? "Илгээсэн"
+                                        : order.status === "paid"
+                                          ? "Төлсөн"
+                                          : order.status === "pending"
+                                            ? "Хүлээгдэж байна"
+                                            : order.status}
                                   </Badge>
                                 </TableCell>
                                 <TableCell className="hidden md:table-cell font-medium text-xs md:text-sm">
@@ -1254,8 +1249,8 @@ export default function userDashboardContent() {
                                   route.status === "completed"
                                     ? "default"
                                     : route.status === "planning"
-                                    ? "secondary"
-                                    : "outline"
+                                      ? "secondary"
+                                      : "outline"
                                 }
                                 className="font-medium"
                               >
@@ -1263,13 +1258,12 @@ export default function userDashboardContent() {
                               </Badge>
                               <Badge
                                 variant="outline"
-                                className={`font-medium ${
-                                  route.difficulty === "extreme"
+                                className={`font-medium ${route.difficulty === "extreme"
                                     ? "border-red-500 text-red-600"
                                     : route.difficulty === "challenging"
-                                    ? "border-orange-500 text-orange-600"
-                                    : "border-green-500 text-green-600"
-                                }`}
+                                      ? "border-orange-500 text-orange-600"
+                                      : "border-green-500 text-green-600"
+                                  }`}
                               >
                                 {route.difficulty}
                               </Badge>
@@ -1296,11 +1290,10 @@ export default function userDashboardContent() {
                                     Child Friendly:
                                   </span>
                                   <span
-                                    className={`font-semibold ${
-                                      route.childFriendly
+                                    className={`font-semibold ${route.childFriendly
                                         ? "text-green-600"
                                         : "text-red-600"
-                                    }`}
+                                      }`}
                                   >
                                     {route.childFriendly ? "Yes" : "No"}
                                   </span>
@@ -1434,8 +1427,8 @@ export default function userDashboardContent() {
                               {route.status === "completed"
                                 ? "Ижил аялал захиалах"
                                 : route.status === "planning"
-                                ? "Захиалгаа баталгаажуулах"
-                                : "Энэ маршрутыг ашиглах"}
+                                  ? "Захиалгаа баталгаажуулах"
+                                  : "Энэ маршрутыг ашиглах"}
                             </Button>
                             <Button
                               variant="outline"
@@ -1546,11 +1539,11 @@ export default function userDashboardContent() {
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">
             <h2 className="text-xl sm:text-2xl font-bold">Профайл тохиргоо</h2>
-            
+
             {user && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
-                  <ProfileSettings 
+                  <ProfileSettings
                     user={{
                       id: user.id,
                       name: user.name,
