@@ -527,16 +527,20 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     // RBAC: Only CUSTOMER can create bookings; block admins and herders
     // Note: Frontend normalizes CUSTOMER to "user", so we accept both
     const userRole = (user.role || "").toString().toUpperCase();
+    console.log('👤 User role check:', { originalRole: user.role, normalizedRole: userRole });
 
-    if (userRole !== "CUSTOMER" && userRole !== "user") {
-      console.log('❌ Invalid role:', userRole);
+    // Accept CUSTOMER, USER (case-insensitive)
+    const allowedRoles = ["CUSTOMER", "USER"];
+    if (!allowedRoles.includes(userRole)) {
+      console.log('❌ Invalid role:', userRole, '- Allowed roles:', allowedRoles);
       toast({
         title: "Зөвшөөрөлгүй",
-        description: "Зөвхөн CUSTOMER хэрэглэгчид захиалга үүсгэж болно.",
+        description: `Зөвхөн CUSTOMER хэрэглэгчид захиалга үүсгэж болно. Таны role: ${user.role}`,
         variant: "destructive",
       });
       return;
     }
+    console.log('✅ Role check passed');
 
     // Validate dates
     const checkInDate = new Date(checkIn);
@@ -668,8 +672,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       key={index}
                       onClick={() => setSelectedImage(index)}
                       className={`aspect-video bg-gray-200 rounded-md sm:rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index
-                          ? "border-emerald-500"
-                          : "border-transparent"
+                        ? "border-emerald-500"
+                        : "border-transparent"
                         }`}
                     >
                       <img
@@ -765,8 +769,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     />
                     <span
                       className={`font-medium ${amenity.available
-                          ? "text-gray-900"
-                          : "text-gray-400 line-through"
+                        ? "text-gray-900"
+                        : "text-gray-400 line-through"
                         }`}
                     >
                       {amenity.name}
