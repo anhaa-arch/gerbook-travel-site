@@ -51,7 +51,7 @@ export const GET_user_ORDERS = gql`
       edges {
         node {
           id
-          items {
+          orderitem {
             id
             product {
               id
@@ -175,7 +175,7 @@ export const CREATE_ORDER = gql`
   mutation CreateOrder($input: CreateOrderInput!) {
     createOrder(input: $input) {
       id
-      items {
+      orderitem {
         id
         product {
           id
