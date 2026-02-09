@@ -159,9 +159,9 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       },
       onError: (error) => {
         console.error('❌ Booking error:', error);
-        
+
         let errorMessage = "Захиалга үүсгэхэд алдаа гарлаа.";
-        
+
         if (error.message.includes("not available")) {
           errorMessage = "Таны сонгосон огноо захиалагдсан байна. Өөр огноо сонгоно уу.";
         } else if (error.message.includes("End date must be after start date")) {
@@ -173,7 +173,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         } else {
           errorMessage = error.message || errorMessage;
         }
-        
+
         toast({
           title: "❌ Захиалга амжилтгүй",
           description: errorMessage,
@@ -198,14 +198,14 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       console.log('⚠️ No camp bookings data');
       return [];
     }
-    
+
     console.log('📋 All bookings:', camp.bookings);
-    
+
     const disabledDates: Date[] = [];
     const activeBookings = camp.bookings.filter(
       (booking: any) => booking.status === 'PENDING' || booking.status === 'CONFIRMED'
     );
-    
+
     console.log('🔍 Active bookings (PENDING/CONFIRMED):', activeBookings.length);
     console.log('🔍 Active bookings details:', activeBookings.map((b: any) => ({
       id: b.id,
@@ -213,7 +213,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       startDate: b.startDate,
       endDate: b.endDate
     })));
-    
+
     activeBookings.forEach((booking: any) => {
       try {
         // Validate booking data
@@ -221,11 +221,11 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
           console.warn('⚠️ Booking missing dates:', booking);
           return;
         }
-        
+
         // Handle both timestamp strings and ISO date strings
         let start: Date;
         let end: Date;
-        
+
         // Check if it's a timestamp string (all digits)
         if (typeof booking.startDate === 'string' && /^\d+$/.test(booking.startDate)) {
           start = new Date(parseInt(booking.startDate));
@@ -234,7 +234,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
           start = new Date(booking.startDate);
           end = new Date(booking.endDate);
         }
-        
+
         // Check if dates are valid
         if (isNaN(start.getTime()) || isNaN(end.getTime())) {
           console.warn('⚠️ Invalid date format after parsing:', {
@@ -245,13 +245,13 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
           });
           return;
         }
-        
+
         console.log(`📅 Processing booking: ${start.toISOString()} to ${end.toISOString()}`);
-        
+
         // Normalize to midnight UTC to avoid timezone issues
         start.setUTCHours(0, 0, 0, 0);
         end.setUTCHours(0, 0, 0, 0);
-        
+
         // Add all dates in the booking range (including start, excluding end for standard hotel logic)
         const current = new Date(start);
         while (current < end) {
@@ -264,15 +264,15 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         console.error('❌ Error processing booking:', booking, error);
       }
     });
-    
+
     console.log('🚫 Total disabled dates:', disabledDates.length);
     console.log('🚫 Disabled date list:', disabledDates.map(d => d.toISOString().split('T')[0]));
-    
+
     return disabledDates;
   };
 
   const disabledDates = getDisabledDates();
-  
+
   console.log('🎯 Passing disabled dates to modal:', disabledDates.length);
 
   // Handle save/unsave camp
@@ -415,7 +415,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   };
 
   const parsedAmenities = parseAmenitiesJSON(camp.amenities || "");
-  
+
   console.log("🏕️ Parsed amenities:", parsedAmenities);
 
   // Get labels from camp-options
@@ -440,14 +440,14 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       name: getLabel(amenity, amenitiesOptions),
       available: true,
     })),
-    activities: parsedAmenities.activities.map((activity: string) => 
+    activities: parsedAmenities.activities.map((activity: string) =>
       getLabel(activity, activitiesOptions)
     ),
     accommodation: {
       type: getLabel(parsedAmenities.accommodationType, accommodationTypes) || "Уламжлалт гэр",
       capacity: `${camp.capacity} хүн`,
       totalGers: 1,
-      facilities: parsedAmenities.facilities.map((facility: string) => 
+      facilities: parsedAmenities.facilities.map((facility: string) =>
         getLabel(facility, facilitiesOptions)
       ),
     },
@@ -500,6 +500,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   };
 
   const handleBooking = () => {
+    console.log('🚀 handleBooking called', { checkIn, checkOut, user });
     if (!checkIn || !checkOut) {
       toast({
         title: "Огноо сонгоно уу",
@@ -528,6 +529,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     const userRole = (user.role || "").toString().toUpperCase();
 
     if (userRole !== "CUSTOMER" && userRole !== "user") {
+      console.log('❌ Invalid role:', userRole);
       toast({
         title: "Зөвшөөрөлгүй",
         description: "Зөвхөн CUSTOMER хэрэглэгчид захиалга үүсгэж болно.",
@@ -539,7 +541,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     // Validate dates
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);
-    
+
     if (checkOutDate <= checkInDate) {
       toast({
         title: "Огноо буруу байна",
@@ -554,15 +556,15 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     const activeBookings = camp.bookings?.filter(
       (booking: any) => booking.status === 'PENDING' || booking.status === 'CONFIRMED'
     ) || [];
-    
+
     console.log('📅 Selected range:', checkInDate.toISOString(), '-', checkOutDate.toISOString());
     console.log('🔍 Checking against bookings:', activeBookings);
-    
+
     const hasOverlap = activeBookings.some((booking: any) => {
       // Handle timestamp strings
       let bookingStart: Date;
       let bookingEnd: Date;
-      
+
       if (typeof booking.startDate === 'string' && /^\d+$/.test(booking.startDate)) {
         bookingStart = new Date(parseInt(booking.startDate));
         bookingEnd = new Date(parseInt(booking.endDate));
@@ -570,7 +572,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         bookingStart = new Date(booking.startDate);
         bookingEnd = new Date(booking.endDate);
       }
-      
+
       // Backend overlap logic (exact same as checkYurtAvailability)
       const overlap = (
         // Booking starts during requested period
@@ -580,7 +582,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         // Booking spans entire requested period
         (bookingStart <= checkInDate && bookingEnd >= checkOutDate)
       );
-      
+
       if (overlap) {
         console.log('❌ Overlap detected with booking:', {
           id: booking.id,
@@ -588,10 +590,10 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
           end: bookingEnd.toISOString()
         });
       }
-      
+
       return overlap;
     });
-    
+
     if (hasOverlap) {
       toast({
         title: "Огноо захиалагдсан байна",
@@ -600,16 +602,17 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       });
       return;
     }
-    
+
     console.log('✅ No overlap detected, proceeding to payment');
 
     // Open payment modal instead of immediately creating booking
+    console.log('💰 Opening payment modal');
     setShowPaymentModal(true);
   };
 
   const handlePaymentComplete = (paymentMethod: string) => {
     console.log('💳 Payment completed with method:', paymentMethod);
-    
+
     // Close payment modal
     setShowPaymentModal(false);
 
@@ -664,11 +667,10 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     <button
                       key={index}
                       onClick={() => setSelectedImage(index)}
-                      className={`aspect-video bg-gray-200 rounded-md sm:rounded-lg overflow-hidden border-2 transition-colors ${
-                        selectedImage === index
+                      className={`aspect-video bg-gray-200 rounded-md sm:rounded-lg overflow-hidden border-2 transition-colors ${selectedImage === index
                           ? "border-emerald-500"
                           : "border-transparent"
-                      }`}
+                        }`}
                     >
                       <img
                         src={image || getPrimaryImage(camp.images) || "/placeholder.svg"}
@@ -705,15 +707,13 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className={`font-medium bg-transparent text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-3 ${
-                      isSaved ? "text-red-600 border-red-600" : ""
-                    }`}
+                    className={`font-medium bg-transparent text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-3 ${isSaved ? "text-red-600 border-red-600" : ""
+                      }`}
                     onClick={handleSaveCamp}
                   >
                     <Heart
-                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 ${
-                        isSaved ? "fill-current" : ""
-                      }`}
+                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 ${isSaved ? "fill-current" : ""
+                        }`}
                     />
                     <span className="hidden xs:inline">{isSaved ? "Хадгалсан" : "Хадгалах"}</span>
                   </Button>
@@ -760,16 +760,14 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                 {campData.amenities.map((amenity: any, index: number) => (
                   <div key={index} className="flex items-center space-x-3">
                     <amenity.icon
-                      className={`w-5 h-5 ${
-                        amenity.available ? "text-emerald-600" : "text-gray-400"
-                      }`}
+                      className={`w-5 h-5 ${amenity.available ? "text-emerald-600" : "text-gray-400"
+                        }`}
                     />
                     <span
-                      className={`font-medium ${
-                        amenity.available
+                      className={`font-medium ${amenity.available
                           ? "text-gray-900"
                           : "text-gray-400 line-through"
-                      }`}
+                        }`}
                     >
                       {amenity.name}
                     </span>
@@ -902,7 +900,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                         onClick={(e) => {
                           e.preventDefault();
                           e.stopPropagation();
-                          
+
                           if (campData.host.phone) {
                             window.location.href = `tel:${campData.host.phone}`;
                           } else if (campData.host.email) {
@@ -1067,9 +1065,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                         Гарах өдөр
                       </label>
                       <div
-                        className={`flex items-center border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 cursor-pointer transition-colors font-medium ${
-                          checkIn ? "hover:border-emerald-600" : "opacity-50 cursor-not-allowed"
-                        }`}
+                        className={`flex items-center border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 cursor-pointer transition-colors font-medium ${checkIn ? "hover:border-emerald-600" : "opacity-50 cursor-not-allowed"
+                          }`}
                         onClick={() => checkIn && setShowCheckOutPicker(true)}
                       >
                         <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-500 flex-shrink-0" />
@@ -1120,7 +1117,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                           {Math.ceil(
                             (new Date(checkOut).getTime() -
                               new Date(checkIn).getTime()) /
-                              (1000 * 60 * 60 * 24)
+                            (1000 * 60 * 60 * 24)
                           )}{" "}
                           шөнө
                         </span>
@@ -1172,7 +1169,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       onClick={(e) => {
                         e.preventDefault();
                         e.stopPropagation();
-                        
+
                         if (campData.host.phone) {
                           window.location.href = `tel:${campData.host.phone}`;
                         } else if (campData.host.email) {
@@ -1216,10 +1213,10 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             const dateString = `${year}-${month}-${day}`;
-            
+
             console.log('✅ Check-in selected:', dateString);
             setCheckIn(dateString);
-            
+
             // Clear check-out if it's before the new check-in
             if (checkOut && new Date(checkOut) <= date) {
               setCheckOut("");
@@ -1242,7 +1239,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             const month = String(date.getMonth() + 1).padStart(2, '0');
             const day = String(date.getDate()).padStart(2, '0');
             const dateString = `${year}-${month}-${day}`;
-            
+
             console.log('✅ Check-out selected:', dateString);
             setCheckOut(dateString);
           }
@@ -1267,7 +1264,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             guests: guests,
             nights: Math.ceil(
               (new Date(checkOut).getTime() - new Date(checkIn).getTime()) /
-                (1000 * 60 * 60 * 24)
+              (1000 * 60 * 60 * 24)
             ),
             pricePerNight: campData.price,
             serviceFee: Math.round(calculateTotal() * 0.1),
