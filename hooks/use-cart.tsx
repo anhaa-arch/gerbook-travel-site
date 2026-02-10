@@ -64,6 +64,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const addToCart = useCallback((item: CartItem) => {
+    // Requirements: Camps and Travels should NOT be added to cart
+    if (item.type === "CAMP" || item.type === "TRAVEL") {
+      console.warn(`Attempted to add ${item.type} to cart. This is now disabled in favor of direct booking.`);
+      return;
+    }
+
     setCartItems((prev) => {
       const clientId = getClientId(item);
       const existingIndex = prev.findIndex((i) => {

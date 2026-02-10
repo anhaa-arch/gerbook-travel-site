@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Star, Users, Filter, Package, Home, X } from "lucide-react";
+import { MapPin, Star, Users, Filter, Package, Home, X, Calendar } from "lucide-react";
+import { DatePickerModal } from "@/components/search/date-picker-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -77,8 +78,11 @@ export default function ListingsPage() {
   const { t, i18n } = useTranslation();
   const { toast } = useToast();
   const { addToCart } = useCart();
-  const [selectedProvince, setSelectedProvince] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState("Архангай");
   const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [checkIn, setCheckIn] = useState<Date | null>(null);
+  const [checkOut, setCheckOut] = useState<Date | null>(null);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [activeTab, setActiveTab] = useState("camps");
 
   // Get location data from search section
@@ -121,25 +125,49 @@ export default function ListingsPage() {
   );
 
   const filteredCamps = yurts.filter((camp: any) => {
-    if (
-      selectedProvince &&
-      !camp.location.toLowerCase().includes(selectedProvince.toLowerCase())
-    )
+    // Filter by location
+    if (selectedProvince && !camp.location.toLowerCase().includes(selectedProvince.toLowerCase())) {
       return false;
-    if (
-      selectedDistrict &&
-      !camp.location.toLowerCase().includes(selectedDistrict.toLowerCase())
-    )
+    }
+    if (selectedDistrict && selectedDistrict !== "all_districts" && !camp.location.toLowerCase().includes(selectedDistrict.toLowerCase())) {
       return false;
+    }
+
+    // Filter by date availability
+    if (checkIn && checkOut && camp.bookings) {
+      const activeBookings = camp.bookings.filter((b: any) => b.status === 'PENDING' || b.status === 'CONFIRMED');
+      const hasOverlap = activeBookings.some((booking: any) => {
+        const bStart = new Date(booking.startDate);
+        const bEnd = new Date(booking.endDate);
+        // Strict overlap logic (same as backend)
+        const overlap = bStart < checkOut && bEnd > checkIn;
+        if (overlap) {
+          console.log(`[Filter] Camp ${camp.name} excluded. Overlap with booking ${booking.id}: ${bStart.toISOString()} - ${bEnd.toISOString()}`);
+        }
+        return overlap;
+      });
+      if (hasOverlap) return false;
+    }
+
     return true;
   });
 
+  console.log(`[Filter] Results: ${filteredCamps.length}/${yurts.length} camps`, {
+    selectedProvince,
+    selectedDistrict,
+    checkIn: checkIn?.toISOString(),
+    checkOut: checkOut?.toISOString()
+  });
+
   // Get provinces and districts from search section data
-  const provinces = locationData.zipcode.map((province) => ({
-    id: province.mnname,
-    name: province.mnname,
-    zipcode: province.zipcode,
-  }));
+  // Requirement: Show only Arkhangai
+  const provinces = locationData.zipcode
+    .filter(p => p.mnname === "Архангай")
+    .map((province) => ({
+      id: province.mnname,
+      name: province.mnname,
+      zipcode: province.zipcode,
+    }));
 
   const selectedProvinceData = provinces.find((p) => p.id === selectedProvince);
 
@@ -179,8 +207,8 @@ export default function ListingsPage() {
             Бүх жагсаалт
           </h1>
 
-          {/* Location Filters */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {/* Filters */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
                 Аймаг сонгох
@@ -189,7 +217,7 @@ export default function ListingsPage() {
                 value={selectedProvince}
                 onValueChange={handleProvinceChange}
               >
-                <SelectTrigger>
+                <SelectTrigger className="bg-white border-gray-200">
                   <SelectValue placeholder="Аймаг сонгох" />
                 </SelectTrigger>
                 <SelectContent>
@@ -211,10 +239,11 @@ export default function ListingsPage() {
                 onValueChange={handleDistrictChange}
                 disabled={!selectedProvince}
               >
-                <SelectTrigger>
-                  <SelectValue placeholder="Дүүрэг сонгох" />
+                <SelectTrigger className="bg-white border-gray-200">
+                  <SelectValue placeholder="Сум сонгох" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="all_districts">Бүх сумд</SelectItem>
                   {availableDistricts.map((district) => (
                     <SelectItem key={district.id} value={district.id}>
                       {district.name}
@@ -224,14 +253,33 @@ export default function ListingsPage() {
               </Select>
             </div>
 
-            <div className="flex items-end sm:col-span-2 lg:col-span-1">
+            <div>
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                Огноо
+              </label>
               <Button
                 variant="outline"
-                className="w-full bg-transparent font-medium"
+                className="w-full justify-start text-left font-normal bg-white border-gray-200 h-10"
+                onClick={() => setShowDatePicker(true)}
+              >
+                <Calendar className="mr-2 h-4 w-4 text-emerald-500" />
+                {checkIn && checkOut ? (
+                  <span className="text-gray-900 font-medium">
+                    {checkIn.toLocaleDateString('mn-MN', { month: 'numeric', day: 'numeric' })} - {checkOut.toLocaleDateString('mn-MN', { month: 'numeric', day: 'numeric' })}
+                  </span>
+                ) : (
+                  <span className="text-gray-400">Огноо сонгох</span>
+                )}
+              </Button>
+            </div>
+
+            <div className="flex items-end">
+              <Button
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold h-10 shadow-sm"
                 onClick={handleSearch}
               >
                 <Filter className="w-4 h-4 mr-2" />
-                Хайх
+                Шүүх
               </Button>
             </div>
           </div>
@@ -481,6 +529,15 @@ export default function ListingsPage() {
           </Tabs>
         </div>
       </section>
+
+      <DatePickerModal
+        isOpen={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        onSelect={(start, end) => {
+          setCheckIn(start);
+          setCheckOut(end);
+        }}
+      />
     </div>
   );
 }

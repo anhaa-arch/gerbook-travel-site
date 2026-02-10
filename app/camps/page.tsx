@@ -5,7 +5,8 @@ import { useSearchParams } from "next/navigation"
 import { useTranslation } from "react-i18next"
 import Image from "next/image"
 import Link from "next/link"
-import { MapPin, Star, Users, Filter, X } from "lucide-react"
+import { MapPin, Star, Users, Filter, X, Calendar } from "lucide-react"
+import { DatePickerModal } from "@/components/search/date-picker-modal"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -44,11 +45,12 @@ const GET_YURTS = gql`
 export default function CampsPage() {
   const { t, i18n } = useTranslation()
   const searchParams = useSearchParams()
-  const [selectedProvince, setSelectedProvince] = useState("")
+  const [selectedProvince, setSelectedProvince] = useState("Архангай")
   const [selectedDistrict, setSelectedDistrict] = useState("")
   const [minCapacity, setMinCapacity] = useState(0)
   const [checkInDate, setCheckInDate] = useState<string>("")
   const [checkOutDate, setCheckOutDate] = useState<string>("")
+  const [showDatePicker, setShowDatePicker] = useState(false)
 
   // Initialize from URL query params
   useEffect(() => {
@@ -143,16 +145,13 @@ export default function CampsPage() {
         bookingEnd = new Date(booking.endDate)
       }
 
-      // Check for overlap
-      const overlap = (
-        // Booking starts during requested period
-        (bookingStart >= requestedCheckIn && bookingStart < requestedCheckOut) ||
-        // Booking ends during requested period
-        (bookingEnd > requestedCheckIn && bookingEnd <= requestedCheckOut) ||
-        // Booking spans entire requested period
-        (bookingStart <= requestedCheckIn && bookingEnd >= requestedCheckOut)
-      )
+      // Check for overlap using strict logic
+      // Booking starts before requested end AND booking ends after requested start
+      const overlap = bookingStart < requestedCheckOut && bookingEnd > requestedCheckIn
 
+      if (overlap) {
+        console.log(`[Filter] Camp ${camp.name} overlap with booking ${booking.id}: ${bookingStart.toISOString()} - ${bookingEnd.toISOString()}`)
+      }
       return overlap
     })
 
@@ -225,7 +224,7 @@ export default function CampsPage() {
           </h1>
 
           {/* Location Filters */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
             <div>
               <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                 Аймаг сонгох
@@ -280,7 +279,27 @@ export default function CampsPage() {
               </Select>
             </div>
 
-            <div className="flex items-end sm:col-span-2 md:col-span-1">
+            <div>
+              <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
+                Огноо
+              </label>
+              <Button
+                variant="outline"
+                className="w-full justify-start text-left font-normal bg-white h-9 sm:h-10 text-xs sm:text-sm border-input"
+                onClick={() => setShowDatePicker(true)}
+              >
+                <Calendar className="mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-500" />
+                {checkInDate && checkOutDate ? (
+                  <span className="text-gray-900 font-medium">
+                    {new Date(checkInDate).toLocaleDateString('mn-MN', { month: 'numeric', day: 'numeric' })} - {new Date(checkOutDate).toLocaleDateString('mn-MN', { month: 'numeric', day: 'numeric' })}
+                  </span>
+                ) : (
+                  <span className="text-gray-500">Огноо сонгох</span>
+                )}
+              </Button>
+            </div>
+
+            <div className="flex items-end sm:col-span-2 lg:col-span-1">
               <Button
                 variant="outline"
                 className="w-full bg-transparent font-medium text-xs sm:text-sm h-9 sm:h-10"
@@ -406,6 +425,27 @@ export default function CampsPage() {
           </div>
         </div>
       </section>
+
+      <DatePickerModal
+        isOpen={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        onSelect={(start, end) => {
+          if (start && end) {
+            // Adjust dates to local string format YYYY-MM-DD
+            // This prevents timezone shifts when converting to string
+            const formatDate = (date: Date) => {
+              const offsetDate = new Date(date.getTime() - (date.getTimezoneOffset() * 60000));
+              return offsetDate.toISOString().split('T')[0];
+            };
+
+            setCheckInDate(formatDate(start))
+            setCheckOutDate(formatDate(end))
+          } else {
+            setCheckInDate("")
+            setCheckOutDate("")
+          }
+        }}
+      />
     </div>
   )
 }

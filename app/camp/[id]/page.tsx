@@ -105,10 +105,12 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
   // Load saved camps from localStorage on component mount
   useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem("savedCamps") || "[]");
-    setSavedCamps(saved);
-    setIsSaved(saved.some((camp: any) => camp.id === campId));
-  }, [campId]);
+    if (user?.id) {
+      const saved = JSON.parse(localStorage.getItem(`savedCamps_${user.id}`) || "[]");
+      setSavedCamps(saved);
+      setIsSaved(saved.some((camp: any) => camp.id === campId));
+    }
+  }, [campId, user?.id]);
 
   const { data, loading, error } = useQuery(GET_YURT, {
     variables: { id: campId },
@@ -280,7 +282,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
   // Handle save/unsave camp
   const handleSaveCamp = () => {
-    if (!isAuthenticated) {
+    if (!isAuthenticated || !user) {
       toast({
         title: "Нэвтрэх шаардлагатай",
         description: "Амралт хадгалахын тулд нэвтрэх шаардлагатай.",
@@ -302,13 +304,15 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       amenities: campData.amenities,
       description: campData.description,
       savedAt: new Date().toISOString(),
-      userId: user?.id,
+      userId: user.id,
     };
 
     let updatedSavedCamps;
+    const storageKey = `savedCamps_${user.id}`;
+
     if (isSaved) {
       // Remove from saved
-      updatedSavedCamps = savedCamps.filter((camp: any) => camp.id !== campId);
+      updatedSavedCamps = savedCamps.filter((c: any) => c.id !== campId);
       toast({
         title: "Хадгалсан амралт",
         description: "Амралт хадгалсан жагсаалтаас хасагдлаа.",
@@ -324,7 +328,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
     setSavedCamps(updatedSavedCamps);
     setIsSaved(!isSaved);
-    localStorage.setItem("savedCamps", JSON.stringify(updatedSavedCamps));
+    localStorage.setItem(storageKey, JSON.stringify(updatedSavedCamps));
   };
 
   if (loading) {
@@ -714,12 +718,15 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                   <Button
                     variant="outline"
                     size="sm"
-                    className={`font-medium bg-transparent text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-3 ${isSaved ? "text-red-600 border-red-600" : ""
+                    className={`font-medium bg-white text-xs sm:text-sm h-8 sm:h-9 px-2.5 sm:px-3 shadow-sm transition-all hover:bg-gray-50 ${isSaved ? "text-red-500 border-red-200 bg-red-50" : "text-gray-600 border-gray-200"
                       }`}
-                    onClick={handleSaveCamp}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleSaveCamp();
+                    }}
                   >
                     <Heart
-                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 ${isSaved ? "fill-current" : ""
+                      className={`w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 transition-colors ${isSaved ? "fill-red-500 text-red-500" : "text-gray-400"
                         }`}
                     />
                     <span className="hidden xs:inline">{isSaved ? "Хадгалсан" : "Хадгалах"}</span>
@@ -808,42 +815,44 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Байршуулалт
               </h2>
-              <Card>
-                <CardContent className="p-4 sm:p-6">
-                  <div className="grid grid-cols-1 gap-6">
-                    <div>
-                      <h3 className="font-bold text-gray-900 mb-3 text-base sm:text-lg">
+              <Card className="overflow-hidden border-emerald-100 shadow-sm">
+                <CardContent className="p-4 sm:p-5 md:p-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 md:gap-8">
+                    <div className="space-y-3">
+                      <h3 className="font-bold text-gray-900 border-b border-gray-100 pb-2 flex items-center gap-2">
+                        <Users className="w-4 h-4 text-emerald-500" />
                         {campData.accommodation.type}
                       </h3>
-                      <div className="space-y-2 text-sm text-gray-600">
-                        <div className="flex justify-between items-start gap-4">
-                          <span className="font-medium">Багтаамж:</span>
-                          <span className="font-semibold text-right">
+                      <div className="space-y-2.5">
+                        <div className="flex justify-between items-center bg-gray-50/50 p-2 rounded-md">
+                          <span className="text-sm font-medium text-gray-600">Багтаамж:</span>
+                          <span className="text-sm font-bold text-emerald-700">
                             {campData.accommodation.capacity}
                           </span>
                         </div>
-                        <div className="flex justify-between items-start gap-4">
-                          <span className="font-medium">Нийт тоо:</span>
-                          <span className="font-semibold text-right">
+                        <div className="flex justify-between items-center bg-gray-50/50 p-2 rounded-md">
+                          <span className="text-sm font-medium text-gray-600">Нийт гэр:</span>
+                          <span className="text-sm font-bold text-emerald-700">
                             {campData.accommodation.totalGers}
                           </span>
                         </div>
                       </div>
                     </div>
-                    <div>
-                      <h3 className="font-bold text-gray-900 mb-3 text-base sm:text-lg">
+                    <div className="space-y-3">
+                      <h3 className="font-bold text-gray-900 border-b border-gray-100 pb-2 flex items-center gap-2">
+                        <Shield className="w-4 h-4 text-emerald-500" />
                         Тоног төхөөрөмж
                       </h3>
-                      <ul className="space-y-2 text-sm text-gray-600">
+                      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-1 gap-2">
                         {campData.accommodation.facilities.map(
                           (facility: string, index: number) => (
-                            <li key={index} className="flex items-start">
-                              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-2 mt-2 flex-shrink-0"></div>
-                              <span className="font-medium">{facility}</span>
-                            </li>
+                            <div key={index} className="flex items-center gap-2 text-sm text-gray-600 bg-emerald-50/30 px-2 py-1.5 rounded">
+                              <Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
+                              <span className="font-medium truncate">{facility}</span>
+                            </div>
                           )
                         )}
-                      </ul>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -1149,41 +1158,17 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                   <div className="flex flex-col gap-2">
                     <Button
                       className="w-full bg-emerald-600 hover:bg-emerald-700 font-bold text-sm h-11 shadow-md active:scale-[0.98] transition-all"
-                      disabled={!checkIn || !checkOut}
+                      disabled={!checkIn || !checkOut || bookingLoading}
                       onClick={handleBooking}
                     >
-                      {!checkIn || !checkOut ? "Огноо сонгоно уу" : "Шууд захиалах"}
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className="w-full border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold text-sm h-11"
-                      disabled={!checkIn || !checkOut}
-                      onClick={() => {
-                        addToCart({
-                          id: camp.id,
-                          type: "CAMP",
-                          name: camp.name,
-                          price: camp.pricePerNight,
-                          quantity: 1,
-                          image: parseImagePaths(camp.images)[0] || getPrimaryImage(camp.images),
-                          startDate: checkIn,
-                          endDate: checkOut,
-                          guests: guests
-                        });
-                        toast({
-                          title: "Сагсанд нэмэгдлээ",
-                          description: `${camp.name} бааз амжилттай нэмэгдлээ.`,
-                          action: (
-                            <Button size="sm" onClick={() => router.push("/cart")}>
-                              Үзэх
-                            </Button>
-                          ),
-                        });
-                      }}
-                    >
-                      <ShoppingBag className="w-4 h-4 mr-2" />
-                      Сагсанд нэмэх
+                      {bookingLoading ? (
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                          Уншиж байна...
+                        </div>
+                      ) : (
+                        !checkIn || !checkOut ? "Огноо сонгоно уу" : "Шууд захиалах"
+                      )}
                     </Button>
                   </div>
 
@@ -1221,14 +1206,6 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     >
                       <MessageCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                       Эзэнтэй холбогдох
-                    </Button>
-                    <Button
-                      variant="outline"
-                      className="w-full bg-transparent font-medium text-xs sm:text-sm h-9 sm:h-10"
-                      onClick={() => setShowDatePicker(true)}
-                    >
-                      <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                      Боломжит огноо шалгах
                     </Button>
                   </div>
                 </CardContent>
