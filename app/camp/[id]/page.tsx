@@ -188,8 +188,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const [checkIn, setCheckIn] = useState("");
   const [checkOut, setCheckOut] = useState("");
   const [guests, setGuests] = useState(2);
-  const [showCheckInPicker, setShowCheckInPicker] = useState(false);
-  const [showCheckOutPicker, setShowCheckOutPicker] = useState(false);
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
 
   // Calculate disabled dates from bookings
@@ -1049,35 +1048,31 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-3 xs:p-4 sm:p-5 lg:p-6 space-y-3 sm:space-y-4">
-                  <div className="grid grid-cols-2 gap-2 sm:gap-3 md:gap-4">
-                    <div>
-                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
-                        Ирэх өдөр
-                      </label>
-                      <div
-                        className="flex items-center border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 cursor-pointer hover:border-emerald-600 transition-colors font-medium"
-                        onClick={() => setShowCheckInPicker(true)}
-                      >
-                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-500 flex-shrink-0" />
-                        <span className={`text-[10px] xs:text-xs sm:text-sm truncate ${checkIn ? "text-gray-900" : "text-gray-500"}`}>
-                          {checkIn ? new Date(checkIn).toLocaleDateString('mn-MN') : "Ирэх өдөр"}
-                        </span>
+                  <div className="col-span-2">
+                    <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
+                      Хугацаа сонгох
+                    </label>
+                    <div
+                      className="flex items-center justify-between border rounded-md px-3 py-2 cursor-pointer hover:border-emerald-600 transition-all font-medium bg-gray-50/50"
+                      onClick={() => setShowDatePicker(true)}
+                    >
+                      <div className="flex items-center min-w-0 flex-1">
+                        <Calendar className="w-4 h-4 mr-2 text-emerald-600 flex-shrink-0" />
+                        <div className="flex items-center gap-1.5 overflow-hidden">
+                          <span className={`text-xs sm:text-sm truncate ${checkIn ? "text-gray-900 font-bold" : "text-gray-400"}`}>
+                            {checkIn ? new Date(checkIn).toLocaleDateString('mn-MN') : "Ирэх"}
+                          </span>
+                          <ArrowRight className="w-3 h-3 text-gray-400 flex-shrink-0" />
+                          <span className={`text-xs sm:text-sm truncate ${checkOut ? "text-gray-900 font-bold" : "text-gray-400"}`}>
+                            {checkOut ? new Date(checkOut).toLocaleDateString('mn-MN') : "Гарах"}
+                          </span>
+                        </div>
                       </div>
-                    </div>
-                    <div>
-                      <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
-                        Гарах өдөр
-                      </label>
-                      <div
-                        className={`flex items-center border rounded-md px-2 sm:px-3 py-1.5 sm:py-2 cursor-pointer transition-colors font-medium ${checkIn ? "hover:border-emerald-600" : "opacity-50 cursor-not-allowed"
-                          }`}
-                        onClick={() => checkIn && setShowCheckOutPicker(true)}
-                      >
-                        <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-gray-500 flex-shrink-0" />
-                        <span className={`text-[10px] xs:text-xs sm:text-sm truncate ${checkOut ? "text-gray-900" : "text-gray-500"}`}>
-                          {checkOut ? new Date(checkOut).toLocaleDateString('mn-MN') : "Гарах өдөр"}
-                        </span>
-                      </div>
+                      {checkIn && checkOut && (
+                        <div className="ml-2 bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">
+                          {Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))} шөнө
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -1157,11 +1152,11 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
                   <Button
                     variant="outline"
-                    className="w-full font-semibold text-xs sm:text-sm h-9 sm:h-10"
-                    onClick={() => setShowCheckInPicker(true)}
+                    className="w-full font-semibold text-xs sm:text-sm h-9 sm:h-10 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                    onClick={() => setShowDatePicker(true)}
                   >
                     <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                    Боломжит огноо шалгах
+                    {checkIn && checkOut ? "Огноог өөрчлөх" : "Боломжит огноо шалгах"}
                   </Button>
 
                   <Separator />
@@ -1193,7 +1188,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     <Button
                       variant="outline"
                       className="w-full bg-transparent font-medium text-xs sm:text-sm h-9 sm:h-10"
-                      onClick={() => setShowCheckInPicker(true)}
+                      onClick={() => setShowDatePicker(true)}
                     >
                       <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
                       Боломжит огноо шалгах
@@ -1206,52 +1201,30 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         </div>
       </div>
 
-      {/* Check-in Date Picker */}
+      {/* Date Picker Modal (Range mode) */}
       <DatePickerModal
-        isOpen={showCheckInPicker}
-        onClose={() => setShowCheckInPicker(false)}
-        onSelect={(date) => {
-          if (date) {
+        isOpen={showDatePicker}
+        onClose={() => setShowDatePicker(false)}
+        onSelect={(start, end) => {
+          if (start && end) {
             // Fix timezone issue: use local date string
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const dateString = `${year}-${month}-${day}`;
+            const formatDate = (date: Date) => {
+              const year = date.getFullYear();
+              const month = String(date.getMonth() + 1).padStart(2, '0');
+              const day = String(date.getDate()).padStart(2, '0');
+              return `${year}-${month}-${day}`;
+            };
 
-            console.log('✅ Check-in selected:', dateString);
-            setCheckIn(dateString);
+            const startStr = formatDate(start);
+            const endStr = formatDate(end);
 
-            // Clear check-out if it's before the new check-in
-            if (checkOut && new Date(checkOut) <= date) {
-              setCheckOut("");
-            }
+            console.log('✅ Range selected:', { startStr, endStr });
+            setCheckIn(startStr);
+            setCheckOut(endStr);
           }
-          setShowCheckInPicker(false);
         }}
         disabledDates={disabledDates}
-        title="Ирэх өдөр сонгох"
-      />
-
-      {/* Check-out Date Picker */}
-      <DatePickerModal
-        isOpen={showCheckOutPicker}
-        onClose={() => setShowCheckOutPicker(false)}
-        onSelect={(date) => {
-          if (date) {
-            // Fix timezone issue: use local date string
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            const dateString = `${year}-${month}-${day}`;
-
-            console.log('✅ Check-out selected:', dateString);
-            setCheckOut(dateString);
-          }
-          setShowCheckOutPicker(false);
-        }}
-        disabledDates={disabledDates}
-        minDate={checkIn ? new Date(checkIn) : null}
-        title="Гарах өдөр сонгох"
+        title="Амрах хугацаагаа сонгоно уу"
       />
 
       {/* Payment Modal */}
