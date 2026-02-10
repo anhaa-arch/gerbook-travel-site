@@ -53,31 +53,37 @@ export default function CampsPage() {
   // Initialize from URL query params
   useEffect(() => {
     const provinceParam = searchParams.get("province")
+    const districtParam = searchParams.get("district")
     const guestsParam = searchParams.get("guests")
     const checkInParam = searchParams.get("checkIn")
     const checkOutParam = searchParams.get("checkOut")
-    
+
     if (provinceParam) {
       setSelectedProvince(provinceParam)
     }
-    
+
+    if (districtParam) {
+      setSelectedDistrict(districtParam)
+    }
+
     if (guestsParam) {
       const guests = parseInt(guestsParam, 10)
       if (!isNaN(guests)) {
         setMinCapacity(guests)
       }
     }
-    
+
     if (checkInParam) {
       setCheckInDate(checkInParam)
     }
-    
+
     if (checkOutParam) {
       setCheckOutDate(checkOutParam)
     }
-    
-    console.log('🔍 Camps page URL params:', { 
-      province: provinceParam, 
+
+    console.log('🔍 Camps page URL params:', {
+      province: provinceParam,
+      district: districtParam,
       guests: guestsParam,
       checkIn: checkInParam,
       checkOut: checkOutParam
@@ -96,10 +102,13 @@ export default function CampsPage() {
   }
 
   const yurts = (yurtsData?.yurts?.edges ?? []).map((e: any) => e.node)
-  
+
   // Province and district data from mnzip.json
-  const provinces = mnzipData.zipcode
-  const selectedProvinceData = provinces.find((p: any) => p.mnname === selectedProvince)
+  // Only show Архангай province
+  const allProvinces = mnzipData.zipcode
+  const arkhangaiProvince = allProvinces.find((p: any) => p.zipcode === "65000")
+  const provinces = arkhangaiProvince ? [arkhangaiProvince] : []
+  const selectedProvinceData = allProvinces.find((p: any) => p.mnname === selectedProvince)
   const availableDistricts = selectedProvinceData?.sub_items || []
 
   // Helper function to check if camp is available during selected dates
@@ -107,25 +116,25 @@ export default function CampsPage() {
     if (!checkIn || !checkOut) {
       return true // No date filter, show all camps
     }
-    
+
     const requestedCheckIn = new Date(checkIn)
     const requestedCheckOut = new Date(checkOut)
-    
+
     if (!camp.bookings || camp.bookings.length === 0) {
       return true // No bookings, camp is available
     }
-    
+
     // Check if requested dates overlap with any active booking
     const hasOverlap = camp.bookings.some((booking: any) => {
       // Only check PENDING and CONFIRMED bookings
       if (booking.status !== 'PENDING' && booking.status !== 'CONFIRMED') {
         return false
       }
-      
+
       // Parse booking dates (handle both timestamp strings and ISO strings)
       let bookingStart: Date
       let bookingEnd: Date
-      
+
       if (typeof booking.startDate === 'string' && /^\d+$/.test(booking.startDate)) {
         bookingStart = new Date(parseInt(booking.startDate))
         bookingEnd = new Date(parseInt(booking.endDate))
@@ -133,7 +142,7 @@ export default function CampsPage() {
         bookingStart = new Date(booking.startDate)
         bookingEnd = new Date(booking.endDate)
       }
-      
+
       // Check for overlap
       const overlap = (
         // Booking starts during requested period
@@ -143,10 +152,10 @@ export default function CampsPage() {
         // Booking spans entire requested period
         (bookingStart <= requestedCheckIn && bookingEnd >= requestedCheckOut)
       )
-      
+
       return overlap
     })
-    
+
     return !hasOverlap // Camp is available if there's NO overlap
   }
 
@@ -154,21 +163,21 @@ export default function CampsPage() {
   const filteredCamps = yurts.filter((camp: any) => {
     // camp.location format: "Сүхбаатар, Уулбаян" or just "Сүхбаатар"
     const location = camp.location || ""
-    
+
     // Check province match
     if (selectedProvince) {
       if (!location.includes(selectedProvince)) {
         return false
       }
     }
-    
+
     // Check district match
     if (selectedDistrict) {
       if (!location.includes(selectedDistrict)) {
         return false
       }
     }
-    
+
     // Check capacity (minimum capacity required)
     if (minCapacity > 0) {
       const campCapacity = parseInt(camp.capacity, 10) || 0
@@ -176,7 +185,7 @@ export default function CampsPage() {
         return false
       }
     }
-    
+
     // Check date availability
     if (checkInDate && checkOutDate) {
       if (!isCampAvailable(camp, checkInDate, checkOutDate)) {
@@ -185,7 +194,7 @@ export default function CampsPage() {
       }
       console.log(`✅ Camp ${camp.name} IS available for ${checkInDate} to ${checkOutDate}`)
     }
-    
+
     return true
   })
 
@@ -227,8 +236,8 @@ export default function CampsPage() {
                 </SelectTrigger>
                 <SelectContent className="max-h-[40vh] sm:max-h-[300px]">
                   {provinces.map((province: any) => (
-                    <SelectItem 
-                      key={province.zipcode} 
+                    <SelectItem
+                      key={province.zipcode}
                       value={province.mnname}
                       className="text-xs sm:text-sm"
                     >
@@ -243,9 +252,9 @@ export default function CampsPage() {
               <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1.5 sm:mb-2">
                 Сум сонгох
               </label>
-              <Select 
-                value={selectedDistrict} 
-                onValueChange={handleDistrictChange} 
+              <Select
+                value={selectedDistrict}
+                onValueChange={handleDistrictChange}
                 disabled={!selectedProvince}
               >
                 <SelectTrigger className="h-9 sm:h-10 text-xs sm:text-sm">
@@ -254,8 +263,8 @@ export default function CampsPage() {
                 <SelectContent className="max-h-[40vh] sm:max-h-[300px]">
                   {availableDistricts.length > 0 ? (
                     availableDistricts.map((district: any) => (
-                      <SelectItem 
-                        key={district.zipcode} 
+                      <SelectItem
+                        key={district.zipcode}
                         value={district.mnname}
                         className="text-xs sm:text-sm"
                       >
@@ -272,8 +281,8 @@ export default function CampsPage() {
             </div>
 
             <div className="flex items-end sm:col-span-2 md:col-span-1">
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 className="w-full bg-transparent font-medium text-xs sm:text-sm h-9 sm:h-10"
                 onClick={handleClearFilters}
                 disabled={!selectedProvince && !selectedDistrict && minCapacity === 0 && !checkInDate && !checkOutDate}
@@ -318,7 +327,7 @@ export default function CampsPage() {
           <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6 lg:gap-8">
             {filteredCamps.map((camp: any) => {
               const imageSrc = getPrimaryImage(camp.images)
-              
+
               // Parse amenities from JSON string
               let amenitiesDisplay: string[] = []
               try {
@@ -337,7 +346,7 @@ export default function CampsPage() {
                   amenitiesDisplay = camp.amenities.split(',').slice(0, 3)
                 }
               }
-              
+
               return (
                 <Card key={camp.id} className="overflow-hidden hover:shadow-lg transition-all duration-200">
                   <div className="relative">
