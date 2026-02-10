@@ -17,9 +17,9 @@ import {
   BarChart3,
   X,
   LogOut,
-  Upload,
   Link,
   Download,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -70,6 +70,7 @@ import {
   UPDATE_PRODUCT,
   DELETE_PRODUCT,
   GET_CATEGORIES,
+  UPDATE_BOOKING,
 } from "./queries";
 import {
   formatDate,
@@ -116,7 +117,7 @@ export default function AdminDashboardContent() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { logout } = useAuth();
   const { toast } = useToast();
-  
+
   // Camp form state (like herder dashboard)
   const [campForm, setCampForm] = useState({
     name: "",
@@ -137,7 +138,7 @@ export default function AdminDashboardContent() {
     smokingPolicy: "no_smoking",
     cancellationPolicy: "free_48h",
   });
-  
+
   // Auto-logout after 5 minutes of inactivity
   useIdleLogout({
     timeout: 5 * 60 * 1000, // 5 minutes
@@ -187,7 +188,9 @@ export default function AdminDashboardContent() {
   const [deleteYurt] = useMutation(DELETE_YURT);
   const [createProduct] = useMutation(CREATE_PRODUCT);
   const [updateProduct] = useMutation(UPDATE_PRODUCT);
+  const [updateProduct] = useMutation(UPDATE_PRODUCT);
   const [deleteProduct] = useMutation(DELETE_PRODUCT);
+  const [updateBooking] = useMutation(UPDATE_BOOKING);
 
   // Transform data for display
   const stats = {
@@ -201,7 +204,7 @@ export default function AdminDashboardContent() {
 
   // Calculate additional stats from real data
   const today = new Date().toISOString().split("T")[0];
-  
+
   // Get provinces and districts from mnzipData (same as Herder Dashboard)
   const provinces = (mnzipDataRaw as any).zipcode || [];
   const selectedProvince = provinces.find((p: any) => p.mnname === campForm.province);
@@ -527,7 +530,7 @@ export default function AdminDashboardContent() {
       }
 
       // Build location string
-      const location = campForm.district 
+      const location = campForm.district
         ? `${campForm.province}, ${campForm.district}`
         : campForm.province;
 
@@ -560,12 +563,12 @@ export default function AdminDashboardContent() {
       await createYurt({ variables: { input } });
       await refetchYurts();
       await refetchStats();
-      
+
       toast({
         title: "Амжилттай",
         description: "Бааз амжилттай үүсгэгдлээ",
       });
-      
+
       // Reset form
       setShowAddCamp(false);
       setCampForm({
@@ -596,11 +599,11 @@ export default function AdminDashboardContent() {
       });
     }
   };
-  
+
   const handleUpdateCamp = async () => {
     try {
       if (!editingItem) return;
-      
+
       // Validate
       if (!campForm.name || !campForm.description || !campForm.province || !campForm.pricePerNight || !campForm.capacity) {
         toast({
@@ -612,7 +615,7 @@ export default function AdminDashboardContent() {
       }
 
       // Build location string
-      const location = campForm.district 
+      const location = campForm.district
         ? `${campForm.province}, ${campForm.district}`
         : campForm.province;
 
@@ -645,12 +648,12 @@ export default function AdminDashboardContent() {
       await updateYurt({ variables: { id: editingItem.id, input } });
       await refetchYurts();
       await refetchStats();
-      
+
       toast({
         title: "Амжилттай",
         description: "Бааз амжилттай шинэчигдлээ",
       });
-      
+
       // Reset
       setShowEditYurt(false);
       setEditingItem(null);
@@ -695,6 +698,29 @@ export default function AdminDashboardContent() {
       toast({
         title: "Алдаа",
         description: error.message || "Агуулга үүсгэхэд алдаа гарлаа",
+        variant: "destructive" as any,
+      });
+    }
+  };
+
+  const handleConfirmBooking = async (id: string) => {
+    try {
+      await updateBooking({
+        variables: {
+          id,
+          input: { status: "CONFIRMED" }
+        }
+      });
+      await refetchBookings();
+      await refetchStats();
+      toast({
+        title: "Амжилттай",
+        description: "Захиалга баталгаажлаа",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Алдаа",
+        description: error.message || "Захиалга баталгаажуулахад алдаа гарлаа",
         variant: "destructive" as any,
       });
     }
@@ -772,7 +798,7 @@ export default function AdminDashboardContent() {
 
   const handleEditYurt = (yurt: any) => {
     setEditingItem(yurt);
-    
+
     // Parse amenities JSON
     let parsedAmenities: any = { items: [], activities: [], accommodationType: "", facilities: [], policies: {} };
     try {
@@ -782,12 +808,12 @@ export default function AdminDashboardContent() {
     } catch (e) {
       console.error('Failed to parse amenities:', e);
     }
-    
+
     // Extract province and district from location
     const locationParts = (yurt.location || "").split(",").map((s: string) => s.trim());
     const province = locationParts[0] || "";
     const district = locationParts[1] || "";
-    
+
     // Populate campForm with yurt data
     setCampForm({
       name: yurt.name || "",
@@ -808,7 +834,7 @@ export default function AdminDashboardContent() {
       smokingPolicy: parsedAmenities.policies?.smoking || "no_smoking",
       cancellationPolicy: parsedAmenities.policies?.cancellation || "free_48h",
     });
-    
+
     setShowEditYurt(true);
   };
 
@@ -1253,7 +1279,7 @@ export default function AdminDashboardContent() {
                         try {
                           const form = document.querySelector("#edit-user-form") as HTMLFormElement;
                           if (!form) return;
-                          
+
                           const formData = new FormData(form);
                           await handleEdituser({
                             name: formData.get("name") as string,
@@ -1735,8 +1761,8 @@ export default function AdminDashboardContent() {
                         <Select
                           value={campForm.province}
                           onValueChange={(value) => {
-                            setCampForm({ 
-                              ...campForm, 
+                            setCampForm({
+                              ...campForm,
                               province: value,
                               district: "",
                               location: value
@@ -1763,8 +1789,8 @@ export default function AdminDashboardContent() {
                           value={campForm.district}
                           onValueChange={(value) => {
                             const location = `${campForm.province}, ${value}`;
-                            setCampForm({ 
-                              ...campForm, 
+                            setCampForm({
+                              ...campForm,
                               district: value,
                               location: location
                             });
@@ -1821,7 +1847,7 @@ export default function AdminDashboardContent() {
                         />
                       </div>
                     </div>
-                    
+
                     {/* Description */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -1839,7 +1865,7 @@ export default function AdminDashboardContent() {
                         }
                       />
                     </div>
-                    
+
                     {/* Amenities - Checkbox */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-3">
@@ -1972,7 +1998,7 @@ export default function AdminDashboardContent() {
                     {/* Policies */}
                     <div className="border-t pt-4 space-y-4">
                       <h3 className="font-bold text-base">Дүрэм журам</h3>
-                      
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Check-in Time */}
                         <div>
@@ -2187,7 +2213,7 @@ export default function AdminDashboardContent() {
                         </div>
                       )}
                     </div>
-                    
+
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
                       <Button
@@ -2248,8 +2274,8 @@ export default function AdminDashboardContent() {
                         <Select
                           value={campForm.province}
                           onValueChange={(value) => {
-                            setCampForm({ 
-                              ...campForm, 
+                            setCampForm({
+                              ...campForm,
                               province: value,
                               district: "",
                               location: value
@@ -2276,8 +2302,8 @@ export default function AdminDashboardContent() {
                           value={campForm.district}
                           onValueChange={(value) => {
                             const location = `${campForm.province}, ${value}`;
-                            setCampForm({ 
-                              ...campForm, 
+                            setCampForm({
+                              ...campForm,
                               district: value,
                               location: location
                             });
@@ -2334,7 +2360,7 @@ export default function AdminDashboardContent() {
                         />
                       </div>
                     </div>
-                    
+
                     {/* Description */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-2">
@@ -2352,7 +2378,7 @@ export default function AdminDashboardContent() {
                         }
                       />
                     </div>
-                    
+
                     {/* Amenities - Checkbox */}
                     <div>
                       <label className="block text-sm font-semibold text-gray-700 mb-3">
@@ -2485,7 +2511,7 @@ export default function AdminDashboardContent() {
                     {/* Policies */}
                     <div className="border-t pt-4 space-y-4">
                       <h3 className="font-bold text-base">Дүрэм журам</h3>
-                      
+
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         {/* Check-in Time */}
                         <div>
@@ -2754,7 +2780,7 @@ export default function AdminDashboardContent() {
                         value={JSON.stringify(uploadedImages.slice(0, 3))}
                       />
                     </div>
-                    
+
                     {/* Action Buttons */}
                     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 pt-4">
                       <Button
@@ -3333,6 +3359,18 @@ export default function AdminDashboardContent() {
                                     </div>
                                   </DialogContent>
                                 </Dialog>
+
+                                {booking.status === "PENDING" && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                                    onClick={() => handleConfirmBooking(booking.id)}
+                                    title="Баталгаажуулах"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </Button>
+                                )}
                               </div>
                             </TableCell>
                           </TableRow>

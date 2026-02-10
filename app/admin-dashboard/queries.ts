@@ -275,3 +275,25 @@ export const GET_CATEGORIES = gql`
     }
   }
 `
+
+export const UPDATE_BOOKING = gql`
+  mutation UpdateBooking($id: ID!, $input: UpdateBookingInput!) {
+    updateBooking(id: $id, input: $input) {
+      id
+      startDate
+      endDate
+      totalPrice
+      status
+      user {
+        id
+        name
+        email
+        phone
+      }
+      yurt {
+        id
+        name
+      }
+    }
+  }
+`
