@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Star, users, Filter, Package, Home } from "lucide-react";
+import { MapPin, Star, Users, Filter, Package, Home, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import {
@@ -21,6 +21,8 @@ import { gql, useQuery } from "@apollo/client";
 import { getFirstImage } from "@/lib/imageUtils";
 import { amenitiesOptions } from "@/data/camp-options";
 import "../../lib/i18n";
+import { useCart } from "@/hooks/use-cart";
+import { useToast } from "@/components/ui/use-toast";
 
 const GET_YURTS = gql`
   query GetYurts($first: Int, $filter: String, $orderBy: String) {
@@ -73,6 +75,8 @@ const GET_PRODUCTS = gql`
 
 export default function ListingsPage() {
   const { t, i18n } = useTranslation();
+  const { toast } = useToast();
+  const { addToCart } = useCart();
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("");
   const [activeTab, setActiveTab] = useState("camps");
@@ -141,11 +145,11 @@ export default function ListingsPage() {
 
   const availableDistricts = selectedProvinceData
     ? locationData.zipcode
-        .find((p) => p.mnname === selectedProvince)
-        ?.sub_items.map((district) => ({
-          id: district.mnname,
-          name: district.mnname,
-        })) || []
+      .find((p) => p.mnname === selectedProvince)
+      ?.sub_items.map((district) => ({
+        id: district.mnname,
+        name: district.mnname,
+      })) || []
     : [];
 
   const handleProvinceChange = (provinceId: string) => {
@@ -278,7 +282,7 @@ export default function ListingsPage() {
                 {filteredCamps.length > 0 ? (
                   filteredCamps.map((camp: any) => {
                     const imageSrc = getFirstImage(camp.images);
-                    
+
                     // Parse amenities JSON
                     let amenitiesList: string[] = [];
                     try {
@@ -297,7 +301,7 @@ export default function ListingsPage() {
                       // Fallback to old format (comma-separated)
                       amenitiesList = camp.amenities ? camp.amenities.split(",") : [];
                     }
-                    
+
                     return (
                       <Card
                         key={camp.id}
@@ -327,7 +331,7 @@ export default function ListingsPage() {
                               </span>
                             </div>
                             <div className="flex items-center text-gray-600">
-                              <users className="w-4 h-4 mr-1" />
+                              <Users className="w-4 h-4 mr-1" />
                               <span className="text-sm font-medium">
                                 {camp.capacity} зочин
                               </span>
@@ -377,9 +381,8 @@ export default function ListingsPage() {
                     </h3>
                     <p className="text-gray-500 mb-4">
                       {selectedProvince || selectedDistrict
-                        ? `"${selectedProvince}${
-                            selectedDistrict ? " - " + selectedDistrict : ""
-                          }" газарт бааз олдсонгүй.`
+                        ? `"${selectedProvince}${selectedDistrict ? " - " + selectedDistrict : ""
+                        }" газарт бааз олдсонгүй.`
                         : "Одоогоор ямар ч бааз олдсонгүй."}
                     </p>
                     <Button
@@ -449,6 +452,22 @@ export default function ListingsPage() {
                           <Button
                             size="sm"
                             className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                            onClick={() => {
+                              addToCart({
+                                id: product.id,
+                                type: "PRODUCT",
+                                name: product.name,
+                                seller: "Малчин",
+                                price: product.price,
+                                quantity: 1,
+                                image: imageSrc,
+                                category: product.category?.name || "Бараа",
+                              });
+                              toast({
+                                title: "Сагсанд нэмэгдлээ",
+                                description: `${product.name} амжилттай нэмэгдлээ.`,
+                              });
+                            }}
                           >
                             Сагсанд нэмэх
                           </Button>

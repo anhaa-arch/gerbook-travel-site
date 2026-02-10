@@ -210,6 +210,7 @@ export default function ProductsPage() {
                         onClick={() => {
                           addToCart({
                             id: product.id,
+                            type: "PRODUCT",
                             name: product.name,
                             seller: "Монголын бүтээгдэхүүн",
                             price: product.price,

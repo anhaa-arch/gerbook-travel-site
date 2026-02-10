@@ -5,12 +5,20 @@ import { Globe, ChevronDown, Menu, X, User } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
+import { useCart } from "@/hooks/use-cart";
+import { ShoppingCart } from "lucide-react";
 
 export function Header() {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isuserMenuOpen, setIsuserMenuOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMounted, setIsMounted] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
+  const { itemCount } = useCart();
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const languageRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
@@ -109,6 +117,22 @@ export function Header() {
 
           {/* Right side */}
           <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3">
+            {/* Cart Icon */}
+            <Link href="/cart" className="relative group" aria-label="Сагс">
+              <div className="p-1 sm:p-1.5 md:p-2 hover:bg-gray-100 rounded-lg transition-colors">
+                <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
+                {isMounted && itemCount > 0 && (
+                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-emerald-600 text-white text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] sm:min-w-[20px] text-center shadow-sm">
+                    {itemCount}
+                  </span>
+                )}
+              </div>
+              {/* Tooltip on hover for desktop */}
+              <div className="hidden md:group-hover:block absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded whitespace-nowrap z-50">
+                Сагс үзэх
+              </div>
+            </Link>
+
             {/* Language Selector - Always visible */}
             <div className="relative" ref={languageRef}>
               <button
@@ -186,8 +210,8 @@ export function Header() {
                           user?.role === "admin"
                             ? "/admin-dashboard"
                             : user?.role === "herder"
-                            ? "/herder-dashboard"
-                            : "/user-dashboard"
+                              ? "/herder-dashboard"
+                              : "/user-dashboard"
                         }
                         className="w-full flex items-center p-2 sm:p-2.5 hover:bg-gray-50 rounded-md text-left transition-colors"
                         onClick={() => setIsuserMenuOpen(false)}
@@ -261,10 +285,10 @@ export function Header() {
                     >
                       <span className="text-xs sm:text-sm text-gray-700 font-medium">Бүх баазууд</span>
                     </Link>
-                    
+
                     {/* Divider */}
                     <div className="border-t border-gray-100 my-2"></div>
-                    
+
                     {/* user Section */}
                     {isAuthenticated ? (
                       <>
@@ -277,15 +301,15 @@ export function Header() {
                             {user?.email}
                           </div>
                         </div>
-                        
+
                         {/* Dashboard Link */}
                         <Link
                           href={
                             user?.role === "admin"
                               ? "/admin-dashboard"
                               : user?.role === "herder"
-                              ? "/herder-dashboard"
-                              : "/user-dashboard"
+                                ? "/herder-dashboard"
+                                : "/user-dashboard"
                           }
                           className="w-full flex items-center p-2.5 sm:p-3 hover:bg-gray-50 rounded-md text-left transition-colors"
                           onClick={() => setIsMobileMenuOpen(false)}
@@ -295,7 +319,7 @@ export function Header() {
                             Хянах самбар
                           </span>
                         </Link>
-                        
+
                         {/* Logout Button */}
                         <button
                           className="w-full flex items-center p-2.5 sm:p-3 hover:bg-red-50 rounded-md text-left transition-colors"
@@ -309,32 +333,32 @@ export function Header() {
                           </span>
                         </button>
                       </>
-                  ) : (
-                    <>
-                      {/* Login/Register Section */}
-                      <div className="flex gap-2 pt-1">
-                        <Link
-                          href="/login"
-                          className="flex-1 flex items-center justify-center py-2 px-3 hover:bg-gray-50 rounded-md transition-all border-2 border-gray-300 hover:border-gray-400"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <span className="text-xs text-gray-800 font-semibold">
-                            Нэвтрэх
-                          </span>
-                        </Link>
-                        
-                        <Link
-                          href="/register"
-                          className="flex-1 flex items-center justify-center py-2 px-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-md transition-all shadow-sm hover:shadow-md"
-                          onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                          <span className="text-xs text-white font-bold">
-                            Бүртгүүлэх
-                          </span>
-                        </Link>
-                      </div>
-                    </>
-                  )}
+                    ) : (
+                      <>
+                        {/* Login/Register Section */}
+                        <div className="flex gap-2 pt-1">
+                          <Link
+                            href="/login"
+                            className="flex-1 flex items-center justify-center py-2 px-3 hover:bg-gray-50 rounded-md transition-all border-2 border-gray-300 hover:border-gray-400"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <span className="text-xs text-gray-800 font-semibold">
+                              Нэвтрэх
+                            </span>
+                          </Link>
+
+                          <Link
+                            href="/register"
+                            className="flex-1 flex items-center justify-center py-2 px-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-md transition-all shadow-sm hover:shadow-md"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <span className="text-xs text-white font-bold">
+                              Бүртгүүлэх
+                            </span>
+                          </Link>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
               )}

@@ -1,58 +1,119 @@
 "use client"
 
-import { createContext, useContext, useState, useEffect, ReactNode } from "react"
+import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react"
+
+export type CartItemType = "PRODUCT" | "CAMP" | "TRAVEL";
 
 export interface CartItem {
-  id: number
-  name: string
-  seller: string
-  price: number
-  quantity: number
-  image: string
-  category: string
+  id: string; // Using string globally
+  type: CartItemType;
+  name: string;
+  seller?: string;
+  price: number;
+  quantity: number;
+  image: string;
+  category?: string;
+  // For Camps/Travel
+  startDate?: string;
+  endDate?: string;
+  guests?: number;
 }
 
 interface CartContextType {
-  cartItems: CartItem[]
-  addToCart: (item: CartItem) => void
-  removeFromCart: (id: number) => void
-  updateQuantity: (id: number, quantity: number) => void
+  cartItems: CartItem[];
+  itemCount: number;
+  addToCart: (item: CartItem) => void;
+  removeFromCart: (clientId: string) => void;
+  updateQuantity: (clientId: string, quantity: number) => void;
+  clearCart: () => void;
+  subtotal: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [isLoaded, setIsLoaded] = useState(false);
 
+  // Load from localStorage
   useEffect(() => {
-    const stored = localStorage.getItem("cart")
-    if (stored) setCartItems(JSON.parse(stored))
+    const stored = localStorage.getItem("malchin_cart")
+    if (stored) {
+      try {
+        setCartItems(JSON.parse(stored))
+      } catch (e) {
+        console.error("Failed to parse cart storage", e);
+      }
+    }
+    setIsLoaded(true);
   }, [])
 
+  // Save to localStorage
   useEffect(() => {
-    localStorage.setItem("cart", JSON.stringify(cartItems))
-  }, [cartItems])
+    if (isLoaded) {
+      localStorage.setItem("malchin_cart", JSON.stringify(cartItems))
+    }
+  }, [cartItems, isLoaded])
 
-  const addToCart = (item: CartItem) => {
+  // Get unique client ID for items (especially camps with dates)
+  const getClientId = (item: CartItem) => {
+    if (item.type === "CAMP" || item.type === "TRAVEL") {
+      return `${item.id}-${item.startDate}-${item.endDate}`;
+    }
+    return item.id;
+  };
+
+  const addToCart = useCallback((item: CartItem) => {
     setCartItems((prev) => {
-      const existing = prev.find((i) => i.id === item.id)
-      if (existing) {
-        return prev.map((i) => i.id === item.id ? { ...i, quantity: i.quantity + item.quantity } : i)
+      const clientId = getClientId(item);
+      const existingIndex = prev.findIndex((i) => {
+        const existingClientId = getClientId(i);
+        return existingClientId === clientId;
+      });
+
+      if (existingIndex > -1) {
+        const updated = [...prev];
+        updated[existingIndex] = {
+          ...updated[existingIndex],
+          quantity: updated[existingIndex].quantity + item.quantity
+        };
+        return updated;
       }
-      return [...prev, item]
-    })
-  }
+      return [...prev, item];
+    });
+  }, []);
 
-  const removeFromCart = (id: number) => {
-    setCartItems((prev) => prev.filter((i) => i.id !== id))
-  }
+  const removeFromCart = useCallback((clientId: string) => {
+    setCartItems((prev) => prev.filter((i) => getClientId(i) !== clientId));
+  }, []);
 
-  const updateQuantity = (id: number, quantity: number) => {
-    setCartItems((prev) => prev.map((i) => i.id === id ? { ...i, quantity } : i))
-  }
+  const updateQuantity = useCallback((clientId: string, quantity: number) => {
+    if (quantity <= 0) {
+      removeFromCart(clientId);
+      return;
+    }
+    setCartItems((prev) =>
+      prev.map((i) => getClientId(i) === clientId ? { ...i, quantity } : i)
+    );
+  }, [removeFromCart]);
+
+  const clearCart = useCallback(() => {
+    setCartItems([]);
+  }, []);
+
+  const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
 
   return (
-    <CartContext.Provider value={{ cartItems, addToCart, removeFromCart, updateQuantity }}>
+    <CartContext.Provider value={{
+      cartItems,
+      itemCount,
+      addToCart,
+      removeFromCart,
+      updateQuantity,
+      clearCart,
+      subtotal
+    }}>
       {children}
     </CartContext.Provider>
   )
@@ -62,4 +123,4 @@ export function useCart() {
   const ctx = useContext(CartContext)
   if (!ctx) throw new Error("useCart must be used within a CartProvider")
   return ctx
-} 
+}

@@ -1,87 +1,48 @@
 "use client"
 
-import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import Image from "next/image"
 import Link from "next/link"
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react"
+import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, Calendar, Users, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import '../../lib/i18n'
-
-interface CartItem {
-  id: number
-  name: string
-  seller: string
-  price: number
-  quantity: number
-  image: string
-  category: string
-}
+import { useCart } from "@/hooks/use-cart"
+import { toast } from "@/hooks/use-toast"
 
 export default function CartPage() {
   const { t } = useTranslation()
+  const { cartItems, removeFromCart, updateQuantity, subtotal, itemCount } = useCart()
 
-  const [cartItems, setCartItems] = useState<CartItem[]>([
-    {
-      id: 1,
-      name: "Айраг",
-      seller: "Батбаярын гэр бүл",
-      price: 25,
-      quantity: 2,
-      image: "/placeholder.svg?height=80&width=80&text=Airag",
-      category: "Сүүн бүтээгдэхүүн"
-    },
-    {
-      id: 2,
-      name: "Гар нэхмэл хивс",
-      seller: "Оюунаагийн урлал",
-      price: 150,
-      quantity: 1,
-      image: "/placeholder.svg?height=80&width=80&text=Carpet",
-      category: "Гар урлал"
-    },
-    {
-      id: 3,
-      name: "Ямаа бяслаг",
-      seller: "Уулын малчид",
-      price: 35,
-      quantity: 3,
-      image: "/placeholder.svg?height=80&width=80&text=Cheese",
-      category: "Сүүн бүтээгдэхүүн"
+  // Helper to format identifiers for display
+  const getClientId = (item: any) => {
+    if (item.type === "CAMP" || item.type === "TRAVEL") {
+      return `${item.id}-${item.startDate}-${item.endDate}`;
     }
-  ])
+    return item.id;
+  };
 
-  const updateQuantity = (id: number, newQuantity: number) => {
-    if (newQuantity === 0) {
-      removeItem(id)
-      return
-    }
-
-    setCartItems((items) => items.map((item) => (item.id === id ? { ...item, quantity: newQuantity } : item)))
-  }
-
-  const removeItem = (id: number) => {
-    setCartItems((items) => items.filter((item) => item.id !== id))
-  }
-
-  const subtotal = cartItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
-  const shipping = subtotal > 100 ? 0 : 15
-  const tax = subtotal * 0.08
+  const shipping = subtotal > 100000 ? 0 : 5000
+  const tax = subtotal * 0.1 // 10% VAT in Mongolia
   const total = subtotal + shipping + tax
 
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 font-sans">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center py-16">
-            <ShoppingBag className="w-24 h-24 text-gray-400 mx-auto mb-6" />
+          <div className="text-center py-16 bg-white rounded-2xl shadow-sm border">
+            <ShoppingBag className="w-24 h-24 text-gray-200 mx-auto mb-6" />
             <h2 className="text-2xl font-bold text-gray-900 mb-4">Таны сагс хоосон байна</h2>
-            <p className="text-gray-600 mb-8 font-medium">Монголын уламжлалт бүтээгдэхүүнүүдийг сагсандаа нэмээрэй</p>
-            <Link href="/products">
-              <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">{t('cart.browse_products')}</Button>
-            </Link>
+            <p className="text-gray-500 mb-8 font-medium">Монголын уламжлалт бүтээгдэхүүн болон амралтын баазуудыг сагсандаа нэмээрэй</p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <Link href="/products">
+                <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold w-full sm:w-auto">Бүтээгдэхүүн үзэх</Button>
+              </Link>
+              <Link href="/camps">
+                <Button variant="outline" className="font-semibold w-full sm:w-auto">Гэр бааз захиалах</Button>
+              </Link>
+            </div>
           </div>
         </div>
       </div>
@@ -93,151 +54,198 @@ export default function CartPage() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back to Products */}
         <div className="mb-6">
-          <Link href="/products">
-            <Button variant="ghost" className="p-0 h-auto font-medium text-gray-600 hover:text-gray-900">
+          <Link href="/products" className="inline-block">
+            <Button variant="ghost" className="p-0 h-auto font-bold text-gray-500 hover:text-emerald-700 transition-colors">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Дэлгүүр үргэлжлүүлэх
+              Худалдан авалт үргэлжлүүлэх
             </Button>
           </Link>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
-          <div className="lg:col-span-2">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">Сагсны мэдээлэл ({cartItems.length} бүтээгдэхүүн)</CardTitle>
+          <div className="lg:col-span-2 space-y-4">
+            <Card className="border-none shadow-sm overflow-hidden">
+              <CardHeader className="bg-white border-b px-6 py-4">
+                <CardTitle className="text-lg font-bold flex items-center justify-between">
+                  <span>Сагсны мэдээлэл</span>
+                  <span className="text-sm font-medium text-emerald-600 bg-emerald-50 px-3 py-1 rounded-full">{itemCount} сонголт</span>
+                </CardTitle>
               </CardHeader>
-              <CardContent className="space-y-6">
-                {cartItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex flex-col sm:flex-row sm:items-center gap-4 p-4 border rounded-lg bg-white shadow-sm"
-                  >
-                    <div className="flex-shrink-0 flex justify-center items-center">
-                      <Image
-                        src={item.image || "/placeholder.svg"}
-                        alt={item.name}
-                        width={80}
-                        height={80}
-                        className="rounded-lg object-cover w-20 h-20"
-                      />
-                    </div>
-
-                    <div className="flex-1 min-w-0 flex flex-col gap-1">
-                      <h3 className="font-bold text-gray-900 truncate text-base sm:text-lg">{item.name}</h3>
-                      <p className="text-xs sm:text-sm text-gray-600 font-semibold truncate">by {item.seller}</p>
-                      <p className="text-xs text-gray-500 font-medium truncate">{item.category}</p>
-                      <p className="text-base sm:text-lg font-bold text-emerald-600 mt-1">${item.price}</p>
-                    </div>
-
-                    <div className="flex flex-row sm:flex-col items-center gap-2 sm:gap-3 mt-2 sm:mt-0">
-                      <div className="flex items-center border rounded-lg overflow-hidden bg-gray-50">
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                          className="h-9 w-9 p-0 text-lg"
-                          aria-label="Багасгах"
-                        >
-                          <Minus className="w-5 h-5" />
-                        </Button>
-                        <span className="font-semibold w-8 text-center text-base">{item.quantity}</span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                          className="h-9 w-9 p-0 text-lg"
-                          aria-label="Нэмэх"
-                        >
-                          <Plus className="w-5 h-5" />
-                        </Button>
-                      </div>
-
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => removeItem(item.id)}
-                        className="text-red-600 hover:text-red-700 hover:bg-red-50 h-9 w-9"
-                        aria-label="Устгах"
+              <CardContent className="p-0">
+                <div className="divide-y">
+                  {cartItems.map((item) => {
+                    const clientId = getClientId(item);
+                    return (
+                      <div
+                        key={clientId}
+                        className="flex flex-col sm:flex-row gap-4 p-6 bg-white hover:bg-gray-50/50 transition-colors"
                       >
-                        <Trash2 className="w-5 h-5" />
-                      </Button>
-                    </div>
+                        {/* Image */}
+                        <div className="flex-shrink-0 relative group">
+                          <Image
+                            src={item.image || "/placeholder.svg"}
+                            alt={item.name}
+                            width={120}
+                            height={120}
+                            className="rounded-xl object-cover w-24 h-24 sm:w-28 sm:h-28 shadow-sm"
+                          />
+                          <div className="absolute top-2 left-2 px-2 py-0.5 bg-white/90 backdrop-blur-sm rounded-md text-[10px] font-bold shadow-sm uppercase tracking-wider">
+                            {item.type === "CAMP" ? "Амралт" : "Бараа"}
+                          </div>
+                        </div>
 
-                    <div className="text-right min-w-[80px] mt-2 sm:mt-0">
-                      <p className="font-bold text-base sm:text-lg">${(item.price * item.quantity).toFixed(2)}</p>
-                    </div>
-                  </div>
-                ))}
+                        {/* Info */}
+                        <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
+                          <div className="space-y-1">
+                            <div className="flex justify-between items-start gap-2">
+                              <h3 className="font-bold text-gray-900 text-base sm:text-lg group-hover:text-emerald-700 transition-colors truncate">
+                                {item.name}
+                              </h3>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  removeFromCart(clientId);
+                                  toast({
+                                    title: "Устгагдлаа",
+                                    description: item.name,
+                                  });
+                                }}
+                                className="text-gray-400 hover:text-red-500 hover:bg-red-50 -mt-2 -mr-2"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </div>
+
+                            {item.type === "CAMP" ? (
+                              <div className="space-y-1.5 mt-1">
+                                <div className="flex items-center text-xs sm:text-sm text-gray-600 font-medium">
+                                  <Calendar className="w-3.5 h-3.5 mr-1.5 text-emerald-500" />
+                                  <span>{item.startDate} - {item.endDate}</span>
+                                </div>
+                                <div className="flex items-center text-xs sm:text-sm text-gray-600 font-medium">
+                                  <Users className="w-3.5 h-3.5 mr-1.5 text-emerald-500" />
+                                  <span>{item.guests} зочин</span>
+                                </div>
+                              </div>
+                            ) : (
+                              <div className="space-y-1 mt-1">
+                                <p className="text-xs text-gray-500 font-bold truncate">by {item.seller || "Малчин"}</p>
+                                <p className="text-[11px] text-emerald-600 bg-emerald-50 inline-block px-2 py-0.5 rounded font-bold uppercase tracking-wide">
+                                  {item.category}
+                                </p>
+                              </div>
+                            )}
+                          </div>
+
+                          <div className="flex items-end justify-between mt-4">
+                            <div className="flex items-center border-2 border-gray-100 rounded-xl overflow-hidden bg-white shadow-sm">
+                              <button
+                                onClick={() => updateQuantity(clientId, item.quantity - 1)}
+                                className="h-8 w-8 flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-600 disabled:opacity-30"
+                                disabled={item.quantity <= 1 && item.type === "CAMP"} // Camps usually qty 1
+                              >
+                                <Minus className="w-4 h-4" />
+                              </button>
+                              <span className="font-bold w-10 text-center text-sm">{item.quantity}</span>
+                              <button
+                                onClick={() => updateQuantity(clientId, item.quantity + 1)}
+                                className="h-8 w-8 flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-600 disabled:opacity-30"
+                                disabled={item.type === "CAMP"} // Usually 1 booking
+                              >
+                                <Plus className="w-4 h-4" />
+                              </button>
+                            </div>
+                            <div className="text-right">
+                              <p className="text-xs text-gray-400 font-bold line-through">
+                                {item.type === "CAMP" ? "" : `₮${(item.price * item.quantity * 1.1).toLocaleString()}`}
+                              </p>
+                              <p className="font-black text-lg sm:text-xl text-emerald-600 tracking-tight">
+                                ₮{(item.price * item.quantity).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </CardContent>
             </Card>
           </div>
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-8 w-full max-w-full">
-              <CardHeader>
-                <CardTitle className="text-xl font-bold">Захиалгын хураангуй</CardTitle>
+            <Card className="sticky top-24 border-none shadow-lg overflow-hidden rounded-2xl">
+              <CardHeader className="bg-emerald-600 text-white px-6 py-5">
+                <CardTitle className="text-lg font-bold">Төлбөрийн мэдээлэл</CardTitle>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-3">
-                  <div className="flex justify-between font-semibold text-base">
-                    <span>Нийт дүн</span>
-                    <span>${subtotal.toFixed(2)}</span>
+              <CardContent className="p-6 space-y-6">
+                <div className="space-y-4">
+                  <div className="flex justify-between items-center text-gray-600 font-medium">
+                    <span>Бараанууд</span>
+                    <span className="text-gray-900 font-bold">₮{subtotal.toLocaleString()}</span>
                   </div>
 
-                  <div className="flex justify-between font-semibold text-base">
-                    <span>Хүргэлт</span>
-                    <span>{shipping === 0 ? "Үнэгүй" : `$${shipping.toFixed(2)}`}</span>
+                  <div className="flex justify-between items-center text-gray-600 font-medium">
+                    <span>Хүргэлт / Хураамж</span>
+                    <span className={shipping === 0 ? "text-emerald-600 font-black uppercase text-xs" : "text-gray-900 font-bold"}>
+                      {shipping === 0 ? "Үнэгүй" : `₮${shipping.toLocaleString()}`}
+                    </span>
                   </div>
 
-                  <div className="flex justify-between font-semibold text-base">
-                    <span>НӨАТ</span>
-                    <span>${tax.toFixed(2)}</span>
+                  <div className="flex justify-between items-center text-gray-600 font-medium">
+                    <span>НӨАТ (10%)</span>
+                    <span className="text-gray-900 font-bold">₮{tax.toLocaleString()}</span>
                   </div>
 
-                  <Separator />
+                  <Separator className="bg-gray-100" />
 
-                  <div className="flex justify-between text-lg font-bold">
-                    <span>Төлөх дүн</span>
-                    <span>${total.toFixed(2)}</span>
+                  <div className="flex justify-between items-center pt-2">
+                    <span className="text-lg font-bold text-gray-900">Нийт төлөх</span>
+                    <span className="text-2xl font-black text-emerald-600 tracking-tighter">₮{total.toLocaleString()}</span>
                   </div>
                 </div>
 
-                {shipping > 0 && (
-                  <div className="bg-blue-50 p-3 rounded-lg">
-                    <p className="text-sm text-blue-700 font-semibold">
-                      Үнэгүй хүргэлт авахын тулд ${(100 - subtotal).toFixed(2)}₮ нэмээрэй!
+                {subtotal < 100000 && (
+                  <div className="bg-amber-50 border border-amber-100 p-3 rounded-xl animate-pulse">
+                    <p className="text-xs text-amber-800 font-semibold flex items-center">
+                      <span className="mr-2">🚛</span> ₮{(100000 - subtotal).toLocaleString()} нэмээд үнэгүй хүргүүлээрэй!
                     </p>
                   </div>
                 )}
 
-                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 font-bold text-base py-3 rounded-lg">
-                  {t('cart.proceed_to_checkout')}
+                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-all font-black text-base py-6 rounded-xl shadow-md hover:shadow-lg">
+                  ЗАХИАЛГА БАТАЛГААЖУУЛАХ
                 </Button>
 
-                <div className="text-center">
-                  <p className="text-sm text-gray-600 font-medium">SSL шифрлэлтийн аюулгүй төлбөр</p>
+                <div className="flex flex-col gap-3">
+                  <div className="flex items-center justify-center gap-2 text-xs text-gray-400 font-bold uppercase tracking-widest">
+                    <div className="w-4 h-[1px] bg-gray-200"></div>
+                    <span>Аюулгүй төлбөр</span>
+                    <div className="w-4 h-[1px] bg-gray-200"></div>
+                  </div>
+                  <div className="flex justify-center gap-4 grayscale opacity-50">
+                    <div className="w-8 h-5 bg-blue-800 rounded"></div>
+                    <div className="w-8 h-5 bg-red-600 rounded"></div>
+                    <div className="w-8 h-5 bg-orange-500 rounded"></div>
+                  </div>
                 </div>
 
-                <Separator />
-
-                <div className="space-y-2">
-                  <h4 className="font-bold text-gray-900">Хүргэлтийн мэдээлэл</h4>
-                  <ul className="text-sm text-gray-600 space-y-1 font-medium">
-                    <li>• 100,000₮-с дээш захиалгад үнэгүй хүргэлт</li>
-                    <li>• Стандарт хүргэлт: 5-7 ажлын өдөр</li>
-                    <li>• Яаралтай хүргэлт боломжтой</li>
-                    <li>• Олон улсын хүргэлт боломжтой</li>
+                <div className="bg-gray-50 p-4 rounded-xl space-y-3">
+                  <h4 className="text-xs font-black text-gray-900 uppercase tracking-wider">Нөхцөлүүд</h4>
+                  <ul className="text-[11px] text-gray-500 space-y-2 font-bold leading-tight">
+                    <li className="flex items-start">
+                      <span className="text-emerald-500 mr-2">✓</span> {shipping === 0 ? "Одоо таны хүргэлт ҮНЭГҮЙ байна." : "100к-с дээш захиалга хүргэлтгүй."}
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-emerald-500 mr-2">✓</span> Барааг 5-7 ажлын өдөрт хүргэнэ.
+                    </li>
+                    <li className="flex items-start">
+                      <span className="text-emerald-500 mr-2">✓</span> Амралтын баазын захиалга шууд баталгаажна.
+                    </li>
                   </ul>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="font-bold text-gray-900">Буцаалтын нөхцөл</h4>
-                  <p className="text-sm text-gray-600 font-medium">
-                    Бүх бүтээгдэхүүнд 30 хоногийн буцаалт. Бараа эх хувиараа байх ёстой.
-                  </p>
                 </div>
               </CardContent>
             </Card>

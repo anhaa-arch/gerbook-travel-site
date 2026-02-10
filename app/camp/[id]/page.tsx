@@ -15,7 +15,7 @@ import {
   ArrowLeft,
   Star,
   MapPin,
-  users,
+  Users,
   Wifi,
   Car,
   Utensils,
@@ -27,6 +27,8 @@ import {
   Camera,
   Check,
   X,
+  ShoppingBag,
+  ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -37,6 +39,7 @@ import "../../../lib/i18n";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
+import { useCart } from "@/hooks/use-cart";
 import {
   CREATE_BOOKING,
   GET_user_BOOKINGS,
@@ -92,6 +95,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const { t } = useTranslation();
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
+  const { addToCart } = useCart();
   const router = useRouter();
   const resolvedParams = use(params);
   const campId = resolvedParams.id;
@@ -1142,13 +1146,46 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     </div>
                   )}
 
-                  <Button
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 font-semibold text-xs sm:text-sm md:text-base h-9 sm:h-10 md:h-11"
-                    disabled={!checkIn || !checkOut}
-                    onClick={handleBooking}
-                  >
-                    {!checkIn || !checkOut ? "Огноо сонгоно уу" : "Захиалах"}
-                  </Button>
+                  <div className="flex flex-col gap-2">
+                    <Button
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 font-bold text-sm h-11 shadow-md active:scale-[0.98] transition-all"
+                      disabled={!checkIn || !checkOut}
+                      onClick={handleBooking}
+                    >
+                      {!checkIn || !checkOut ? "Огноо сонгоно уу" : "Шууд захиалах"}
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      className="w-full border-2 border-emerald-600 text-emerald-700 hover:bg-emerald-50 font-bold text-sm h-11"
+                      disabled={!checkIn || !checkOut}
+                      onClick={() => {
+                        addToCart({
+                          id: camp.id,
+                          type: "CAMP",
+                          name: camp.name,
+                          price: camp.pricePerNight,
+                          quantity: 1,
+                          image: parseImagePaths(camp.images)[0] || getPrimaryImage(camp.images),
+                          startDate: checkIn,
+                          endDate: checkOut,
+                          guests: guests
+                        });
+                        toast({
+                          title: "Сагсанд нэмэгдлээ",
+                          description: `${camp.name} бааз амжилттай нэмэгдлээ.`,
+                          action: (
+                            <Button size="sm" onClick={() => router.push("/cart")}>
+                              Үзэх
+                            </Button>
+                          ),
+                        });
+                      }}
+                    >
+                      <ShoppingBag className="w-4 h-4 mr-2" />
+                      Сагсанд нэмэх
+                    </Button>
+                  </div>
 
                   <Button
                     variant="outline"
