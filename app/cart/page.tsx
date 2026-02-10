@@ -99,7 +99,7 @@ export default function CartPage() {
                         <div className="flex-1 min-w-0 flex flex-col justify-between py-0.5">
                           <div className="space-y-1">
                             <div className="flex justify-between items-start gap-2">
-                              <h3 className="font-bold text-gray-900 text-base sm:text-lg group-hover:text-emerald-700 transition-colors truncate">
+                              <h3 className="font-bold text-gray-900 text-base sm:text-lg group-hover:text-emerald-700 transition-colors leading-tight">
                                 {item.name}
                               </h3>
                               <Button
@@ -140,18 +140,18 @@ export default function CartPage() {
                           </div>
 
                           <div className="flex items-end justify-between mt-4">
-                            <div className="flex items-center border-2 border-gray-100 rounded-xl overflow-hidden bg-white shadow-sm">
+                            <div className="flex items-center border-2 border-gray-100 rounded-xl overflow-hidden bg-white shadow-sm h-10 sm:h-11">
                               <button
                                 onClick={() => updateQuantity(clientId, item.quantity - 1)}
-                                className="h-8 w-8 flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-600 disabled:opacity-30"
+                                className="h-full w-10 sm:w-12 flex items-center justify-center hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-gray-600 disabled:opacity-30"
                                 disabled={item.quantity <= 1 && item.type === "CAMP"} // Camps usually qty 1
                               >
                                 <Minus className="w-4 h-4" />
                               </button>
-                              <span className="font-bold w-10 text-center text-sm">{item.quantity}</span>
+                              <span className="font-bold w-10 text-center text-sm md:text-base">{item.quantity}</span>
                               <button
                                 onClick={() => updateQuantity(clientId, item.quantity + 1)}
-                                className="h-8 w-8 flex items-center justify-center hover:bg-gray-100 transition-colors text-gray-600 disabled:opacity-30"
+                                className="h-full w-10 sm:w-12 flex items-center justify-center hover:bg-emerald-50 hover:text-emerald-600 transition-colors text-gray-600 disabled:opacity-30"
                                 disabled={item.type === "CAMP"} // Usually 1 booking
                               >
                                 <Plus className="w-4 h-4" />
@@ -178,8 +178,10 @@ export default function CartPage() {
           {/* Order Summary */}
           <div className="lg:col-span-1">
             <Card className="sticky top-24 border-none shadow-lg overflow-hidden rounded-2xl">
-              <CardHeader className="bg-emerald-600 text-white px-6 py-5">
-                <CardTitle className="text-lg font-bold">Төлбөрийн мэдээлэл</CardTitle>
+              <CardHeader className="bg-emerald-600 p-0 overflow-hidden">
+                <div className="px-6 py-5 bg-gradient-to-r from-emerald-600 to-emerald-700">
+                  <CardTitle className="text-lg font-black text-white tracking-wide uppercase">Төлбөрийн мэдээлэл</CardTitle>
+                </div>
               </CardHeader>
               <CardContent className="p-6 space-y-6">
                 <div className="space-y-4">
@@ -216,7 +218,7 @@ export default function CartPage() {
                   </div>
                 )}
 
-                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-all font-black text-base py-6 rounded-xl shadow-md hover:shadow-lg">
+                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-all font-black text-base py-7 rounded-2xl shadow-lg hover:shadow-emerald-200/50 uppercase tracking-widest border-b-4 border-emerald-800">
                   ЗАХИАЛГА БАТАЛГААЖУУЛАХ
                 </Button>
 

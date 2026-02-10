@@ -64,11 +64,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
   };
 
   const addToCart = useCallback((item: CartItem) => {
+    // Standardize type to uppercase
+    const type = item.type.toUpperCase() as CartItemType;
+
     // Requirements: Camps and Travels should NOT be added to cart
-    if (item.type === "CAMP" || item.type === "TRAVEL") {
-      console.warn(`Attempted to add ${item.type} to cart. This is now disabled in favor of direct booking.`);
+    if (type === "CAMP" || type === "TRAVEL") {
+      console.warn(`Attempted to add ${type} to cart. This is now disabled in favor of direct booking.`);
       return;
     }
+
+    console.log(`🛒 Adding to cart: ${item.name} (${type})`);
 
     setCartItems((prev) => {
       const clientId = getClientId(item);

@@ -703,24 +703,24 @@ export default function AdminDashboardContent() {
     }
   };
 
-  const handleConfirmBooking = async (id: string) => {
+  const handleUpdateBookingStatus = async (id: string, status: string) => {
     try {
       await updateBooking({
         variables: {
           id,
-          input: { status: "CONFIRMED" }
+          input: { status }
         }
       });
       await refetchBookings();
       await refetchStats();
       toast({
         title: "Амжилттай",
-        description: "Захиалга баталгаажлаа",
+        description: `Захиалгын төлөв ${translateStatus(status)} болж шинэчлэгдлээ`,
       });
     } catch (error: any) {
       toast({
         title: "Алдаа",
-        description: error.message || "Захиалга баталгаажуулахад алдаа гарлаа",
+        description: error.message || "Захиалгын төлөв өөрчлөхөд алдаа гарлаа",
         variant: "destructive" as any,
       });
     }
@@ -3360,17 +3360,20 @@ export default function AdminDashboardContent() {
                                   </DialogContent>
                                 </Dialog>
 
-                                {booking.status === "PENDING" && (
-                                  <Button
-                                    variant="outline"
-                                    size="sm"
-                                    className="text-green-600 hover:text-green-700 hover:bg-green-50"
-                                    onClick={() => handleConfirmBooking(booking.id)}
-                                    title="Баталгаажуулах"
-                                  >
-                                    <Check className="w-4 h-4" />
-                                  </Button>
-                                )}
+                                <Select
+                                  value={booking.status}
+                                  onValueChange={(value) => handleUpdateBookingStatus(booking.id, value)}
+                                >
+                                  <SelectTrigger className="h-8 w-[130px] text-xs font-semibold">
+                                    <SelectValue placeholder="Төлөв" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="PENDING" className="text-xs font-medium">Pending</SelectItem>
+                                    <SelectItem value="CONFIRMED" className="text-xs font-medium">Confirmed</SelectItem>
+                                    <SelectItem value="CANCELLED" className="text-xs font-medium text-red-600">Cancelled</SelectItem>
+                                    <SelectItem value="COMPLETED" className="text-xs font-medium text-blue-600">Completed</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
                             </TableCell>
                           </TableRow>

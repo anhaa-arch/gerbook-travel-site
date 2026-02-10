@@ -90,14 +90,14 @@ export function Header() {
         <div className="flex items-center justify-between h-14 sm:h-16">
           {/* Logo */}
           <div className="flex items-center min-w-0">
-            <Link href="/" className="flex items-center space-x-1.5 sm:space-x-2">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 bg-green-600 rounded-full flex items-center justify-center flex-shrink-0">
-                <div className="w-4 h-4 sm:w-5 sm:h-5 bg-white rounded-full flex items-center justify-center">
-                  <div className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-600 rounded-full"></div>
+            <Link href="/" className="flex items-center space-x-2 sm:space-x-3 active:scale-95 transition-transform">
+              <div className="w-8 h-8 sm:w-10 sm:h-10 bg-emerald-600 rounded-xl flex items-center justify-center flex-shrink-0 shadow-sm rotate-3">
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-lg flex items-center justify-center">
+                  <div className="w-3 h-3 sm:w-4 sm:h-4 bg-emerald-600 rounded-md"></div>
                 </div>
               </div>
-              <span className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 truncate">
-                Malchin Camp
+              <span className="text-lg sm:text-xl md:text-2xl font-black text-gray-900 tracking-tight">
+                MALCHIN
               </span>
             </Link>
 
@@ -118,17 +118,16 @@ export function Header() {
           {/* Right side - Mobile and Desktop */}
           <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3">
             {/* Cart Icon - Always visible */}
-            <Link href="/cart" className="relative group" aria-label="Сагс">
-              <div className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center min-w-[36px] min-h-[36px]">
+            <Link href="/cart" className="relative group active:scale-90 transition-transform" aria-label="Сагс">
+              <div className="p-2 sm:p-2.5 hover:bg-gray-100 rounded-xl transition-colors flex items-center justify-center min-w-[40px] min-h-[40px]">
                 <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
                 {isMounted && itemCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-emerald-600 text-white text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] sm:min-w-[20px] text-center shadow-sm z-10">
+                  <span className="absolute top-0 right-0 bg-emerald-600 text-white text-[10px] sm:text-xs font-black px-2 py-0.5 rounded-full min-w-[20px] text-center shadow-md z-10 animate-in zoom-in duration-300">
                     {itemCount}
                   </span>
                 )}
               </div>
-              {/* Tooltip on hover for desktop */}
-              <div className="hidden md:group-hover:block absolute top-full left-1/2 -translate-x-1/2 mt-2 px-2 py-1 bg-gray-800 text-white text-[10px] rounded whitespace-nowrap z-50">
+              <div className="hidden md:group-hover:block absolute top-full left-1/2 -translate-x-1/2 mt-2 px-3 py-1.5 bg-gray-900/90 backdrop-blur-sm text-white text-[11px] font-bold rounded-lg whitespace-nowrap z-50 shadow-xl">
                 Сагс үзэх
               </div>
             </Link>
@@ -273,17 +272,17 @@ export function Header() {
                     {/* Navigation Links */}
                     <Link
                       href="/listings"
-                      className="w-full flex items-center p-2.5 sm:p-3 hover:bg-gray-50 rounded-md text-left transition-colors"
+                      className="w-full flex items-center p-3 sm:p-4 hover:bg-emerald-50 rounded-xl text-left transition-colors"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <span className="text-xs sm:text-sm text-gray-700 font-medium">Гэр</span>
+                      <span className="text-sm sm:text-base text-gray-800 font-bold">Гэр</span>
                     </Link>
                     <Link
                       href="/camps"
-                      className="w-full flex items-center p-2.5 sm:p-3 hover:bg-gray-50 rounded-md text-left transition-colors"
+                      className="w-full flex items-center p-3 sm:p-4 hover:bg-emerald-50 rounded-xl text-left transition-colors"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <span className="text-xs sm:text-sm text-gray-700 font-medium">Бүх баазууд</span>
+                      <span className="text-sm sm:text-base text-gray-800 font-bold">Бүх баазууд</span>
                     </Link>
 
                     {/* Divider */}
