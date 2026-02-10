@@ -41,6 +41,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
+import { useSaved } from "@/hooks/use-saved";
 import {
   CREATE_BOOKING,
   GET_user_BOOKINGS,
@@ -97,21 +98,12 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
   const { addToCart } = useCart();
+  const { isSaved: checkIsSaved, toggleSave } = useSaved();
   const router = useRouter();
   const resolvedParams = use(params);
   const campId = resolvedParams.id;
 
-  const [isSaved, setIsSaved] = useState(false);
-  const [savedCamps, setSavedCamps] = useState<any[]>([]);
-
-  // Load saved camps from localStorage on component mount
-  useEffect(() => {
-    if (user?.id) {
-      const saved = JSON.parse(localStorage.getItem(`savedCamps_${user.id}`) || "[]");
-      setSavedCamps(saved);
-      setIsSaved(saved.some((camp: any) => camp.id === campId));
-    }
-  }, [campId, user?.id]);
+  const isSaved = checkIsSaved(campId, "camp");
 
   const { data, loading, error } = useQuery(GET_YURT, {
     variables: { id: campId },
@@ -297,41 +289,21 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     const campData = data?.yurt;
     if (!campData) return;
 
-    const campToSave = {
+    toggleSave({
       id: campData.id,
-      name: campData.name,
-      location: campData.location,
-      pricePerNight: campData.pricePerNight,
-      capacity: campData.capacity,
-      images: campData.images,
-      amenities: campData.amenities,
-      description: campData.description,
-      savedAt: new Date().toISOString(),
-      userId: user.id,
-    };
+      type: "camp",
+      data: {
+        name: campData.name,
+        location: campData.location,
+        pricePerNight: campData.pricePerNight,
+        image: getPrimaryImage(campData.images),
+      }
+    });
 
-    let updatedSavedCamps;
-    const storageKey = `savedCamps_${user.id}`;
-
-    if (isSaved) {
-      // Remove from saved
-      updatedSavedCamps = savedCamps.filter((c: any) => c.id !== campId);
-      toast({
-        title: "Хадгалсан амралт",
-        description: "Амралт хадгалсан жагсаалтаас хасагдлаа.",
-      });
-    } else {
-      // Add to saved
-      updatedSavedCamps = [...savedCamps, campToSave];
-      toast({
-        title: "Амжилттай хадгалагдлаа",
-        description: "Амралт хадгалсан жагсаалтад нэмэгдлээ.",
-      });
-    }
-
-    setSavedCamps(updatedSavedCamps);
-    setIsSaved(!isSaved);
-    localStorage.setItem(storageKey, JSON.stringify(updatedSavedCamps));
+    toast({
+      title: isSaved ? "Хадгалсан амралт" : "Амжилттай хадгалагдлаа",
+      description: isSaved ? "Амралт хадгалсан жагсаалтаас хасагдлаа." : "Амралт хадгалсан жагсаалтад нэмэгдлээ.",
+    });
   };
 
   if (loading) {
@@ -771,7 +743,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Тав тухтай байдал
               </h2>
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-3 gap-4">
                 {campData.amenities.map((amenity: any, index: number) => (
                   <div key={index} className="flex items-center space-x-3">
                     <amenity.icon
@@ -1191,16 +1163,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     </Button>
                   </div>
 
-                  {checkIn && checkOut && (
-                    <Button
-                      variant="outline"
-                      className="w-full font-semibold text-xs sm:text-sm h-9 sm:h-10 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-                      onClick={() => setShowDatePicker(true)}
-                    >
-                      <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                      Огноог өөрчлөх
-                    </Button>
-                  )}
+
 
                   <Separator />
 
