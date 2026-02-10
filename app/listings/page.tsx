@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import Link from "next/link";
@@ -107,6 +108,20 @@ export default function ListingsPage() {
     fetchPolicy: "cache-first",
     errorPolicy: "all",
   });
+
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const provinceParam = searchParams.get("province");
+    const districtParam = searchParams.get("district");
+    const checkInParam = searchParams.get("checkIn");
+    const checkOutParam = searchParams.get("checkOut");
+
+    if (provinceParam) setSelectedProvince(provinceParam);
+    if (districtParam) setSelectedDistrict(districtParam);
+    if (checkInParam) setCheckIn(new Date(checkInParam));
+    if (checkOutParam) setCheckOut(new Date(checkOutParam));
+  }, [searchParams]);
 
   // Handle GraphQL loading and error states
   if (yurtsLoading || productsLoading) {

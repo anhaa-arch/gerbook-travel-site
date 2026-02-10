@@ -11,6 +11,8 @@ import { gql, useQuery } from "@apollo/client";
 import { Footer } from "@/components/footer";
 import { SearchSection } from "@/components/search/SearchSection";
 import { getFirstImage, getPrimaryImage } from "@/lib/imageUtils";
+import { useCart } from "@/hooks/use-cart";
+import { useToast } from "@/components/ui/use-toast";
 
 const GET_PRODUCTS = gql`
   query GetProducts($first: Int) {
@@ -51,6 +53,8 @@ const GET_YURTS = gql`
 
 export default function HomePage() {
   const { t, i18n } = useTranslation();
+  const { addToCart } = useCart();
+  const { toast } = useToast();
   const {
     data: productsData,
     loading: productsLoading,
@@ -324,6 +328,20 @@ export default function HomePage() {
                       <Button
                         size="sm"
                         className="bg-emerald-600 hover:bg-emerald-700 font-semibold text-[10px] xs:text-xs sm:text-sm px-2 xs:px-3 h-7 xs:h-8 sm:h-9"
+                        onClick={() => {
+                          addToCart({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price,
+                            quantity: 1,
+                            image: imageSrc,
+                            type: "PRODUCT"
+                          });
+                          toast({
+                            title: "Сагсанд нэмэгдлээ",
+                            description: `${product.name} амжилттай нэмэгдлээ.`,
+                          });
+                        }}
                       >
                         {t("common.add_to_cart")}
                       </Button>

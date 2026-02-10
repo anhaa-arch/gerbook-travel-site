@@ -115,14 +115,14 @@ export function Header() {
             </div>
           </div>
 
-          {/* Right side */}
-          <div className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3">
-            {/* Cart Icon */}
+          {/* Right side - Mobile and Desktop */}
+          <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-3">
+            {/* Cart Icon - Always visible */}
             <Link href="/cart" className="relative group" aria-label="Сагс">
-              <div className="p-1 sm:p-1.5 md:p-2 hover:bg-gray-100 rounded-lg transition-colors">
+              <div className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors flex items-center justify-center min-w-[36px] min-h-[36px]">
                 <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 text-gray-700" />
                 {isMounted && itemCount > 0 && (
-                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-emerald-600 text-white text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] sm:min-w-[20px] text-center shadow-sm">
+                  <span className="absolute -top-0.5 -right-0.5 sm:-top-1 sm:-right-1 bg-emerald-600 text-white text-[10px] sm:text-xs font-bold px-1.5 py-0.5 rounded-full min-w-[18px] sm:min-w-[20px] text-center shadow-sm z-10">
                     {itemCount}
                   </span>
                 )}
@@ -133,11 +133,11 @@ export function Header() {
               </div>
             </Link>
 
-            {/* Language Selector - Always visible */}
-            <div className="relative" ref={languageRef}>
+            {/* Language Selector - Always visible on desktop, hidden or compacted on mobile if needed */}
+            <div className="relative hidden xs:block" ref={languageRef}>
               <button
                 onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                className="flex items-center space-x-1 hover:bg-gray-50 p-1 sm:p-1.5 md:p-2 rounded-lg transition-colors"
+                className="flex items-center space-x-1 hover:bg-gray-50 p-1.5 sm:p-2 rounded-lg transition-colors min-w-[36px] min-h-[36px] justify-center"
                 aria-label="Хэл солих"
               >
                 <img
@@ -145,7 +145,7 @@ export function Header() {
                   alt="Монгол туг"
                   className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover"
                 />
-                <ChevronDown className="hidden xs:block w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+                <ChevronDown className="hidden sm:block w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
               </button>
 
               {isLanguageOpen && (

@@ -28,6 +28,7 @@ import {
   Check,
   X,
   ShoppingBag,
+  Home,
   ArrowRight,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -810,45 +811,57 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
               </div>
             </div>
 
-            {/* Accommodation Details */}
+            {/* Accommodation Details - Redesigned for Mobile */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">
                 Байршуулалт
               </h2>
               <Card className="overflow-hidden border-emerald-100 shadow-sm">
                 <CardContent className="p-4 sm:p-5 md:p-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 sm:gap-6 md:gap-8">
-                    <div className="space-y-3">
-                      <h3 className="font-bold text-gray-900 border-b border-gray-100 pb-2 flex items-center gap-2">
-                        <Users className="w-4 h-4 text-emerald-500" />
-                        {campData.accommodation.type}
-                      </h3>
-                      <div className="space-y-2.5">
-                        <div className="flex justify-between items-center bg-gray-50/50 p-2 rounded-md">
-                          <span className="text-sm font-medium text-gray-600">Багтаамж:</span>
-                          <span className="text-sm font-bold text-emerald-700">
+                  <div className="flex flex-col space-y-6">
+                    {/* Accommodation Type & Capacity */}
+                    <div className="space-y-4">
+                      <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                        <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                          <Home className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <h3 className="font-bold text-gray-900 text-base sm:text-lg">
+                          {campData.accommodation.type}
+                        </h3>
+                      </div>
+
+                      <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
+                        <div className="flex flex-col bg-gray-50/80 p-3 rounded-lg border border-gray-100">
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-1">Багтаамж</span>
+                          <span className="text-base font-bold text-emerald-700">
                             {campData.accommodation.capacity}
                           </span>
                         </div>
-                        <div className="flex justify-between items-center bg-gray-50/50 p-2 rounded-md">
-                          <span className="text-sm font-medium text-gray-600">Нийт гэр:</span>
-                          <span className="text-sm font-bold text-emerald-700">
-                            {campData.accommodation.totalGers}
+                        <div className="flex flex-col bg-gray-50/80 p-3 rounded-lg border border-gray-100">
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-1">Нийт гэр</span>
+                          <span className="text-base font-bold text-emerald-700">
+                            {campData.accommodation.totalGers} ш
                           </span>
                         </div>
                       </div>
                     </div>
+
+                    {/* Facilities/Equipment */}
                     <div className="space-y-3">
-                      <h3 className="font-bold text-gray-900 border-b border-gray-100 pb-2 flex items-center gap-2">
-                        <Shield className="w-4 h-4 text-emerald-500" />
-                        Тоног төхөөрөмж
-                      </h3>
-                      <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-1 gap-2">
+                      <div className="flex items-center gap-3 border-b border-gray-100 pb-3">
+                        <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center">
+                          <Shield className="w-4 h-4 text-emerald-600" />
+                        </div>
+                        <h3 className="font-bold text-gray-900 text-base">
+                          Тоног төхөөрөмж ба Тавилга
+                        </h3>
+                      </div>
+                      <div className="grid grid-cols-1 xs:grid-cols-2 gap-2.5">
                         {campData.accommodation.facilities.map(
                           (facility: string, index: number) => (
-                            <div key={index} className="flex items-center gap-2 text-sm text-gray-600 bg-emerald-50/30 px-2 py-1.5 rounded">
-                              <Check className="w-3.5 h-3.5 text-emerald-500 flex-shrink-0" />
-                              <span className="font-medium truncate">{facility}</span>
+                            <div key={index} className="flex items-start gap-2.5 text-sm text-gray-700 bg-emerald-50/40 px-3 py-2 rounded-md border border-emerald-100/50">
+                              <Check className="w-4 h-4 text-emerald-500 mt-0.5 flex-shrink-0" />
+                              <span className="font-medium leading-tight">{facility}</span>
                             </div>
                           )
                         )}
@@ -1158,8 +1171,14 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                   <div className="flex flex-col gap-2">
                     <Button
                       className="w-full bg-emerald-600 hover:bg-emerald-700 font-bold text-sm h-11 shadow-md active:scale-[0.98] transition-all"
-                      disabled={!checkIn || !checkOut || bookingLoading}
-                      onClick={handleBooking}
+                      disabled={bookingLoading}
+                      onClick={() => {
+                        if (!checkIn || !checkOut) {
+                          setShowDatePicker(true);
+                        } else {
+                          handleBooking();
+                        }
+                      }}
                     >
                       {bookingLoading ? (
                         <div className="flex items-center gap-2">
@@ -1167,19 +1186,21 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                           Уншиж байна...
                         </div>
                       ) : (
-                        !checkIn || !checkOut ? "Огноо сонгоно уу" : "Шууд захиалах"
+                        !checkIn || !checkOut ? "Боломжит огноо шалгах" : "Шууд захиалах"
                       )}
                     </Button>
                   </div>
 
-                  <Button
-                    variant="outline"
-                    className="w-full font-semibold text-xs sm:text-sm h-9 sm:h-10 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
-                    onClick={() => setShowDatePicker(true)}
-                  >
-                    <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-                    {checkIn && checkOut ? "Огноог өөрчлөх" : "Боломжит огноо шалгах"}
-                  </Button>
+                  {checkIn && checkOut && (
+                    <Button
+                      variant="outline"
+                      className="w-full font-semibold text-xs sm:text-sm h-9 sm:h-10 border-emerald-200 text-emerald-700 hover:bg-emerald-50"
+                      onClick={() => setShowDatePicker(true)}
+                    >
+                      <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                      Огноог өөрчлөх
+                    </Button>
+                  )}
 
                   <Separator />
 

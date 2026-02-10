@@ -130,7 +130,7 @@ export function SearchSection() {
     }
 
     const queryString = params.toString();
-    const url = queryString ? `/camps?${queryString}` : "/camps";
+    const url = queryString ? `/listings?${queryString}` : "/listings";
 
     console.log("🔍 Searching with params:", {
       selectedProvince,
@@ -255,8 +255,8 @@ export function SearchSection() {
                           key={district.zipcode}
                           onClick={() => handleDistrictSelect(district.mnname)}
                           className={`w-full flex items-center gap-2 px-3 py-2 rounded-md transition-colors text-left ${selectedDistrict === district.mnname
-                              ? "bg-emerald-50 text-emerald-700"
-                              : "hover:bg-gray-50 text-gray-700"
+                            ? "bg-emerald-50 text-emerald-700"
+                            : "hover:bg-gray-50 text-gray-700"
                             }`}
                         >
                           <div className={`w-1.5 h-1.5 rounded-full flex-shrink-0 ${selectedDistrict === district.mnname ? "bg-emerald-500" : "bg-gray-300"
