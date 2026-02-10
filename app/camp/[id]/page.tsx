@@ -258,9 +258,11 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         start.setUTCHours(0, 0, 0, 0);
         end.setUTCHours(0, 0, 0, 0);
 
-        // Add all dates in the booking range (including start, excluding end for standard hotel logic)
+        // Add all dates in the booking range (including start AND end for strict blocking)
+        // User requirement: Booked 9-15 -> Available before 8, after 16.
+        // This implies 9 and 15 are BOTH blocked for start/end.
         const current = new Date(start);
-        while (current < end) {
+        while (current <= end) {
           const dateToDisable = new Date(current);
           disabledDates.push(dateToDisable);
           console.log(`  🚫 Disabling: ${dateToDisable.toISOString().split('T')[0]}`);
@@ -586,13 +588,11 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       }
 
       // Backend overlap logic (exact same as checkYurtAvailability)
+      // Strict logic: ExistingStart <= ReqEnd AND ExistingEnd >= ReqStart
+      // This prevents any overlap, including touching boundaries (no same-day turnover)
       const overlap = (
-        // Booking starts during requested period
-        (bookingStart >= checkInDate && bookingStart < checkOutDate) ||
-        // Booking ends during requested period
-        (bookingEnd > checkInDate && bookingEnd <= checkOutDate) ||
-        // Booking spans entire requested period
-        (bookingStart <= checkInDate && bookingEnd >= checkOutDate)
+        bookingStart <= checkOutDate &&
+        bookingEnd >= checkInDate
       );
 
       if (overlap) {
@@ -609,7 +609,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     if (hasOverlap) {
       toast({
         title: "Огноо захиалагдсан байна",
-        description: "Таны сонгосон огнооны хооронд захиалагдсан өдрүүд байна. Өөр огноо сонгоно уу.",
+        description: "Сонгосон огноо аль хэдийн захиалагдсан байна.",
         variant: "destructive",
       });
       return;
