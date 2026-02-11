@@ -22,12 +22,16 @@ interface user {
 interface AuthContextType {
   user: user | null
   isAuthenticated: boolean
-  saveuserData: (user:user) => void
+  saveuserData: (user: user) => void
   logout: () => Promise<void>
   register: (userData: any) => Promise<void>
+  requestRegistrationCode: (input: any) => Promise<{ success: boolean; message: string }>
+  verifyRegistration: (email: string, code: string) => Promise<void>
   login: (credentials: { email?: string; password?: string; phone?: string }) => Promise<void>
   sendOtp: (phone: string) => Promise<void>
   verifyOtp: (phone: string, otp: string) => Promise<void>
+  requestPasswordResetCode: (email: string) => Promise<{ success: boolean; message: string }>
+  resetPasswordWithCode: (email: string, code: string, newPassword: string) => Promise<{ success: boolean; message: string }>
   resetPassword: (token: string, newPassword: string) => Promise<void>
   forgotPassword?: (email: string) => Promise<void>
 }
@@ -81,36 +85,36 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return null // Or a loading spinner if you want
   }
 
-  const saveuserData = async (user:user | any) => {
-      if(!user){
-        throw new Error("Хэрэглэгчийн дата олдсонгүй")
-      }
-      
-      // Add herder flag from localStorage
-      const isHerder = localStorage.getItem('isHerder') === 'true';
-      // Normalize role from backend enums (ADMIN/CUSTOMER/HERDER) to frontend roles
-      const normalizedRole: user["role"] = (() => {
-        const roleValue = (user.role || "").toString()
-        if (roleValue === "ADMIN" || roleValue.toLowerCase() === "admin") return "admin"
-        if (roleValue === "HERDER" || roleValue.toLowerCase() === "herder") return "herder"
-        // Treat any other as customer
-        return "user"
-      })()
-      const userWithHerderFlag: user = {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        avatar: user.avatar,
-        isHerder,
-        role: normalizedRole,
-        hostBio: user.hostBio,
-        hostExperience: user.hostExperience,
-        hostLanguages: user.hostLanguages,
-      };
-      
-      setuser(userWithHerderFlag)
-      setIsAuthenticated(true)
-      localStorage.setItem("user", JSON.stringify(userWithHerderFlag))
+  const saveuserData = async (user: user | any) => {
+    if (!user) {
+      throw new Error("Хэрэглэгчийн дата олдсонгүй")
+    }
+
+    // Add herder flag from localStorage
+    const isHerder = localStorage.getItem('isHerder') === 'true';
+    // Normalize role from backend enums (ADMIN/CUSTOMER/HERDER) to frontend roles
+    const normalizedRole: user["role"] = (() => {
+      const roleValue = (user.role || "").toString()
+      if (roleValue === "ADMIN" || roleValue.toLowerCase() === "admin") return "admin"
+      if (roleValue === "HERDER" || roleValue.toLowerCase() === "herder") return "herder"
+      // Treat any other as customer
+      return "user"
+    })()
+    const userWithHerderFlag: user = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      avatar: user.avatar,
+      isHerder,
+      role: normalizedRole,
+      hostBio: user.hostBio,
+      hostExperience: user.hostExperience,
+      hostLanguages: user.hostLanguages,
+    };
+
+    setuser(userWithHerderFlag)
+    setIsAuthenticated(true)
+    localStorage.setItem("user", JSON.stringify(userWithHerderFlag))
   }
 
   const logout = async () => {
@@ -121,15 +125,45 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('token')
   }
   // GraphQL operations
-  const REGISTER_MUTATION = gql`
-    mutation Register($input: CreateuserInput!) {
-      register(input: $input) { token user { id name email role hostBio hostExperience hostLanguages } }
+  const REQUEST_REGISTRATION_CODE = gql`
+    mutation RequestRegistrationCode($input: CreateuserInput!) {
+      requestRegistrationCode(input: $input) { success message }
+    }
+  `
+
+  const VERIFY_REGISTRATION = gql`
+    mutation VerifyRegistration($email: String!, $code: String!) {
+      verifyRegistration(email: $email, code: $code) { 
+        token 
+        user { id name email role hostBio hostExperience hostLanguages } 
+      }
+    }
+  `
+
+  const REQUEST_PASSWORD_RESET_CODE = gql`
+    mutation RequestPasswordResetCode($email: String!) {
+      requestPasswordResetCode(email: $email) { success message }
+    }
+  `
+
+  const RESET_PASSWORD_WITH_CODE = gql`
+    mutation ResetPasswordWithCode($email: String!, $code: String!, $newPassword: String!) {
+      resetPasswordWithCode(email: $email, code: $code, newPassword: $newPassword) { success message }
     }
   `
 
   const LOGIN_MUTATION = gql`
     mutation Login($email: String!, $password: String!) {
-      login(email: $email, password: $password) { token user { id name email role hostBio hostExperience hostLanguages } }
+      login(email: $email, password: $password) { 
+        token 
+        user { id name email role hostBio hostExperience hostLanguages } 
+      }
+    }
+  `
+
+  const REGISTER_MUTATION = gql`
+     mutation Register($input: CreateuserInput!) {
+      register(input: $input) { token user { id name email role hostBio hostExperience hostLanguages } }
     }
   `
 
@@ -149,20 +183,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     mutation ForgotPassword($email: String!) { forgotPassword(email: $email) { message } }
   `
 
-  const register = async (userData: any) => {
-    const { data } = await client.mutate({ mutation: REGISTER_MUTATION, variables: { input: userData } })
-    if (data?.register) {
-      const { token, user } = data.register
-      localStorage.setItem('token', token)
-      saveuserData(user)
-    } else {
-      throw new Error('Registration failed')
-    }
-  }
-
   const login = async (credentials: { email?: string; password?: string; phone?: string }) => {
     if (!credentials.email || !credentials.password) {
-      throw new Error('Email and password required')
+      throw new Error('Имэйл болон нууц үгээ оруулна уу')
     }
     const { data } = await client.mutate({ mutation: LOGIN_MUTATION, variables: { email: credentials.email, password: credentials.password } })
     if (data?.login) {
@@ -170,10 +193,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('token', token)
       saveuserData(user)
     } else {
-      throw new Error('Login failed')
+      throw new Error('Нэвтрэх амжилтгүй')
     }
   }
 
+  const register = async (userData: any) => {
+    const { data } = await client.mutate({ mutation: REGISTER_MUTATION, variables: { input: userData } })
+    if (data?.register) {
+      const { token, user } = data.register
+      localStorage.setItem('token', token)
+      saveuserData(user)
+    } else {
+      throw new Error('Бүртгэл амжилтгүй')
+    }
+  }
+
+  const requestRegistrationCode = async (input: any) => {
+    const { data } = await client.mutate({ mutation: REQUEST_REGISTRATION_CODE, variables: { input } })
+    return data.requestRegistrationCode
+  }
+
+  const verifyRegistration = async (email: string, code: string) => {
+    const { data } = await client.mutate({ mutation: VERIFY_REGISTRATION, variables: { email, code } })
+    if (data?.verifyRegistration) {
+      const { token, user } = data.verifyRegistration
+      localStorage.setItem('token', token)
+      saveuserData(user)
+    } else {
+      throw new Error('Баталгаажуулалт амжилтгүй')
+    }
+  }
+
+  const requestPasswordResetCode = async (email: string) => {
+    const { data } = await client.mutate({ mutation: REQUEST_PASSWORD_RESET_CODE, variables: { email } })
+    return data.requestPasswordResetCode
+  }
+
+  const resetPasswordWithCode = async (email: string, code: string, newPassword: string) => {
+    const { data } = await client.mutate({ mutation: RESET_PASSWORD_WITH_CODE, variables: { email, code, newPassword } })
+    return data.resetPasswordWithCode
+  }
+
+  // Legacy/Other methods
   const sendOtp = async (phone: string) => {
     await client.mutate({ mutation: SEND_OTP_MUTATION, variables: { phone } })
   }
@@ -210,11 +271,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     saveuserData,
     logout,
     register,
+    requestRegistrationCode,
+    verifyRegistration,
     login,
     sendOtp,
     verifyOtp,
+    requestPasswordResetCode,
+    resetPasswordWithCode,
     resetPassword,
-    // expose forgotPassword for UI
     // @ts-ignore
     forgotPassword,
   }

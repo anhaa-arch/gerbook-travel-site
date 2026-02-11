@@ -8,11 +8,14 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 
+import { useAuth } from "@/hooks/use-auth";
+
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
+  const { requestPasswordResetCode } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,13 +41,17 @@ export default function ForgotPasswordPage() {
 
     setLoading(true);
     try {
-      // TODO: Call backend mutation to send reset email
-      await new Promise((r) => setTimeout(r, 800));
-      toast({
-        title: "Амжилттай",
-        description: "Сэргээх холбоосыг и-мэйлээр илгээлээ",
-      });
-      router.push("/login");
+      const res = await requestPasswordResetCode(email);
+      if (res.success) {
+        toast({
+          title: "Амжилттай",
+          description: res.message,
+        });
+        // Redirect to reset password page where user enters email, code and new password
+        router.push(`/reset-password?email=${encodeURIComponent(email)}`);
+      } else {
+        throw new Error(res.message);
+      }
     } catch (e: any) {
       toast({
         title: "Амжилтгүй",

@@ -11,6 +11,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { gql, useMutation } from "@apollo/client";
+import OtpModal from "@/components/otp-modal";
 
 const REGISTER_MUTATION = gql`
   mutation Register($input: CreateuserInput!) {
@@ -41,8 +42,9 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const { user } = useAuth();
-  const [registerMutation] = useMutation(REGISTER_MUTATION);
+  const { user: authUser, requestRegistrationCode, verifyRegistration } = useAuth();
+  const [showOtpModal, setShowOtpModal] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData((prev) => ({
@@ -84,14 +86,12 @@ export default function RegisterPage() {
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const digits = formData.identifier.replace(/\D/g, "");
     const isEmailInput = emailRegex.test(formData.identifier);
-    const isPhoneInput = /^\d{8,}$/.test(digits);
 
-    if (!isEmailInput && !isPhoneInput) {
+    if (!isEmailInput) {
       toast({
         title: "Алдаа",
-        description: "И-мэйл эсвэл утасны дугаарын формат буруу байна",
+        description: "Зөвхөн и-мэйл хаягаар бүртгүүлэх боломжтой (Баталгаажуулалт шаардлагатай)",
         variant: "destructive" as any,
       });
       return;
@@ -99,28 +99,8 @@ export default function RegisterPage() {
 
     setLoading(true);
     try {
-      // Build CreateuserInput as required by backend schema
-      const generatedName = isEmailInput
-        ? String(formData.identifier).split("@")[0]
-        : `user_${digits}`;
+      const generatedName = formData.identifier.split("@")[0];
 
-      // Determine if current user is admin
-      const isCurrentuserAdmin =
-        user && (user as any).role?.toUpperCase() === "ADMIN";
-
-      // Allow admin registration for testing purposes
-      // TODO: Remove this in production - only admins should create ADMIN users
-      // if (activeTab === "admin" && !isCurrentuserAdmin) {
-      //   toast({
-      //     title: "Зөвшөөрөлгүй үйлдэл",
-      //     description: "Зөвхөн админ хэрэглэгчид шинэ админ бүртгэж болно",
-      //     variant: "destructive" as any,
-      //   });
-      //   setLoading(false);
-      //   return;
-      // }
-
-      // Determine role based on activeTab
       let role: string;
       if (activeTab === "herder") {
         role = "HERDER";
@@ -130,45 +110,28 @@ export default function RegisterPage() {
         role = "CUSTOMER";
       }
 
-      const input: any = {
-        email: isEmailInput ? formData.identifier : `${digits}@phone.local`,
+      const input = {
+        email: formData.identifier,
         password: formData.password,
         name: generatedName || "user",
-        ...(isPhoneInput ? { phone: digits } : {}),
         role,
       };
 
-      const { data } = await registerMutation({
-        variables: {
-          input,
-        },
-      });
-
-      const payload = data?.register;
-      if (!payload?.token || !payload?.user)
-        throw new Error("Invalid register response");
-      localStorage.setItem("token", payload.token);
-      toast({
-        title: "Бүртгэл амжилттай",
-        description: payload.user.email || "Бүртгэл амжилттай",
-      });
-
-      // Route based on user role if provided, otherwise default to user dashboard
-      const dashboardRoutes: Record<string, string> = {
-        ADMIN: "/admin-dashboard",
-        HERDER: "/herder-dashboard",
-        CUSTOMER: "/user-dashboard",
-      };
-      const normalizedRole = (payload.user.role || "CUSTOMER")
-        .toString()
-        .toUpperCase();
-      router.push(dashboardRoutes[normalizedRole] || "/user-dashboard");
+      const res = await requestRegistrationCode(input);
+      if (res.success) {
+        setPendingEmail(formData.identifier);
+        setShowOtpModal(true);
+        toast({
+          title: "Амжилттай",
+          description: res.message,
+        });
+      } else {
+        throw new Error(res.message);
+      }
     } catch (err: any) {
-      const gmsg = err?.graphQLErrors?.[0]?.message;
-      const nmsg = err?.networkError?.message;
       toast({
-        title: "Бүртгэл амжилтгүй",
-        description: gmsg || nmsg || err?.message || "Дахин оролдоно уу",
+        title: "Алдаа",
+        description: err?.message || "Бүртгэлийн код илгээхэд алдаа гарлаа",
         variant: "destructive" as any,
       });
     } finally {
@@ -176,8 +139,64 @@ export default function RegisterPage() {
     }
   };
 
+  const handleVerifyOtp = async (code: string) => {
+    try {
+      await verifyRegistration(pendingEmail, code);
+      toast({
+        title: "Амжилттай",
+        description: "Таны имэйл баталгаажлаа",
+      });
+
+      // The verifyRegistration call updates auth state and redirects handled by useAuth are usually better,
+      // but here we redirect manually based on the simplified roles if needed.
+      // After success, useAuth state should be updated.
+      // Re-fetch user from local storage or wait for state update.
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const userObj = JSON.parse(storedUser);
+        const role = userObj.role?.toUpperCase() || "CUSTOMER";
+        const dashboardRoutes: Record<string, string> = {
+          ADMIN: "/admin-dashboard",
+          HERDER: "/herder-dashboard",
+          CUSTOMER: "/user-dashboard",
+          USER: "/user-dashboard"
+        };
+        router.push(dashboardRoutes[role] || "/user-dashboard");
+      }
+    } catch (err: any) {
+      throw err; // OtpModal handles the toast
+    }
+  };
+
+  const handleResendOtp = async () => {
+    // Re-trigger the same submit logic or a simplified version
+    let role: string;
+    if (activeTab === "herder") {
+      role = "HERDER";
+    } else if (activeTab === "admin") {
+      role = "ADMIN";
+    } else {
+      role = "CUSTOMER";
+    }
+
+    const input = {
+      email: formData.identifier,
+      password: formData.password,
+      name: formData.identifier.split("@")[0] || "user",
+      role,
+    };
+    await requestRegistrationCode(input);
+  };
+
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
+      <OtpModal
+        open={showOtpModal}
+        onOpenChange={setShowOtpModal}
+        phone={pendingEmail}
+        onVerify={handleVerifyOtp}
+        onResend={handleResendOtp}
+      />
       {/* Left side - Registration form */}
       <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white py-8 lg:py-0">
         <div className="max-w-md w-full space-y-6">
@@ -260,11 +279,10 @@ export default function RegisterPage() {
               onClick={() => {
                 setActiveTab("customer");
               }}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "customer"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "customer"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               Аялагч
             </button>
@@ -272,11 +290,10 @@ export default function RegisterPage() {
               onClick={() => {
                 setActiveTab("herder");
               }}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "herder"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "herder"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
             >
               Малчин
             </button>
@@ -284,11 +301,10 @@ export default function RegisterPage() {
               onClick={() => {
                 setActiveTab("admin");
               }}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${
-                activeTab === "admin"
-                  ? "bg-white text-gray-900 shadow-sm"
-                  : "text-gray-600 hover:text-gray-900"
-              }`}
+              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "admin"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-600 hover:text-gray-900"
+                }`}
               title="Админ хэрэглэгч бүртгүүлэх"
             >
               Админ

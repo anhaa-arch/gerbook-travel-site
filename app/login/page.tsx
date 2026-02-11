@@ -45,7 +45,6 @@ export default function LoginPage() {
     e.preventDefault();
     if (loading) return;
 
-    // Client-side validation for a single identifier (email or phone)
     if (!identifier) {
       toast({
         title: "Алдаа",
@@ -61,7 +60,7 @@ export default function LoginPage() {
     if (!isEmailInput) {
       toast({
         title: "Алдаа",
-        description: "И-мэйл хаягийн формат буруу байна",
+        description: "Зөвхөн и-мэйл хаягаар нэвтрэх боломжтой",
         variant: "destructive" as any,
       });
       return;
@@ -76,63 +75,31 @@ export default function LoginPage() {
       return;
     }
 
-    if (password.length < 6) {
-      toast({
-        title: "Алдаа",
-        description: "Нууц үг хамгийн багадаа 6 тэмдэгт байх ёстой",
-        variant: "destructive" as any,
-      });
-      return;
-    }
-
     setLoading(true);
     try {
-      // Build variables for email-based login
-      const { data } = await loginMutation({
-        variables: { email: identifier, password },
-      });
-
-      const payload = data?.login;
-      if (!payload?.token || !payload?.user)
-        throw new Error("Invalid login response");
-      localStorage.setItem("token", payload.token);
-      const user = payload.user;
-
-      // Set isHerder flag in localStorage if user is a herder
-      const isHerder =
-        user.role === "HERDER" || user.role.toLowerCase() === "herder";
-      if (isHerder) {
-        localStorage.setItem("isHerder", "true");
-      } else {
-        localStorage.removeItem("isHerder");
-      }
-
-      await saveuserData(user);
+      await login({ email: identifier, password });
 
       toast({
         title: "Амжилттай нэвтэрлээ",
-        description: `${user.name || user.email}`,
       });
 
-      // Route based on role from backend; ADMIN must always go to admin dashboard
-      const userRole = String(user.role).toUpperCase();
-      if (userRole === "ADMIN") {
-        router.replace("/admin-dashboard");
-      } else if (userRole === "HERDER") {
-        router.replace("/herder-dashboard");
-      } else {
-        router.replace("/user-dashboard");
+      // Route based on role from storage (updated by saveuserData in useAuth)
+      const storedUser = localStorage.getItem("user");
+      if (storedUser) {
+        const user = JSON.parse(storedUser);
+        const userRole = String(user.role).toUpperCase();
+        if (userRole === "ADMIN") {
+          router.replace("/admin-dashboard");
+        } else if (userRole === "HERDER") {
+          router.replace("/herder-dashboard");
+        } else {
+          router.replace("/user-dashboard");
+        }
       }
     } catch (err: any) {
-      const gmsg = err?.graphQLErrors?.[0]?.message;
-      const nmsg = err?.networkError?.message;
       toast({
         title: "Нэвтрэх амжилтгүй",
-        description:
-          gmsg ||
-          nmsg ||
-          err?.message ||
-          "Нэвтрэх мэдээлэл буруу байна. И-мэйл/утас болон нууц үгээ шалгана уу",
+        description: err?.message || "Нэвтрэх мэдээлэл буруу байна",
         variant: "destructive" as any,
       });
     } finally {
