@@ -2,7 +2,7 @@
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, MapPin, Calendar, Users, Route, Compass } from "lucide-react";
+import { Search, MapPin, Calendar, Users, Route, Compass, ShieldCheck, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -97,6 +97,44 @@ export default function HomePage() {
       <div className="max-w-6xl mx-auto">
         <div className="bg-white py-4 sm:py-6 md:py-8">
           <SearchSection />
+        </div>
+      </div>
+
+      {/* Trust & Features Section */}
+      <div className="bg-gray-50/50 border-y border-gray-100 py-8 sm:py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+            {[
+              {
+                icon: <Users className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />,
+                title: "2,000+",
+                desc: "Идэвхтэй аялагч"
+              },
+              {
+                icon: <Home className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />,
+                title: "500+",
+                desc: "Малчин өрх"
+              },
+              {
+                icon: <Compass className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />,
+                title: "100%",
+                desc: "Бодит туршлага"
+              },
+              {
+                icon: <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />,
+                title: "Аюулгүй",
+                desc: "Баталгаат төлбөр"
+              },
+            ].map((stat, i) => (
+              <div key={i} className="flex flex-col items-center text-center space-y-2">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-2xl shadow-sm border border-emerald-50 flex items-center justify-center mb-1">
+                  {stat.icon}
+                </div>
+                <h3 className="text-base sm:text-xl font-black text-gray-900 leading-tight">{stat.title}</h3>
+                <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest">{stat.desc}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -336,10 +374,6 @@ export default function HomePage() {
                             quantity: 1,
                             image: imageSrc,
                             type: "PRODUCT"
-                          });
-                          toast({
-                            title: "Сагсанд нэмэгдлээ",
-                            description: `${product.name} амжилттай нэмэгдлээ.`,
                           });
                         }}
                       >

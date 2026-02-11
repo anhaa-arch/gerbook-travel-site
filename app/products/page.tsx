@@ -218,10 +218,6 @@ export default function ProductsPage() {
                             image: imageSrc,
                             category: product.category?.name || "Бүтээгдэхүүн",
                           })
-                          toast({
-                            title: "Сагсанд нэмэгдлээ",
-                            description: product.name,
-                          })
                         }}
                       >
                         <ShoppingCart className="w-4 h-4 mr-1" />

@@ -1,12 +1,11 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Globe, ChevronDown, Menu, X, User } from "lucide-react";
+import { Globe, ChevronDown, Menu, X, User, ShoppingCart, Home, Compass, LogOut } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
-import { ShoppingCart } from "lucide-react";
 
 export function Header() {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
@@ -132,27 +131,27 @@ export function Header() {
               </div>
             </Link>
 
-            {/* Language Selector - Always visible on desktop, hidden or compacted on mobile if needed */}
-            <div className="relative hidden xs:block" ref={languageRef}>
+            {/* Language Selector - Visible on all screens, optimized for mobile */}
+            <div className="relative" ref={languageRef}>
               <button
                 onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                className="flex items-center space-x-1 hover:bg-gray-50 p-1.5 sm:p-2 rounded-lg transition-colors min-w-[36px] min-h-[36px] justify-center"
+                className="flex items-center space-x-1 hover:bg-gray-50 p-1.5 rounded-lg transition-colors min-w-[32px] sm:min-w-[36px] min-h-[32px] sm:min-h-[36px] justify-center"
                 aria-label="Хэл солих"
               >
                 <img
                   src="/mng-flag.jpg"
                   alt="Монгол туг"
-                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover"
+                  className="w-5 h-5 sm:w-6 sm:h-6 rounded-full object-cover shadow-sm border border-gray-100"
                 />
                 <ChevronDown className="hidden sm:block w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
               </button>
 
               {isLanguageOpen && (
-                <div className="absolute right-0 top-full mt-2 w-48 sm:w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                  <div className="p-2 sm:p-3 border-b border-gray-100">
-                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-600">
-                      <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                      <span>Бүх хэлийг харуулах</span>
+                <div className="absolute right-0 top-full mt-2 w-48 sm:w-64 bg-white border border-gray-200 rounded-xl shadow-xl z-[60] animate-in fade-in zoom-in duration-200">
+                  <div className="p-3 border-b border-gray-100">
+                    <div className="flex items-center space-x-2 text-xs sm:text-sm text-gray-600 font-bold">
+                      <Globe className="w-4 h-4 text-emerald-600" />
+                      <span>Хэл сонгох</span>
                     </div>
                   </div>
                   <div className="p-1.5 sm:p-2 max-h-[60vh] overflow-y-auto">
@@ -167,11 +166,11 @@ export function Header() {
                     ].map((lang, index) => (
                       <button
                         key={index}
-                        className="w-full flex items-center space-x-2 sm:space-x-3 p-1.5 sm:p-2 hover:bg-gray-50 rounded-md text-left transition-colors"
+                        className="w-full flex items-center space-x-3 p-2.5 sm:p-2 hover:bg-emerald-50 rounded-lg text-left transition-colors"
                         onClick={() => setIsLanguageOpen(false)}
                       >
-                        <span className="text-base sm:text-lg">{lang.flag}</span>
-                        <span className="text-xs sm:text-sm text-gray-700">
+                        <span className="text-lg">{lang.flag}</span>
+                        <span className="text-sm font-bold text-gray-700">
                           {lang.name}
                         </span>
                       </button>
@@ -267,96 +266,104 @@ export function Header() {
 
               {/* Mobile Menu */}
               {isMobileMenuOpen && (
-                <div className="absolute right-0 top-full mt-2 w-56 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                  <div className="p-1.5 sm:p-2">
+                <div className="absolute right-0 top-full mt-2 w-[calc(100vw-1.5rem)] sm:w-72 bg-white border border-gray-200 rounded-2xl shadow-2xl z-50 animate-in slide-in-from-top-4 duration-300">
+                  <div className="p-3 sm:p-4 space-y-2">
                     {/* Navigation Links */}
                     <Link
                       href="/listings"
-                      className="w-full flex items-center p-3 sm:p-4 hover:bg-emerald-50 rounded-xl text-left transition-colors"
+                      className="w-full flex items-center p-4 hover:bg-emerald-50 rounded-xl text-left transition-colors border border-transparent hover:border-emerald-100"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <span className="text-sm sm:text-base text-gray-800 font-bold">Гэр</span>
+                      <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mr-4">
+                        <Home className="w-5 h-5 text-emerald-600" />
+                      </div>
+                      <span className="text-base text-gray-800 font-bold">Гэр (Listings)</span>
                     </Link>
                     <Link
                       href="/camps"
-                      className="w-full flex items-center p-3 sm:p-4 hover:bg-emerald-50 rounded-xl text-left transition-colors"
+                      className="w-full flex items-center p-4 hover:bg-emerald-50 rounded-xl text-left transition-colors border border-transparent hover:border-emerald-100"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
-                      <span className="text-sm sm:text-base text-gray-800 font-bold">Бүх баазууд</span>
+                      <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mr-4">
+                        <Compass className="w-5 h-5 text-emerald-600" />
+                      </div>
+                      <span className="text-base text-gray-800 font-bold">Бүх баазууд</span>
                     </Link>
 
                     {/* Divider */}
-                    <div className="border-t border-gray-100 my-2"></div>
+                    <div className="border-t border-gray-100 my-4"></div>
 
                     {/* user Section */}
                     {isAuthenticated ? (
-                      <>
-                        {/* user Info */}
-                        <div className="px-2.5 sm:px-3 py-2 bg-gray-50 rounded-md mb-2">
-                          <div className="text-xs sm:text-sm font-semibold text-gray-900 truncate">
-                            {user?.name || user?.email}
-                          </div>
-                          <div className="text-[10px] sm:text-xs text-gray-500 truncate">
-                            {user?.email}
+                      <div className="space-y-3">
+                        {/* user Info Card */}
+                        <div className="p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                          <div className="flex items-center space-x-3">
+                            <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center shadow-sm">
+                              <User className="w-6 h-6 text-emerald-600" />
+                            </div>
+                            <div className="min-w-0">
+                              <p className="text-sm font-bold text-gray-900 truncate">
+                                {user?.name || user?.email}
+                              </p>
+                              <p className="text-xs text-gray-500 truncate font-medium">
+                                {user?.email}
+                              </p>
+                            </div>
                           </div>
                         </div>
 
-                        {/* Dashboard Link */}
+                        {/* Action Links */}
+                        <div className="grid grid-cols-1 gap-2">
+                          <Link
+                            href={
+                              user?.role === "admin"
+                                ? "/admin-dashboard"
+                                : user?.role === "herder"
+                                  ? "/herder-dashboard"
+                                  : "/user-dashboard"
+                            }
+                            className="w-full flex items-center p-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-sm active:scale-[0.98]"
+                            onClick={() => setIsMobileMenuOpen(false)}
+                          >
+                            <User className="w-5 h-5 mr-3" />
+                            <span className="text-base font-bold">Хянах самбар</span>
+                          </Link>
+
+                          <button
+                            className="w-full flex items-center p-4 hover:bg-red-50 text-red-600 rounded-xl transition-colors font-bold border border-transparent hover:border-red-100"
+                            onClick={() => {
+                              logout();
+                              setIsMobileMenuOpen(false);
+                            }}
+                          >
+                            <LogOut className="w-5 h-5 mr-3" />
+                            Гарах
+                          </button>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col gap-3 py-2">
                         <Link
-                          href={
-                            user?.role === "admin"
-                              ? "/admin-dashboard"
-                              : user?.role === "herder"
-                                ? "/herder-dashboard"
-                                : "/user-dashboard"
-                          }
-                          className="w-full flex items-center p-2.5 sm:p-3 hover:bg-gray-50 rounded-md text-left transition-colors"
+                          href="/login"
+                          className="flex items-center justify-center p-4 w-full bg-white border-2 border-gray-200 hover:border-emerald-600 rounded-xl transition-all"
                           onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <User className="w-4 h-4 mr-2 text-gray-600" />
-                          <span className="text-xs sm:text-sm text-gray-700 font-medium">
-                            Хянах самбар
+                          <span className="text-base text-gray-800 font-bold">
+                            Нэвтрэх
                           </span>
                         </Link>
 
-                        {/* Logout Button */}
-                        <button
-                          className="w-full flex items-center p-2.5 sm:p-3 hover:bg-red-50 rounded-md text-left transition-colors"
-                          onClick={() => {
-                            logout();
-                            setIsMobileMenuOpen(false);
-                          }}
+                        <Link
+                          href="/register"
+                          className="flex items-center justify-center p-4 w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl transition-all shadow-lg active:scale-[0.98]"
+                          onClick={() => setIsMobileMenuOpen(false)}
                         >
-                          <span className="text-xs sm:text-sm font-semibold text-red-600">
-                            Гарах
+                          <span className="text-base font-bold">
+                            Бүртгүүлэх
                           </span>
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        {/* Login/Register Section */}
-                        <div className="flex gap-2 pt-1">
-                          <Link
-                            href="/login"
-                            className="flex-1 flex items-center justify-center py-2 px-3 hover:bg-gray-50 rounded-md transition-all border-2 border-gray-300 hover:border-gray-400"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                          >
-                            <span className="text-xs text-gray-800 font-semibold">
-                              Нэвтрэх
-                            </span>
-                          </Link>
-
-                          <Link
-                            href="/register"
-                            className="flex-1 flex items-center justify-center py-2 px-3 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 rounded-md transition-all shadow-sm hover:shadow-md"
-                            onClick={() => setIsMobileMenuOpen(false)}
-                          >
-                            <span className="text-xs text-white font-bold">
-                              Бүртгүүлэх
-                            </span>
-                          </Link>
-                        </div>
-                      </>
+                        </Link>
+                      </div>
                     )}
                   </div>
                 </div>

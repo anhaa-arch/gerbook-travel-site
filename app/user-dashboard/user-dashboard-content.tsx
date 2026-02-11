@@ -445,38 +445,42 @@ export default function UserDashboardContent() {
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
-            <TabsList className="grid w-full grid-cols-5 gap-1 sm:gap-2 h-auto p-1">
+          <div className="overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
+            <TabsList className="inline-flex w-auto sm:w-full sm:grid sm:grid-cols-5 p-1 bg-gray-100/80 rounded-xl gap-1">
               <TabsTrigger
                 value="overview"
-                className="text-[10px] xs:text-xs sm:text-sm font-semibold px-1.5 xs:px-2 sm:px-3 py-2 sm:py-2.5 whitespace-nowrap"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[70px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
-                Тойм
+                <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Тойм</span>
               </TabsTrigger>
               <TabsTrigger
                 value="bookings"
-                className="text-[10px] xs:text-xs sm:text-sm font-semibold px-1 xs:px-2 sm:px-3 py-2 sm:py-2.5 whitespace-nowrap leading-tight"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[70px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
-                <span className="hidden xs:inline">Миний захиалгууд</span>
-                <span className="xs:hidden">Захиалга</span>
+                <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Захиалга</span>
               </TabsTrigger>
               <TabsTrigger
                 value="favorites"
-                className="text-[10px] xs:text-xs sm:text-sm font-semibold px-1.5 xs:px-2 sm:px-3 py-2 sm:py-2.5 whitespace-nowrap"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[70px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
-                Хадгалсан
+                <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Хадгалсан</span>
               </TabsTrigger>
               <TabsTrigger
                 value="routes"
-                className="text-[10px] xs:text-xs sm:text-sm font-semibold px-1.5 xs:px-2 sm:px-3 py-2 sm:py-2.5 whitespace-nowrap"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[70px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
-                Маршрут
+                <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Маршрут</span>
               </TabsTrigger>
               <TabsTrigger
                 value="profile"
-                className="text-[10px] xs:text-xs sm:text-sm font-semibold px-1.5 xs:px-2 sm:px-3 py-2 sm:py-2.5 whitespace-nowrap"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[70px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
-                Профайл
+                <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Профайл</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -621,8 +625,8 @@ export default function UserDashboardContent() {
                                       : "secondary"
                                   }
                                   className={`text-[10px] xs:text-xs font-medium mt-1 ${booking.status === "confirmed"
-                                      ? "bg-green-100 text-green-800"
-                                      : ""
+                                    ? "bg-green-100 text-green-800"
+                                    : ""
                                     }`}
                                 >
                                   {booking.status === "confirmed"
@@ -734,46 +738,53 @@ export default function UserDashboardContent() {
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                     {bookings.map((booking: Booking) => (
                       <Card key={booking.id} className="overflow-hidden shadow-sm">
-                        <div className="aspect-video bg-gray-100 flex items-center justify-center">
+                        <div className="relative aspect-video bg-gray-100 overflow-hidden">
                           <img
                             src={booking.image || "/placeholder.svg"}
                             alt={booking.camp}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = "/placeholder.svg";
                             }}
                           />
-                        </div>
-                        <CardContent className="p-3 sm:p-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-bold text-sm sm:text-base md:text-lg truncate flex-1 pr-2">
-                              {booking.camp}
-                            </h3>
+                          <div className="absolute top-2 right-2">
                             <Badge
-                              variant={
-                                booking.status === "completed"
-                                  ? "default"
-                                  : booking.status === "confirmed"
-                                    ? "secondary"
-                                    : "outline"
-                              }
-                              className={`text-[10px] xs:text-xs ml-1 sm:ml-2 font-medium flex-shrink-0 ${booking.status === "confirmed"
-                                  ? "bg-green-100 text-green-800 border-green-300"
-                                  : booking.status === "pending"
-                                    ? "bg-yellow-100 text-yellow-800 border-yellow-300"
-                                    : ""
+                              className={`px-2 py-0.5 rounded-full font-bold shadow-sm border-none ${booking.status === "confirmed"
+                                ? "bg-green-500 text-white"
+                                : booking.status === "pending"
+                                  ? "bg-amber-500 text-white"
+                                  : booking.status === "completed"
+                                    ? "bg-blue-500 text-white"
+                                    : "bg-gray-500 text-white"
                                 }`}
                             >
-                              {booking.status === "confirmed"
-                                ? "Баталгаажсан"
-                                : booking.status === "pending"
-                                  ? "Хүлээгдэж байна"
-                                  : booking.status === "completed"
-                                    ? "Дууссан"
-                                    : booking.status === "cancelled"
-                                      ? "Цуцлагдсан"
-                                      : booking.status}
+                              <span className="text-[10px] uppercase tracking-wider">
+                                {booking.status === "confirmed"
+                                  ? "Баталгаажсан"
+                                  : booking.status === "pending"
+                                    ? "Хүлээгдэж буй"
+                                    : booking.status === "completed"
+                                      ? "Дууссан"
+                                      : booking.status === "cancelled"
+                                        ? "Цуцлагдсан"
+                                        : booking.status}
+                              </span>
                             </Badge>
+                          </div>
+                        </div>
+                        <CardContent className="p-3 sm:p-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-bold text-base sm:text-lg truncate text-gray-900 group-hover:text-emerald-700 transition-colors">
+                                {booking.camp}
+                              </h3>
+                              <div className="flex items-center text-gray-500 mt-1">
+                                <MapPin className="w-3.5 h-3.5 mr-1 flex-shrink-0 text-emerald-600" />
+                                <span className="text-xs sm:text-sm truncate font-medium">
+                                  {booking.location}
+                                </span>
+                              </div>
+                            </div>
                           </div>
                           <div className="flex items-center text-gray-600 mb-1.5 sm:mb-2">
                             <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
@@ -862,10 +873,10 @@ export default function UserDashboardContent() {
                                     : "outline"
                               }
                               className={`text-xs ml-2 font-medium ${booking.status === "confirmed"
-                                  ? "bg-green-100 text-green-800 border-green-300"
-                                  : booking.status === "pending"
-                                    ? "bg-yellow-100 text-yellow-800 border-yellow-300"
-                                    : ""
+                                ? "bg-green-100 text-green-800 border-green-300"
+                                : booking.status === "pending"
+                                  ? "bg-yellow-100 text-yellow-800 border-yellow-300"
+                                  : ""
                                 }`}
                             >
                               {booking.status === "confirmed"
@@ -944,12 +955,12 @@ export default function UserDashboardContent() {
                               <Badge
                                 variant={order.status === "delivered" ? "default" : order.status === "shipped" ? "secondary" : "outline"}
                                 className={`text-[10px] mt-1 ${order.status === "delivered"
-                                    ? "bg-green-100 text-green-800"
-                                    : order.status === "shipped"
-                                      ? "bg-blue-100 text-blue-800"
-                                      : order.status === "paid"
-                                        ? "bg-purple-100 text-purple-800"
-                                        : ""
+                                  ? "bg-green-100 text-green-800"
+                                  : order.status === "shipped"
+                                    ? "bg-blue-100 text-blue-800"
+                                    : order.status === "paid"
+                                      ? "bg-purple-100 text-purple-800"
+                                      : ""
                                   }`}
                               >
                                 {order.status === "delivered" ? "Хүргэгдсэн" : order.status === "shipped" ? "Илгээсэн" : order.status === "paid" ? "Төлсөн" : order.status === "pending" ? "Хүлээгдэж байна" : order.status}
@@ -1035,12 +1046,12 @@ export default function UserDashboardContent() {
                                           : "outline"
                                     }
                                     className={`font-medium text-[10px] md:text-xs ${order.status === "delivered"
-                                        ? "bg-green-100 text-green-800"
-                                        : order.status === "shipped"
-                                          ? "bg-blue-100 text-blue-800"
-                                          : order.status === "paid"
-                                            ? "bg-purple-100 text-purple-800"
-                                            : ""
+                                      ? "bg-green-100 text-green-800"
+                                      : order.status === "shipped"
+                                        ? "bg-blue-100 text-blue-800"
+                                        : order.status === "paid"
+                                          ? "bg-purple-100 text-purple-800"
+                                          : ""
                                       }`}
                                   >
                                     {order.status === "delivered"
@@ -1259,10 +1270,10 @@ export default function UserDashboardContent() {
                               <Badge
                                 variant="outline"
                                 className={`font-medium ${route.difficulty === "extreme"
-                                    ? "border-red-500 text-red-600"
-                                    : route.difficulty === "challenging"
-                                      ? "border-orange-500 text-orange-600"
-                                      : "border-green-500 text-green-600"
+                                  ? "border-red-500 text-red-600"
+                                  : route.difficulty === "challenging"
+                                    ? "border-orange-500 text-orange-600"
+                                    : "border-green-500 text-green-600"
                                   }`}
                               >
                                 {route.difficulty}
@@ -1291,8 +1302,8 @@ export default function UserDashboardContent() {
                                   </span>
                                   <span
                                     className={`font-semibold ${route.childFriendly
-                                        ? "text-green-600"
-                                        : "text-red-600"
+                                      ? "text-green-600"
+                                      : "text-red-600"
                                       }`}
                                   >
                                     {route.childFriendly ? "Yes" : "No"}

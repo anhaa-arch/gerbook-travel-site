@@ -21,6 +21,9 @@ import {
   Download,
   Check,
   Upload,
+  Clock,
+  CheckCircle2,
+  Truck,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -888,43 +891,49 @@ export default function AdminDashboardContent() {
           onValueChange={setActiveTab}
           className="space-y-6"
         >
-          <div className="overflow-x-auto">
-            <TabsList className="grid w-full grid-cols-6 min-w-[600px] sm:min-w-0">
+          <div className="overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
+            <TabsList className="inline-flex w-auto sm:w-full sm:grid sm:grid-cols-6 p-1 bg-gray-100/80 rounded-xl gap-1">
               <TabsTrigger
                 value="overview"
-                className="text-xs sm:text-sm font-medium"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
-                {t("admin.tabs.overview", "Тойм")}
+                <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Тойм</span>
               </TabsTrigger>
               <TabsTrigger
                 value="users"
-                className="text-xs sm:text-sm font-medium"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
-                {t("admin.tabs.users", "Хэрэглэгчид")}
+                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Хэрэглэгчид</span>
               </TabsTrigger>
               <TabsTrigger
                 value="camps"
-                className="text-xs sm:text-sm font-medium"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
-                {t("admin.tabs.camps", "Баазууд")}
+                <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Баазууд</span>
               </TabsTrigger>
               <TabsTrigger
                 value="products"
-                className="text-xs sm:text-sm font-medium"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
-                {t("admin.tabs.products", "Бүтээгдэхүүнүүд")}
+                <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Бараа</span>
               </TabsTrigger>
               <TabsTrigger
                 value="orders"
-                className="text-xs sm:text-sm font-medium"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
-                {t("admin.tabs.orders", "Захиалгууд")}
+                <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Захиалга</span>
               </TabsTrigger>
               <TabsTrigger
                 value="content"
-                className="text-xs sm:text-sm font-medium"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
-                {t("admin.tabs.content", "Агуулга")}
+                <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Агуулга</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -3061,8 +3070,18 @@ export default function AdminDashboardContent() {
                             {formatCurrency(order.amount)}
                           </TableCell>
                           <TableCell>
-                            <Badge className={getStatusBadgeColor(order.status)}>
-                              {translateStatus(order.status)}
+                            <Badge
+                              className={`${getStatusBadgeColor(
+                                order.status
+                              )} px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5 border-none shadow-sm w-fit`}
+                            >
+                              {order.status === "PENDING" && <Clock className="w-3 h-3" />}
+                              {order.status === "PAID" && <CheckCircle2 className="w-3 h-3" />}
+                              {order.status === "CONFIRMED" && <Check className="w-3 h-3" />}
+                              {order.status === "SHIPPED" && <Package className="w-3 h-3" />}
+                              {order.status === "DELIVERED" && <Truck className="w-3 h-3" />}
+                              {order.status === "CANCELLED" && <X className="w-3 h-3" />}
+                              <span className="text-[11px] uppercase tracking-wider">{translateStatus(order.status)}</span>
                             </Badge>
                           </TableCell>
                           <TableCell className="hidden sm:table-cell font-medium text-sm">
@@ -3235,8 +3254,16 @@ export default function AdminDashboardContent() {
                               </div>
                             </TableCell>
                             <TableCell>
-                              <Badge className={getStatusBadgeColor(booking.status)}>
-                                {translateStatus(booking.status)}
+                              <Badge
+                                className={`${getStatusBadgeColor(
+                                  booking.status
+                                )} px-2.5 py-1 rounded-full font-bold flex items-center gap-1.5 border-none shadow-sm w-fit`}
+                              >
+                                {booking.status === "PENDING" && <Clock className="w-3 h-3" />}
+                                {booking.status === "CONFIRMED" && <Check className="w-3 h-3" />}
+                                {booking.status === "COMPLETED" && <CheckCircle2 className="w-3 h-3" />}
+                                {booking.status === "CANCELLED" && <X className="w-3 h-3" />}
+                                <span className="text-[11px] uppercase tracking-wider">{translateStatus(booking.status)}</span>
                               </Badge>
                             </TableCell>
                             <TableCell>

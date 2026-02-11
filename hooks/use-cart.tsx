@@ -1,6 +1,6 @@
-"use client"
-
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react"
+import { toast } from "./use-toast"
+import { ShoppingCart, CheckCircle2 } from "lucide-react"
 
 export type CartItemType = "PRODUCT" | "CAMP" | "TRAVEL";
 
@@ -91,6 +91,23 @@ export function CartProvider({ children }: { children: ReactNode }) {
         return updated;
       }
       return [...prev, item];
+    });
+
+    // Premium Notification
+    toast({
+      title: "Сагсанд амжилттай нэмэгдлээ",
+      description: (
+        <div className="flex items-center gap-3 mt-1">
+          <div className="w-10 h-10 rounded-lg overflow-hidden border border-emerald-100 flex-shrink-0 bg-white">
+            <img src={item.image} alt={item.name} className="w-full h-full object-cover" />
+          </div>
+          <div>
+            <p className="font-bold text-emerald-900">{item.name}</p>
+            <p className="text-xs text-emerald-700 font-medium">{item.price.toLocaleString()}₮ × {item.quantity}</p>
+          </div>
+        </div>
+      ),
+      variant: "success",
     });
   }, []);
 
