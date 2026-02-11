@@ -133,6 +133,22 @@ export const GET_AVAILABLE_PRODUCTS = gql`
   }
 `
 
+export const GET_SAVED_YURTS = gql`
+  query GetSavedYurts {
+    savedYurts {
+      id
+      yurt {
+        id
+        name
+        location
+        pricePerNight
+        images
+      }
+      createdAt
+    }
+  }
+`
+
 export const GET_AVAILABLE_TRAVELS = gql`
   query GetAvailableTravels {
     travels {

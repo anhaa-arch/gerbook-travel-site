@@ -1,0 +1,323 @@
+﻿app/admin-dashboard/admin-dashboard-content.tsx(7,3): error TS2724: '"lucide-react"' has no exported member named 'users'. Did you mean 'Users'?
+app/admin-dashboard/admin-dashboard-content.tsx(939,19): error TS2339: Property 'users' does not exist on type 'JSX.IntrinsicElements'.
+app/admin-dashboard/admin-dashboard-content.tsx(2163,28): error TS2304: Cannot find name 'Upload'.
+app/admin-dashboard/admin-dashboard-content.tsx(2197,30): error TS2304: Cannot find name 'Upload'.
+app/admin-dashboard/admin-dashboard-content.tsx(2676,28): error TS2304: Cannot find name 'Upload'.
+app/admin-dashboard/admin-dashboard-content.tsx(2711,30): error TS2304: Cannot find name 'Upload'.
+app/explore-mongolia/page.tsx(8,3): error TS2724: '"lucide-react"' has no exported member named 'users'. Did you mean 'Users'?
+app/explore-mongolia/page.tsx(500,27): error TS2322: Type '{ children: (Element | Element[])[]; center: number[]; zoom: number; style: { height: string; width: string; }; scrollWheelZoom: boolean; }' is not assignable to type 'IntrinsicAttributes & MapContainerProps & RefAttributes<LeafletMap>'.
+  Property 'center' does not exist on type 'IntrinsicAttributes & MapContainerProps & RefAttributes<LeafletMap>'.
+app/explore-mongolia/page.tsx(503,17): error TS2322: Type '{ url: string; attribution: string; }' is not assignable to type 'IntrinsicAttributes & TileLayerProps & RefAttributes<LeafletTileLayer>'.
+  Property 'attribution' does not exist on type 'IntrinsicAttributes & TileLayerProps & RefAttributes<LeafletTileLayer>'.
+app/explore-mongolia/page.tsx(709,23): error TS2339: Property 'users' does not exist on type 'JSX.IntrinsicElements'.
+app/explore-mongolia/page.tsx(814,23): error TS2339: Property 'users' does not exist on type 'JSX.IntrinsicElements'.
+app/herder-dashboard/herder-dashboard-content.tsx(24,3): error TS2724: '"lucide-react"' has no exported member named 'users'. Did you mean 'Users'?
+app/herder-dashboard/herder-dashboard-content.tsx(2173,37): error TS2339: Property 'users' does not exist on type 'JSX.IntrinsicElements'.
+app/herder-dashboard/herder-dashboard-content.tsx(2206,39): error TS2339: Property 'users' does not exist on type 'JSX.IntrinsicElements'.
+app/map/page.tsx(391,33): error TS2322: Type '{ children: (false | Element | Element[] | null)[]; center: number[]; zoom: number; style: { height: string; width: string; }; scrollWheelZoom: boolean; }' is not assignable to type 'IntrinsicAttributes & MapContainerProps & RefAttributes<LeafletMap>'.
+  Property 'center' does not exist on type 'IntrinsicAttributes & MapContainerProps & RefAttributes<LeafletMap>'.
+app/map/page.tsx(394,23): error TS2322: Type '{ url: string; attribution: string; }' is not assignable to type 'IntrinsicAttributes & TileLayerProps & RefAttributes<LeafletTileLayer>'.
+  Property 'attribution' does not exist on type 'IntrinsicAttributes & TileLayerProps & RefAttributes<LeafletTileLayer>'.
+app/products/page.tsx(6,38): error TS2724: '"lucide-react"' has no exported member named 'user'. Did you mean 'User'?
+app/travel-routes/page.tsx(10,3): error TS2724: '"lucide-react"' has no exported member named 'users'. Did you mean 'Users'?
+app/travel-routes/page.tsx(399,23): error TS2339: Property 'users' does not exist on type 'JSX.IntrinsicElements'.
+app/travel-routes/page.tsx(588,29): error TS2339: Property 'users' does not exist on type 'JSX.IntrinsicElements'.
+app/travel-routes/page.tsx(808,25): error TS2322: Type '{ children: (false | "" | Element | Element[] | null)[]; center: [number, number]; zoom: number; style: { height: string; width: string; }; scrollWheelZoom: boolean; whenCreated: (mapInstance: any) => any; }' is not assignable to type 'IntrinsicAttributes & MapContainerProps & RefAttributes<LeafletMap>'.
+  Property 'center' does not exist on type 'IntrinsicAttributes & MapContainerProps & RefAttributes<LeafletMap>'.
+app/travel-routes/page.tsx(812,38): error TS7006: Parameter 'mapInstance' implicitly has an 'any' type.
+app/travel-routes/page.tsx(816,27): error TS2322: Type '{ url: string; attribution: string; }' is not assignable to type 'IntrinsicAttributes & TileLayerProps & RefAttributes<LeafletTileLayer>'.
+  Property 'attribution' does not exist on type 'IntrinsicAttributes & TileLayerProps & RefAttributes<LeafletTileLayer>'.
+app/travel-routes/page.tsx(849,36): error TS2322: Type '{ children: Element; autoOpen: boolean; }' is not assignable to type 'IntrinsicAttributes & PopupProps & RefAttributes<LeafletPopup>'.
+  Property 'autoOpen' does not exist on type 'IntrinsicAttributes & PopupProps & RefAttributes<LeafletPopup>'.
+components/comment-section.tsx(9,24): error TS2724: '"lucide-react"' has no exported member named 'user'. Did you mean 'User'?
+components/comment-section.tsx(260,23): error TS2339: Property 'user' does not exist on type 'JSX.IntrinsicElements'.
+components/dashboard-nav.tsx(8,10): error TS2724: '"lucide-react"' has no exported member named 'user'. Did you mean 'User'?
+components/dashboard-nav.tsx(8,52): error TS2724: '"lucide-react"' has no exported member named 'users'. Did you mean 'Users'?
+components/payment-modal.tsx(15,3): error TS2724: '"lucide-react"' has no exported member named 'users'. Did you mean 'Users'?
+components/payment-modal.tsx(208,21): error TS2339: Property 'users' does not exist on type 'JSX.IntrinsicElements'.
+components/ui/save-button.tsx(17,14): error TS2322: Type '{ children: Element; content: string; }' is not assignable to type 'IntrinsicAttributes & TooltipProps'.
+  Property 'content' does not exist on type 'IntrinsicAttributes & TooltipProps'.
+tests/components/otp-modal.test.tsx(2,52): error TS2307: Cannot find module '@testing-library/react' or its corresponding type declarations.
+tests/components/otp-modal.test.tsx(5,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/otp-modal.test.tsx(6,3): error TS2582: Cannot find name 'test'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tests/components/otp-modal.test.tsx(7,22): error TS2304: Cannot find name 'jest'.
+tests/components/otp-modal.test.tsx(8,22): error TS2304: Cannot find name 'jest'.
+tests/components/otp-modal.test.tsx(16,5): error TS2304: Cannot find name 'expect'.
+tests/components/otp-modal.test.tsx(21,5): error TS2304: Cannot find name 'expect'.
+tests/components/otp-modal.test.tsx(24,25): error TS2304: Cannot find name 'expect'.
+tests/components/otp-modal.test.tsx(28,25): error TS2304: Cannot find name 'expect'.
+tests/components/otp-modal.test.tsx(31,5): error TS2304: Cannot find name 'expect'.
+tests/components/otp-modal.test.tsx(34,25): error TS2304: Cannot find name 'expect'.
+tests/components/otp-modal.test.tsx(36,25): error TS2304: Cannot find name 'expect'.
+tests/components/otp-modal.test.tsx(38,25): error TS2304: Cannot find name 'expect'.
+tests/components/otp-modal.test.tsx(40,25): error TS2304: Cannot find name 'expect'.
+tests/components/otp-modal.test.tsx(43,25): error TS2304: Cannot find name 'expect'.
+tests/components/otp-modal.test.tsx(49,5): error TS2304: Cannot find name 'expect'.
+tests/components/otp-modal.test.tsx(54,25): error TS2304: Cannot find name 'expect'.
+tusul_back/controller/invoice.ts(19,36): error TS2345: Argument of type '(req: CreateInvoiceRequest, res: Response, next: NextFunction) => Promise<Response<any, Record<string, any>> | undefined>' is not assignable to parameter of type 'AsyncFunction'.
+  Types of parameters 'req' and 'req' are incompatible.
+    Type 'Request<ParamsDictionary, any, any, ParsedQs, Record<string, any>>' is not assignable to type 'CreateInvoiceRequest'.
+      Type 'ParamsDictionary' is not assignable to type 'Record<string, never>'.
+        'string' index signatures are incompatible.
+          Type 'string' is not assignable to type 'never'.
+tusul_back/graphql/resolvers/booking.ts(73,34): error TS7006: Parameter 'booking' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/category.ts(39,36): error TS7006: Parameter 'category' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/order.ts(59,32): error TS7006: Parameter 'order' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/order.ts(119,36): error TS7006: Parameter 'item' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/order.ts(127,43): error TS7006: Parameter 'map' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/order.ts(127,48): error TS7006: Parameter 'product' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/order.ts(134,13): error TS7034: Variable 'orderItems' implicitly has type 'any[]' in some locations where its type cannot be determined.
+tusul_back/graphql/resolvers/order.ts(162,62): error TS7006: Parameter 'prisma' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/order.ts(172,23): error TS7005: Variable 'orderItems' implicitly has an 'any[]' type.
+tusul_back/graphql/resolvers/order.ts(228,57): error TS7006: Parameter 'prisma' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/order.ts(288,55): error TS7006: Parameter 'prisma' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/product.ts(49,34): error TS7006: Parameter 'product' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/travel.ts(45,33): error TS7006: Parameter 'travel' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/travel.ts(119,40): error TS7006: Parameter 'booking' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/user.ts(71,31): error TS7006: Parameter 'user' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/user.ts(132,9): error TS2345: Argument of type 'string | null' is not assignable to parameter of type 'string | undefined'.
+  Type 'null' is not assignable to type 'string | undefined'.
+tusul_back/graphql/resolvers/yurt.ts(50,31): error TS7006: Parameter 'yurt' implicitly has an 'any' type.
+tusul_back/graphql/resolvers/yurt.ts(107,46): error TS7006: Parameter 'yurt' implicitly has an 'any' type.
+tusul_back/middleware/protect.ts(61,25): error TS2345: Argument of type 'string | undefined' is not assignable to parameter of type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tusul_back/middleware/qpay.ts(22,11): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tusul_back/middleware/qpay.ts(23,11): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tusul_back/middleware/qpay.ts(56,11): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tusul_back/middleware/qpay.ts(57,11): error TS2322: Type 'string | undefined' is not assignable to type 'string'.
+  Type 'undefined' is not assignable to type 'string'.
+tusul_back/server.ts(3,20): error TS7016: Could not find a declaration file for module 'dotenv'. 'C:/gerbook-travel-site/tusul_back/node_modules/dotenv/lib/main.js' implicitly has an 'any' type.
+  There are types at 'C:/gerbook-travel-site/tusul_back/node_modules/dotenv/types/index.d.ts', but this result could not be resolved when respecting package.json "exports". The 'dotenv' library may need to update its package.json or typings.
+tusul_back/server.ts(119,34): error TS2322: Type 'Express' is not assignable to type 'Application'.
+  Types of property 'get' are incompatible.
+    Type '((name: string) => any) & IRouterMatcher<Express, any>' is not assignable to type '((name: string) => any) & IRouterMatcher<Application<Record<string, any>>, any>'.
+      Type '((name: string) => any) & IRouterMatcher<Express, any>' is not assignable to type 'IRouterMatcher<Application<Record<string, any>>, any>'.
+        Types of parameters 'name' and 'path' are incompatible.
+          Type 'PathParams' is not assignable to type 'string'.
+            Type 'RegExp' is not assignable to type 'string'.
+tusul_back/tests/graphql/resolvers/user.test.ts(8,1): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(9,1): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(11,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(44,3): error TS2304: Cannot find name 'beforeEach'.
+tusul_back/tests/graphql/resolvers/user.test.ts(45,5): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(48,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(49,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(50,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(52,19): error TS2551: Property 'getuserId' does not exist on type 'typeof import("C:/gerbook-travel-site/tusul_back/utils/auth/jwt")'. Did you mean 'getUserId'?
+tusul_back/tests/graphql/resolvers/user.test.ts(52,32): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(55,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(60,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(60,25): error TS2551: Property 'getuserId' does not exist on type 'typeof import("C:/gerbook-travel-site/tusul_back/utils/auth/jwt")'. Did you mean 'getUserId'?
+tusul_back/tests/graphql/resolvers/user.test.ts(63,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(68,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(72,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(73,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(75,30): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(78,31): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(81,34): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(86,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(89,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(92,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(101,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(116,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(118,30): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(121,15): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(125,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(129,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(130,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(132,30): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(135,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(140,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(143,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(148,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(151,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(153,30): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(156,15): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(160,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(165,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(166,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(167,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(176,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(179,40): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(182,32): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(192,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(197,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(202,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(205,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(213,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(216,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(218,17): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(225,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(234,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(237,15): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(241,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(247,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(248,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(256,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(259,43): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(262,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(271,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(276,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(282,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(285,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(291,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(299,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(302,15): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(306,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(311,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/graphql/resolvers/user.test.ts(319,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(322,43): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/graphql/resolvers/user.test.ts(325,15): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(329,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/graphql/resolvers/user.test.ts(334,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(4,50): error TS2307: Cannot find module './setup' or its corresponding type declarations.
+tusul_back/tests/integration/user.test.ts(10,1): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/integration/user.test.ts(11,1): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/integration/user.test.ts(13,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(40,3): error TS2304: Cannot find name 'beforeAll'.
+tusul_back/tests/integration/user.test.ts(48,3): error TS2304: Cannot find name 'afterAll'.
+tusul_back/tests/integration/user.test.ts(53,3): error TS2304: Cannot find name 'beforeEach'.
+tusul_back/tests/integration/user.test.ts(54,5): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/integration/user.test.ts(57,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(58,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(59,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(61,19): error TS2551: Property 'getuserId' does not exist on type 'typeof import("C:/gerbook-travel-site/tusul_back/utils/auth/jwt")'. Did you mean 'getUserId'?
+tusul_back/tests/integration/user.test.ts(61,32): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(64,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(85,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(86,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(94,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(96,19): error TS2551: Property 'getuserId' does not exist on type 'typeof import("C:/gerbook-travel-site/tusul_back/utils/auth/jwt")'. Did you mean 'getUserId'?
+tusul_back/tests/integration/user.test.ts(96,32): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(118,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(119,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(120,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(125,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(126,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(127,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(129,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(132,40): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(144,32): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(147,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(174,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(175,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(186,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(188,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(215,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(216,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(217,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(221,5): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(222,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(224,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(227,43): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(230,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(253,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(254,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(265,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(267,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(290,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(291,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(292,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(295,7): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/integration/user.test.ts(297,36): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(300,43): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/integration/user.test.ts(323,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(324,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/integration/user.test.ts(325,9): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/error.test.ts(4,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/middleware/error.test.ts(9,3): error TS2304: Cannot find name 'beforeEach'.
+tusul_back/tests/middleware/error.test.ts(15,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/middleware/error.test.ts(16,13): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/middleware/error.test.ts(20,20): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/middleware/error.test.ts(23,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/middleware/error.test.ts(31,5): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/error.test.ts(34,5): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/error.test.ts(36,14): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/error.test.ts(42,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/middleware/error.test.ts(51,5): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/error.test.ts(54,5): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/error.test.ts(56,14): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/error.test.ts(63,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/middleware/error.test.ts(72,5): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/error.test.ts(75,5): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/error.test.ts(77,14): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/error.test.ts(84,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/middleware/error.test.ts(93,5): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/error.test.ts(96,5): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/error.test.ts(98,14): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/logger.test.ts(4,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/middleware/logger.test.ts(8,22): error TS2503: Cannot find namespace 'jest'.
+tusul_back/tests/middleware/logger.test.ts(10,3): error TS2304: Cannot find name 'beforeEach'.
+tusul_back/tests/middleware/logger.test.ts(23,20): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/middleware/logger.test.ts(26,21): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/middleware/logger.test.ts(29,3): error TS2304: Cannot find name 'afterEach'.
+tusul_back/tests/middleware/logger.test.ts(34,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/middleware/logger.test.ts(39,5): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/logger.test.ts(42,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/middleware/logger.test.ts(47,5): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/logger.test.ts(50,3): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/middleware/logger.test.ts(59,5): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/middleware/logger.test.ts(69,5): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/setup.ts(4,1): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(7,19): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(8,17): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(9,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(10,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(11,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(12,14): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(15,19): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(16,17): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(17,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(18,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(19,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(20,14): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(23,19): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(24,17): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(25,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(26,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(27,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(28,14): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(31,19): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(32,17): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(33,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(34,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(35,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(36,14): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(39,19): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(40,17): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(41,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(42,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(43,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(44,14): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(47,19): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(48,17): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(49,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(50,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(51,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(52,14): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(55,19): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(56,17): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(57,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(58,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(59,15): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(60,14): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/setup.ts(68,1): error TS2304: Cannot find name 'beforeEach'.
+tusul_back/tests/setup.ts(69,3): error TS2304: Cannot find name 'jest'.
+tusul_back/tests/utils/auth/password.test.ts(3,1): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/utils/auth/password.test.ts(4,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/utils/auth/password.test.ts(5,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/utils/auth/password.test.ts(10,7): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/utils/auth/password.test.ts(13,7): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/utils/auth/password.test.ts(16,7): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/utils/auth/password.test.ts(19,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/utils/auth/password.test.ts(25,7): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/utils/auth/password.test.ts(29,3): error TS2582: Cannot find name 'describe'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/utils/auth/password.test.ts(30,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/utils/auth/password.test.ts(35,7): error TS2304: Cannot find name 'expect'.
+tusul_back/tests/utils/auth/password.test.ts(38,5): error TS2582: Cannot find name 'it'. Do you need to install type definitions for a test runner? Try `npm i --save-dev @types/jest` or `npm i --save-dev @types/mocha`.
+tusul_back/tests/utils/auth/password.test.ts(44,7): error TS2304: Cannot find name 'expect'.
+tusul_back/utils/mailer.ts(1,24): error TS7016: Could not find a declaration file for module 'nodemailer'. 'C:/gerbook-travel-site/tusul_back/node_modules/nodemailer/lib/nodemailer.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/nodemailer` if it exists or add a new declaration (.d.ts) file containing `declare module 'nodemailer';`

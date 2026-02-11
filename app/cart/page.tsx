@@ -1,5 +1,6 @@
 "use client"
 
+import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import Image from "next/image"
 import Link from "next/link"
@@ -10,10 +11,13 @@ import { Separator } from "@/components/ui/separator"
 import '../../lib/i18n'
 import { useCart } from "@/hooks/use-cart"
 import { toast } from "@/hooks/use-toast"
+import { PaymentModal } from "@/components/payment-modal"
 
 export default function CartPage() {
   const { t } = useTranslation()
   const { cartItems, removeFromCart, updateQuantity, subtotal, itemCount } = useCart()
+  const [showPaymentModal, setShowPaymentModal] = useState(false)
+  const [isProcessing, setIsProcessing] = useState(false)
 
   // Helper to format identifiers for display
   const getClientId = (item: any) => {
@@ -26,6 +30,25 @@ export default function CartPage() {
   const shipping = subtotal > 100000 ? 0 : 5000
   const tax = subtotal * 0.1 // 10% VAT in Mongolia
   const total = subtotal + shipping + tax
+
+  const handleCheckout = () => {
+    setShowPaymentModal(true);
+  };
+
+  const handlePaymentComplete = async (method: string) => {
+    setIsProcessing(true);
+    setShowPaymentModal(false);
+
+    // In a real app, we would call a createOrder mutation here
+    setTimeout(() => {
+      setIsProcessing(false);
+      toast({
+        title: "Захиалга амжилттай",
+        description: "Таны захиалга баталгаажлаа. Бид удахгүй холбогдох болно.",
+      });
+      window.location.href = "/user-dashboard";
+    }, 1500);
+  };
 
   if (cartItems.length === 0) {
     return (
@@ -210,16 +233,12 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                {subtotal < 100000 && (
-                  <div className="bg-amber-50 border border-amber-100 p-3 rounded-xl animate-pulse">
-                    <p className="text-xs text-amber-800 font-semibold flex items-center">
-                      <span className="mr-2">🚛</span> ₮{(100000 - subtotal).toLocaleString()} нэмээд үнэгүй хүргүүлээрэй!
-                    </p>
-                  </div>
-                )}
-
-                <Button className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-all font-black text-base py-7 rounded-2xl shadow-lg hover:shadow-emerald-200/50 uppercase tracking-widest border-b-4 border-emerald-800">
-                  ЗАХИАЛГА БАТАЛГААЖУУЛАХ
+                <Button
+                  onClick={handleCheckout}
+                  disabled={isProcessing}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 active:scale-[0.98] transition-all font-black text-base py-7 rounded-2xl shadow-lg hover:shadow-emerald-200/50 uppercase tracking-widest border-b-4 border-emerald-800"
+                >
+                  {isProcessing ? "УНШИЖ БАЙНА..." : "ЗАХИАЛГА БАТАЛГААЖУУЛАХ"}
                 </Button>
 
                 <div className="flex flex-col gap-3">
@@ -234,26 +253,18 @@ export default function CartPage() {
                     <div className="w-8 h-5 bg-orange-500 rounded"></div>
                   </div>
                 </div>
-
-                <div className="bg-gray-50 p-4 rounded-xl space-y-3">
-                  <h4 className="text-xs font-black text-gray-900 uppercase tracking-wider">Нөхцөлүүд</h4>
-                  <ul className="text-[11px] text-gray-500 space-y-2 font-bold leading-tight">
-                    <li className="flex items-start">
-                      <span className="text-emerald-500 mr-2">✓</span> {shipping === 0 ? "Одоо таны хүргэлт ҮНЭГҮЙ байна." : "100к-с дээш захиалга хүргэлтгүй."}
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-emerald-500 mr-2">✓</span> Барааг 5-7 ажлын өдөрт хүргэнэ.
-                    </li>
-                    <li className="flex items-start">
-                      <span className="text-emerald-500 mr-2">✓</span> Амралтын баазын захиалга шууд баталгаажна.
-                    </li>
-                  </ul>
-                </div>
               </CardContent>
             </Card>
           </div>
         </div>
       </div>
+
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onComplete={handlePaymentComplete}
+        amount={total}
+      />
     </div>
   )
 }

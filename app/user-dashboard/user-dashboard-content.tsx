@@ -39,6 +39,7 @@ import {
   GET_AVAILABLE_YURTS,
   GET_AVAILABLE_PRODUCTS,
   GET_AVAILABLE_TRAVELS,
+  GET_SAVED_YURTS,
 } from "./queries";
 
 // Type definitions
@@ -52,6 +53,7 @@ interface Booking {
   amount: number;
   status: string;
   image: string;
+  type: "camp" | "travel";
   owner?: {
     id: string;
     name: string;
@@ -168,6 +170,13 @@ export default function UserDashboardContent() {
     GET_AVAILABLE_TRAVELS
   );
 
+  const { data: savedYurtsData, loading: savedYurtsLoading, error: savedYurtsError } = useQuery(
+    GET_SAVED_YURTS,
+    {
+      skip: !user?.id,
+    }
+  );
+
   // Log any errors for debugging
   if (DEBUG_MODE) {
     if (bookingsError) console.error("Bookings error:", bookingsError);
@@ -216,10 +225,11 @@ export default function UserDashboardContent() {
         location: yurt.location || "Unknown Location",
         checkIn: formatDate(edge.node.startDate),
         checkOut: formatDate(edge.node.endDate),
-        guests: 2, // Default since we don't have guest count in the schema
+        guests: 2,
         amount: parseFloat(edge.node.totalPrice) || 0,
         status: edge.node.status?.toLowerCase() || "pending",
         image: primaryImage,
+        type: "camp" as const,
         owner: yurt.owner ? {
           id: yurt.owner.id,
           name: yurt.owner.name,
@@ -231,25 +241,16 @@ export default function UserDashboardContent() {
 
   const orders: Order[] =
     ordersData?.orders?.edges?.map((edge: any) => {
-      const firstItem = edge.node?.items?.[0];
+      const firstItem = edge.node?.orderitem?.[0];
       const product = firstItem?.product || {};
       const images = product.images;
       const primaryImage = getPrimaryImage(images);
 
-      if (DEBUG_MODE) {
-        console.log("Order image data:", {
-          orderId: edge.node.id,
-          productId: product.id,
-          rawImages: images,
-          primaryImage
-        });
-      }
-
       return {
         id: edge.node.id,
-        product: firstItem?.product?.name || "Multiple items",
-        seller: "Seller", // We don't have seller info in current schema
-        quantity: edge.node.items?.reduce(
+        product: product.name || "Multiple items",
+        seller: "Малчин",
+        quantity: edge.node.orderitem?.reduce(
           (sum: number, item: any) => sum + (item.quantity || 0),
           0
         ) || 0,
@@ -260,33 +261,22 @@ export default function UserDashboardContent() {
       };
     }) || [];
 
-  const travelBookings: TravelBooking[] =
+  const travelBookings: Booking[] =
     travelBookingsData?.travelBookings?.edges?.map((edge: any) => {
       const travel = edge.node?.travel || {};
       const images = travel.images;
       const primaryImage = getPrimaryImage(images);
 
-      if (DEBUG_MODE) {
-        console.log("Travel booking image data:", {
-          travelId: travel.id,
-          rawImages: images,
-          primaryImage
-        });
-      }
-
-      // Format travel date
-      const formatTravelDate = (dateString: string) => {
+      const formatDateLocal = (dateString: string) => {
         try {
           if (/^\d+$/.test(dateString)) {
-            const timestamp = parseInt(dateString);
-            const date = new Date(timestamp);
+            const date = new Date(parseInt(dateString));
             return date.toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' });
           }
           const date = new Date(dateString);
-          if (!isNaN(date.getTime())) {
-            return date.toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' });
-          }
-          return dateString;
+          return !isNaN(date.getTime())
+            ? date.toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' })
+            : dateString;
         } catch {
           return dateString;
         }
@@ -294,28 +284,27 @@ export default function UserDashboardContent() {
 
       return {
         id: edge.node.id,
-        travel: travel.name || "Unknown Travel",
+        camp: travel.name || "Unknown Travel",
         location: travel.location || "Unknown Location",
-        startDate: formatTravelDate(edge.node.startDate),
-        numberOfPeople: edge.node.numberOfPeople || 0,
+        checkIn: formatDateLocal(edge.node.startDate),
+        checkOut: "N/A",
+        guests: edge.node.numberOfPeople || 1,
         amount: parseFloat(edge.node.totalPrice) || 0,
         status: edge.node.status?.toLowerCase() || "pending",
         image: primaryImage,
+        type: "travel" as const,
       };
     }) || [];
 
+  const allBookings = [...bookings, ...travelBookings];
+
   // Calculate stats from real data
-  const totalBookings = bookings.length;
+  const totalBookings = allBookings.length;
   const totalOrders = orders.length;
-  const totalTravelBookings = travelBookings.length;
   const totalSpent =
     orders.reduce((sum: number, order: Order) => sum + order.amount, 0) +
-    bookings.reduce(
+    allBookings.reduce(
       (sum: number, booking: Booking) => sum + booking.amount,
-      0
-    ) +
-    travelBookings.reduce(
-      (sum: number, booking: TravelBooking) => sum + booking.amount,
       0
     );
 
@@ -349,7 +338,7 @@ export default function UserDashboardContent() {
         );
       })
       .reduce((sum: number, order: Order) => sum + order.amount, 0) +
-    bookings
+    allBookings
       .filter((booking: Booking) => {
         const bookingDate = new Date(booking.checkIn);
         return (
@@ -359,19 +348,19 @@ export default function UserDashboardContent() {
       })
       .reduce((sum: number, booking: Booking) => sum + booking.amount, 0);
 
-  // Create favorites from saved camps in localStorage
-  const savedCamps = JSON.parse(localStorage.getItem("savedCamps") || "[]");
-  const favorites: Favorite[] = savedCamps
-    .filter((camp: any) => camp.userId === user?.id)
-    .map((camp: any) => ({
-      id: camp.id,
-      name: camp.name,
-      location: camp.location,
-      price: camp.pricePerNight,
+  // Create favorites from real database data
+  const favorites: Favorite[] = savedYurtsData?.savedYurts?.map((saved: any) => {
+    const yurt = saved.yurt || {};
+    return {
+      id: yurt.id,
+      name: yurt.name,
+      location: yurt.location,
+      price: yurt.pricePerNight,
       rating: 4.5, // Default rating
       type: "camp",
-      image: camp.images || "/placeholder.svg",
-    }));
+      image: getPrimaryImage(yurt.images),
+    };
+  }) || [];
 
   // Create travel routes from available travel data
   const travelRoutes: TravelRoute[] =
@@ -571,7 +560,7 @@ export default function UserDashboardContent() {
                     </div>
                   ) : (
                     <div className="space-y-3 sm:space-y-4">
-                      {bookings
+                      {allBookings
                         .filter(
                           (booking: Booking) =>
                             booking.status === "upcoming" ||
@@ -583,7 +572,7 @@ export default function UserDashboardContent() {
                           Ирэх захиалга байхгүй
                         </p>
                       ) : (
-                        bookings
+                        allBookings
                           .filter(
                             (booking: Booking) =>
                               booking.status === "upcoming" ||
@@ -847,12 +836,12 @@ export default function UserDashboardContent() {
                 <div>
                   <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">Аяллын захиалгууд</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
-                    {travelBookings.map((booking: TravelBooking) => (
+                    {travelBookings.map((booking: Booking) => (
                       <Card key={booking.id} className="overflow-hidden shadow-sm">
                         <div className="aspect-video bg-gray-100 flex items-center justify-center">
                           <img
                             src={booking.image || "/placeholder.svg"}
-                            alt={booking.travel}
+                            alt={booking.camp}
                             className="w-full h-full object-cover"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = "/placeholder.svg";
@@ -862,7 +851,7 @@ export default function UserDashboardContent() {
                         <CardContent className="p-3 sm:p-4">
                           <div className="flex items-start justify-between mb-2">
                             <h3 className="font-bold text-sm sm:text-base md:text-lg truncate flex-1 pr-2">
-                              {booking.travel}
+                              {booking.camp}
                             </h3>
                             <Badge
                               variant={
@@ -899,20 +888,20 @@ export default function UserDashboardContent() {
                           <div className="flex items-center text-gray-600 mb-4">
                             <Calendar className="w-4 h-4 mr-1" />
                             <span className="text-sm font-medium">
-                              {booking.startDate}
+                              {booking.checkIn}
                             </span>
                           </div>
                           <div className="flex items-center justify-between">
                             <div>
                               <span className="text-xl font-bold">
-                                ${booking.amount}
+                                ₮{booking.amount.toLocaleString()}
                               </span>
                               <span className="text-gray-600 ml-1 text-sm font-medium">
-                                total
+                                нийт
                               </span>
                             </div>
                             <span className="text-sm text-gray-600 font-medium">
-                              {booking.numberOfPeople} people
+                              {booking.guests} хүн
                             </span>
                           </div>
                         </CardContent>
@@ -1249,7 +1238,7 @@ export default function UserDashboardContent() {
                                 <div className="flex items-center">
                                   <Package className="w-4 h-4 mr-1" />
                                   <span className="font-medium">
-                                    ${route.estimatedCost}
+                                    ₮{route.estimatedCost.toLocaleString()}
                                   </span>
                                 </div>
                               </div>
@@ -1265,7 +1254,7 @@ export default function UserDashboardContent() {
                                 }
                                 className="font-medium"
                               >
-                                {route.status}
+                                {route.status === "saved" ? "Хадгалсан" : route.status}
                               </Badge>
                               <Badge
                                 variant="outline"
@@ -1285,12 +1274,12 @@ export default function UserDashboardContent() {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
                               <h4 className="font-bold text-sm text-gray-700 mb-2">
-                                Trip Details
+                                Аяллын мэдээлэл
                               </h4>
                               <div className="space-y-1 text-sm">
                                 <div className="flex justify-between">
                                   <span className="text-gray-600 font-medium">
-                                    Season:
+                                    Улирал:
                                   </span>
                                   <span className="capitalize font-semibold">
                                     {route.weatherSeason}
@@ -1298,7 +1287,7 @@ export default function UserDashboardContent() {
                                 </div>
                                 <div className="flex justify-between">
                                   <span className="text-gray-600 font-medium">
-                                    Child Friendly:
+                                    Хүүхдэд ээлтэй:
                                   </span>
                                   <span
                                     className={`font-semibold ${route.childFriendly
@@ -1306,7 +1295,7 @@ export default function UserDashboardContent() {
                                       : "text-red-600"
                                       }`}
                                   >
-                                    {route.childFriendly ? "Yes" : "No"}
+                                    {route.childFriendly ? "Тийм" : "Үгүй"}
                                   </span>
                                 </div>
                                 <div className="flex justify-between">

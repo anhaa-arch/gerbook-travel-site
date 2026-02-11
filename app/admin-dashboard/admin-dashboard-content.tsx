@@ -141,6 +141,7 @@ export default function AdminDashboardContent() {
     petsPolicy: "not_allowed",
     smokingPolicy: "no_smoking",
     cancellationPolicy: "free_48h",
+    ownerId: "",
   });
 
   // Auto-logout after 5 minutes of inactivity
@@ -561,6 +562,7 @@ export default function AdminDashboardContent() {
           },
         }),
         images: JSON.stringify(optimizedImages),
+        ownerId: campForm.ownerId || undefined,
       };
 
       await createYurt({ variables: { input } });
@@ -592,6 +594,7 @@ export default function AdminDashboardContent() {
         petsPolicy: "not_allowed",
         smokingPolicy: "no_smoking",
         cancellationPolicy: "free_48h",
+        ownerId: "",
       });
       setUploadedImages([]);
     } catch (error: any) {
@@ -646,6 +649,7 @@ export default function AdminDashboardContent() {
           },
         }),
         images: JSON.stringify(optimizedImages),
+        ownerId: campForm.ownerId || undefined,
       };
 
       await updateYurt({ variables: { id: editingItem.id, input } });
@@ -678,6 +682,7 @@ export default function AdminDashboardContent() {
         petsPolicy: "not_allowed",
         smokingPolicy: "no_smoking",
         cancellationPolicy: "free_48h",
+        ownerId: "",
       });
       setUploadedImages([]);
     } catch (error: any) {
@@ -836,6 +841,7 @@ export default function AdminDashboardContent() {
       petsPolicy: parsedAmenities.policies?.pets || "not_allowed",
       smokingPolicy: parsedAmenities.policies?.smoking || "no_smoking",
       cancellationPolicy: parsedAmenities.policies?.cancellation || "free_48h",
+      ownerId: yurt.ownerId || "",
     });
 
     setShowEditYurt(true);
@@ -1855,6 +1861,30 @@ export default function AdminDashboardContent() {
                           }
                         />
                       </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Эзэмшигч (Хөтөч/Малчин)
+                        </label>
+                        <Select
+                          value={campForm.ownerId}
+                          onValueChange={(value) =>
+                            setCampForm({ ...campForm, ownerId: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Эзэмшигч сонгох" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {users
+                              .filter((u: any) => u.role === "HERDER" || u.role === "ADMIN")
+                              .map((u: any) => (
+                                <SelectItem key={u.id} value={u.id}>
+                                  {u.name} ({u.email})
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
 
                     {/* Description */}
@@ -2367,6 +2397,30 @@ export default function AdminDashboardContent() {
                             setCampForm({ ...campForm, capacity: e.target.value })
                           }
                         />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Эзэмшигч (Хөтөч/Малчин)
+                        </label>
+                        <Select
+                          value={campForm.ownerId}
+                          onValueChange={(value) =>
+                            setCampForm({ ...campForm, ownerId: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Эзэмшигч сонгох" />
+                          </SelectTrigger>
+                          <SelectContent className="max-h-[300px]">
+                            {users
+                              .filter((u: any) => u.role === "HERDER" || u.role === "ADMIN")
+                              .map((u: any) => (
+                                <SelectItem key={u.id} value={u.id}>
+                                  {u.name} ({u.email})
+                                </SelectItem>
+                              ))}
+                          </SelectContent>
+                        </Select>
                       </div>
                     </div>
 
@@ -2942,10 +2996,7 @@ export default function AdminDashboardContent() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
-                                  setEditingItem(camp);
-                                  setShowEditYurt(true);
-                                }}
+                                onClick={() => handleEditYurt(camp)}
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>

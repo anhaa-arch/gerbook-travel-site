@@ -198,6 +198,7 @@ export const CREATE_YURT = gql`
       capacity
       amenities
       images
+      ownerId
     }
   }
 `
@@ -213,6 +214,7 @@ export const UPDATE_YURT = gql`
       capacity
       amenities
       images
+      ownerId
     }
   }
 `

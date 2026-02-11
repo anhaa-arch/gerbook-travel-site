@@ -1230,7 +1230,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         <PaymentModal
           isOpen={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
-          onPaymentComplete={handlePaymentComplete}
+          onComplete={handlePaymentComplete}
+          amount={calculateTotal() + Math.round(calculateTotal() * 0.1)}
           bookingDetails={{
             campName: campData.name,
             location: campData.location,

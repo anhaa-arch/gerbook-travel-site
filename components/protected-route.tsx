@@ -22,7 +22,8 @@ export function ProtectedRoute({ children, requiredRole, redirectTo = "/login" }
       return
     }
 
-    const currentRole = (user?.role || "user").toString().toLowerCase() as "admin" | "user" | "herder"
+    let currentRole = (user?.role || "user").toString().toLowerCase() as "admin" | "user" | "herder" | "customer"
+    if (currentRole === "customer") currentRole = "user"
     const needsRole = requiredRole as ("admin" | "user" | "herder" | undefined)
 
     if (needsRole && currentRole !== needsRole) {
@@ -49,7 +50,8 @@ export function ProtectedRoute({ children, requiredRole, redirectTo = "/login" }
     )
   }
 
-  const currentRole = (user?.role || "user").toString().toLowerCase() as "admin" | "user" | "herder"
+  let currentRole = (user?.role || "user").toString().toLowerCase() as "admin" | "user" | "herder" | "customer"
+  if (currentRole === "customer") currentRole = "user"
   if (requiredRole && currentRole !== requiredRole) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans">

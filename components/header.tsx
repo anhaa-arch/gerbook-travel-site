@@ -290,6 +290,34 @@ export function Header() {
                       <span className="text-base text-gray-800 font-bold">Бүх баазууд</span>
                     </Link>
 
+                    {/* Language Switcher in Mobile Menu */}
+                    <div className="bg-gray-50 rounded-xl p-4 border border-gray-100 mb-4">
+                      <div className="flex items-center space-x-2 text-xs text-gray-500 font-black uppercase tracking-wider mb-3">
+                        <Globe className="w-3.5 h-3.5 text-emerald-600" />
+                        <span>Хэл сонгох / Language</span>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2">
+                        {[
+                          { flag: "🇲🇳", name: "Монгол", code: "mn" },
+                          { flag: "🇬🇧", name: "English", code: "en" },
+                          { flag: "🇨🇳", name: "中文", code: "zh" },
+                          { flag: "🇷🇺", name: "Русский", code: "ru" },
+                        ].map((lang, index) => (
+                          <button
+                            key={index}
+                            className="flex items-center space-x-2 p-2.5 bg-white hover:bg-emerald-50 rounded-lg border border-gray-100 transition-colors"
+                            onClick={() => {
+                              // Language change logic would go here
+                              setIsLanguageOpen(false);
+                            }}
+                          >
+                            <span className="text-base">{lang.flag}</span>
+                            <span className="text-xs font-bold text-gray-700">{lang.name}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
                     {/* Divider */}
                     <div className="border-t border-gray-100 my-4"></div>
 
