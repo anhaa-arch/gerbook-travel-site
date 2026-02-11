@@ -6,7 +6,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent } from "@/components/ui/card";
-import { Star, Trash2, user } from "lucide-react";
+import { Star, Trash2, User as UserIcon } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 const GET_COMMENTS = gql`
@@ -142,9 +142,9 @@ export function CommentSection({ yurtId }: CommentSectionProps) {
   const averageRating =
     comments.length > 0
       ? (
-          comments.reduce((sum: number, c: any) => sum + c.rating, 0) /
-          comments.length
-        ).toFixed(1)
+        comments.reduce((sum: number, c: any) => sum + c.rating, 0) /
+        comments.length
+      ).toFixed(1)
       : "0.0";
 
   return (
@@ -187,11 +187,10 @@ export function CommentSection({ yurtId }: CommentSectionProps) {
                       title={`${star} од өгөх`}
                     >
                       <Star
-                        className={`w-8 h-8 ${
-                          star <= rating
+                        className={`w-8 h-8 ${star <= rating
                             ? "fill-yellow-400 text-yellow-400"
                             : "text-gray-300"
-                        }`}
+                          }`}
                       />
                     </button>
                   ))}
@@ -257,7 +256,7 @@ export function CommentSection({ yurtId }: CommentSectionProps) {
                 <div className="flex items-start justify-between">
                   <div className="flex items-start space-x-3">
                     <div className="w-10 h-10 rounded-full bg-emerald-100 flex items-center justify-center">
-                      <user className="w-5 h-5 text-emerald-600" />
+                      <UserIcon className="w-5 h-5 text-emerald-600" />
                     </div>
                     <div className="flex-1">
                       <div className="flex items-center gap-2 mb-1">

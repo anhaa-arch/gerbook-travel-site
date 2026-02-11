@@ -4,7 +4,7 @@ import { useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdleLogout } from "@/hooks/use-idle-logout";
 import {
-  users,
+  Users,
   Home,
   Package,
   MapPin,
@@ -20,6 +20,7 @@ import {
   Link,
   Download,
   Check,
+  Upload,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -187,7 +188,6 @@ export default function AdminDashboardContent() {
   const [updateYurt] = useMutation(UPDATE_YURT);
   const [deleteYurt] = useMutation(DELETE_YURT);
   const [createProduct] = useMutation(CREATE_PRODUCT);
-  const [updateProduct] = useMutation(UPDATE_PRODUCT);
   const [updateProduct] = useMutation(UPDATE_PRODUCT);
   const [deleteProduct] = useMutation(DELETE_PRODUCT);
   const [updateBooking] = useMutation(UPDATE_BOOKING);
@@ -937,7 +937,7 @@ export default function AdminDashboardContent() {
                   <CardTitle className="text-xs sm:text-sm font-semibold">
                     {t("admin.stats.total_users", "Нийт хэрэглэгчид")}
                   </CardTitle>
-                  <users className="h-4 w-4 text-muted-foreground" />
+                  <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl sm:text-2xl font-bold">
@@ -3368,12 +3368,34 @@ export default function AdminDashboardContent() {
                                     <SelectValue placeholder="Төлөв" />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="PENDING" className="text-xs font-medium">Pending</SelectItem>
-                                    <SelectItem value="CONFIRMED" className="text-xs font-medium">Confirmed</SelectItem>
-                                    <SelectItem value="CANCELLED" className="text-xs font-medium text-red-600">Cancelled</SelectItem>
-                                    <SelectItem value="COMPLETED" className="text-xs font-medium text-blue-600">Completed</SelectItem>
+                                    <SelectItem value="PENDING" className="text-xs font-medium">Хүлээгдэж буй</SelectItem>
+                                    <SelectItem value="CONFIRMED" className="text-xs font-medium">Батлагдсан</SelectItem>
+                                    <SelectItem value="CANCELLED" className="text-xs font-medium text-red-600">Цуцлагдсан</SelectItem>
+                                    <SelectItem value="COMPLETED" className="text-xs font-medium text-blue-600">Дууссан</SelectItem>
                                   </SelectContent>
                                 </Select>
+
+                                {booking.status === "PENDING" && (
+                                  <div className="flex gap-1 mt-1">
+                                    <Button
+                                      size="sm"
+                                      className="h-7 px-2 text-[10px] bg-emerald-600 hover:bg-emerald-700 font-bold"
+                                      onClick={() => handleUpdateBookingStatus(booking.id, "CONFIRMED")}
+                                    >
+                                      <Check className="w-3 h-3 mr-1" />
+                                      Батлах
+                                    </Button>
+                                    <Button
+                                      size="sm"
+                                      variant="destructive"
+                                      className="h-7 px-2 text-[10px] font-bold"
+                                      onClick={() => handleUpdateBookingStatus(booking.id, "CANCELLED")}
+                                    >
+                                      <X className="w-3 h-3 mr-1" />
+                                      Татгалзах
+                                    </Button>
+                                  </div>
+                                )}
                               </div>
                             </TableCell>
                           </TableRow>

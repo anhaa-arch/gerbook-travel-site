@@ -7,7 +7,7 @@ import {
   Clock,
   Route,
   Calendar,
-  users,
+  Users,
   Baby,
   Mountain,
   AlertTriangle,
@@ -396,7 +396,7 @@ export default function TravelRoutesPage() {
                   {/* Number of Travelers */}
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      <users className="w-4 h-4 inline mr-2" />
+                      <Users className="w-4 h-4 inline mr-2" />
                       Хамт явах хүмүүс
                     </label>
                     <Select
@@ -585,7 +585,7 @@ export default function TravelRoutesPage() {
                             <span className="font-medium">{travelPlan.duration} өдөр</span>
                           </div>
                           <div className="flex items-center">
-                            <users className="w-4 h-4 mr-1" />
+                            <Users className="w-4 h-4 mr-1" />
                             <span className="font-medium">{travelPlan.travelers} хүн</span>
                           </div>
                           <div className="flex items-center">
@@ -794,14 +794,14 @@ export default function TravelRoutesPage() {
                                 <div>
                                   <div className="font-bold">{camp.name}</div>
                                   <div className="text-xs text-gray-500">{camp.parent} — {camp.location}</div>
-                          </div>
+                                </div>
                                 <div className="flex items-center">
                                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 mr-1" />
                                   <span className="font-semibold">{camp.rating}</span>
-                            </div>
-                          </div>
+                                </div>
+                              </div>
                             ))}
-                        </div>
+                          </div>
                         </DialogContent>
                       </Dialog>
                       <MapContainer
@@ -851,7 +851,7 @@ export default function TravelRoutesPage() {
                                 <div className="flex items-center mb-1">
                                   <Home className="w-4 h-4 mr-1 text-emerald-600" />
                                   <span className="font-bold">{camp.name}</span>
-                      </div>
+                                </div>
                                 <div className="text-xs text-gray-600 mb-1">{camp.parent} — {camp.location}</div>
                                 <div className="flex items-center text-sm mb-1">
                                   <Star className="w-3 h-3 fill-yellow-400 text-yellow-400 mr-1" />

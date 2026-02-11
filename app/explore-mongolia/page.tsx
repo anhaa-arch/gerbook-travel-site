@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next"
 import {
   MapPin,
   Calendar,
-  users,
+  Users,
   Thermometer,
   Mountain,
   Waves,
@@ -549,11 +549,11 @@ export default function ExploreMongoliaPage() {
                 selectedSeason.length > 0 ||
                 childFriendlyOnly ||
                 temperaturePreference.length > 0) && (
-                <Button variant="ghost" onClick={clearAllFilters} className="h-12 font-medium">
-                  <X className="w-4 h-4 mr-2" />
-                  {t("common.clear", "Цэвэрлэх")}
-                </Button>
-              )}
+                  <Button variant="ghost" onClick={clearAllFilters} className="h-12 font-medium">
+                    <X className="w-4 h-4 mr-2" />
+                    {t("common.clear", "Цэвэрлэх")}
+                  </Button>
+                )}
             </div>
           </div>
 
@@ -600,15 +600,14 @@ export default function ExploreMongoliaPage() {
                         <Label htmlFor={difficulty} className="text-sm capitalize cursor-pointer font-medium">
                           <Badge
                             variant="outline"
-                            className={`mr-2 font-medium ${
-                              difficulty === "extreme"
-                                ? "border-red-500 text-red-600"
-                                : difficulty === "challenging"
-                                  ? "border-orange-500 text-orange-600"
-                                  : difficulty === "moderate"
-                                    ? "border-yellow-500 text-yellow-600"
-                                    : "border-green-500 text-green-600"
-                            }`}
+                            className={`mr-2 font-medium ${difficulty === "extreme"
+                              ? "border-red-500 text-red-600"
+                              : difficulty === "challenging"
+                                ? "border-orange-500 text-orange-600"
+                                : difficulty === "moderate"
+                                  ? "border-yellow-500 text-yellow-600"
+                                  : "border-green-500 text-green-600"
+                              }`}
                           >
                             {difficulty === "easy" && "Хялбар"}
                             {difficulty === "moderate" && "Дунд"}
@@ -706,7 +705,7 @@ export default function ExploreMongoliaPage() {
                   <div className="flex items-center space-x-2">
                     <Checkbox id="childFriendly" checked={childFriendlyOnly} onCheckedChange={(checked) => setChildFriendlyOnly(!!checked)} />
                     <Label htmlFor="childFriendly" className="text-sm cursor-pointer font-medium">
-                      <users className="w-4 h-4 inline mr-1" />
+                      <Users className="w-4 h-4 inline mr-1" />
                       {t("map.child_friendly_only", "Зөвхөн хүүхдэд ээлтэй")}
                     </Label>
                   </div>
@@ -750,15 +749,14 @@ export default function ExploreMongoliaPage() {
                   )}
                   <Badge
                     variant="secondary"
-                    className={`text-xs font-medium ${
-                      attraction.difficulty === "extreme"
-                        ? "bg-red-100 text-red-700"
-                        : attraction.difficulty === "challenging"
-                          ? "bg-orange-100 text-orange-700"
-                          : attraction.difficulty === "moderate"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-green-100 text-green-700"
-                    }`}
+                    className={`text-xs font-medium ${attraction.difficulty === "extreme"
+                      ? "bg-red-100 text-red-700"
+                      : attraction.difficulty === "challenging"
+                        ? "bg-orange-100 text-orange-700"
+                        : attraction.difficulty === "moderate"
+                          ? "bg-yellow-100 text-yellow-700"
+                          : "bg-green-100 text-green-700"
+                      }`}
                   >
                     {attraction.difficulty === "easy" && "Хялбар"}
                     {attraction.difficulty === "moderate" && "Дунд"}
@@ -806,12 +804,12 @@ export default function ExploreMongoliaPage() {
                       {type === "forest" && "Ой"}
                       {type === "canyon" && "Хавцал"}
                       {type === "steppe" && "Тал"}
-                      {!(type in {lake:1,desert:1,mountains:1,forest:1,canyon:1,steppe:1}) && type}
+                      {!(type in { lake: 1, desert: 1, mountains: 1, forest: 1, canyon: 1, steppe: 1 }) && type}
                     </Badge>
                   ))}
                   {attraction.childFriendly && (
                     <Badge variant="outline" className="text-xs text-green-600 border-green-300 font-medium">
-                      <users className="w-3 h-3 mr-1" />
+                      <Users className="w-3 h-3 mr-1" />
                       {t("map.child_friendly", "Хүүхдэд ээлтэй")}
                     </Badge>
                   )}
@@ -893,15 +891,14 @@ export default function ExploreMongoliaPage() {
                                   <span className="text-gray-600 font-medium">{t("map.difficulty", "Хүндрэлийн түвшин")}:</span>
                                   <Badge
                                     variant="outline"
-                                    className={`font-medium ${
-                                      selectedAttraction.difficulty === "extreme"
-                                        ? "border-red-500 text-red-600"
-                                        : selectedAttraction.difficulty === "challenging"
-                                          ? "border-orange-500 text-orange-600"
-                                          : selectedAttraction.difficulty === "moderate"
-                                            ? "border-yellow-500 text-yellow-600"
-                                            : "border-green-500 text-green-600"
-                                    }`}
+                                    className={`font-medium ${selectedAttraction.difficulty === "extreme"
+                                      ? "border-red-500 text-red-600"
+                                      : selectedAttraction.difficulty === "challenging"
+                                        ? "border-orange-500 text-orange-600"
+                                        : selectedAttraction.difficulty === "moderate"
+                                          ? "border-yellow-500 text-yellow-600"
+                                          : "border-green-500 text-green-600"
+                                      }`}
                                   >
                                     {selectedAttraction.difficulty}
                                   </Badge>

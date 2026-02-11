@@ -5,14 +5,14 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
-import { 
-  CreditCard, 
-  Smartphone, 
-  Building, 
+import {
+  CreditCard,
+  Smartphone,
+  Building,
   CheckCircle,
   X,
   Calendar,
-  users,
+  Users,
   MapPin,
   Home
 } from "lucide-react";
@@ -133,7 +133,7 @@ export function PaymentModal({
     }
 
     setIsProcessing(true);
-    
+
     // Simulate payment processing
     setTimeout(() => {
       setIsProcessing(false);
@@ -143,10 +143,10 @@ export function PaymentModal({
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('mn-MN', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    return date.toLocaleDateString('mn-MN', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
     });
   };
 
@@ -165,7 +165,7 @@ export function PaymentModal({
             <Card>
               <CardContent className="p-4 space-y-4">
                 <h3 className="font-bold text-lg">Захиалгын дэлгэрэнгүй</h3>
-                
+
                 {bookingDetails.image && (
                   <img
                     src={bookingDetails.image}
@@ -205,7 +205,7 @@ export function PaymentModal({
                   </div>
 
                   <div className="flex items-start gap-2">
-                    <users className="w-4 h-4 mt-1 text-gray-500" />
+                    <Users className="w-4 h-4 mt-1 text-gray-500" />
                     <p className="text-sm">
                       {bookingDetails.guests} зочин
                     </p>
@@ -259,15 +259,13 @@ export function PaymentModal({
                     key={method.id}
                     onClick={() => setSelectedMethod(method.id)}
                     disabled={!method.available || isProcessing}
-                    className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
-                      selectedMethod === method.id
+                    className={`w-full text-left p-4 rounded-lg border-2 transition-all ${selectedMethod === method.id
                         ? "border-emerald-500 bg-emerald-50"
                         : "border-gray-200 hover:border-gray-300"
-                    } ${
-                      !method.available
+                      } ${!method.available
                         ? "opacity-50 cursor-not-allowed"
                         : "cursor-pointer"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -297,17 +295,16 @@ export function PaymentModal({
               {selectedMethod === "bank_transfer" && (
                 <div className="space-y-4 p-4 bg-blue-50 rounded-lg border border-blue-200">
                   <h4 className="font-bold text-base">Банк сонгох</h4>
-                  
+
                   <div className="grid grid-cols-1 gap-2">
                     {banks.map((bank) => (
                       <button
                         key={bank.id}
                         onClick={() => setSelectedBank(bank.id)}
-                        className={`p-3 rounded-lg border-2 text-left transition-all ${
-                          selectedBank === bank.id
+                        className={`p-3 rounded-lg border-2 text-left transition-all ${selectedBank === bank.id
                             ? "border-emerald-500 bg-emerald-50"
                             : "border-gray-200 hover:border-gray-300 bg-white"
-                        }`}
+                          }`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
