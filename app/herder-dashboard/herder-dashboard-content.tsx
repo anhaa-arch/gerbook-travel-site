@@ -21,7 +21,7 @@ import {
   Mail,
   MapPin,
   Calendar,
-  users,
+  Users,
   CreditCard,
   AlertTriangle,
 } from "lucide-react";
@@ -86,7 +86,7 @@ export default function HerderDashboardContent() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("overview");
   const { logout, user } = useAuth();
-  
+
   // Auto-logout after 5 minutes of inactivity
   useIdleLogout({
     timeout: 5 * 60 * 1000, // 5 minutes
@@ -124,12 +124,12 @@ export default function HerderDashboardContent() {
     cancellationPolicy: "free_48h",
     images: "",
   });
-  
+
   // Province and district data
   const provinces = mnzipData.zipcode;
   const selectedProvince = provinces.find((p: any) => p.mnname === yurtForm.province);
   const districts = selectedProvince?.sub_items || [];
-  
+
   // Debug log for districts
   console.log('📍 Selected Province:', yurtForm.province);
   console.log('📍 Districts available:', districts.length);
@@ -453,7 +453,7 @@ export default function HerderDashboardContent() {
     setSelectedItem(yurt);
     // Parse location to get province and district
     const locationParts = yurt.location.split(', ');
-    
+
     // Parse amenities JSON
     let parsedAmenities: any = {};
     try {
@@ -462,7 +462,7 @@ export default function HerderDashboardContent() {
       // Fallback for old string format
       parsedAmenities = { items: [] };
     }
-    
+
     setYurtForm({
       name: yurt.name,
       description: yurt.description || "",
@@ -483,7 +483,7 @@ export default function HerderDashboardContent() {
       cancellationPolicy: parsedAmenities.policies?.cancellation || "free_48h",
       images: yurt.images || "",
     });
-    
+
     // Parse images and set uploadedImages
     try {
       const images = JSON.parse(yurt.images);
@@ -494,7 +494,7 @@ export default function HerderDashboardContent() {
       // Handle single image or invalid format
       setUploadedImages([]);
     }
-    
+
     setShowAddCamp(true);
   };
 
@@ -716,8 +716,8 @@ export default function HerderDashboardContent() {
   const handleAcceptBooking = async (bookingId: string) => {
     try {
       await updateBookingStatus({
-        variables: { 
-          id: bookingId, 
+        variables: {
+          id: bookingId,
           input: { status: "CONFIRMED" }
         },
       });
@@ -737,8 +737,8 @@ export default function HerderDashboardContent() {
   const handleRejectBooking = async (bookingId: string) => {
     try {
       await updateBookingStatus({
-        variables: { 
-          id: bookingId, 
+        variables: {
+          id: bookingId,
           input: { status: "CANCELLED" }
         },
       });
@@ -1387,8 +1387,8 @@ export default function HerderDashboardContent() {
                         value={yurtForm.province}
                         onValueChange={(value) => {
                           console.log('🏔️ Province selected:', value);
-                          setYurtForm({ 
-                            ...yurtForm, 
+                          setYurtForm({
+                            ...yurtForm,
                             province: value,
                             district: "", // Reset district when province changes
                             location: value // Temporarily set to province only
@@ -1416,8 +1416,8 @@ export default function HerderDashboardContent() {
                         onValueChange={(value) => {
                           console.log('🏘️ District selected:', value);
                           const location = `${yurtForm.province}, ${value}`;
-                          setYurtForm({ 
-                            ...yurtForm, 
+                          setYurtForm({
+                            ...yurtForm,
                             district: value,
                             location: location
                           });
@@ -1622,7 +1622,7 @@ export default function HerderDashboardContent() {
                   {/* Policies */}
                   <div className="border-t pt-4 space-y-4">
                     <h3 className="font-bold text-base">Дүрэм журам</h3>
-                    
+
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       {/* Check-in Time */}
                       <div>
@@ -2105,15 +2105,14 @@ export default function HerderDashboardContent() {
                       return (
                         <Card
                           key={booking.id}
-                          className={`border-l-4 ${
-                            hasConflict
-                              ? "border-l-orange-500"
-                              : booking.status === "pending"
+                          className={`border-l-4 ${hasConflict
+                            ? "border-l-orange-500"
+                            : booking.status === "pending"
                               ? "border-l-yellow-500"
                               : booking.status === "confirmed"
-                              ? "border-l-green-500"
-                              : "border-l-gray-300"
-                          }`}
+                                ? "border-l-green-500"
+                                : "border-l-gray-300"
+                            }`}
                         >
                           <CardContent className="p-4 sm:p-6">
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -2122,25 +2121,25 @@ export default function HerderDashboardContent() {
                                 <div className="flex items-start justify-between">
                                   <div>
                                     <h3 className="text-lg font-bold text-gray-900">
-                              {booking.camp}
+                                      {booking.camp}
                                     </h3>
                                     <p className="text-sm text-gray-600 flex items-center mt-1">
                                       <MapPin className="w-3 h-3 mr-1" />
                                       {booking.campLocation}
                                     </p>
                                   </div>
-                              <Badge
-                                variant={
+                                  <Badge
+                                    variant={
                                       booking.status === "confirmed"
-                                    ? "default"
+                                        ? "default"
                                         : booking.status === "pending"
-                                        ? "secondary"
-                                        : "destructive"
-                                }
-                                className="font-medium"
-                              >
-                                {booking.status}
-                              </Badge>
+                                          ? "secondary"
+                                          : "destructive"
+                                    }
+                                    className="font-medium"
+                                  >
+                                    {booking.status}
+                                  </Badge>
                                 </div>
 
                                 <div className="text-xs text-gray-500 font-mono">
@@ -2170,7 +2169,7 @@ export default function HerderDashboardContent() {
 
                                 <div className="flex items-center justify-between pt-2 border-t">
                                   <div className="flex items-center text-sm text-gray-600">
-                                    <users className="w-4 h-4 mr-2" />
+                                    <Users className="w-4 h-4 mr-2" />
                                     {booking.guests} зочин
                                   </div>
                                   <div className="text-right">
@@ -2203,7 +2202,7 @@ export default function HerderDashboardContent() {
                                   </h4>
                                   <div className="space-y-2">
                                     <div className="flex items-center text-sm">
-                                      <users className="w-4 h-4 mr-2 text-gray-500" />
+                                      <Users className="w-4 h-4 mr-2 text-gray-500" />
                                       <span className="font-medium">
                                         {booking.customer}
                                       </span>
@@ -2272,7 +2271,7 @@ export default function HerderDashboardContent() {
                                   </div>
                                 )}
                               </div>
-                  </div>
+                            </div>
                           </CardContent>
                         </Card>
                       );
@@ -2286,11 +2285,11 @@ export default function HerderDashboardContent() {
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">
             <h2 className="text-xl sm:text-2xl font-bold">Профайл тохиргоо</h2>
-            
+
             {user && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                 <div className="lg:col-span-2">
-                  <ProfileSettings 
+                  <ProfileSettings
                     user={{
                       id: user.id,
                       name: user.name,

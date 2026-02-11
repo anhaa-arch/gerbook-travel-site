@@ -3,7 +3,7 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import Image from "next/image"
-import { Filter, ShoppingCart, Star, user } from "lucide-react"
+import { Filter, ShoppingCart, Star, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"

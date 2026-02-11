@@ -13,6 +13,7 @@ import { SavedProvider } from "@/hooks/use-saved";
 import dynamic from "next/dynamic";
 import { Footer } from "@/components/footer";
 import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const montserrat = Montserrat({
   subsets: ["latin", "cyrillic"],
@@ -55,10 +56,12 @@ export default function RootLayout({
               <SavedProvider>
                 <AuthProvider>
                   <LanguageProvider>
-                    <ClientHeader />
-                    <main className="flex-1">{children}</main>
-                    <Toaster />
-                    <Footer />
+                    <TooltipProvider>
+                      <ClientHeader />
+                      <main className="flex-1">{children}</main>
+                      <Toaster />
+                      <Footer />
+                    </TooltipProvider>
                   </LanguageProvider>
                 </AuthProvider>
               </SavedProvider>
