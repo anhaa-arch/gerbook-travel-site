@@ -12,7 +12,7 @@ import { gql, useQuery } from "@apollo/client"
 import { getFirstImage } from "@/lib/imageUtils"
 import '../../lib/i18n'
 import { useCart } from "@/hooks/use-cart"
-import { toast } from "@/hooks/use-toast"
+import { toast } from "@/components/ui/use-toast"
 
 const GET_PRODUCTS = gql`
   query GetProducts($first: Int, $filter: String, $orderBy: String) {

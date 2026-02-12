@@ -10,11 +10,12 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import '../../lib/i18n'
 import { useCart } from "@/hooks/use-cart"
-import { toast } from "@/hooks/use-toast"
+import { useToast } from "@/components/ui/use-toast"
 import { PaymentModal } from "@/components/payment-modal"
 
 export default function CartPage() {
   const { t } = useTranslation()
+  const { toast } = useToast()
   const { cartItems, removeFromCart, updateQuantity, subtotal, itemCount } = useCart()
   const [showPaymentModal, setShowPaymentModal] = useState(false)
   const [isProcessing, setIsProcessing] = useState(false)

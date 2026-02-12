@@ -367,14 +367,22 @@ export default function HomePage() {
                         size="sm"
                         className="bg-emerald-600 hover:bg-emerald-700 font-semibold text-[10px] xs:text-xs sm:text-sm px-2 xs:px-3 h-7 xs:h-8 sm:h-9"
                         onClick={() => {
-                          addToCart({
-                            id: product.id,
-                            name: product.name,
-                            price: product.price,
-                            quantity: 1,
-                            image: imageSrc,
-                            type: "PRODUCT"
-                          });
+                          try {
+                            addToCart({
+                              id: product.id,
+                              name: product.name,
+                              price: product.price,
+                              quantity: 1,
+                              image: imageSrc,
+                              type: "PRODUCT"
+                            });
+                          } catch (error) {
+                            toast({
+                              title: "Алдаа",
+                              description: "Сагсанд нэмэхэд алдаа гарлаа",
+                              variant: "destructive",
+                            });
+                          }
                         }}
                       >
                         {t("common.add_to_cart")}
