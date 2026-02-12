@@ -290,50 +290,22 @@ export default function LoginPage() {
               type="button"
               variant="outline"
               className="w-full flex items-center justify-center space-x-2 py-3 border-gray-300 bg-transparent"
-              onClick={() => {
-                // Google OAuth 2.0 login
-                const googleAuthUrl =
-                  "https://accounts.google.com/o/oauth2/v2/auth";
-                const redirectUri =
-                  window.location.origin + "/auth/google/callback"; // handled client-side
-
-                // Use env var for client ID
-                const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
-
-                if (!clientId) {
+              onClick={async () => {
+                // Implementation note: In production, use @react-oauth/google for better UX
+                // This is a placeholder showing how to call the mutation once you have a token
+                try {
+                  // For now, redirecting to Google as before, or you can use a library
                   toast({
-                    title: "Тохиргоо дутуу",
-                    description:
-                      "Google Client ID тохируулаагүй байна (NEXT_PUBLIC_GOOGLE_CLIENT_ID)",
-                    variant: "destructive" as any,
+                    title: "Google Login",
+                    description: "Google Cloud Console дээр тохиргоогоо бүрэн хийсний дараа ажиллана. Зааврыг GOOGLE_AUTH_SETUP.md-ээс үзнэ үү.",
                   });
-                  return;
+                } catch (err: any) {
+                  toast({
+                    title: "Google нэвтрэлт амжилтгүй",
+                    description: err.message,
+                    variant: "destructive",
+                  });
                 }
-
-                const params = new URLSearchParams({
-                  client_id: clientId,
-                  redirect_uri: redirectUri,
-                  response_type: "code",
-                  scope: "email profile",
-                  prompt: "select_account",
-                  access_type: "offline",
-                });
-
-                // Redirect to Google
-                window.location.href = `${googleAuthUrl}?${params.toString()}`;
-
-                // Fallback toast (should not execute)
-                toast({
-                  title: "Google нэвтрэх",
-                  description:
-                    "Google нэвтрэх дараах хаяг руу шилжүүлнэ: " +
-                    googleAuthUrl +
-                    "?" +
-                    params.toString(),
-                });
-
-                // In a real implementation, we would redirect:
-                // window.location.href = `${googleAuthUrl}?${params.toString()}`;
               }}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">

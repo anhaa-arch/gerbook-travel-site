@@ -34,6 +34,7 @@ interface AuthContextType {
   resetPasswordWithCode: (email: string, code: string, newPassword: string) => Promise<{ success: boolean; message: string }>
   resetPassword: (token: string, newPassword: string) => Promise<void>
   forgotPassword?: (email: string) => Promise<void>
+  googleLogin: (token: string) => Promise<void>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -179,6 +180,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     mutation ResetPassword($token: String!, $newPassword: String!) { resetPassword(token: $token, newPassword: $newPassword) { token user { id name email role hostBio hostExperience hostLanguages } } }
   `
 
+  const GOOGLE_LOGIN_MUTATION = gql`
+    mutation GoogleLogin($token: String!) {
+      googleLogin(token: $token) {
+        token
+        user { id name email role avatar hostBio hostExperience hostLanguages }
+      }
+    }
+  `
+
+  const googleLogin = async (token: string) => {
+    const { data } = await client.mutate({ mutation: GOOGLE_LOGIN_MUTATION, variables: { token } })
+    if (data?.googleLogin) {
+      const { token: jwtToken, user } = data.googleLogin
+      localStorage.setItem('token', jwtToken)
+      saveuserData(user)
+    } else {
+      throw new Error('Google нэвтрэлт амжилтгүй')
+    }
+  }
+
   const FORGOT_PASSWORD_MUTATION = gql`
     mutation ForgotPassword($email: String!) { forgotPassword(email: $email) { message } }
   `
@@ -294,6 +315,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     forgotPassword,
     // @ts-ignore
     resendVerificationCode,
+    googleLogin,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
