@@ -195,13 +195,10 @@ export default function ListingsPage() {
 
   const selectedProvinceData = provinces.find((p) => p.id === selectedProvince);
 
-  const availableDistricts = selectedProvinceData
-    ? (locationData.zipcode
-      .find((p) => p.mnname === selectedProvince)
-      ?.sub_items.map((district) => ({
-        id: district.mnname,
-        name: district.mnname,
-      })) || []).filter(d => d.name === "Цэнхэр")
+  const availableDistricts = selectedProvince === "Архангай"
+    ? [
+      { id: "Цэнхэр", name: "Цэнхэр" }
+    ]
     : [];
 
   const handleProvinceChange = (provinceId: string) => {
@@ -465,8 +462,10 @@ export default function ListingsPage() {
                     <Button
                       variant="outline"
                       onClick={() => {
-                        setSelectedProvince("");
-                        setSelectedDistrict("");
+                        setSelectedProvince("Архангай");
+                        setSelectedDistrict("Цэнхэр");
+                        setCheckIn(null);
+                        setCheckOut(null);
                       }}
                       className="bg-transparent font-semibold"
                     >

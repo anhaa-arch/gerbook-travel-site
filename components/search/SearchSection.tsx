@@ -40,10 +40,10 @@ export function SearchSection() {
     (loc: any) => loc.zipcode === ARKHANGAI_ZIPCODE
   );
 
-  // Get districts for selected province (Архангай) - Limited to Tsenkher per requirements
-  const districts = (arkhangaiProvince?.sub_items || []).filter(
-    (d: any) => d.mnname === "Цэнхэр"
-  );
+  // Get districts for selected province (Архангай) - Strictly limit to Tsenkher
+  const districts = [
+    { mnname: "Цэнхэр", zipcode: "65080" }
+  ];
 
   // Outside click handler for province dropdown
   useEffect(() => {
@@ -191,7 +191,7 @@ export function SearchSection() {
                         </div>
                         <div className="text-left">
                           <span className="text-sm font-medium text-gray-800 block">Архангай</span>
-                          <span className="text-[10px] sm:text-xs text-gray-400">19 сум</span>
+                          <span className="text-[10px] sm:text-xs text-gray-400">1 сум нээлттэй</span>
                         </div>
                       </button>
                     </div>

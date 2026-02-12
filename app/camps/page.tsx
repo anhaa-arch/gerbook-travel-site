@@ -110,8 +110,9 @@ export default function CampsPage() {
   const allProvinces = mnzipData.zipcode
   const arkhangaiProvince = allProvinces.find((p: any) => p.zipcode === "65000")
   const provinces = arkhangaiProvince ? [arkhangaiProvince] : []
-  const selectedProvinceData = allProvinces.find((p: any) => p.mnname === selectedProvince)
-  const availableDistricts = (selectedProvinceData?.sub_items || []).filter((d: any) => d.mnname === "Цэнхэр")
+  const availableDistricts = selectedProvince === "Архангай"
+    ? [{ id: "Цэнхэр", mnname: "Цэнхэр", zipcode: "65080" }]
+    : []
 
   // Helper function to check if camp is available during selected dates
   const isCampAvailable = (camp: any, checkIn: string, checkOut: string): boolean => {
