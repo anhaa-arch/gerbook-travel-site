@@ -265,6 +265,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await client.mutate({ mutation: FORGOT_PASSWORD_MUTATION, variables: { email } })
   }
 
+  const RESEND_VERIFICATION_CODE = gql`
+    mutation ResendVerificationCode($email: String!) {
+      resendVerificationCode(email: $email) { success message }
+    }
+  `
+
+  const resendVerificationCode = async (email: string) => {
+    const { data } = await client.mutate({ mutation: RESEND_VERIFICATION_CODE, variables: { email } })
+    return data.resendVerificationCode
+  }
+
   const value: AuthContextType = {
     user,
     isAuthenticated,
@@ -281,6 +292,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     resetPassword,
     // @ts-ignore
     forgotPassword,
+    // @ts-ignore
+    resendVerificationCode,
   }
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
