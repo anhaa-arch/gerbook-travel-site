@@ -117,8 +117,12 @@ export default function RegisterPage() {
         role,
       };
 
+      console.log("Calling requestRegistrationCode with:", input);
       const res = await requestRegistrationCode(input);
-      if (res.success) {
+      console.log("requestRegistrationCode result:", res);
+
+      if (res && res.success) {
+        console.log("Success! Opening modal...");
         setPendingEmail(formData.identifier);
         setShowOtpModal(true);
         toast({
@@ -126,9 +130,11 @@ export default function RegisterPage() {
           description: res.message,
         });
       } else {
-        throw new Error(res.message);
+        console.error("Request failed or success=false:", res);
+        throw new Error(res?.message || "Амжилтгүй боллоо");
       }
     } catch (err: any) {
+      console.error("Register Error:", err);
       toast({
         title: "Алдаа",
         description: err?.message || "Бүртгэлийн код илгээхэд алдаа гарлаа",
