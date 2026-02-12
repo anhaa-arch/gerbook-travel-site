@@ -8,7 +8,6 @@ import {
   DialogTitle,
   DialogDescription,
   DialogFooter,
-  DialogClose,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -39,14 +38,16 @@ export default function OtpModal({
   const maxResendAttempts = 3
   const { toast } = useToast()
 
+  // Reset state when modal opens
   useEffect(() => {
     if (open) {
-      // start cooldown when modal opens
-      setSecondsLeft(cooldownSeconds)
-      // reset resend attempts when modal opens
-      setResendAttempts(0)
-    } else {
       setOtp("")
+      setSecondsLeft(cooldownSeconds)
+      // Only reset attempts if it's a fresh open, but logic here means it resets every time
+      // Ideally should be managed by parent or persistent state, but for now reset is okay-ish or we keep it.
+      // Let's NOT reset attempts on re-open to prevent abuse if they just close/open.
+      // But we DO need to reset them if it's a new "session". 
+      // For simplicity, let's keep attempts state in this component instance.
     }
   }, [open, cooldownSeconds])
 
@@ -58,32 +59,57 @@ export default function OtpModal({
 
   const handleResend = async () => {
     if (resendAttempts >= maxResendAttempts) {
-      return toast({ title: 'Дахин илгээх хязгаар хүрлээ', description: 'Та дахин илгээх боломжгүй.' })
+      toast({
+        title: 'Дахин илгээх хязгаар хүрлээ',
+        description: 'Та хэт олон удаа дахин илгээх хүсэлт явуулсан байна. Түр хүлээнэ үү.',
+        variant: "destructive"
+      })
+      return
     }
+
     try {
       setResendLoading(true)
       await onResend()
       setSecondsLeft(cooldownSeconds)
       setResendAttempts((s) => s + 1)
-      toast({ title: "OTP илгээгдлээ", description: `Код ${phone} руу илгээв` })
+      toast({ title: "Амжилттай", description: `Баталгаажуулах код ${phone} руу дахин илгээгдлээ.` })
     } catch (err: any) {
-      toast({ title: "OTP илгээхэд алдаа", description: err?.message || String(err), variant: "destructive" as any })
+      toast({
+        title: "Алдаа",
+        description: err?.message || "Код дахин илгээхэд алдаа гарлаа",
+        variant: "destructive"
+      })
     } finally {
       setResendLoading(false)
     }
   }
 
   const handleVerify = async () => {
-    if (!otp) return toast({ title: "OTP шаардлагатай" })
+    if (!otp) {
+      toast({ title: "Алдаа", description: "Баталгаажуулах кодоо оруулна уу", variant: "destructive" })
+      return
+    }
+
     // enforce 6-digit numeric OTP
     const otpDigits = otp.replace(/\D/g, "")
-    if (otpDigits.length !== 6) return toast({ title: "OTP 6 оронтой байх ёстой" })
+    if (otpDigits.length !== 6) {
+      toast({ title: "Алдаа", description: "Код 6 оронтой тоо байх ёстой", variant: "destructive" })
+      return
+    }
+
     try {
       setLoading(true)
       await onVerify(otpDigits)
+      // Only close if verify didn't throw (success)
       onOpenChange(false)
     } catch (err: any) {
-      toast({ title: "OTP шалгалт амжилтгүй", description: err?.message || String(err), variant: "destructive" as any })
+      // Error is handled by parent or caught here.
+      // If parent throws, we catch it here to show toast and keep modal open
+      toast({
+        title: "Баталгаажуулалт амжилтгүй",
+        description: err?.message || "Код буруу байна",
+        variant: "destructive"
+      })
     } finally {
       setLoading(false)
     }
@@ -91,54 +117,64 @@ export default function OtpModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>OTP код оруулах</DialogTitle>
-          <DialogDescription>
-            Бид {phone} руу 6 оронтой код илгээсэн. Кодыг доор бичиж баталгаажуулна уу.
+          <DialogTitle className="text-center">Баталгаажуулах</DialogTitle>
+          <DialogDescription className="text-center">
+            Бид <strong>{phone}</strong> хаяг руу 6 оронтой баталгаажуулах код илгээлээ.
           </DialogDescription>
         </DialogHeader>
 
-        <div className="mt-4 space-y-3">
-          <div>
-            <Input
-              aria-label="otp-input"
-              value={otp}
-              onChange={(e) => setOtp(e.target.value)}
-              placeholder="000000"
-              inputMode="numeric"
-              maxLength={6}
-              className="text-lg text-center tracking-widest"
-            />
-          </div>
+        <div className="flex flex-col space-y-4 py-4">
+          <Input
+            value={otp}
+            onChange={(e) => {
+              // Allow only numbers
+              const val = e.target.value.replace(/\D/g, '').slice(0, 6)
+              setOtp(val)
+            }}
+            placeholder="000000"
+            inputMode="numeric"
+            maxLength={6}
+            className="text-center text-2xl tracking-[0.5em] font-mono h-14"
+            autoFocus
+          />
 
-          <div className="flex items-center justify-between">
-            <div className="text-sm text-gray-600">Баталгаажуулах код: {phone}</div>
-            <div className="text-sm text-gray-600">{secondsLeft > 0 ? `Дахин илгээх ${secondsLeft}s` : `Дахин: ${resendAttempts}/${maxResendAttempts}`}</div>
+          <div className="flex justify-between text-sm text-gray-500 px-1">
+            <span>Код ирэхгүй байна уу?</span>
+            {secondsLeft > 0 ? (
+              <span>Дахин илгээх: {secondsLeft} сек</span>
+            ) : (
+              <button
+                type="button"
+                onClick={handleResend}
+                disabled={resendLoading || resendAttempts >= maxResendAttempts}
+                className="text-green-600 hover:text-green-700 font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Код дахин авах
+              </button>
+            )}
           </div>
-
-          <DialogFooter>
-            <div className="flex items-center justify-between w-full">
-              <div className="flex items-center gap-2">
-                <Button variant="ghost" onClick={() => onOpenChange(false)}>
-                  Болих
-                </Button>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  onClick={handleResend}
-                  disabled={secondsLeft > 0 || resendLoading || resendAttempts >= maxResendAttempts}
-                >
-                  {secondsLeft > 0 ? `Дахин илгээх (${secondsLeft}s)` : "Дахин илгээх"}
-                </Button>
-                <Button onClick={handleVerify} disabled={loading}>
-                  Баталгаажуул
-                </Button>
-              </div>
-            </div>
-          </DialogFooter>
         </div>
+
+        <DialogFooter className="sm:justify-between flex-col space-y-2 sm:space-y-0">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => onOpenChange(false)}
+            className="w-full sm:w-auto"
+          >
+            Болих
+          </Button>
+          <Button
+            type="button"
+            onClick={handleVerify}
+            disabled={loading || otp.length !== 6}
+            className="w-full sm:w-auto bg-green-700 hover:bg-green-800"
+          >
+            {loading ? "Баталгаажуулж байна..." : "Баталгаажуулах"}
+          </Button>
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   )
