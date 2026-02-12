@@ -46,7 +46,7 @@ export default function CampsPage() {
   const { t, i18n } = useTranslation()
   const searchParams = useSearchParams()
   const [selectedProvince, setSelectedProvince] = useState("Архангай")
-  const [selectedDistrict, setSelectedDistrict] = useState("")
+  const [selectedDistrict, setSelectedDistrict] = useState("Цэнхэр")
   const [minCapacity, setMinCapacity] = useState(0)
   const [checkInDate, setCheckInDate] = useState<string>("")
   const [checkOutDate, setCheckOutDate] = useState<string>("")
@@ -111,7 +111,7 @@ export default function CampsPage() {
   const arkhangaiProvince = allProvinces.find((p: any) => p.zipcode === "65000")
   const provinces = arkhangaiProvince ? [arkhangaiProvince] : []
   const selectedProvinceData = allProvinces.find((p: any) => p.mnname === selectedProvince)
-  const availableDistricts = selectedProvinceData?.sub_items || []
+  const availableDistricts = (selectedProvinceData?.sub_items || []).filter((d: any) => d.mnname === "Цэнхэр")
 
   // Helper function to check if camp is available during selected dates
   const isCampAvailable = (camp: any, checkIn: string, checkOut: string): boolean => {
@@ -160,19 +160,20 @@ export default function CampsPage() {
 
   // Filter yurts by location, capacity, and date availability
   const filteredCamps = yurts.filter((camp: any) => {
-    // camp.location format: "Сүхбаатар, Уулбаян" or just "Сүхбаатар"
-    const location = camp.location || ""
+    // RESTRICTION: Only show camps in Arkhangai, Tsenkher
+    const campLocation = camp.location || ""
+    if (!campLocation.includes("Архангай") || !campLocation.includes("Цэнхэр")) {
+      return false
+    }
 
-    // Check province match
-    if (selectedProvince) {
-      if (!location.includes(selectedProvince)) {
-        return false
-      }
+    // Secondary filters
+    if (selectedProvince && !campLocation.includes(selectedProvince)) {
+      return false
     }
 
     // Check district match
     if (selectedDistrict) {
-      if (!location.includes(selectedDistrict)) {
+      if (!campLocation.includes(selectedDistrict)) {
         return false
       }
     }
@@ -207,8 +208,8 @@ export default function CampsPage() {
   }
 
   const handleClearFilters = () => {
-    setSelectedProvince("")
-    setSelectedDistrict("")
+    setSelectedProvince("Архангай")
+    setSelectedDistrict("Цэнхэр")
     setMinCapacity(0)
     setCheckInDate("")
     setCheckOutDate("")
@@ -318,6 +319,12 @@ export default function CampsPage() {
       <section className="py-4 sm:py-6 md:py-8">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="mb-4 sm:mb-5 md:mb-6">
+            <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 xs:p-4 mb-4">
+              <p className="text-emerald-800 text-xs xs:text-sm font-semibold flex items-center gap-2">
+                <MapPin className="w-3.5 h-3.5 xs:w-4 h-4 text-emerald-600" />
+                Одоогоор зөвхөн Архангай аймгийн Цэнхэр сумын баазууд нээлттэй байна.
+              </p>
+            </div>
             <p className="text-xs sm:text-sm md:text-base text-gray-600 font-medium">
               <span className="font-semibold">{filteredCamps.length}</span> бааз олдлоо
               {(selectedProvince || minCapacity > 0 || checkInDate) && (

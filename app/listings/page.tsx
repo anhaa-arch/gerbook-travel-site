@@ -80,7 +80,7 @@ export default function ListingsPage() {
   const { toast } = useToast();
   const { addToCart } = useCart();
   const [selectedProvince, setSelectedProvince] = useState("Архангай");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedDistrict, setSelectedDistrict] = useState("Цэнхэр");
   const [checkIn, setCheckIn] = useState<Date | null>(null);
   const [checkOut, setCheckOut] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
@@ -140,11 +140,20 @@ export default function ListingsPage() {
   );
 
   const filteredCamps = yurts.filter((camp: any) => {
-    // Filter by location
-    if (selectedProvince && !camp.location.toLowerCase().includes(selectedProvince.toLowerCase())) {
+    // Mandatory filter for Arkhangai, Tsenkher
+    const provinceFilter = "Архангай";
+    const districtFilter = "Цэнхэр";
+
+    const campLocation = camp.location || "";
+    if (!campLocation.includes(provinceFilter) || !campLocation.includes(districtFilter)) {
       return false;
     }
-    if (selectedDistrict && selectedDistrict !== "all_districts" && !camp.location.toLowerCase().includes(selectedDistrict.toLowerCase())) {
+
+    // Secondary filter by UI selection
+    if (selectedProvince && !campLocation.toLowerCase().includes(selectedProvince.toLowerCase())) {
+      return false;
+    }
+    if (selectedDistrict && selectedDistrict !== "all_districts" && !campLocation.toLowerCase().includes(selectedDistrict.toLowerCase())) {
       return false;
     }
 
@@ -187,12 +196,12 @@ export default function ListingsPage() {
   const selectedProvinceData = provinces.find((p) => p.id === selectedProvince);
 
   const availableDistricts = selectedProvinceData
-    ? locationData.zipcode
+    ? (locationData.zipcode
       .find((p) => p.mnname === selectedProvince)
       ?.sub_items.map((district) => ({
         id: district.mnname,
         name: district.mnname,
-      })) || []
+      })) || []).filter(d => d.name === "Цэнхэр")
     : [];
 
   const handleProvinceChange = (provinceId: string) => {
@@ -258,7 +267,6 @@ export default function ListingsPage() {
                   <SelectValue placeholder="Сум сонгох" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all_districts">Бүх сумд</SelectItem>
                   {availableDistricts.map((district) => (
                     <SelectItem key={district.id} value={district.id}>
                       {district.name}
@@ -323,6 +331,12 @@ export default function ListingsPage() {
             {/* Camps Tab */}
             <TabsContent value="camps" className="space-y-6">
               <div className="mb-6">
+                <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-4 mb-4">
+                  <p className="text-emerald-800 font-semibold flex items-center gap-2">
+                    <MapPin className="w-4 h-4 text-emerald-600" />
+                    Одоогоор зөвхөн Архангай аймгийн Цэнхэр сумын баазууд нээлттэй байна.
+                  </p>
+                </div>
                 <p className="text-gray-600 font-medium">
                   {filteredCamps.length} бааз олдлоо
                   {selectedProvince && (

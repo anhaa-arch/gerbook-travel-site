@@ -86,8 +86,12 @@ export default function HomePage() {
   }
 
   const yurts = (yurtsData?.yurts?.edges ?? []).map((e: any) => e.node);
-  const topFeaturedCamps = yurts.slice(0, 4);
-  const regularCamps = yurts.slice(4, 8);
+  // Requirement: Only show camps in Arkhangai, Tsenkher
+  const filteredYurts = yurts.filter((camp: any) =>
+    camp.location?.includes("Архангай") && camp.location?.includes("Цэнхэр")
+  );
+  const topFeaturedCamps = filteredYurts.slice(0, 4);
+  const regularCamps = filteredYurts.slice(4, 8);
   const productEdges = productsData?.products?.edges ?? [];
 
   // Camps are derived from GraphQL

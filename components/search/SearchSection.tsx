@@ -13,8 +13,8 @@ const ARKHANGAI_ZIPCODE = "65000";
 
 export function SearchSection() {
   const router = useRouter();
-  const [selectedProvince, setSelectedProvince] = useState("");
-  const [selectedDistrict, setSelectedDistrict] = useState("");
+  const [selectedProvince, setSelectedProvince] = useState("Архангай");
+  const [selectedDistrict, setSelectedDistrict] = useState("Цэнхэр");
   const [selectedDates, setSelectedDates] = useState<{
     start: Date | null;
     end: Date | null;
@@ -40,8 +40,10 @@ export function SearchSection() {
     (loc: any) => loc.zipcode === ARKHANGAI_ZIPCODE
   );
 
-  // Get districts for selected province (Архангай)
-  const districts = arkhangaiProvince?.sub_items || [];
+  // Get districts for selected province (Архангай) - Limited to Tsenkher per requirements
+  const districts = (arkhangaiProvince?.sub_items || []).filter(
+    (d: any) => d.mnname === "Цэнхэр"
+  );
 
   // Outside click handler for province dropdown
   useEffect(() => {
@@ -88,12 +90,12 @@ export function SearchSection() {
   };
 
   const handleProvinceClear = () => {
-    setSelectedProvince("");
-    setSelectedDistrict("");
+    setSelectedProvince("Архангай");
+    setSelectedDistrict("Цэнхэр");
   };
 
   const handleDistrictClear = () => {
-    setSelectedDistrict("");
+    setSelectedDistrict("Цэнхэр");
   };
 
   const handleDateClear = () => {
@@ -150,8 +152,8 @@ export function SearchSection() {
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-1.5 sm:mb-2 font-display">
             Монголын гэр буудлуудыг нээцгээ
           </h1>
-          <p className="text-sm sm:text-base md:text-lg text-gray-500 font-medium">
-            Архангай аймгийн байгалийн үзэсгэлэнт газруудад амраарай
+          <p className="text-sm sm:text-base md:text-lg font-medium text-emerald-600 bg-emerald-50 inline-block px-4 py-1 rounded-full border border-emerald-100 mb-2">
+            📍 Одоогоор зөвхөн Архангай аймгийн Цэнхэр сумын баазууд нээлттэй байна
           </p>
         </div>
 
@@ -174,17 +176,7 @@ export function SearchSection() {
                     {selectedProvince || "Аймаг сонгох"}
                   </span>
                 </button>
-                {selectedProvince ? (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleProvinceClear(); }}
-                    className="absolute right-2 sm:right-2.5 top-1/2 transform -translate-y-1/2 p-0.5 hover:bg-gray-100 rounded-full transition-colors"
-                    aria-label="Аймаг цэвэрлэх"
-                  >
-                    <X className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-500" />
-                  </button>
-                ) : (
-                  <ChevronDown className="absolute right-2 sm:right-2.5 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 pointer-events-none" />
-                )}
+                <ChevronDown className="absolute right-2 sm:right-2.5 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 pointer-events-none" />
 
                 {/* Province Dropdown */}
                 {showProvinceDropdown && (
@@ -229,17 +221,7 @@ export function SearchSection() {
                     {selectedDistrict || "Сум сонгох"}
                   </span>
                 </button>
-                {selectedDistrict ? (
-                  <button
-                    onClick={(e) => { e.stopPropagation(); handleDistrictClear(); }}
-                    className="absolute right-2 sm:right-2.5 top-1/2 transform -translate-y-1/2 p-0.5 hover:bg-gray-100 rounded-full transition-colors"
-                    aria-label="Сум цэвэрлэх"
-                  >
-                    <X className="w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-500" />
-                  </button>
-                ) : (
-                  <ChevronDown className="absolute right-2 sm:right-2.5 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 pointer-events-none" />
-                )}
+                <ChevronDown className="absolute right-2 sm:right-2.5 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 pointer-events-none" />
 
                 {/* District Dropdown */}
                 {showDistrictDropdown && (
