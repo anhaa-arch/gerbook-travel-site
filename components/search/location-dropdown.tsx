@@ -111,7 +111,7 @@ export function LocationDropdown({
 
       <div className="overflow-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 p-2 gap-x-2 gap-y-1">
         {!showProvinceInfo &&
-          locationData.zipcode.map((loc) => (
+          locationData.zipcode.filter(loc => loc.mnname === "Архангай").map((loc) => (
             <div key={loc.mnname}>
               <div className="w-full flex items-center justify-between gap-2 text-left px-3 py-2 hover:bg-gray-50 text-sm rounded-md">
                 <button
@@ -146,7 +146,7 @@ function showProvinceInfoComp(
 
   return (
     <div className="w-full p-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-2 gap-y-1">
-      {province?.sub_items.map((item) => {
+      {(province?.sub_items || []).filter(item => item.mnname && item.mnname.includes("Цэнхэр")).map((item) => {
         return (
           <div key={item.mnname}>
             <button
