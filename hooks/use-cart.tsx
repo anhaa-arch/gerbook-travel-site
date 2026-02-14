@@ -1,3 +1,4 @@
+"use client"
 import { createContext, useContext, useState, useEffect, ReactNode, useCallback } from "react"
 import { toast } from "@/components/ui/use-toast"
 import { ShoppingCart, CheckCircle2 } from "lucide-react"

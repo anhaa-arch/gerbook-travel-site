@@ -35,6 +35,7 @@ interface AuthContextType {
   resetPassword: (token: string, newPassword: string) => Promise<void>
   forgotPassword?: (email: string) => Promise<void>
   googleLogin: (token: string) => Promise<void>
+  resendVerificationCode: (email: string) => Promise<{ success: boolean; message: string }>
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -129,6 +130,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const REQUEST_REGISTRATION_CODE = gql`
     mutation RequestRegistrationCode($input: CreateuserInput!) {
       requestRegistrationCode(input: $input) { success message }
+    }
+  `
+
+  const RESEND_REGISTRATION_CODE = gql`
+    mutation ResendRegistrationCode($email: String!) {
+      resendRegistrationCode(email: $email) { success message }
     }
   `
 
@@ -234,6 +241,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return data.requestRegistrationCode
   }
 
+  const resendVerificationCode = async (email: string) => {
+    const { data } = await client.mutate({ mutation: RESEND_REGISTRATION_CODE, variables: { email } })
+    return data.resendRegistrationCode
+  }
+
   const verifyRegistration = async (email: string, code: string) => {
     const { data } = await client.mutate({ mutation: VERIFY_REGISTRATION, variables: { email, code } })
     if (data?.verifyRegistration) {
@@ -286,39 +298,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await client.mutate({ mutation: FORGOT_PASSWORD_MUTATION, variables: { email } })
   }
 
-  const RESEND_VERIFICATION_CODE = gql`
-    mutation ResendVerificationCode($email: String!) {
-      resendVerificationCode(email: $email) { success message }
-    }
-  `
-
-  const resendVerificationCode = async (email: string) => {
-    const { data } = await client.mutate({ mutation: RESEND_VERIFICATION_CODE, variables: { email } })
-    return data.resendVerificationCode
-  }
-
-  const value: AuthContextType = {
-    user,
-    isAuthenticated,
-    saveuserData,
-    logout,
-    register,
-    requestRegistrationCode,
-    verifyRegistration,
-    login,
-    sendOtp,
-    verifyOtp,
-    requestPasswordResetCode,
-    resetPasswordWithCode,
-    resetPassword,
-    // @ts-ignore
-    forgotPassword,
-    // @ts-ignore
-    resendVerificationCode,
-    googleLogin,
-  }
-
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        isAuthenticated,
+        saveuserData,
+        logout,
+        register,
+        requestRegistrationCode,
+        resendVerificationCode,
+        verifyRegistration,
+        login,
+        sendOtp,
+        verifyOtp,
+        requestPasswordResetCode,
+        resetPasswordWithCode,
+        resetPassword,
+        forgotPassword,
+        googleLogin,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export function useAuth(): AuthContextType {

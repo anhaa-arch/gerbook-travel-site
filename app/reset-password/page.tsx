@@ -1,3 +1,4 @@
+"use client"
 import React, { useState, Suspense } from 'react'
 import { useSearchParams, useRouter } from 'next/navigation'
 import { Input } from '@/components/ui/input'
