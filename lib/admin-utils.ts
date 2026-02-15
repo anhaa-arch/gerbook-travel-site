@@ -4,11 +4,11 @@
 
 export const formatDate = (timestamp: string | number): string => {
   try {
-    const date = new Date(typeof timestamp === 'string' && /^\d+$/.test(timestamp) 
-      ? parseInt(timestamp) 
+    const date = new Date(typeof timestamp === 'string' && /^\d+$/.test(timestamp)
+      ? parseInt(timestamp)
       : timestamp
     );
-    
+
     return date.toLocaleDateString('mn-MN', {
       year: 'numeric',
       month: '2-digit',
@@ -21,11 +21,11 @@ export const formatDate = (timestamp: string | number): string => {
 
 export const formatDateTime = (timestamp: string | number): string => {
   try {
-    const date = new Date(typeof timestamp === 'string' && /^\d+$/.test(timestamp) 
-      ? parseInt(timestamp) 
+    const date = new Date(typeof timestamp === 'string' && /^\d+$/.test(timestamp)
+      ? parseInt(timestamp)
       : timestamp
     );
-    
+
     return date.toLocaleString('mn-MN', {
       year: 'numeric',
       month: '2-digit',
@@ -49,15 +49,15 @@ export const formatCurrency = (amount: number): string => {
 
 export const calculateNights = (startDate: string | number, endDate: string | number): number => {
   try {
-    const start = new Date(typeof startDate === 'string' && /^\d+$/.test(startDate) 
-      ? parseInt(startDate) 
+    const start = new Date(typeof startDate === 'string' && /^\d+$/.test(startDate)
+      ? parseInt(startDate)
       : startDate
     );
-    const end = new Date(typeof endDate === 'string' && /^\d+$/.test(endDate) 
-      ? parseInt(endDate) 
+    const end = new Date(typeof endDate === 'string' && /^\d+$/.test(endDate)
+      ? parseInt(endDate)
       : endDate
     );
-    
+
     const diffTime = Math.abs(end.getTime() - start.getTime());
     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
     return diffDays;
@@ -68,10 +68,10 @@ export const calculateNights = (startDate: string | number, endDate: string | nu
 
 export const getTodayCount = (items: any[]): number => {
   if (!items || items.length === 0) return 0;
-  
+
   const today = new Date();
   today.setHours(0, 0, 0, 0);
-  
+
   return items.filter(item => {
     if (!item.createdAt) return false;
     const itemDate = new Date(
@@ -92,9 +92,11 @@ export const getStatusBadgeColor = (status: string): string => {
     'CANCELLED': 'bg-red-100 text-red-800',
     'PAID': 'bg-green-100 text-green-800',
     'SHIPPED': 'bg-blue-100 text-blue-800',
-    'DELIVERED': 'bg-emerald-100 text-emerald-800'
+    'DELIVERED': 'bg-emerald-100 text-emerald-800',
+    'APPROVED': 'bg-emerald-100 text-emerald-800',
+    'REJECTED': 'bg-red-100 text-red-800'
   };
-  
+
   return statusMap[status] || 'bg-gray-100 text-gray-800';
 };
 
@@ -107,21 +109,23 @@ export const translateStatus = (status: string): string => {
     'PAID': 'Төлөгдсөн',
     'SHIPPED': 'Илгээгдсэн',
     'DELIVERED': 'Хүргэгдсэн',
-    'CUSTOMER': 'Хэрэглэгч',
-    'HERDER': 'Малчин',
+    'APPROVED': 'Баталгаажсан',
+    'REJECTED': 'Цуцлагдсан',
+    'USER': 'Хэрэглэгч',
+    'OWNER': 'Эзэмшигч',
     'ADMIN': 'Админ'
   };
-  
+
   return translations[status] || status;
 };
 
 export const translateRole = (role: string): string => {
   const translations: Record<string, string> = {
-    'CUSTOMER': 'Хэрэглэгч',
-    'HERDER': 'Малчин',
+    'USER': 'Хэрэглэгч',
+    'OWNER': 'Эзэмшигч',
     'ADMIN': 'Админ'
   };
-  
+
   return translations[role] || role;
 };
 
@@ -129,12 +133,12 @@ export const translateRole = (role: string): string => {
 export const exportToExcel = async (data: any[], filename: string) => {
   try {
     const XLSX = await import('xlsx');
-    
+
     const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
     XLSX.writeFile(wb, `${filename}_${Date.now()}.xlsx`);
-    
+
     return true;
   } catch (error) {
     console.error('Export error:', error);

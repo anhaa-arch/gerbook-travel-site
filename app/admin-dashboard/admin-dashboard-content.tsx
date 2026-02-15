@@ -24,6 +24,7 @@ import {
   Clock,
   CheckCircle2,
   Truck,
+  XCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -75,6 +76,8 @@ import {
   DELETE_PRODUCT,
   GET_CATEGORIES,
   UPDATE_BOOKING,
+  APPROVE_ORDER,
+  REJECT_ORDER,
 } from "./queries";
 import {
   formatDate,
@@ -195,6 +198,8 @@ export default function AdminDashboardContent() {
   const [updateProduct] = useMutation(UPDATE_PRODUCT);
   const [deleteProduct] = useMutation(DELETE_PRODUCT);
   const [updateBooking] = useMutation(UPDATE_BOOKING);
+  const [approveOrder] = useMutation(APPROVE_ORDER);
+  const [rejectOrder] = useMutation(REJECT_ORDER);
 
   // Transform data for display
   const stats = {
@@ -734,6 +739,46 @@ export default function AdminDashboardContent() {
     }
   };
 
+  const handleApproveOrder = async (id: string) => {
+    try {
+      await approveOrder({
+        variables: { id },
+      });
+      await refetchOrders();
+      await refetchStats();
+      toast({
+        title: "Амжилттай",
+        description: "Захиалга амжилттай баталгаажлаа",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Алдаа",
+        description: error.message || "Захиалга баталгаажуулахад алдаа гарлаа",
+        variant: "destructive" as any,
+      });
+    }
+  };
+
+  const handleRejectOrder = async (id: string) => {
+    try {
+      await rejectOrder({
+        variables: { id },
+      });
+      await refetchOrders();
+      await refetchStats();
+      toast({
+        title: "Амжилттай",
+        description: "Захиалга цуцлагдлаа",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Алдаа",
+        description: error.message || "Захиалга цуцлахад алдаа гарлаа",
+        variant: "destructive" as any,
+      });
+    }
+  };
+
   // Image upload functions
   const handleFileUpload = (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -1172,13 +1217,13 @@ export default function AdminDashboardContent() {
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
                           Эрх
                         </label>
-                        <Select name="role" defaultValue="CUSTOMER">
+                        <Select name="role" defaultValue="USER">
                           <SelectTrigger>
                             <SelectValue placeholder="Эрх сонгох" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="CUSTOMER">Хэрэглэгч</SelectItem>
-                            <SelectItem value="HERDER">Малчин</SelectItem>
+                            <SelectItem value="USER">Хэрэглэгч</SelectItem>
+                            <SelectItem value="OWNER">Эзэмшигч</SelectItem>
                             <SelectItem value="ADMIN">Админ</SelectItem>
                           </SelectContent>
                         </Select>
@@ -1279,8 +1324,8 @@ export default function AdminDashboardContent() {
                             <SelectValue placeholder="Эрх сонгох" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="CUSTOMER">Хэрэглэгч</SelectItem>
-                            <SelectItem value="HERDER">Малчин</SelectItem>
+                            <SelectItem value="USER">Хэрэглэгч</SelectItem>
+                            <SelectItem value="OWNER">Эзэмшигч</SelectItem>
                             <SelectItem value="ADMIN">Админ</SelectItem>
                           </SelectContent>
                         </Select>
@@ -1363,7 +1408,7 @@ export default function AdminDashboardContent() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge className={user.role === "ADMIN" ? "bg-red-100 text-red-800" : user.role === "HERDER" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}>
+                            <Badge className={user.role === "ADMIN" ? "bg-red-100 text-red-800" : user.role === "OWNER" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}>
                               {translateRole(user.role)}
                             </Badge>
                           </TableCell>
@@ -1429,7 +1474,7 @@ export default function AdminDashboardContent() {
                                         Эрх
                                       </label>
                                       <div className="mt-1">
-                                        <Badge className={user.role === "ADMIN" ? "bg-red-100 text-red-800" : user.role === "HERDER" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}>
+                                        <Badge className={user.role === "ADMIN" ? "bg-red-100 text-red-800" : user.role === "OWNER" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}>
                                           {translateRole(user.role)}
                                         </Badge>
                                       </div>
@@ -1876,7 +1921,7 @@ export default function AdminDashboardContent() {
                           </SelectTrigger>
                           <SelectContent className="max-h-[300px]">
                             {users
-                              .filter((u: any) => u.role === "HERDER" || u.role === "ADMIN")
+                              .filter((u: any) => u.role === "OWNER" || u.role === "ADMIN")
                               .map((u: any) => (
                                 <SelectItem key={u.id} value={u.id}>
                                   {u.name} ({u.email})
@@ -2413,7 +2458,7 @@ export default function AdminDashboardContent() {
                           </SelectTrigger>
                           <SelectContent className="max-h-[300px]">
                             {users
-                              .filter((u: any) => u.role === "HERDER" || u.role === "ADMIN")
+                              .filter((u: any) => u.role === "OWNER" || u.role === "ADMIN")
                               .map((u: any) => (
                                 <SelectItem key={u.id} value={u.id}>
                                   {u.name} ({u.email})
@@ -3221,6 +3266,35 @@ export default function AdminDashboardContent() {
                                   </div>
                                 </DialogContent>
                               </Dialog>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => handleDelete({ ...order, type: "order" })}
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                              {order.status === "PENDING" && (
+                                <>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                                    onClick={() => handleApproveOrder(order.id)}
+                                    title="Баталгаажуулах"
+                                  >
+                                    <Check className="w-4 h-4" />
+                                  </Button>
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="text-red-600 border-red-200 hover:bg-red-50"
+                                    onClick={() => handleRejectOrder(order.id)}
+                                    title="Цуцлах"
+                                  >
+                                    <XCircle className="w-4 h-4" />
+                                  </Button>
+                                </>
+                              )}
                             </div>
                           </TableCell>
                         </TableRow>

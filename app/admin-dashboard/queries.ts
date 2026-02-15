@@ -299,3 +299,21 @@ export const UPDATE_BOOKING = gql`
     }
   }
 `
+
+export const APPROVE_ORDER = gql`
+  mutation ApproveOrder($id: ID!) {
+    approveOrder(id: $id) {
+      id
+      status
+    }
+  }
+`
+
+export const REJECT_ORDER = gql`
+  mutation RejectOrder($id: ID!) {
+    rejectOrder(id: $id) {
+      id
+      status
+    }
+  }
+`
