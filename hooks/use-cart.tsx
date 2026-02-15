@@ -22,18 +22,22 @@ export interface CartItem {
 
 interface CartContextType {
   cartItems: CartItem[];
+  bookingCart: any[];
   itemCount: number;
   addToCart: (item: CartItem) => void;
   removeFromCart: (clientId: string) => void;
+  removeFromBookingCart: (id: string) => void;
   updateQuantity: (clientId: string, quantity: number) => void;
   clearCart: () => void;
   subtotal: number;
+  totalPrice: number;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cartItems, setCartItems] = useState<CartItem[]>([])
+  const [bookingCart, setBookingCart] = useState<any[]>([])
   const [isLoaded, setIsLoaded] = useState(false);
 
   // Load from localStorage
@@ -46,6 +50,16 @@ export function CartProvider({ children }: { children: ReactNode }) {
         console.error("Failed to parse cart storage", e);
       }
     }
+
+    const storedBookings = localStorage.getItem("bookingCart")
+    if (storedBookings) {
+      try {
+        setBookingCart(JSON.parse(storedBookings))
+      } catch (e) {
+        console.error("Failed to parse booking storage", e);
+      }
+    }
+
     setIsLoaded(true);
   }, [])
 
@@ -55,6 +69,12 @@ export function CartProvider({ children }: { children: ReactNode }) {
       localStorage.setItem("malchin_cart", JSON.stringify(cartItems))
     }
   }, [cartItems, isLoaded])
+
+  useEffect(() => {
+    if (isLoaded) {
+      localStorage.setItem("bookingCart", JSON.stringify(bookingCart))
+    }
+  }, [bookingCart, isLoaded])
 
   // Get unique client ID for items (especially camps with dates)
   const getClientId = (item: CartItem) => {
@@ -116,6 +136,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
     setCartItems((prev) => prev.filter((i) => getClientId(i) !== clientId));
   }, []);
 
+  const removeFromBookingCart = useCallback((id: string) => {
+    setBookingCart((prev) => prev.filter((i) => i.id !== id));
+  }, []);
+
   const updateQuantity = useCallback((clientId: string, quantity: number) => {
     if (quantity <= 0) {
       removeFromCart(clientId);
@@ -128,20 +152,26 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const clearCart = useCallback(() => {
     setCartItems([]);
+    setBookingCart([]);
   }, []);
 
-  const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0);
+  const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0) + bookingCart.length;
   const subtotal = cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+  const bookingTotal = bookingCart.reduce((total, item) => total + (item.totalPrice || 0), 0);
+  const totalPrice = subtotal + bookingTotal;
 
   return (
     <CartContext.Provider value={{
       cartItems,
+      bookingCart,
       itemCount,
       addToCart,
       removeFromCart,
+      removeFromBookingCart,
       updateQuantity,
       clearCart,
-      subtotal
+      subtotal,
+      totalPrice
     }}>
       {children}
     </CartContext.Provider>
