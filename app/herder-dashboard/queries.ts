@@ -70,7 +70,7 @@ export const GET_HERDER_ORDERS = gql`
             name
             email
           }
-          items {
+          orderitem {
             id
             product {
               id
