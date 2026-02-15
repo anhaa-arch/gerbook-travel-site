@@ -8,24 +8,24 @@ interface UseIdleLogoutProps {
   onLogout?: () => void;
 }
 
-export function useIdleLogout({ 
-  timeout = 5 * 60 * 1000, // 5 minutes default
-  onLogout 
+export function useIdleLogout({
+  timeout = 30 * 60 * 1000, // 30 minutes default
+  onLogout
 }: UseIdleLogoutProps = {}) {
   const router = useRouter();
   const timeoutId = useRef<NodeJS.Timeout | null>(null);
 
   const handleLogout = () => {
     console.log("🔴 Auto-logout triggered due to inactivity");
-    
+
     // Clear localStorage
     localStorage.clear();
-    
+
     // Call custom logout handler if provided
     if (onLogout) {
       onLogout();
     }
-    
+
     // Redirect to login
     router.push("/login");
   };

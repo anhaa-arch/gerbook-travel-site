@@ -328,12 +328,7 @@ export default function ListingsPage() {
             {/* Camps Tab */}
             <TabsContent value="camps" className="space-y-6">
               <div className="mb-6">
-                <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-4 mb-4">
-                  <p className="text-emerald-800 font-semibold flex items-center gap-2">
-                    <MapPin className="w-4 h-4 text-emerald-600" />
-                    Одоогоор зөвхөн Архангай аймгийн Цэнхэр сумын баазууд нээлттэй байна.
-                  </p>
-                </div>
+
                 <p className="text-gray-600 font-medium">
                   {filteredCamps.length} бааз олдлоо
                   {selectedProvince && (

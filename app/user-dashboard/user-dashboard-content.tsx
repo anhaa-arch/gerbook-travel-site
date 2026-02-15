@@ -130,9 +130,9 @@ export default function UserDashboardContent() {
   const [activeTab, setActiveTab] = useState("overview");
   const { logout, user } = useAuth();
 
-  // Auto-logout after 5 minutes of inactivity
+  // Auto-logout after 30 minutes of inactivity
   useIdleLogout({
-    timeout: 5 * 60 * 1000, // 5 minutes
+    timeout: 30 * 60 * 1000, // 30 minutes
     onLogout: logout,
   });
 
@@ -367,7 +367,7 @@ export default function UserDashboardContent() {
     travelsData?.travels?.edges?.map((edge: any) => ({
       id: edge.node.id,
       title: edge.node.name,
-      duration: `${edge.node.duration} days`,
+      duration: `${edge.node.duration} өдөр`,
       regions: [edge.node.location],
       status: "saved",
       createdDate: edge.node.createdAt.split("T")[0],
@@ -520,10 +520,10 @@ export default function UserDashboardContent() {
                 </CardHeader>
                 <CardContent className="px-3 sm:px-6 pb-3 sm:pb-6">
                   <div className="text-lg xs:text-xl sm:text-2xl font-bold">
-                    ${totalSpent.toFixed(0)}
+                    ₮{totalSpent.toLocaleString()}
                   </div>
                   <p className="text-[10px] xs:text-xs text-muted-foreground font-medium mt-0.5">
-                    Энэ сард +${monthlySpent.toFixed(0)}
+                    Энэ сард +₮{monthlySpent.toLocaleString()}
                   </p>
                 </CardContent>
               </Card>
@@ -810,14 +810,14 @@ export default function UserDashboardContent() {
                           <div className="flex items-center justify-between">
                             <div>
                               <span className="text-base sm:text-lg md:text-xl font-bold">
-                                ${booking.amount}
+                                ₮{booking.amount.toLocaleString()}
                               </span>
                               <span className="text-gray-600 ml-1 text-[10px] xs:text-xs sm:text-sm font-medium">
-                                total
+                                нийт
                               </span>
                             </div>
                             <span className="text-xs sm:text-sm text-gray-600 font-medium">
-                              {booking.guests} guests
+                              {booking.guests} зочин
                             </span>
                           </div>
                         </CardContent>
@@ -940,7 +940,7 @@ export default function UserDashboardContent() {
                               <p className="text-xs text-gray-500 mt-1">#{order.id.substring(0, 8)}</p>
                             </div>
                             <div className="text-right flex-shrink-0">
-                              <p className="font-bold text-sm">${order.amount}</p>
+                              <p className="font-bold text-sm">₮{order.amount.toLocaleString()}</p>
                               <Badge
                                 variant={order.status === "delivered" ? "default" : order.status === "shipped" ? "secondary" : "outline"}
                                 className={`text-[10px] mt-1 ${order.status === "delivered"
@@ -1023,7 +1023,7 @@ export default function UserDashboardContent() {
                                   {order.quantity}
                                 </TableCell>
                                 <TableCell className="font-bold text-xs md:text-sm">
-                                  ${order.amount}
+                                  ₮{order.amount.toLocaleString()}
                                 </TableCell>
                                 <TableCell>
                                   <Badge

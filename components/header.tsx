@@ -1,7 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Globe, ChevronDown, Menu, X, User, ShoppingCart, Home, Compass, LogOut } from "lucide-react";
+import { Globe, ChevronDown, Menu, X, User, ShoppingCart, Home, Compass, LogOut, ShoppingBag } from "lucide-react";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
@@ -105,11 +105,18 @@ export function Header() {
               <div className="h-6 w-px bg-gray-300 mr-4 md:mr-8"></div>
               <nav className="flex items-end space-x-4 md:space-x-8">
                 <Link
+                  href="/"
+                  className="text-gray-500 hover:text-gray-900 focus:text-gray-900 font-bold text-sm md:text-base"
+                >
+                  Нүүр
+                </Link>
+                <Link
                   href="/listings"
                   className="text-gray-500 hover:text-gray-900 focus:text-gray-900 font-bold border-b-2 border-green-600 text-sm md:text-base"
                 >
-                  Гэр
+                  Амралт баазууд
                 </Link>
+
               </nav>
             </div>
           </div>
@@ -277,17 +284,17 @@ export function Header() {
                       <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mr-4">
                         <Home className="w-5 h-5 text-emerald-600" />
                       </div>
-                      <span className="text-base text-gray-800 font-bold">Гэр (Listings)</span>
+                      <span className="text-base text-gray-800 font-bold">Бүх баазууд</span>
                     </Link>
                     <Link
-                      href="/camps"
+                      href="/products"
                       className="w-full flex items-center p-4 hover:bg-emerald-50 rounded-xl text-left transition-colors border border-transparent hover:border-emerald-100"
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <div className="w-10 h-10 bg-emerald-100 rounded-lg flex items-center justify-center mr-4">
-                        <Compass className="w-5 h-5 text-emerald-600" />
+                        <ShoppingBag className="w-5 h-5 text-emerald-600" />
                       </div>
-                      <span className="text-base text-gray-800 font-bold">Бүх баазууд</span>
+                      <span className="text-base text-gray-800 font-bold">Бүтээгдэхүүн</span>
                     </Link>
 
                     {/* Language Switcher in Mobile Menu */}

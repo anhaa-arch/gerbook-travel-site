@@ -99,7 +99,7 @@ export const GET_ALL_ORDERS = gql`
             email
             phone
           }
-          items {
+          orderitem {
             id
             product {
               id

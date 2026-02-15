@@ -144,9 +144,9 @@ export default function AdminDashboardContent() {
     ownerId: "",
   });
 
-  // Auto-logout after 5 minutes of inactivity
+  // Auto-logout after 30 minutes of inactivity
   useIdleLogout({
-    timeout: 5 * 60 * 1000, // 5 minutes
+    timeout: 30 * 60 * 1000, // 30 minutes
     onLogout: logout,
   });
 
@@ -275,7 +275,7 @@ export default function AdminDashboardContent() {
       customerEmail: edge.node.user?.email || "",
       customerPhone: edge.node.user?.phone || "",
       type: "product",
-      item: edge.node.items[0]?.product?.name || "Олон бүтээгдэхүүн",
+      item: edge.node.orderitem?.[0]?.product?.name || "Олон бүтээгдэхүүн",
       amount: edge.node.totalPrice,
       status: edge.node.status,
       shippingAddress: edge.node.shippingAddress || "",
@@ -1040,7 +1040,7 @@ export default function AdminDashboardContent() {
                         </div>
                         <div className="text-right ml-4">
                           <p className="font-bold text-sm sm:text-base">
-                            ${order.amount}
+                            {formatCurrency(order.amount)}
                           </p>
                           <Badge
                             variant={
@@ -1048,9 +1048,9 @@ export default function AdminDashboardContent() {
                                 ? "default"
                                 : "secondary"
                             }
-                            className="text-xs font-medium"
+                            className={`text-xs font-medium ${getStatusBadgeColor(order.status)}`}
                           >
-                            {order.status}
+                            {translateStatus(order.status)}
                           </Badge>
                         </div>
                       </div>

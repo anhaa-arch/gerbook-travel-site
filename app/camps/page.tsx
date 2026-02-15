@@ -320,12 +320,7 @@ export default function CampsPage() {
       <section className="py-4 sm:py-6 md:py-8">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="mb-4 sm:mb-5 md:mb-6">
-            <div className="bg-emerald-50 border border-emerald-100 rounded-lg p-3 xs:p-4 mb-4">
-              <p className="text-emerald-800 text-xs xs:text-sm font-semibold flex items-center gap-2">
-                <MapPin className="w-3.5 h-3.5 xs:w-4 h-4 text-emerald-600" />
-                Одоогоор зөвхөн Архангай аймгийн Цэнхэр сумын баазууд нээлттэй байна.
-              </p>
-            </div>
+
             <p className="text-xs sm:text-sm md:text-base text-gray-600 font-medium">
               <span className="font-semibold">{filteredCamps.length}</span> бааз олдлоо
               {(selectedProvince || minCapacity > 0 || checkInDate) && (

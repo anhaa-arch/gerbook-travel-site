@@ -152,9 +152,7 @@ export function SearchSection() {
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-1.5 sm:mb-2 font-display">
             Монголын гэр буудлуудыг нээцгээ
           </h1>
-          <p className="text-sm sm:text-base md:text-lg font-medium text-emerald-600 bg-emerald-50 inline-block px-4 py-1 rounded-full border border-emerald-100 mb-2">
-            📍 Одоогоор зөвхөн Архангай аймгийн Цэнхэр сумын баазууд нээлттэй байна
-          </p>
+
         </div>
 
         {/* Search Bar */}
