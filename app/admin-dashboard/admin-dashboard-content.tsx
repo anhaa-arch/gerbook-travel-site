@@ -168,7 +168,10 @@ export default function AdminDashboardContent() {
     data: yurtsData,
     loading: yurtsLoading,
     refetch: refetchYurts,
-  } = useQuery(GET_ALL_YURTS);
+  } = useQuery(GET_ALL_YURTS, {
+    variables: { first: 100 },
+    fetchPolicy: "cache-and-network"
+  });
   const {
     data: productsData,
     loading: productsLoading,

@@ -161,11 +161,11 @@ export default function CampsPage() {
 
   // Filter yurts by location, capacity, and date availability
   const filteredCamps = yurts.filter((camp: any) => {
-    // RESTRICTION: Only show camps in Arkhangai, Tsenkher
+    // RESTRICTION: Only show camps in Arkhangai, Tsenkher -> REMOVED to allow all camps
     const campLocation = camp.location || ""
-    if (!campLocation.includes("Архангай") || !campLocation.includes("Цэнхэр")) {
-      return false
-    }
+    // if (!campLocation.includes("Архангай") || !campLocation.includes("Цэнхэр")) {
+    //   return false
+    // }
 
     // Secondary filters
     if (selectedProvince && !campLocation.includes(selectedProvince)) {

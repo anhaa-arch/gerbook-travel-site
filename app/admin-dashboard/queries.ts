@@ -38,8 +38,8 @@ export const GET_ALL_userS = gql`
 `
 
 export const GET_ALL_YURTS = gql`
-  query GetAllYurts {
-    yurts {
+  query GetAllYurts($first: Int) {
+    yurts(first: $first) {
       edges {
         node {
           id
@@ -61,6 +61,7 @@ export const GET_ALL_YURTS = gql`
           createdAt
         }
       }
+      totalCount
     }
   }
 `
