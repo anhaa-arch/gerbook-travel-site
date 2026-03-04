@@ -31,16 +31,7 @@ export const metadata: Metadata = {
   generator: "v0.dev",
 };
 
-const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-
-if (!googleClientId) {
-  // Build үед client_id байхгүй байвал эндээс шууд мэдэгдэнэ
-  // Production-д бол console.log л үлдээгээд, хоосон clientId ашиглахгүй байх нь зөв
-  // eslint-disable-next-line no-console
-  console.error(
-    "NEXT_PUBLIC_GOOGLE_CLIENT_ID is not defined. Google OAuth will not work."
-  );
-}
+const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string;
 
 export default function RootLayout({
   children,
@@ -64,21 +55,7 @@ export default function RootLayout({
           <ApolloClientProvider>
             <CartProvider>
               <SavedProvider>
-                {googleClientId ? (
-                  <GoogleOAuthProvider clientId={googleClientId}>
-                    <AuthProvider>
-                      <LanguageProvider>
-                        <TooltipProvider>
-                          <ClientHeader />
-                          <main className="flex-1">{children}</main>
-                          <Toaster />
-                          <Footer />
-                        </TooltipProvider>
-                      </LanguageProvider>
-                    </AuthProvider>
-                  </GoogleOAuthProvider>
-                ) : (
-                  // Fallback: clientId байхгүй үед GoogleOAuthProvider-гүйгээр application-аа ажиллуулна
+                <GoogleOAuthProvider clientId={googleClientId}>
                   <AuthProvider>
                     <LanguageProvider>
                       <TooltipProvider>
@@ -89,7 +66,7 @@ export default function RootLayout({
                       </TooltipProvider>
                     </LanguageProvider>
                   </AuthProvider>
-                )}
+                </GoogleOAuthProvider>
               </SavedProvider>
             </CartProvider>
           </ApolloClientProvider>
