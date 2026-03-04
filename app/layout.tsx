@@ -2,15 +2,14 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
+
 import { ClientHeader } from "@/components/client-header";
-// import { ThemeProvider } from "@/components/theme-provider";
 import { LanguageProvider } from "@/components/language-provider";
 import ApolloClientProvider from "@/components/apollo-client-provider";
 import { AuthProvider } from "@/hooks/use-auth";
 import { ThemeProvider } from "@/components/theme-provider";
 import { CartProvider } from "@/hooks/use-cart";
 import { SavedProvider } from "@/hooks/use-saved";
-import dynamic from "next/dynamic";
 import { Footer } from "@/components/footer";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -32,6 +31,17 @@ export const metadata: Metadata = {
   generator: "v0.dev",
 };
 
+const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+if (!googleClientId) {
+  // Build үед client_id байхгүй байвал эндээс шууд мэдэгдэнэ
+  // Production-д бол console.log л үлдээгээд, хоосон clientId ашиглахгүй байх нь зөв
+  // eslint-disable-next-line no-console
+  console.error(
+    "NEXT_PUBLIC_GOOGLE_CLIENT_ID is not defined. Google OAuth will not work."
+  );
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -51,11 +61,24 @@ export default function RootLayout({
           forcedTheme="light"
           disableTransitionOnChange
         >
-          {" "}
           <ApolloClientProvider>
             <CartProvider>
               <SavedProvider>
-                <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+                {googleClientId ? (
+                  <GoogleOAuthProvider clientId={googleClientId}>
+                    <AuthProvider>
+                      <LanguageProvider>
+                        <TooltipProvider>
+                          <ClientHeader />
+                          <main className="flex-1">{children}</main>
+                          <Toaster />
+                          <Footer />
+                        </TooltipProvider>
+                      </LanguageProvider>
+                    </AuthProvider>
+                  </GoogleOAuthProvider>
+                ) : (
+                  // Fallback: clientId байхгүй үед GoogleOAuthProvider-гүйгээр application-аа ажиллуулна
                   <AuthProvider>
                     <LanguageProvider>
                       <TooltipProvider>
@@ -66,7 +89,7 @@ export default function RootLayout({
                       </TooltipProvider>
                     </LanguageProvider>
                   </AuthProvider>
-                </GoogleOAuthProvider>
+                )}
               </SavedProvider>
             </CartProvider>
           </ApolloClientProvider>
