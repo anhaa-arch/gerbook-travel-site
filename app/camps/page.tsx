@@ -24,9 +24,6 @@ const GET_YURTS = gql`
           id
           name
           location
-          province
-          district
-          zipcode
           pricePerNight
           capacity
           images
@@ -164,25 +161,20 @@ export default function CampsPage() {
 
   // Filter yurts by location, capacity, and date availability
   const filteredCamps = yurts.filter((camp: any) => {
+    // RESTRICTION: Only show camps in Arkhangai, Tsenkher -> REMOVED to allow all camps
     const campLocation = camp.location || ""
-    const campProvince = (camp as any).province || ""
-    const campDistrict = (camp as any).district || ""
+    // if (!campLocation.includes("Архангай") || !campLocation.includes("Цэнхэр")) {
+    //   return false
+    // }
 
-    // Secondary filters using structured province/district with fallback to location text
-    if (selectedProvince) {
-      const matchesProvince = campProvince
-        ? campProvince === selectedProvince
-        : campLocation.includes(selectedProvince)
-      if (!matchesProvince) {
-        return false
-      }
+    // Secondary filters
+    if (selectedProvince && !campLocation.includes(selectedProvince)) {
+      return false
     }
 
+    // Check district match
     if (selectedDistrict) {
-      const matchesDistrict = campDistrict
-        ? campDistrict === selectedDistrict
-        : campLocation.includes(selectedDistrict)
-      if (!matchesDistrict) {
+      if (!campLocation.includes(selectedDistrict)) {
         return false
       }
     }

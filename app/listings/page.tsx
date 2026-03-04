@@ -34,9 +34,6 @@ const GET_YURTS = gql`
           id
           name
           location
-          province
-          district
-          zipcode
           pricePerNight
           capacity
           images
@@ -143,42 +140,21 @@ export default function ListingsPage() {
   );
 
   const filteredCamps = yurts.filter((camp: any) => {
-    // Mandatory filter for Arkhangай, Tsenkher (using structured fields with fallback)
+    // Mandatory filter for Arkhangai, Tsenkher
     const provinceFilter = "Архангай";
     const districtFilter = "Цэнхэр";
 
     const campLocation = camp.location || "";
-    const campProvince = (camp as any).province || "";
-    const campDistrict = (camp as any).district || "";
-
-    const inArkhangai = campProvince
-      ? campProvince === provinceFilter
-      : campLocation.includes(provinceFilter);
-    const inTsenkher = campDistrict
-      ? campDistrict === districtFilter
-      : campLocation.includes(districtFilter);
-
-    if (!inArkhangai || !inTsenkher) {
+    if (!campLocation.includes(provinceFilter) || !campLocation.includes(districtFilter)) {
       return false;
     }
 
-    // Secondary filter by UI selection (structured first, then fallback to location text)
-    if (selectedProvince) {
-      const matchesProvince = campProvince
-        ? campProvince === selectedProvince
-        : campLocation.toLowerCase().includes(selectedProvince.toLowerCase());
-      if (!matchesProvince) {
-        return false;
-      }
+    // Secondary filter by UI selection
+    if (selectedProvince && !campLocation.toLowerCase().includes(selectedProvince.toLowerCase())) {
+      return false;
     }
-
-    if (selectedDistrict && selectedDistrict !== "all_districts") {
-      const matchesDistrict = campDistrict
-        ? campDistrict === selectedDistrict
-        : campLocation.toLowerCase().includes(selectedDistrict.toLowerCase());
-      if (!matchesDistrict) {
-        return false;
-      }
+    if (selectedDistrict && selectedDistrict !== "all_districts" && !campLocation.toLowerCase().includes(selectedDistrict.toLowerCase())) {
+      return false;
     }
 
     // Filter by date availability

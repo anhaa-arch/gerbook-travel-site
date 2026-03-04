@@ -134,10 +134,22 @@ export default function RegisterPage() {
         throw new Error(res?.message || "Амжилтгүй боллоо");
       }
     } catch (err: any) {
-      console.error("Register Error:", err);
+      console.error("Register Error details:", err);
+
+      // Extract meaningful error message from ApolloError if available
+      let errorMessage = "Бүртгэлийн код илгээхэд алдаа гарлаа";
+
+      if (err.graphQLErrors && err.graphQLErrors.length > 0) {
+        errorMessage = err.graphQLErrors[0].message;
+      } else if (err.networkError && err.networkError.result && err.networkError.result.errors) {
+        errorMessage = err.networkError.result.errors[0].message;
+      } else if (err.message && !err.message.includes("status code 400")) {
+        errorMessage = err.message;
+      }
+
       toast({
         title: "Алдаа",
-        description: err?.message || "Бүртгэлийн код илгээхэд алдаа гарлаа",
+        description: errorMessage,
         variant: "destructive" as any,
       });
     } finally {
