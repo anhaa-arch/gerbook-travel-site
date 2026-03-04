@@ -233,8 +233,8 @@ export default function UserDashboardContent() {
         owner: yurt.owner ? {
           id: yurt.owner.id,
           name: yurt.owner.name,
-          email: yurt.owner.email,
-          phone: yurt.owner.phone,
+          email: edge.node.ownerEmail,
+          phone: edge.node.ownerPhone,
         } : undefined,
       };
     }) || [];

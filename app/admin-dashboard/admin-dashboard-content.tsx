@@ -427,9 +427,18 @@ export default function AdminDashboardContent() {
       });
       setShowAdduser(false);
     } catch (error: any) {
+      let errorMessage = "Хэрэглэгч үүсгэхэд алдаа гарлаа";
+      if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+        errorMessage = error.graphQLErrors[0].message;
+      } else if (error.networkError && error.networkError.result && error.networkError.result.errors) {
+        errorMessage = error.networkError.result.errors[0].message;
+      } else if (error.message && !error.message.includes("status code 400")) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: "Алдаа",
-        description: error.message || "Хэрэглэгч үүсгэхэд алдаа гарлаа",
+        description: errorMessage,
         variant: "destructive" as any,
       });
     }
@@ -446,9 +455,18 @@ export default function AdminDashboardContent() {
       setShowEdituser(false);
       setEditingItem(null);
     } catch (error: any) {
+      let errorMessage = "Хэрэглэгч шинэчлэхэд алдаа гарлаа";
+      if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+        errorMessage = error.graphQLErrors[0].message;
+      } else if (error.networkError && error.networkError.result && error.networkError.result.errors) {
+        errorMessage = error.networkError.result.errors[0].message;
+      } else if (error.message && !error.message.includes("status code 400")) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: "Алдаа",
-        description: error.message || "Хэрэглэгч шинэчлэхэд алдаа гарлаа",
+        description: errorMessage,
         variant: "destructive" as any,
       });
     }

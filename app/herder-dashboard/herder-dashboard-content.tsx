@@ -291,8 +291,8 @@ export default function HerderDashboardContent() {
     bookingsData?.bookings?.edges?.map((edge: any) => ({
       id: edge.node.id,
       customer: edge.node.user?.name || "Unknown",
-      customerEmail: edge.node.user?.email || "N/A",
-      customerPhone: edge.node.user?.phone || "N/A",
+      customerEmail: edge.node.customerEmail || "N/A",
+      customerPhone: edge.node.customerPhone || "N/A",
       camp: edge.node.yurt?.name || "Unknown camp",
       campLocation: edge.node.yurt?.location || "N/A",
       checkIn: edge.node.startDate,

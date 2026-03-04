@@ -13,6 +13,7 @@ import OtpModal from "@/components/otp-modal";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { gql, useMutation } from "@apollo/client";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const LOGIN_MUTATION = gql`
   mutation Login($email: String!, $password: String!) {
@@ -36,10 +37,65 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const { saveuserData, login, sendOtp, verifyOtp } = useAuth();
+  const { saveuserData, login, sendOtp, verifyOtp, googleSignIn } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
   const [loginMutation] = useMutation(LOGIN_MUTATION);
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setLoading(true);
+      try {
+        // Fetch user info from Google
+        const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const googleUser = await res.json();
+
+        // Call backend mutation
+        await googleSignIn({
+          googleId: googleUser.sub,
+          email: googleUser.email,
+          name: googleUser.name,
+          avatar: googleUser.picture,
+        });
+
+        toast({
+          title: "Amjillttai nevterlee",
+          description: "Google-eer amjillttai nevterlee.",
+        });
+
+        // Route based on role
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          const userRole = String(user.role).toUpperCase();
+          if (userRole === "ADMIN") {
+            router.replace("/admin-dashboard");
+          } else if (userRole === "HERDER") {
+            router.replace("/herder-dashboard");
+          } else {
+            router.replace("/user-dashboard");
+          }
+        }
+      } catch (err: any) {
+        toast({
+          title: "Google nevtrelt amjilltgui",
+          description: err.message,
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      toast({
+        title: "Google nevtrelt amjilltgui",
+        description: "Google-eer nevtrehed aldaa garlaa.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -290,23 +346,7 @@ export default function LoginPage() {
               type="button"
               variant="outline"
               className="w-full flex items-center justify-center space-x-2 py-3 border-gray-300 bg-transparent"
-              onClick={async () => {
-                // Implementation note: In production, use @react-oauth/google for better UX
-                // This is a placeholder showing how to call the mutation once you have a token
-                try {
-                  // For now, redirecting to Google as before, or you can use a library
-                  toast({
-                    title: "Google Login",
-                    description: "Google Cloud Console дээр тохиргоогоо бүрэн хийсний дараа ажиллана. Зааврыг GOOGLE_AUTH_SETUP.md-ээс үзнэ үү.",
-                  });
-                } catch (err: any) {
-                  toast({
-                    title: "Google нэвтрэлт амжилтгүй",
-                    description: err.message,
-                    variant: "destructive",
-                  });
-                }
-              }}
+              onClick={() => handleGoogleLogin()}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path

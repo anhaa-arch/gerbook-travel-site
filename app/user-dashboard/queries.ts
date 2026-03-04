@@ -30,10 +30,10 @@ export const GET_user_BOOKINGS = gql`
             owner {
               id
               name
-              email
-              phone
             }
           }
+          ownerPhone
+          ownerEmail
           startDate
           endDate
           totalPrice

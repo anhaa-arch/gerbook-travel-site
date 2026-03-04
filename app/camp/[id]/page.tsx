@@ -65,13 +65,13 @@ const GET_YURT = gql`
       owner {
         id
         name
-        email
-        phone
         role
         hostBio
         hostExperience
         hostLanguages
       }
+      ownerPhone
+      ownerEmail
       createdAt
       updatedAt
       bookings {
@@ -440,8 +440,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       languages: camp.owner?.hostLanguages ? camp.owner.hostLanguages.split(',').map((l: string) => l.trim()) : ["Монгол", "Англи"],
       rating: 4.5,
       description: camp.owner?.hostBio || "Монголын уламжлалт зочломтгой байдлыг санал болгож байна.",
-      email: camp.owner?.email || "",
-      phone: camp.owner?.phone || "",
+      email: camp.ownerEmail || "",
+      phone: camp.ownerPhone || "",
       id: camp.owner?.id || "",
     },
     reviews: [], // Not in backend schema
@@ -908,8 +908,10 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                             window.location.href = `mailto:${campData.host.email}`;
                           } else {
                             toast({
-                              title: "Холбогдох мэдээлэл олдсонгүй",
-                              description: "Эзний холбогдох мэдээлэл олдсонгүй.",
+                              title: "Холбогдох мэдээлэл хаалттай",
+                              description: isAuthenticated
+                                ? "Та энэ баазад баталгаажсан захиалгатай болсон үед эзний утас харагдана."
+                                : "Эзний холбоо барих мэдээллийг харахын тулд нэвтэрч, захиалга хийнэ үү.",
                               variant: "destructive",
                             });
                           }
@@ -1181,8 +1183,10 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                           window.location.href = `mailto:${campData.host.email}`;
                         } else {
                           toast({
-                            title: "Холбогдох мэдээлэл олдсонгүй",
-                            description: "Эзний холбогдох мэдээлэл олдсонгүй.",
+                            title: "Холбогдох мэдээлэл хаалттай",
+                            description: isAuthenticated
+                              ? "Та энэ баазад баталгаажсан захиалгатай болсон үед эзний утас харагдана."
+                              : "Эзний холбоо барих мэдээллийг харахын тулд нэвтэрч, захиалга хийнэ үү.",
                             variant: "destructive",
                           });
                         }

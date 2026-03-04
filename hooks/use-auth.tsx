@@ -35,6 +35,7 @@ interface AuthContextType {
   resetPassword: (token: string, newPassword: string) => Promise<void>
   forgotPassword?: (email: string) => Promise<void>
   googleLogin: (token: string) => Promise<void>
+  googleSignIn: (input: { googleId: string; email: string; name: string; avatar?: string }) => Promise<void>
   resendVerificationCode: (email: string) => Promise<{ success: boolean; message: string }>
 }
 
@@ -196,10 +197,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   `
 
+  const GOOGLE_SIGN_IN_MUTATION = gql`
+    mutation GoogleSignIn($input: GoogleSignInInput!) {
+      googleSignIn(input: $input) {
+        token
+        user { id name email role avatar hostBio hostExperience hostLanguages }
+      }
+    }
+  `
+
   const googleLogin = async (token: string) => {
     const { data } = await client.mutate({ mutation: GOOGLE_LOGIN_MUTATION, variables: { token } })
     if (data?.googleLogin) {
       const { token: jwtToken, user } = data.googleLogin
+      localStorage.setItem('token', jwtToken)
+      saveuserData(user)
+    } else {
+      throw new Error('Google нэвтрэлт амжилтгүй')
+    }
+  }
+
+  const googleSignIn = async (input: { googleId: string; email: string; name: string; avatar?: string }) => {
+    const { data } = await client.mutate({ mutation: GOOGLE_SIGN_IN_MUTATION, variables: { input } })
+    if (data?.googleSignIn) {
+      const { token: jwtToken, user } = data.googleSignIn
       localStorage.setItem('token', jwtToken)
       saveuserData(user)
     } else {
@@ -317,6 +338,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         resetPassword,
         forgotPassword,
         googleLogin,
+        googleSignIn,
       }}
     >
       {children}

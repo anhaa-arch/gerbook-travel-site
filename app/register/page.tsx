@@ -12,6 +12,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { gql, useMutation } from "@apollo/client";
 import OtpModal from "@/components/otp-modal";
+import { useGoogleLogin } from "@react-oauth/google";
 
 const REGISTER_MUTATION = gql`
   mutation Register($input: CreateuserInput!) {
@@ -36,13 +37,66 @@ export default function RegisterPage() {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [formData, setFormData] = useState({
     identifier: "",
+    phone: "",
     password: "",
     confirmPassword: "",
   });
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const { toast } = useToast();
-  const { user: authUser, requestRegistrationCode, verifyRegistration } = useAuth();
+  const { user: authUser, requestRegistrationCode, verifyRegistration, googleSignIn } = useAuth();
+
+  const handleGoogleLogin = useGoogleLogin({
+    onSuccess: async (tokenResponse) => {
+      setLoading(true);
+      try {
+        const res = await fetch("https://www.googleapis.com/oauth2/v3/userinfo", {
+          headers: { Authorization: `Bearer ${tokenResponse.access_token}` },
+        });
+        const googleUser = await res.json();
+
+        await googleSignIn({
+          googleId: googleUser.sub,
+          email: googleUser.email,
+          name: googleUser.name,
+          avatar: googleUser.picture,
+        });
+
+        toast({
+          title: "Amjillttai nevterlee",
+          description: "Google-eer amjillttai nevterlee.",
+        });
+
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) {
+          const user = JSON.parse(storedUser);
+          const userRole = String(user.role).toUpperCase();
+          if (userRole === "ADMIN") {
+            router.replace("/admin-dashboard");
+          } else if (userRole === "HERDER") {
+            router.replace("/herder-dashboard");
+          } else {
+            router.replace("/user-dashboard");
+          }
+        }
+      } catch (err: any) {
+        toast({
+          title: "Google nevtrelt amjilltgui",
+          description: err.message,
+          variant: "destructive",
+        });
+      } finally {
+        setLoading(false);
+      }
+    },
+    onError: () => {
+      toast({
+        title: "Google nevtrelt amjilltgui",
+        description: "Google-eer nevtrehed aldaa garlaa.",
+        variant: "destructive",
+      });
+    },
+  });
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
 
@@ -97,6 +151,16 @@ export default function RegisterPage() {
       return;
     }
 
+    // Phone validation (optional but must be 8 digits if provided)
+    if (formData.phone && !/^\d{8}$/.test(formData.phone)) {
+      toast({
+        title: "Алдаа",
+        description: "Утасны дугаар буруу байна (8 оронтой тоо байх ёстой)",
+        variant: "destructive" as any,
+      });
+      return;
+    }
+
     setLoading(true);
     try {
       const generatedName = formData.identifier.split("@")[0];
@@ -110,12 +174,17 @@ export default function RegisterPage() {
         role = "CUSTOMER";
       }
 
-      const input = {
+      const input: any = {
         email: formData.identifier,
         password: formData.password,
         name: generatedName || "user",
         role,
       };
+
+      // Only send phone if provided
+      if (formData.phone) {
+        input.phone = formData.phone;
+      }
 
       console.log("Calling requestRegistrationCode with:", input);
       const res = await requestRegistrationCode(input);
@@ -344,8 +413,26 @@ export default function RegisterPage() {
                 type="text"
                 value={formData.identifier}
                 onChange={handleChange}
-                placeholder="Утасны дугаар эсвэл Имэйлээ оруулна уу"
+                placeholder="Имэйл хаягаа оруулна уу"
                 required
+                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+              />
+            </div>
+
+            <div>
+              <Label
+                htmlFor="phone"
+                className="text-sm font-medium text-gray-700"
+              >
+                Утасны дугаар (Заавал биш)
+              </Label>
+              <Input
+                id="phone"
+                name="phone"
+                type="text"
+                value={formData.phone}
+                onChange={handleChange}
+                placeholder="8 оронтой дугаар оруулна уу"
                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
               />
             </div>
@@ -456,34 +543,7 @@ export default function RegisterPage() {
               type="button"
               variant="outline"
               className="w-full flex items-center justify-center space-x-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
-              onClick={() => {
-                // Google OAuth 2.0 (registration)
-                const googleAuthUrl =
-                  "https://accounts.google.com/o/oauth2/v2/auth";
-                const redirectUri =
-                  window.location.origin + "/auth/google/callback"; // client route
-                const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
-                if (!clientId) {
-                  toast({
-                    title: "Тохиргоо дутуу",
-                    description:
-                      "Google Client ID тохируулаагүй байна (NEXT_PUBLIC_GOOGLE_CLIENT_ID)",
-                    variant: "destructive" as any,
-                  });
-                  return;
-                }
-                const params = new URLSearchParams({
-                  client_id: clientId,
-                  redirect_uri: redirectUri,
-                  response_type: "code",
-                  scope: "email profile",
-                  prompt: "select_account",
-                  access_type: "offline",
-                  state: "register",
-                });
-                // Redirect to Google
-                window.location.href = `${googleAuthUrl}?${params.toString()}`;
-              }}
+              onClick={() => handleGoogleLogin()}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
                 <path

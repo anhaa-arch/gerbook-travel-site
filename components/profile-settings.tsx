@@ -49,6 +49,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
   const [formData, setFormData] = useState({
     name: user.name || "",
     email: user.email || "",
+    phone: user.phone || "",
     currentPassword: "",
     newPassword: "",
     confirmPassword: "",
@@ -73,6 +74,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
             ...parseduser,
             name: data.updateuser.name,
             email: data.updateuser.email,
+            phone: data.updateuser.phone,
             hostBio: data.updateuser.hostBio,
             hostExperience: data.updateuser.hostExperience,
             hostLanguages: data.updateuser.hostLanguages,
@@ -92,9 +94,19 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
       if (onUpdate) onUpdate();
     },
     onError: (error) => {
+      let errorMessage = "Мэдээлэл шинэчлэхэд алдаа гарлаа.";
+
+      if (error.graphQLErrors && error.graphQLErrors.length > 0) {
+        errorMessage = error.graphQLErrors[0].message;
+      } else if (error.networkError && (error.networkError as any).result?.errors) {
+        errorMessage = (error.networkError as any).result.errors[0].message;
+      } else if (error.message && !error.message.includes("status code 400")) {
+        errorMessage = error.message;
+      }
+
       toast({
         title: "❌ Алдаа гарлаа",
-        description: error.message || "Мэдээлэл шинэчлэхэд алдаа гарлаа.",
+        description: errorMessage,
         variant: "destructive",
       });
     },
@@ -102,6 +114,25 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validate phone (Required and 8 digits)
+    if (!formData.phone) {
+      toast({
+        title: "❌ Алдаа",
+        description: "Утасны дугаар шаардлагатай.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!/^\d{8}$/.test(formData.phone)) {
+      toast({
+        title: "❌ Алдаа",
+        description: "Утасны дугаар буруу байна (8 оронтой тоо байх ёстой).",
+        variant: "destructive",
+      });
+      return;
+    }
 
     // Validate password if changing
     if (formData.newPassword) {
@@ -128,6 +159,7 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
     const updateData: any = {
       name: formData.name,
       email: formData.email,
+      phone: formData.phone,
     };
 
     // Only include password if user wants to change it
@@ -203,24 +235,22 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
             </div>
           </div>
 
-          {/* Phone Field (Read-only) */}
-          {user.phone && (
-            <div className="space-y-2">
-              <Label htmlFor="phone" className="text-sm md:text-base">
-                Утасны дугаар
-              </Label>
-              <Input
-                id="phone"
-                type="text"
-                value={user.phone}
-                disabled
-                className="bg-gray-50"
-              />
-              <p className="text-xs text-gray-500">
-                Утасны дугаар өөрчлөх боломжгүй
-              </p>
-            </div>
-          )}
+          {/* Phone Field */}
+          <div className="space-y-2">
+            <Label htmlFor="phone" className="text-sm md:text-base">
+              Утасны дугаар
+            </Label>
+            <Input
+              id="phone"
+              type="text"
+              value={formData.phone}
+              onChange={(e) =>
+                setFormData({ ...formData, phone: e.target.value })
+              }
+              placeholder="8 оронтой дугаар оруулна уу"
+              required
+            />
+          </div>
 
           {/* Host Bio Section (only for HERDER role) */}
           {((user.role || "").toString().toLowerCase() === "herder") && (

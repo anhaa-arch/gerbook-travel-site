@@ -14,6 +14,7 @@ import dynamic from "next/dynamic";
 import { Footer } from "@/components/footer";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { GoogleOAuthProvider } from "@react-oauth/google";
 
 const montserrat = Montserrat({
   subsets: ["latin", "cyrillic"],
@@ -54,16 +55,18 @@ export default function RootLayout({
           <ApolloClientProvider>
             <CartProvider>
               <SavedProvider>
-                <AuthProvider>
-                  <LanguageProvider>
-                    <TooltipProvider>
-                      <ClientHeader />
-                      <main className="flex-1">{children}</main>
-                      <Toaster />
-                      <Footer />
-                    </TooltipProvider>
-                  </LanguageProvider>
-                </AuthProvider>
+                <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || ""}>
+                  <AuthProvider>
+                    <LanguageProvider>
+                      <TooltipProvider>
+                        <ClientHeader />
+                        <main className="flex-1">{children}</main>
+                        <Toaster />
+                        <Footer />
+                      </TooltipProvider>
+                    </LanguageProvider>
+                  </AuthProvider>
+                </GoogleOAuthProvider>
               </SavedProvider>
             </CartProvider>
           </ApolloClientProvider>

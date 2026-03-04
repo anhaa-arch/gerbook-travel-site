@@ -98,9 +98,9 @@ export const GET_HERDER_BOOKINGS = gql`
           user {
             id
             name
-            email
-            phone
           }
+          customerPhone
+          customerEmail
           yurt {
             id
             name
