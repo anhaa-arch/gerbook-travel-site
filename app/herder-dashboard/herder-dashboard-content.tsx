@@ -895,7 +895,7 @@ export default function HerderDashboardContent() {
                 </CardHeader>
                 <CardContent>
                   <div className="text-xl sm:text-2xl font-bold">
-                    ${herder.totalRevenue}
+                    ₮{herder.totalRevenue.toLocaleString()}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
                     +15% өнгөрсөн сараас
@@ -945,7 +945,7 @@ export default function HerderDashboardContent() {
                         </div>
                         <div className="text-right ml-4">
                           <p className="font-bold text-sm sm:text-base">
-                            ${order.amount}
+                            ₮{order.amount.toLocaleString()}
                           </p>
                           <Badge
                             variant={
@@ -987,7 +987,7 @@ export default function HerderDashboardContent() {
                         </div>
                         <div className="text-right ml-4">
                           <p className="font-bold text-sm sm:text-base">
-                            ${booking.amount}
+                            ₮{booking.amount.toLocaleString()}
                           </p>
                           <Badge
                             variant={
@@ -1031,212 +1031,205 @@ export default function HerderDashboardContent() {
                   </DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Product Name
-                      </label>
-                      <Input
-                        placeholder="Enter product name"
-                        className="font-medium"
-                        value={productForm.name}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            name: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Category
-                      </label>
-                      <Select
-                        value={productForm.categoryId}
-                        onValueChange={(value) =>
-                          setProductForm({ ...productForm, categoryId: value })
-                        }
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Ангилал сонгох" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="dairy">
-                            Сүүн бүтээгдэхүүн
-                          </SelectItem>
-                          <SelectItem value="meat">
-                            Махны бүтээгдэхүүн
-                          </SelectItem>
-                          <SelectItem value="handicrafts">Гар урлал</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Price ($)
-                      </label>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        className="font-medium"
-                        value={productForm.price}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            price: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Stock Quantity
-                      </label>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        className="font-medium"
-                        value={productForm.stock}
-                        onChange={(e) =>
-                          setProductForm({
-                            ...productForm,
-                            stock: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Description
-                    </label>
-                    <Textarea
-                      placeholder="Describe your product..."
-                      className="font-medium"
-                      value={productForm.description}
-                      onChange={(e) =>
-                        setProductForm({
-                          ...productForm,
-                          description: e.target.value,
-                        })
-                      }
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Зураг оруулах ({uploadedImages.length}/10)
-                    </label>
-
-                    {/* Image Upload Mode Toggle */}
-                    <div className="flex space-x-2 mb-3">
-                      <Button
-                        type="button"
-                        variant={
-                          imageUploadMode === "file" ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => setImageUploadMode("file")}
-                        className="flex items-center gap-2"
-                      >
-                        <Upload className="w-4 h-4" />
-                        Файлаас сонгох
-                      </Button>
-                      <Button
-                        type="button"
-                        variant={
-                          imageUploadMode === "url" ? "default" : "outline"
-                        }
-                        size="sm"
-                        onClick={() => setImageUploadMode("url")}
-                        className="flex items-center gap-2"
-                      >
-                        <Link className="w-4 h-4" />
-                        Линк оруулах
-                      </Button>
-                    </div>
-
-                    {/* File Upload */}
-                    {imageUploadMode === "file" && (
-                      <div className="space-y-2">
-                        <input
-                          ref={fileInputRef}
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => handleFileUpload(e, "product")}
-                          className="hidden"
-                          aria-label="Бүтээгдэхүүний зураг оруулах"
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Basic Info Section */}
+                    <div className="space-y-4">
+                      <h3 className="text-sm font-bold text-emerald-800 uppercase tracking-wider bg-emerald-50 p-2 rounded">
+                        Үндсэн мэдээлэл
+                      </h3>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Бүтээгдэхүүний нэр
+                        </label>
+                        <Input
+                          placeholder="Жишээ: Шинэ сүү"
+                          className="font-medium"
+                          value={productForm.name}
+                          onChange={(e) =>
+                            setProductForm({
+                              ...productForm,
+                              name: e.target.value,
+                            })
+                          }
                         />
-                        <Button
-                          type="button"
-                          variant="outline"
-                          onClick={() => fileInputRef.current?.click()}
-                          className="w-full"
-                          disabled={uploadedImages.length >= 10}
-                        >
-                          <Upload className="w-4 h-4 mr-2" />
-                          Зураг сонгох ({uploadedImages.length}/3)
-                        </Button>
                       </div>
-                    )}
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Ангилал
+                        </label>
+                        <Select
+                          value={productForm.categoryId}
+                          onValueChange={(value) =>
+                            setProductForm({ ...productForm, categoryId: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Ангилал сонгох" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="dairy">
+                              Сүүн бүтээгдэхүүн
+                            </SelectItem>
+                            <SelectItem value="meat">
+                              Махны бүтээгдэхүүн
+                            </SelectItem>
+                            <SelectItem value="handicrafts">Гар урлал</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Тайлбар
+                        </label>
+                        <Textarea
+                          placeholder="Бүтээгдэхүүний дэлгэрэнгүй тайлбар..."
+                          className="font-medium min-h-[120px]"
+                          value={productForm.description}
+                          onChange={(e) =>
+                            setProductForm({
+                              ...productForm,
+                              description: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
+                    </div>
 
-                    {/* URL Input */}
-                    {imageUploadMode === "url" && (
-                      <div className="space-y-2">
-                        <div className="flex gap-2">
+                    {/* Pricing & Inventory Section */}
+                    <div className="space-y-4">
+                      <h3 className="text-sm font-bold text-emerald-800 uppercase tracking-wider bg-emerald-50 p-2 rounded">
+                        Үнэ & Нөөц
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Үнэ (₮)
+                          </label>
                           <Input
-                            id="product-image-url-input"
-                            placeholder="https://example.com/image1.jpg"
-                            className="font-medium flex-1"
+                            type="number"
+                            placeholder="0"
+                            className="font-medium"
+                            value={productForm.price}
+                            onChange={(e) =>
+                              setProductForm({
+                                ...productForm,
+                                price: e.target.value,
+                              })
+                            }
                           />
-                          <Button
-                            type="button"
-                            onClick={() => {
-                              const input = document.getElementById(
-                                "product-image-url-input"
-                              ) as HTMLInputElement;
-                              if (input.value.trim()) {
-                                handleImageUrlChange(
-                                  input.value.trim(),
-                                  "product"
-                                );
-                                input.value = "";
-                              }
-                            }}
-                            disabled={uploadedImages.length >= 3}
-                          >
-                            Нэмэх
-                          </Button>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Нөөцийн тоо
+                          </label>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            className="font-medium"
+                            value={productForm.stock}
+                            onChange={(e) =>
+                              setProductForm({
+                                ...productForm,
+                                stock: e.target.value,
+                              })
+                            }
+                          />
                         </div>
                       </div>
-                    )}
 
-                    {/* Image Preview Grid */}
-                    {uploadedImages.length > 0 && (
-                      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 mt-4">
-                        {uploadedImages.map((image, index) => (
-                          <div key={index} className="relative group">
-                            <img
-                              src={image}
-                              alt={`Preview ${index + 1}`}
-                              className="w-full h-24 object-cover rounded border"
-                              onError={(e) => {
-                                e.currentTarget.src = "/placeholder.svg";
-                              }}
+                      <div className="pt-2">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Зураг оруулах ({uploadedImages.length}/3)
+                        </label>
+
+                        <div className="flex space-x-2 mb-3">
+                          <Button
+                            type="button"
+                            variant={imageUploadMode === "file" ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setImageUploadMode("file")}
+                            className="flex-1 h-8 text-[11px]"
+                          >
+                            <Upload className="w-3 h-3 mr-1" /> Файлаас
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={imageUploadMode === "url" ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setImageUploadMode("url")}
+                            className="flex-1 h-8 text-[11px]"
+                          >
+                            <Link className="w-3 h-3 mr-1" /> Линк
+                          </Button>
+                        </div>
+
+                        {imageUploadMode === "file" ? (
+                          <div className="space-y-2">
+                            <input
+                              ref={fileInputRef}
+                              type="file"
+                              accept="image/*"
+                              onChange={(e) => handleFileUpload(e, "product")}
+                              className="hidden"
                             />
                             <Button
                               type="button"
-                              variant="destructive"
-                              size="sm"
-                              className="absolute top-1 right-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                              onClick={() => handleRemoveImage(index)}
+                              variant="outline"
+                              onClick={() => fileInputRef.current?.click()}
+                              className="w-full border-dashed"
+                              disabled={uploadedImages.length >= 3}
                             >
-                              <X className="w-3 h-3" />
+                              <Upload className="w-4 h-4 mr-2" /> Сонгох
                             </Button>
                           </div>
-                        ))}
+                        ) : (
+                          <div className="flex gap-2">
+                            <Input
+                              id="product-image-url-input"
+                              placeholder="https://..."
+                              className="font-medium h-9 text-xs"
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => {
+                                const input = document.getElementById("product-image-url-input") as HTMLInputElement;
+                                if (input.value.trim()) {
+                                  handleImageUrlChange(input.value.trim(), "product");
+                                  input.value = "";
+                                }
+                              }}
+                              disabled={uploadedImages.length >= 3}
+                            >
+                              Нэмэх
+                            </Button>
+                          </div>
+                        )}
+
+                        {uploadedImages.length > 0 && (
+                          <div className="grid grid-cols-3 gap-2 mt-3">
+                            {uploadedImages.map((image, index) => (
+                              <div key={index} className="relative group aspect-square">
+                                <img
+                                  src={image}
+                                  alt=""
+                                  className="w-full h-full object-cover rounded border"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full"
+                                  onClick={() => handleRemoveImage(index)}
+                                >
+                                  <X className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
+                    </div>
                   </div>
                   <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                     <Button
@@ -1304,18 +1297,18 @@ export default function HerderDashboardContent() {
                     </p>
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-xl font-bold">
-                        ${product.price}
+                        ₮{product.price.toLocaleString()}
                       </span>
                       <span className="text-sm text-gray-600 font-medium">
-                        Stock: {product.stock}
+                        Нөөц: {product.stock}
                       </span>
                     </div>
                     <div className="flex items-center justify-between mb-4">
                       <span className="text-sm text-gray-600 font-medium">
-                        Sold: {product.sold}
+                        Зарагдсан: {product.sold}
                       </span>
                       <span className="text-sm text-emerald-600 font-bold">
-                        ${(product.price * product.sold).toFixed(0)} earned
+                        ₮{(product.price * product.sold).toLocaleString()} олсон
                       </span>
                     </div>
                     <div className="flex space-x-2">
@@ -1365,130 +1358,243 @@ export default function HerderDashboardContent() {
                   </DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Camp Name
-                      </label>
-                      <Input
-                        placeholder="Enter camp name"
-                        className="font-medium"
-                        value={yurtForm.name}
-                        onChange={(e) =>
-                          setYurtForm({ ...yurtForm, name: e.target.value })
-                        }
-                      />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {/* Basic Info */}
+                    <div className="space-y-4">
+                      <h3 className="text-sm font-bold text-emerald-800 uppercase tracking-wider bg-emerald-50 p-2 rounded">
+                        Үндсэн мэдээлэл
+                      </h3>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Бааз/Гэрийн нэр
+                        </label>
+                        <Input
+                          placeholder="Жишээ: Алтан тал амралт"
+                          className="font-medium"
+                          value={yurtForm.name}
+                          onChange={(e) =>
+                            setYurtForm({ ...yurtForm, name: e.target.value })
+                          }
+                        />
+                      </div>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Аймаг
+                          </label>
+                          <Select
+                            value={yurtForm.province}
+                            onValueChange={(value) => {
+                              setYurtForm({
+                                ...yurtForm,
+                                province: value,
+                                district: "",
+                                location: value
+                              });
+                            }}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Сонгох" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[300px]">
+                              {provinces.map((province: any) => (
+                                <SelectItem key={province.zipcode} value={province.mnname}>
+                                  {province.mnname}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Сум/Дүүрэг
+                          </label>
+                          <Select
+                            value={yurtForm.district}
+                            onValueChange={(value) => {
+                              const location = `${yurtForm.province}, ${value}`;
+                              setYurtForm({
+                                ...yurtForm,
+                                district: value,
+                                location: location
+                              });
+                            }}
+                            disabled={!yurtForm.province}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Сонгох" />
+                            </SelectTrigger>
+                            <SelectContent className="max-h-[300px]">
+                              {districts.map((district: any) => (
+                                <SelectItem key={district.zipcode} value={district.mnname}>
+                                  {district.mnname}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Тайлбар
+                        </label>
+                        <Textarea
+                          placeholder="Баазын дэлгэрэнгүй тайлбар..."
+                          className="font-medium min-h-[100px]"
+                          value={yurtForm.description}
+                          onChange={(e) =>
+                            setYurtForm({
+                              ...yurtForm,
+                              description: e.target.value,
+                            })
+                          }
+                        />
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Аймаг
-                      </label>
-                      <Select
-                        value={yurtForm.province}
-                        onValueChange={(value) => {
-                          console.log('🏔️ Province selected:', value);
-                          setYurtForm({
-                            ...yurtForm,
-                            province: value,
-                            district: "", // Reset district when province changes
-                            location: value // Temporarily set to province only
-                          });
-                        }}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Аймаг сонгох" />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[300px]">
-                          {provinces.map((province: any) => (
-                            <SelectItem key={province.zipcode} value={province.mnname}>
-                              {province.mnname}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Сум/Дүүрэг
-                      </label>
-                      <Select
-                        value={yurtForm.district}
-                        onValueChange={(value) => {
-                          console.log('🏘️ District selected:', value);
-                          const location = `${yurtForm.province}, ${value}`;
-                          setYurtForm({
-                            ...yurtForm,
-                            district: value,
-                            location: location
-                          });
-                        }}
-                        disabled={!yurtForm.province}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder={yurtForm.province ? "Сум/Дүүрэг сонгох" : "Эхлээд аймаг сонгоно уу"} />
-                        </SelectTrigger>
-                        <SelectContent className="max-h-[300px]">
-                          {districts.length > 0 ? (
-                            districts.map((district: any) => (
-                              <SelectItem key={district.zipcode} value={district.mnname}>
-                                {district.mnname}
+
+                    {/* Capacity & Price */}
+                    <div className="space-y-4">
+                      <h3 className="text-sm font-bold text-emerald-800 uppercase tracking-wider bg-emerald-50 p-2 rounded">
+                        Үнэ & Багтаамж
+                      </h3>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Нэг хоногийн үнэ (₮)
+                          </label>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            className="font-medium"
+                            value={yurtForm.pricePerNight}
+                            onChange={(e) =>
+                              setYurtForm({
+                                ...yurtForm,
+                                pricePerNight: e.target.value,
+                              })
+                            }
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-semibold text-gray-700 mb-2">
+                            Хүний тоо (дээд)
+                          </label>
+                          <Input
+                            type="number"
+                            placeholder="0"
+                            className="font-medium"
+                            value={yurtForm.capacity}
+                            onChange={(e) =>
+                              setYurtForm({ ...yurtForm, capacity: e.target.value })
+                            }
+                          />
+                        </div>
+                      </div>
+
+                      <div className="pt-2">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Байрны төрөл
+                        </label>
+                        <Select
+                          value={yurtForm.accommodationType}
+                          onValueChange={(value) =>
+                            setYurtForm({ ...yurtForm, accommodationType: value })
+                          }
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Төрөл сонгох" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {accommodationTypes.map((type) => (
+                              <SelectItem key={type.value} value={type.value}>
+                                {type.label}
                               </SelectItem>
-                            ))
-                          ) : (
-                            <div className="p-2 text-sm text-gray-500">
-                              Сум олдсонгүй
-                            </div>
-                          )}
-                        </SelectContent>
-                      </Select>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="pt-2">
+                        <label className="block text-sm font-semibold text-gray-700 mb-2">
+                          Зураг оруулах ({uploadedImages.length}/3)
+                        </label>
+                        <div className="flex space-x-2 mb-2">
+                          <Button
+                            type="button"
+                            variant={imageUploadMode === "file" ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setImageUploadMode("file")}
+                            className="flex-1 h-8 text-[11px]"
+                          >
+                            <Upload className="w-3 h-3 mr-1" /> Файлаас
+                          </Button>
+                          <Button
+                            type="button"
+                            variant={imageUploadMode === "url" ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setImageUploadMode("url")}
+                            className="flex-1 h-8 text-[11px]"
+                          >
+                            <Link className="w-3 h-3 mr-1" /> Линк
+                          </Button>
+                        </div>
+                        {imageUploadMode === "file" ? (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            onClick={() => fileInputRef.current?.click()}
+                            className="w-full border-dashed h-9"
+                            disabled={uploadedImages.length >= 3}
+                          >
+                            <Upload className="w-4 h-4 mr-2" /> Сонгох
+                          </Button>
+                        ) : (
+                          <div className="flex gap-2">
+                            <Input
+                              id="yurt-image-url-input"
+                              placeholder="https://..."
+                              className="font-medium h-9 text-xs"
+                            />
+                            <Button
+                              type="button"
+                              size="sm"
+                              onClick={() => {
+                                const input = document.getElementById("yurt-image-url-input") as HTMLInputElement;
+                                if (input.value.trim()) {
+                                  handleImageUrlChange(input.value.trim(), "yurt");
+                                  input.value = "";
+                                }
+                              }}
+                              disabled={uploadedImages.length >= 3}
+                            >
+                              Нэмэх
+                            </Button>
+                          </div>
+                        )}
+                        {uploadedImages.length > 0 && (
+                          <div className="grid grid-cols-3 gap-2 mt-3">
+                            {uploadedImages.map((image, index) => (
+                              <div key={index} className="relative group aspect-square">
+                                <img
+                                  src={image}
+                                  alt=""
+                                  className="w-full h-full object-cover rounded border"
+                                />
+                                <Button
+                                  type="button"
+                                  variant="destructive"
+                                  size="icon"
+                                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full"
+                                  onClick={() => handleRemoveImage(index)}
+                                >
+                                  <X className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Price per Night ($)
-                      </label>
-                      <Input
-                        type="number"
-                        placeholder="0.00"
-                        className="font-medium"
-                        value={yurtForm.pricePerNight}
-                        onChange={(e) =>
-                          setYurtForm({
-                            ...yurtForm,
-                            pricePerNight: e.target.value,
-                          })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
-                        Guest Capacity
-                      </label>
-                      <Input
-                        type="number"
-                        placeholder="0"
-                        className="font-medium"
-                        value={yurtForm.capacity}
-                        onChange={(e) =>
-                          setYurtForm({ ...yurtForm, capacity: e.target.value })
-                        }
-                      />
-                    </div>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Description
-                    </label>
-                    <Textarea
-                      placeholder="Describe your camp..."
-                      className="font-medium"
-                      value={yurtForm.description}
-                      onChange={(e) =>
-                        setYurtForm({
-                          ...yurtForm,
-                          description: e.target.value,
-                        })
-                      }
-                    />
                   </div>
                   {/* Amenities - Checkbox */}
                   <div>
@@ -1957,16 +2063,16 @@ export default function HerderDashboardContent() {
                     <div className="grid grid-cols-2 gap-4 mb-4">
                       <div>
                         <p className="text-sm text-gray-600 font-medium">
-                          Price per night
+                          Хоногийн үнэ
                         </p>
-                        <p className="text-xl font-bold">${camp.price}</p>
+                        <p className="text-xl font-bold">₮{camp.price.toLocaleString()}</p>
                       </div>
                       <div>
                         <p className="text-sm text-gray-600 font-medium">
-                          Capacity
+                          Багтаамж
                         </p>
                         <p className="text-xl font-bold">
-                          {camp.capacity} guests
+                          {camp.capacity} зочин
                         </p>
                       </div>
                     </div>
@@ -1978,7 +2084,7 @@ export default function HerderDashboardContent() {
                         </span>
                       </div>
                       <span className="text-sm text-gray-600 font-medium">
-                        {camp.bookings} bookings
+                        {camp.bookings} захиалга
                       </span>
                     </div>
                     <div className="flex space-x-2">
@@ -2008,13 +2114,13 @@ export default function HerderDashboardContent() {
           {/* Orders Tab */}
           <TabsContent value="orders" className="space-y-6">
             <h2 className="text-xl sm:text-2xl font-bold">
-              Product Orders & Camp Bookings
+              Бүтээгдэхүүн & Бааз захиалгууд
             </h2>
 
             <div className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="font-bold">Product Orders</CardTitle>
+                  <CardTitle className="font-bold">Бүтээгдэхүүний захиалга</CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
                   <div className="overflow-x-auto">
@@ -2022,23 +2128,23 @@ export default function HerderDashboardContent() {
                       <TableHeader>
                         <TableRow>
                           <TableHead className="font-semibold">
-                            Order ID
+                            Захиалгын №
                           </TableHead>
                           <TableHead className="min-w-[120px] font-semibold">
-                            Customer
+                            Захиалагч
                           </TableHead>
                           <TableHead className="min-w-[120px] font-semibold">
-                            Product
+                            Бүтээгдэхүүн
                           </TableHead>
-                          <TableHead className="font-semibold">Qty</TableHead>
+                          <TableHead className="font-semibold">Тоо</TableHead>
                           <TableHead className="font-semibold">
-                            Amount
+                            Дүн
                           </TableHead>
                           <TableHead className="font-semibold">
-                            Status
+                            Төлөв
                           </TableHead>
                           <TableHead className="hidden sm:table-cell font-semibold">
-                            Date
+                            Огноо
                           </TableHead>
                         </TableRow>
                       </TableHeader>
@@ -2058,7 +2164,7 @@ export default function HerderDashboardContent() {
                               {order.quantity}
                             </TableCell>
                             <TableCell className="font-bold">
-                              ${order.amount}
+                              ₮{order.amount.toLocaleString()}
                             </TableCell>
                             <TableCell>
                               <Badge
@@ -2085,7 +2191,7 @@ export default function HerderDashboardContent() {
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="font-bold">Camp Bookings</CardTitle>
+                  <CardTitle className="font-bold">Бааз захиалга</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {bookings.length === 0 ? (
@@ -2174,7 +2280,7 @@ export default function HerderDashboardContent() {
                                   </div>
                                   <div className="text-right">
                                     <div className="text-2xl font-bold text-emerald-600">
-                                      ${booking.amount}
+                                      ₮{booking.amount.toLocaleString()}
                                     </div>
                                     <div className="flex items-center text-xs mt-1">
                                       <CreditCard className="w-3 h-3 mr-1" />
@@ -2326,7 +2432,7 @@ export default function HerderDashboardContent() {
                           Нийт орлого
                         </span>
                         <span className="font-bold text-emerald-600">
-                          ${herder.totalRevenue.toFixed(0)}
+                          ₮{herder.totalRevenue.toLocaleString()}
                         </span>
                       </div>
                       <div className="flex items-center justify-between">
@@ -2350,12 +2456,11 @@ export default function HerderDashboardContent() {
         <Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
           <DialogContent className="max-w-md">
             <DialogHeader>
-              <DialogTitle className="font-bold">Confirm Delete</DialogTitle>
+              <DialogTitle className="font-bold">Устгахыг баталгаажуулах</DialogTitle>
             </DialogHeader>
             <div className="space-y-4">
               <p className="text-sm text-gray-600 font-medium">
-                Are you sure you want to delete this item? This action cannot be
-                undone.
+                Та энэ зүйлийг устгахдаа итгэлтэй байна уу? Энэ үйлдлийг буцаах боломжгүй.
               </p>
               <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
                 <Button
@@ -2363,14 +2468,14 @@ export default function HerderDashboardContent() {
                   onClick={confirmDelete}
                   className="w-full sm:w-auto font-semibold"
                 >
-                  Delete
+                  Устгах
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => setShowDeleteDialog(false)}
                   className="w-full sm:w-auto font-medium"
                 >
-                  Cancel
+                  Цуцлах
                 </Button>
               </div>
             </div>

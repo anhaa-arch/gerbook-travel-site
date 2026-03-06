@@ -605,7 +605,7 @@ export default function UserDashboardContent() {
                               </div>
                               <div className="text-right flex-shrink-0">
                                 <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
-                                  ${booking.amount}
+                                  ₮{booking.amount.toLocaleString()}
                                 </p>
                                 <Badge
                                   variant={
@@ -674,7 +674,7 @@ export default function UserDashboardContent() {
                             </div>
                             <div className="text-right flex-shrink-0">
                               <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
-                                ${order.amount}
+                                ₮{order.amount.toLocaleString()}
                               </p>
                               <Badge
                                 variant={
@@ -790,20 +790,42 @@ export default function UserDashboardContent() {
 
                           {/* Owner Contact Info */}
                           {booking.owner && (
-                            <div className="bg-gray-50 rounded-md p-2 sm:p-3 mb-3 space-y-1">
-                              <p className="text-xs font-semibold text-gray-700">
-                                Малчин: {booking.owner.name}
+                            <div className="bg-emerald-50 rounded-lg p-3 mb-4 border border-emerald-100">
+                              <div className="flex items-center justify-between mb-2">
+                                <h4 className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
+                                  Эзэмшигчийн мэдээлэл
+                                </h4>
+                                <Badge variant="outline" className="text-[10px] bg-white border-emerald-200 text-emerald-700">
+                                  Малчин
+                                </Badge>
+                              </div>
+                              <p className="text-sm font-bold text-gray-900 mb-2">
+                                {booking.owner.name}
                               </p>
-                              {booking.owner.phone && (
-                                <p className="text-xs text-gray-600 font-medium">
-                                  📞 {booking.owner.phone}
-                                </p>
-                              )}
-                              {booking.owner.email && (
-                                <p className="text-xs text-gray-600 truncate font-medium">
-                                  ✉️ {booking.owner.email}
-                                </p>
-                              )}
+                              <div className="flex gap-2">
+                                {booking.owner.phone && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1 h-8 bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50 text-xs font-bold"
+                                    onClick={() => window.location.href = `tel:${booking.owner?.phone}`}
+                                  >
+                                    <Clock className="w-3 h-3 mr-1" />
+                                    Залгах
+                                  </Button>
+                                )}
+                                {booking.owner.email && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="flex-1 h-8 bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50 text-xs font-bold"
+                                    onClick={() => window.location.href = `mailto:${booking.owner?.email}`}
+                                  >
+                                    <ShoppingBag className="w-3 h-3 mr-1" />
+                                    Мэйл бичих
+                                  </Button>
+                                )}
+                              </div>
                             </div>
                           )}
 
@@ -1132,7 +1154,7 @@ export default function UserDashboardContent() {
                           variant="outline"
                           className="text-xs ml-2 font-medium"
                         >
-                          {item.type}
+                          {item.type === "camp" ? "Бааз" : "Бараа"}
                         </Badge>
                       </div>
                       {item.type === "camp" ? (
@@ -1144,7 +1166,7 @@ export default function UserDashboardContent() {
                         </div>
                       ) : (
                         <p className="text-sm text-gray-600 mb-2 font-medium">
-                          by {item.seller}
+                          Борлуулагч: {item.seller}
                         </p>
                       )}
                       <div className="flex items-center justify-between mb-4">
@@ -1154,7 +1176,7 @@ export default function UserDashboardContent() {
                             {item.rating}
                           </span>
                         </div>
-                        <span className="text-xl font-bold">${item.price}</span>
+                        <span className="text-xl font-bold">₮{item.price.toLocaleString()}</span>
                       </div>
                       <div className="flex space-x-2">
                         <Link href={`/camp/${item.id}`}>
@@ -1265,7 +1287,9 @@ export default function UserDashboardContent() {
                                     : "border-green-500 text-green-600"
                                   }`}
                               >
-                                {route.difficulty}
+                                {route.difficulty === "extreme" ? "Маш хүнд" :
+                                  route.difficulty === "challenging" ? "Хүнд" :
+                                    route.difficulty === "moderate" ? "Дунд зэрэг" : "Хялбар"}
                               </Badge>
                             </div>
                           </div>
@@ -1282,7 +1306,10 @@ export default function UserDashboardContent() {
                                     Улирал:
                                   </span>
                                   <span className="capitalize font-semibold">
-                                    {route.weatherSeason}
+                                    {route.weatherSeason === "summer" ? "Зун" :
+                                      route.weatherSeason === "winter" ? "Өвөл" :
+                                        route.weatherSeason === "autumn" ? "Намар" :
+                                          route.weatherSeason === "spring" ? "Хавар" : route.weatherSeason}
                                   </span>
                                 </div>
                                 <div className="flex justify-between">
@@ -1300,17 +1327,17 @@ export default function UserDashboardContent() {
                                 </div>
                                 <div className="flex justify-between">
                                   <span className="text-gray-600 font-medium">
-                                    Transportation:
+                                    Тээвэр:
                                   </span>
                                   <span className="text-right font-semibold">
-                                    {route.transportation}
+                                    {route.transportation === "Guided tour" ? "Хөтөчтэй аялал" : route.transportation}
                                   </span>
                                 </div>
                               </div>
                             </div>
                             <div>
                               <h4 className="font-bold text-sm text-gray-700 mb-2">
-                                Accommodations
+                                Байрлах газар
                               </h4>
                               <div className="flex flex-wrap gap-1">
                                 {route.accommodations.map(
@@ -1331,7 +1358,7 @@ export default function UserDashboardContent() {
                           {/* Attractions */}
                           <div className="mb-4">
                             <h4 className="font-bold text-sm text-gray-700 mb-3">
-                              Attractions & Activities
+                              Үзэх газрууд & Үйл ажиллагаа
                             </h4>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                               {route.attractions.map(
@@ -1381,7 +1408,7 @@ export default function UserDashboardContent() {
                                           className="text-xs font-medium"
                                         >
                                           +{attraction.activities.length - 2}{" "}
-                                          more
+                                          илүү
                                         </Badge>
                                       )}
                                     </div>
@@ -1408,7 +1435,7 @@ export default function UserDashboardContent() {
                                     ))}
                                   </div>
                                   <span className="ml-2 text-sm font-semibold">
-                                    Your Review
+                                    Таны сэтгэгдэл
                                   </span>
                                 </div>
                                 <p className="text-sm text-gray-700 font-medium">
@@ -1458,11 +1485,11 @@ export default function UserDashboardContent() {
                           {/* Dates */}
                           <div className="flex justify-between items-center mt-4 pt-4 border-t text-xs text-gray-500">
                             <span className="font-medium">
-                              Created: {route.createdDate}
+                              Үүсгэсэн: {route.createdDate}
                             </span>
                             {route.completedDate && (
                               <span className="font-medium">
-                                Completed: {route.completedDate}
+                                Дууссан: {route.completedDate}
                               </span>
                             )}
                           </div>
@@ -1486,7 +1513,7 @@ export default function UserDashboardContent() {
                     }
                   </div>
                   <div className="text-sm text-gray-600 font-medium">
-                    Completed Routes
+                    Дууссан маршрут
                   </div>
                 </CardContent>
               </Card>
@@ -1500,7 +1527,7 @@ export default function UserDashboardContent() {
                     }
                   </div>
                   <div className="text-sm text-gray-600 font-medium">
-                    Planning
+                    Төлөвлөж буй
                   </div>
                 </CardContent>
               </Card>
@@ -1514,22 +1541,22 @@ export default function UserDashboardContent() {
                     )}
                   </div>
                   <div className="text-sm text-gray-600 font-medium">
-                    Total Days Planned
+                    Нийт аялсан хоног
                   </div>
                 </CardContent>
               </Card>
               <Card>
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-orange-600">
-                    $
+                    ₮
                     {travelRoutes.reduce(
                       (total: number, route: TravelRoute) =>
                         total + route.estimatedCost,
                       0
-                    )}
+                    ).toLocaleString()}
                   </div>
                   <div className="text-sm text-gray-600 font-medium">
-                    Total Investment
+                    Нийт төсөв
                   </div>
                 </CardContent>
               </Card>
@@ -1580,7 +1607,7 @@ export default function UserDashboardContent() {
                           Нийт зарцуулсан
                         </span>
                         <span className="font-semibold">
-                          ${totalSpent.toFixed(0)}
+                          ₮{totalSpent.toLocaleString()}
                         </span>
                       </div>
                     </CardContent>
