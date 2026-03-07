@@ -1628,9 +1628,11 @@ export default function AdminDashboardContent() {
                             <SelectValue placeholder={t("admin.products.category")} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="dairy">Сүүн бүтээгдэхүүн</SelectItem>
-                            <SelectItem value="meat">Махны бүтээгдэхүүн</SelectItem>
-                            <SelectItem value="handicrafts">Гар урлал</SelectItem>
+                            {categoriesData?.categories?.edges?.map((edge: any) => (
+                              <SelectItem key={edge.node.id} value={edge.node.id}>
+                                {edge.node.name}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -1758,14 +1760,16 @@ export default function AdminDashboardContent() {
                       </div>
                       <div className="space-y-2">
                         <label className="text-sm font-bold text-gray-700">{t("admin.products.category")}</label>
-                        <Select name="category" defaultValue={editingItem.categoryId}>
+                        <Select name="category" defaultValue={editingItem?.category?.id}>
                           <SelectTrigger className="focus:ring-emerald-500">
                             <SelectValue placeholder={t("admin.products.category")} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="dairy">Сүүн бүтээгдэхүүн</SelectItem>
-                            <SelectItem value="meat">Махны бүтээгдэхүүн</SelectItem>
-                            <SelectItem value="handicrafts">Гар урлал</SelectItem>
+                            {categoriesData?.categories?.edges?.map((edge: any) => (
+                              <SelectItem key={edge.node.id} value={edge.node.id}>
+                                {edge.node.name}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>

@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
+import { useRouter } from "next/navigation";
 import { useIdleLogout } from "@/hooks/use-idle-logout";
 import {
   Calendar,
@@ -46,6 +47,7 @@ import Link from "next/link";
 import { getPrimaryImage } from "@/lib/imageUtils";
 import { ProfileSettings } from "@/components/profile-settings";
 import {
+  GET_user_STATS,
   GET_user_BOOKINGS,
   GET_user_ORDERS,
   GET_user_TRAVEL_BOOKINGS,
@@ -165,6 +167,24 @@ export default function UserDashboardContent() {
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const { logout, user } = useAuth();
+  const router = useRouter();
+
+  // Redirect if role is not customer/user
+  const { data: userData } = useQuery(GET_user_STATS, {
+    variables: { userId: user?.id },
+    skip: !user?.id,
+  });
+
+  useEffect(() => {
+    if (userData?.me) {
+      const serverRole = String(userData.me.role).toUpperCase();
+      if (serverRole === "ADMIN") {
+        router.replace("/admin-dashboard");
+      } else if (serverRole === "HERDER") {
+        router.replace("/herder-dashboard");
+      }
+    }
+  }, [userData, router]);
 
   // Auto-logout after 30 minutes of inactivity
   useIdleLogout({

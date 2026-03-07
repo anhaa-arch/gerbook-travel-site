@@ -6,6 +6,7 @@ export const GET_user_STATS = gql`
       id
       name
       email
+      role
     }
     bookings(userId: $userId) {
       totalCount

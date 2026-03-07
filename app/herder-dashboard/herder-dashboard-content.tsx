@@ -73,6 +73,7 @@ import {
   GET_HERDER_YURTS,
   GET_HERDER_ORDERS,
   GET_HERDER_BOOKINGS,
+  GET_CATEGORIES,
   CREATE_YURT,
   UPDATE_YURT,
   DELETE_YURT,
@@ -141,6 +142,7 @@ export default function HerderDashboardContent() {
     images: "",
     categoryId: "",
   });
+  const { data: categoriesData } = useQuery(GET_CATEGORIES);
 
   // Fetch real data from database
   const { data: statsData, loading: statsLoading } = useQuery(
@@ -1067,13 +1069,11 @@ export default function HerderDashboardContent() {
                             <SelectValue placeholder="Ангилал сонгох" />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="dairy">
-                              Сүүн бүтээгдэхүүн
-                            </SelectItem>
-                            <SelectItem value="meat">
-                              Махны бүтээгдэхүүн
-                            </SelectItem>
-                            <SelectItem value="handicrafts">Гар урлал</SelectItem>
+                            {categoriesData?.categories?.edges?.map((edge: any) => (
+                              <SelectItem key={edge.node.id} value={edge.node.id}>
+                                {edge.node.name}
+                              </SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>

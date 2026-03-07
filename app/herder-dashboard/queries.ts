@@ -17,6 +17,19 @@ export const GET_HERDER_STATS = gql`
   }
 `
 
+export const GET_CATEGORIES = gql`
+  query GetCategories {
+    categories {
+      edges {
+        node {
+          id
+          name
+        }
+      }
+    }
+  }
+`
+
 export const GET_HERDER_PRODUCTS = gql`
   query GetHerderProducts {
     products {
