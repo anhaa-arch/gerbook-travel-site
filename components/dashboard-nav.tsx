@@ -52,8 +52,12 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
         <nav className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon
-            const safePath = pathname ?? ""
-            const isActive = safePath === item.href || safePath.startsWith(item.href)
+            const safePath = typeof pathname === 'string' ? pathname : '';
+            const href = typeof item.href === 'string' ? item.href : '';
+
+            const isActive =
+              safePath === href ||
+              (safePath && href && safePath.startsWith(href));
 
             return (
               <Link key={item.href} href={item.href}>

@@ -89,8 +89,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       queryRedirect = urlParams.get('redirect');
     }
     // Safety check for startsWith
-    const safeRedirect = queryRedirect ?? ""
-    const redirectUrl = safeRedirect.startsWith("/") ? safeRedirect : null;
+    const safeRedirect = typeof queryRedirect === "string" ? queryRedirect : "";
+    const redirectUrl = safeRedirect && safeRedirect.startsWith("/") ? safeRedirect : null;
 
     if (redirectUrl) {
       router.push(redirectUrl)

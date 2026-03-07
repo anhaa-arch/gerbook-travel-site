@@ -364,8 +364,9 @@ export default function CampsPage() {
                 }
               } catch (e) {
                 // Fallback: if old format or parse error, use split
-                if (camp.amenities && typeof camp.amenities === 'string' && !camp.amenities.startsWith('{')) {
-                  amenitiesDisplay = camp.amenities.split(',').slice(0, 3)
+                const amenitiesStr = typeof camp.amenities === 'string' ? camp.amenities : '';
+                if (amenitiesStr && !amenitiesStr.startsWith('{')) {
+                  amenitiesDisplay = amenitiesStr.split(',').slice(0, 3)
                 }
               }
 
