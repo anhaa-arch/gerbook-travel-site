@@ -12,6 +12,11 @@ import {
   ShoppingBag,
   Clock,
   LogOut,
+  Mail,
+  Phone,
+  Info,
+  ChevronRight,
+  ExternalLink,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +31,14 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Separator } from "@/components/ui/separator";
+import { amenitiesOptions } from "@/data/camp-options";
 import { useQuery } from "@apollo/client";
 import "../../lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
@@ -60,6 +73,8 @@ interface Booking {
     email?: string;
     phone?: string;
   };
+  description?: string;
+  amenities?: string;
 }
 
 interface Order {
@@ -127,7 +142,28 @@ const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
 export default function UserDashboardContent() {
   const { t } = useTranslation();
+
+  const parseAmenities = (amenitiesStr?: string) => {
+    if (!amenitiesStr) return { items: [], activities: [], facilities: [] };
+    try {
+      const parsed = JSON.parse(amenitiesStr);
+      return {
+        items: parsed.items || [],
+        activities: parsed.activities || [],
+        facilities: parsed.facilities || [],
+        accommodationType: parsed.accommodationType || "",
+      };
+    } catch {
+      return {
+        items: amenitiesStr.split(",").map(a => a.trim()),
+        activities: [],
+        facilities: []
+      };
+    }
+  };
+
   const [activeTab, setActiveTab] = useState("overview");
+  const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const { logout, user } = useAuth();
 
   // Auto-logout after 30 minutes of inactivity
@@ -236,6 +272,8 @@ export default function UserDashboardContent() {
           email: edge.node.ownerEmail,
           phone: edge.node.ownerPhone,
         } : undefined,
+        description: yurt.description,
+        amenities: yurt.amenities,
       };
     }) || [];
 
@@ -810,7 +848,7 @@ export default function UserDashboardContent() {
                                     className="flex-1 h-8 bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50 text-xs font-bold"
                                     onClick={() => window.location.href = `tel:${booking.owner?.phone}`}
                                   >
-                                    <Clock className="w-3 h-3 mr-1" />
+                                    <Phone className="w-3 h-3 mr-1" />
                                     Залгах
                                   </Button>
                                 )}
@@ -821,7 +859,7 @@ export default function UserDashboardContent() {
                                     className="flex-1 h-8 bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50 text-xs font-bold"
                                     onClick={() => window.location.href = `mailto:${booking.owner?.email}`}
                                   >
-                                    <ShoppingBag className="w-3 h-3 mr-1" />
+                                    <Mail className="w-3 h-3 mr-1" />
                                     Мэйл бичих
                                   </Button>
                                 )}
@@ -829,18 +867,24 @@ export default function UserDashboardContent() {
                             </div>
                           )}
 
-                          <div className="flex items-center justify-between">
+                          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
                             <div>
-                              <span className="text-base sm:text-lg md:text-xl font-bold">
+                              <span className="text-base sm:text-lg md:text-xl font-bold text-emerald-700">
                                 ₮{booking.amount.toLocaleString()}
                               </span>
-                              <span className="text-gray-600 ml-1 text-[10px] xs:text-xs sm:text-sm font-medium">
+                              <span className="text-gray-500 ml-1 text-xs font-medium">
                                 нийт
                               </span>
                             </div>
-                            <span className="text-xs sm:text-sm text-gray-600 font-medium">
-                              {booking.guests} зочин
-                            </span>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="text-gray-600 hover:text-emerald-700 font-bold text-xs"
+                              onClick={() => setSelectedBooking(booking)}
+                            >
+                              Дэлгэрэнгүй
+                              <ChevronRight className="w-3 h-3 ml-1" />
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>
@@ -1618,6 +1662,141 @@ export default function UserDashboardContent() {
           </TabsContent>
         </Tabs>
       </div>
-    </div>
+
+      {/* Booking Detail Modal */}
+      <Dialog open={!!selectedBooking} onOpenChange={() => setSelectedBooking(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold font-display">
+              Захиалгын дэлгэрэнгүй
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedBooking && (
+            <div className="space-y-6">
+              <div className="aspect-video rounded-xl overflow-hidden bg-gray-100">
+                <img
+                  src={selectedBooking.image || "/placeholder.svg"}
+                  alt={selectedBooking.camp}
+                  className="w-full h-full object-cover"
+                />
+              </div>
+
+              <div className="flex flex-col sm:flex-row justify-between gap-4">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-bold text-gray-900">{selectedBooking.camp}</h2>
+                  <div className="flex items-center text-gray-500 font-medium">
+                    <MapPin className="w-4 h-4 mr-1 text-emerald-600" />
+                    {selectedBooking.location}
+                  </div>
+                </div>
+                <div className="text-left sm:text-right">
+                  <Badge className={`px-3 py-1 font-bold ${selectedBooking.status === "confirmed" ? "bg-green-500" : "bg-amber-500"
+                    }`}>
+                    {selectedBooking.status.toUpperCase()}
+                  </Badge>
+                  <div className="text-lg font-black text-emerald-700 mt-1">
+                    ₮{selectedBooking.amount.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-500 font-bold uppercase mb-1">Ирэх өдөр</p>
+                  <p className="font-semibold text-gray-900">{selectedBooking.checkIn}</p>
+                </div>
+                <div className="p-3 bg-gray-50 rounded-lg">
+                  <p className="text-xs text-gray-500 font-bold uppercase mb-1">Гарах өдөр</p>
+                  <p className="font-semibold text-gray-900">{selectedBooking.checkOut}</p>
+                </div>
+              </div>
+
+              {selectedBooking.description && (
+                <div className="space-y-2">
+                  <h3 className="font-bold text-gray-900">Тайлбар</h3>
+                  <p className="text-sm text-gray-600 leading-relaxed font-medium">
+                    {selectedBooking.description}
+                  </p>
+                </div>
+              )}
+
+              {selectedBooking.amenities && (
+                <div className="space-y-4">
+                  <h3 className="font-bold text-gray-900">Үйлчилгээ ба тав тух</h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {(() => {
+                      const ams = parseAmenities(selectedBooking.amenities);
+                      const allItems = [...ams.items, ...ams.activities, ...ams.facilities];
+
+                      return allItems.length > 0 ? (
+                        allItems.map((item, idx) => {
+                          const option = amenitiesOptions.find(o => o.value === item);
+                          return (
+                            <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 font-medium p-2 bg-emerald-50/50 rounded-lg border border-emerald-100/50">
+                              <Info className="w-4 h-4 text-emerald-600" />
+                              {option ? option.label : item}
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <p className="text-sm text-gray-500">Үйлчилгээний мэдээлэл байхгүй</p>
+                      );
+                    })()}
+                  </div>
+                </div>
+              )}
+
+              {selectedBooking.owner && (
+                <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                  <h3 className="font-bold text-emerald-900 mb-3 flex items-center gap-2">
+                    <Info className="w-4 h-4" />
+                    Эзэмшигчтэй холбогдох
+                  </h3>
+                  <div className="flex flex-col sm:flex-row gap-3">
+                    {selectedBooking.owner.phone && (
+                      <Button
+                        className="flex-1 bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200"
+                        variant="outline"
+                        onClick={() => window.location.href = `tel:${selectedBooking.owner?.phone}`}
+                      >
+                        <Phone className="w-4 h-4 mr-2" />
+                        Залгах
+                      </Button>
+                    )}
+                    {selectedBooking.owner.email && (
+                      <Button
+                        className="flex-1 bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200"
+                        variant="outline"
+                        onClick={() => window.location.href = `mailto:${selectedBooking.owner?.email}`}
+                      >
+                        <Mail className="w-4 h-4 mr-2" />
+                        Мэйл бичих
+                      </Button>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <Button className="flex-1 bg-gray-900 hover:bg-black text-white py-6" onClick={() => setSelectedBooking(null)}>
+                  Хаах
+                </Button>
+                {selectedBooking.type === "camp" && (
+                  <Link href={`/camp/${selectedBooking.id.split(':').pop()}`} className="flex-1">
+                    <Button variant="outline" className="w-full border-gray-200 h-full py-6">
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Хуудсыг үзэх
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+    </div >
   );
 }

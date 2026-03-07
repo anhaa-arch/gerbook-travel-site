@@ -27,6 +27,8 @@ export const GET_user_BOOKINGS = gql`
             name
             location
             images
+            description
+            amenities
             owner {
               id
               name

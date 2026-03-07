@@ -19,6 +19,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { gql, useMutation } from "@apollo/client";
+import { PaymentModal } from "@/components/payment-modal";
 
 // Mutation for creating a product order
 const CREATE_ORDER = gql`
@@ -47,16 +48,22 @@ export default function CartPage() {
   const { toast } = useToast();
   const [isProcessing, setIsProcessing] = useState(false);
 
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+
   const [createOrder] = useMutation(CREATE_ORDER);
   const [createBooking] = useMutation(CREATE_BOOKING);
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     if (!isAuthenticated) {
       router.push("/login?redirect=/cart");
       return;
     }
+    setShowPaymentModal(true);
+  };
 
+  const handlePaymentComplete = async (paymentMethod: string) => {
     setIsProcessing(true);
+    setShowPaymentModal(false);
 
     try {
       // 1. Process Order (Products)
@@ -70,7 +77,7 @@ export default function CartPage() {
           variables: {
             input: {
               shippingAddress: "Улаанбаатар хот",
-              paymentInfo: "CASH",
+              paymentInfo: paymentMethod || "QPAY",
               items
             }
           }
@@ -310,6 +317,13 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+
+      <PaymentModal
+        isOpen={showPaymentModal}
+        onClose={() => setShowPaymentModal(false)}
+        onComplete={handlePaymentComplete}
+        amount={totalPrice}
+      />
     </div>
   );
 }

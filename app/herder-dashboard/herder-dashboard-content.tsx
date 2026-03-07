@@ -1598,8 +1598,8 @@ export default function HerderDashboardContent() {
                   </div>
                   {/* Amenities - Checkbox */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Тасалбар
+                    <label className="block text-sm font-semibold text-gray-700 mb-3 underline decoration-emerald-500 decoration-2 underline-offset-4">
+                      Тохилог байдал (Amenities)
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
                       {amenitiesOptions.map((amenity) => (
@@ -1633,8 +1633,8 @@ export default function HerderDashboardContent() {
 
                   {/* Activities - Checkbox */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Үйл ажиллагаа
+                    <label className="block text-sm font-semibold text-gray-700 mb-3 underline decoration-emerald-500 decoration-2 underline-offset-4">
+                      Үйл ажиллагаа (Activities)
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
                       {activitiesOptions.map((activity) => (
@@ -1668,8 +1668,8 @@ export default function HerderDashboardContent() {
 
                   {/* Accommodation Type - Select */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Байрны төрөл
+                    <label className="block text-sm font-semibold text-gray-700 mb-2 underline decoration-emerald-500 decoration-2 underline-offset-4">
+                      Байрны төрөл (Accommodation Type)
                     </label>
                     <Select
                       value={yurtForm.accommodationType}
@@ -1692,8 +1692,8 @@ export default function HerderDashboardContent() {
 
                   {/* Facilities - Checkbox */}
                   <div>
-                    <label className="block text-sm font-semibold text-gray-700 mb-3">
-                      Тохижилт
+                    <label className="block text-sm font-semibold text-gray-700 mb-3 underline decoration-emerald-500 decoration-2 underline-offset-4">
+                      Тохижилт (Facilities)
                     </label>
                     <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 p-4 border rounded-lg bg-gray-50">
                       {facilitiesOptions.map((facility) => (

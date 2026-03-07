@@ -196,7 +196,7 @@ const resources = {
           actions: "Actions",
         },
         orders: {
-          title: "Product Orders",
+          title: "Dashboard Orders",
           id: "Order ID",
           customer: "Customer",
           item: "Item",
@@ -204,6 +204,10 @@ const resources = {
           status: "Status",
           date: "Date",
           actions: "Actions",
+          export_excel: "Export Excel",
+          product_orders: "Product Orders",
+          camp_bookings: "Camp Bookings",
+          product: "Product",
         },
       },
       user: {
@@ -602,7 +606,7 @@ const resources = {
           actions: "Үйлдэл",
         },
         orders: {
-          title: "Бүтээгдэхүүний захиалгууд",
+          title: "Захиалгын удирдлага",
           id: "Захиалгын №",
           customer: "Захиалагч",
           item: "Бараа",
@@ -610,6 +614,10 @@ const resources = {
           status: "Төлөв",
           date: "Огноо",
           actions: "Үйлдэл",
+          export_excel: "Excel-ээр татах",
+          product_orders: "Бүтээгдэхүүний захиалгууд",
+          camp_bookings: "Баазын захиалгууд",
+          product: "Бүтээгдэхүүн",
         },
       },
       user: {

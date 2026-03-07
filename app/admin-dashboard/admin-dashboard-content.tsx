@@ -511,37 +511,67 @@ export default function AdminDashboardContent() {
         description: formData.get("description") as string,
         price: parseFloat(formData.get("price") as string),
         stock: parseInt(formData.get("stock") as string),
-        images: (formData.get("images") as string) || "[]",
-        categoryId: formData.get("categoryId") as string,
+        categoryId: formData.get("category") as string,
+        images: JSON.stringify(uploadedImages),
       };
 
-      if (
-        !input.name ||
-        !input.description ||
-        !input.price ||
-        !input.stock ||
-        !input.categoryId
-      ) {
-        toast({
-          title: "Алдаа",
-          description: "Бүх талбарыг бөглөнө үү",
-          variant: "destructive" as any,
-        });
-        return;
-      }
-
-      await createProduct({ variables: { input } });
+      await createProduct({
+        variables: { input },
+      });
       await refetchProducts();
       await refetchStats();
       toast({
         title: "Амжилттай",
-        description: "Бүтээгдэхүүн амжилттай үүсгэгдлээ",
+        description: "Бүтээгдэхүүн амжилттай нэмэгдлээ",
       });
       setShowAddProduct(false);
+      setUploadedImages([]);
     } catch (error: any) {
       toast({
         title: "Алдаа",
-        description: error.message || "Бүтээгдэхүүн үүсгэхэд алдаа гарлаа",
+        description: error.message || "Бүтээгдэхүүн нэмэхэд алдаа гарлаа",
+        variant: "destructive" as any,
+      });
+    }
+  };
+
+  const handleEditProductPopulate = (product: any) => {
+    setEditingItem(product);
+    setUploadedImages(Array.isArray(product.images) ? product.images : []);
+    setShowEditProduct(true);
+  };
+
+  const handleEditProductSubmit = async () => {
+    try {
+      const form = document.querySelector("#edit-product-form") as HTMLFormElement;
+      if (!form) return;
+
+      const formData = new FormData(form);
+      const input = {
+        name: formData.get("name") as string,
+        description: formData.get("description") as string,
+        price: parseFloat(formData.get("price") as string),
+        stock: parseInt(formData.get("stock") as string),
+        categoryId: formData.get("category") as string,
+        images: JSON.stringify(uploadedImages),
+      };
+
+      await updateProduct({
+        variables: { id: editingItem.id, input },
+      });
+      await refetchProducts();
+      await refetchStats();
+      toast({
+        title: "Амжилттай",
+        description: "Бүтээгдэхүүн амжилттай шинэчлэгдлээ",
+      });
+      setShowEditProduct(false);
+      setEditingItem(null);
+      setUploadedImages([]);
+    } catch (error: any) {
+      toast({
+        title: "Алдаа",
+        description: error.message || "Бүтээгдэхүүн шинэчлэхэд алдаа гарлаа",
         variant: "destructive" as any,
       });
     }
@@ -873,6 +903,18 @@ export default function AdminDashboardContent() {
   const handleEditYurt = (yurt: any) => {
     setEditingItem(yurt);
 
+    // Set images
+    let images: string[] = [];
+    try {
+      if (yurt.images) {
+        images = typeof yurt.images === 'string' ? JSON.parse(yurt.images) : yurt.images;
+      }
+    } catch (e) {
+      console.error('Failed to parse images:', e);
+      images = Array.isArray(yurt.images) ? yurt.images : [];
+    }
+    setUploadedImages(images);
+
     // Parse amenities JSON
     let parsedAmenities: any = { items: [], activities: [], accommodationType: "", facilities: [], policies: {} };
     try {
@@ -916,7 +958,7 @@ export default function AdminDashboardContent() {
   const handleEditProduct = async (formData: any) => {
     try {
       await updateProduct({
-        variables: { id: editingItem.id, input: formData },
+        variables: { id: editingItem.id, input: { ...formData, images: uploadedImages } },
       });
       await refetchProducts();
       toast({
@@ -925,6 +967,7 @@ export default function AdminDashboardContent() {
       });
       setShowEditProduct(false);
       setEditingItem(null);
+      setUploadedImages([]);
     } catch (error: any) {
       toast({
         title: "Алдаа",
@@ -1604,12 +1647,227 @@ export default function AdminDashboardContent() {
                         <Textarea name="description" placeholder="..." className="focus:ring-emerald-500" required />
                       </div>
                     </div>
+
+                    <div className="space-y-4 pt-4 border-t mt-6">
+                      <label className="text-sm font-bold text-gray-700">Бүтээгдэхүүний зураг (Дээд тал нь 3)</label>
+                      <div className="flex flex-wrap gap-4">
+                        {uploadedImages.map((image, index) => (
+                          <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
+                            <img src={image} alt={`product-${index}`} className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(index)}
+                              className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                        {uploadedImages.length < 3 && (
+                          <div className="flex flex-col gap-2">
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setImageUploadMode("file")}
+                                className={imageUploadMode === "file" ? "bg-emerald-50 border-emerald-500" : ""}
+                              >
+                                Файл
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setImageUploadMode("url")}
+                                className={imageUploadMode === "url" ? "bg-emerald-50 border-emerald-500" : ""}
+                              >
+                                Линк
+                              </Button>
+                            </div>
+                            {imageUploadMode === "file" ? (
+                              <div
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
+                              >
+                                <Upload className="w-6 h-6 text-gray-400" />
+                                <span className="text-[10px] text-gray-500 mt-1">Зураг нэмэх</span>
+                                <input
+                                  type="file"
+                                  ref={fileInputRef}
+                                  className="hidden"
+                                  accept="image/*"
+                                  onChange={(e) => handleFileUpload(e, "product")}
+                                />
+                              </div>
+                            ) : (
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="Зурагны линк..."
+                                  className="w-48 h-9 text-sm"
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      e.preventDefault();
+                                      handleImageUrlChange((e.target as HTMLInputElement).value, "product");
+                                      (e.target as HTMLInputElement).value = "";
+                                    }
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </form>
                   <div className="flex justify-end gap-3 pt-4 border-t">
                     <Button variant="outline" onClick={() => setShowAddProduct(false)} className="font-bold border-gray-300">
                       {t("common.cancel")}
                     </Button>
                     <Button className="bg-emerald-600 hover:bg-emerald-700 font-bold px-8" onClick={handleAddProduct}>
+                      {t("common.save")}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {showEditProduct && editingItem && (
+              <Card className="border-emerald-100 shadow-md">
+                <CardHeader className="flex flex-row items-center justify-between border-b bg-emerald-50/30">
+                  <CardTitle className="font-bold text-emerald-900">{t("admin.products.edit")}</CardTitle>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      setShowEditProduct(false);
+                      setEditingItem(null);
+                      setUploadedImages([]);
+                    }}
+                    className="hover:bg-emerald-100"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </CardHeader>
+                <CardContent className="space-y-6 pt-6">
+                  <form id="edit-product-form">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-700">{t("admin.products.name")}</label>
+                        <Input name="name" defaultValue={editingItem.name} placeholder={t("admin.products.name")} className="focus:ring-emerald-500" required />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-700">{t("admin.products.category")}</label>
+                        <Select name="category" defaultValue={editingItem.categoryId}>
+                          <SelectTrigger className="focus:ring-emerald-500">
+                            <SelectValue placeholder={t("admin.products.category")} />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="dairy">Сүүн бүтээгдэхүүн</SelectItem>
+                            <SelectItem value="meat">Махны бүтээгдэхүүн</SelectItem>
+                            <SelectItem value="handicrafts">Гар урлал</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-700">{t("admin.products.price")}</label>
+                        <Input name="price" type="number" defaultValue={editingItem.price} placeholder="0.00" className="focus:ring-emerald-500" required />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-bold text-gray-700">{t("admin.products.stock")}</label>
+                        <Input name="stock" type="number" defaultValue={editingItem.stock} placeholder="0" className="focus:ring-emerald-500" required />
+                      </div>
+                      <div className="md:col-span-2 space-y-2">
+                        <label className="text-sm font-bold text-gray-700">{t("herder.products.description")}</label>
+                        <Textarea name="description" defaultValue={editingItem.description} placeholder="..." className="focus:ring-emerald-500" required />
+                      </div>
+                    </div>
+
+                    <div className="space-y-4 pt-4 border-t mt-6">
+                      <label className="text-sm font-bold text-gray-700">Бүтээгдэхүүний зураг (Дээд тал нь 3)</label>
+                      <div className="flex flex-wrap gap-4">
+                        {uploadedImages.map((image, index) => (
+                          <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
+                            <img src={image} alt={`product-${index}`} className="w-full h-full object-cover" />
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(index)}
+                              className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                          </div>
+                        ))}
+                        {uploadedImages.length < 3 && (
+                          <div className="flex flex-col gap-2">
+                            <div className="flex gap-2">
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setImageUploadMode("file")}
+                                className={imageUploadMode === "file" ? "bg-emerald-50 border-emerald-500" : ""}
+                              >
+                                Файл
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setImageUploadMode("url")}
+                                className={imageUploadMode === "url" ? "bg-emerald-50 border-emerald-500" : ""}
+                              >
+                                Линк
+                              </Button>
+                            </div>
+                            {imageUploadMode === "file" ? (
+                              <div
+                                onClick={() => fileInputRef.current?.click()}
+                                className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
+                              >
+                                <Upload className="w-6 h-6 text-gray-400" />
+                                <span className="text-[10px] text-gray-500 mt-1">Зураг нэмэх</span>
+                                <input
+                                  type="file"
+                                  ref={fileInputRef}
+                                  className="hidden"
+                                  accept="image/*"
+                                  onChange={(e) => handleFileUpload(e, "product")}
+                                />
+                              </div>
+                            ) : (
+                              <div className="flex gap-2">
+                                <Input
+                                  placeholder="Зурагны линк..."
+                                  className="w-48 h-9 text-sm"
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") {
+                                      e.preventDefault();
+                                      handleImageUrlChange((e.target as HTMLInputElement).value, "product");
+                                      (e.target as HTMLInputElement).value = "";
+                                    }
+                                  }}
+                                />
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </form>
+                  <div className="flex justify-end gap-3 pt-4 border-t">
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowEditProduct(false);
+                        setEditingItem(null);
+                        setUploadedImages([]);
+                      }}
+                      className="font-bold border-gray-300"
+                    >
+                      {t("common.cancel")}
+                    </Button>
+                    <Button className="bg-emerald-600 hover:bg-emerald-700 font-bold px-8" onClick={handleEditProductSubmit}>
                       {t("common.save")}
                     </Button>
                   </div>
@@ -1731,10 +1989,7 @@ export default function AdminDashboardContent() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() => {
-                                  setEditingItem(product);
-                                  setShowEditProduct(true);
-                                }}
+                                onClick={() => handleEditProductPopulate(product)}
                               >
                                 <Edit className="w-4 h-4" />
                               </Button>
@@ -1811,7 +2066,6 @@ export default function AdminDashboardContent() {
                   </Button>
                 </CardHeader>
                 <CardContent className="space-y-8 pt-6">
-                  {/* Reuse common form body logic but with handleAddCamp */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-gray-700">Баазын нэр</label>
@@ -1893,6 +2147,24 @@ export default function AdminDashboardContent() {
                         placeholder="0"
                       />
                     </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">Байрлах төрөл</label>
+                      <Select
+                        value={campForm.accommodationType}
+                        onValueChange={(value) => setCampForm({ ...campForm, accommodationType: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Төрөл сонгох" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {accommodationTypes.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   <div>
@@ -1904,11 +2176,184 @@ export default function AdminDashboardContent() {
                     />
                   </div>
 
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-6 border-t border-b">
+                    <div className="space-y-4">
+                      <label className="text-sm font-bold text-gray-700">Тохилог байдал (Amenities)</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {amenitiesOptions.map((option) => (
+                          <div key={option.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`amenity-${option.value}`}
+                              checked={campForm.amenities.includes(option.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setCampForm({ ...campForm, amenities: [...campForm.amenities, option.value] });
+                                } else {
+                                  setCampForm({ ...campForm, amenities: campForm.amenities.filter((a: string) => a !== option.value) });
+                                }
+                              }}
+                            />
+                            <label htmlFor={`amenity-${option.value}`} className="text-xs font-medium leading-none cursor-pointer">
+                              {option.label}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <label className="text-sm font-bold text-gray-700">Үйл ажиллагаа (Activities)</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {activitiesOptions.map((option) => (
+                          <div key={option.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`activity-${option.value}`}
+                              checked={campForm.activities.includes(option.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setCampForm({ ...campForm, activities: [...campForm.activities, option.value] });
+                                } else {
+                                  setCampForm({ ...campForm, activities: campForm.activities.filter((a: string) => a !== option.value) });
+                                }
+                              }}
+                            />
+                            <label htmlFor={`activity-${option.value}`} className="text-xs font-medium leading-none cursor-pointer">
+                              {option.label}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-md font-bold text-emerald-900 border-l-4 border-emerald-500 pl-3">Дүрэм ба Бодлого</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-600 uppercase">Check-in</label>
+                        <Input type="time" value={campForm.checkIn} onChange={(e) => setCampForm({ ...campForm, checkIn: e.target.value })} />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-600 uppercase">Check-out</label>
+                        <Input type="time" value={campForm.checkOut} onChange={(e) => setCampForm({ ...campForm, checkOut: e.target.value })} />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-600 uppercase">Хүүхдийн бодлого</label>
+                        <Select value={campForm.childrenPolicy} onValueChange={(val) => setCampForm({ ...campForm, childrenPolicy: val })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all_ages">Бүх насны хүүхэд</SelectItem>
+                            <SelectItem value="above_12">12-оос дээш нас</SelectItem>
+                            <SelectItem value="no_children">Хүүхэдгүй</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-600 uppercase">Гэрийн тэжээвэр амьтан</label>
+                        <Select value={campForm.petsPolicy} onValueChange={(val) => setCampForm({ ...campForm, petsPolicy: val })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="allowed">Зөвшөөрнө</SelectItem>
+                            <SelectItem value="not_allowed">Зөвшөөрөхгүй</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-600 uppercase">Тамхи татах</label>
+                        <Select value={campForm.smokingPolicy} onValueChange={(val) => setCampForm({ ...campForm, smokingPolicy: val })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="allowed">Зөвшөөрнө</SelectItem>
+                            <SelectItem value="no_smoking">Хориотой</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-600 uppercase">Цуцлалт</label>
+                        <Select value={campForm.cancellationPolicy} onValueChange={(val) => setCampForm({ ...campForm, cancellationPolicy: val })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="free_48h">48 цагийн өмнө үнэгүй</SelectItem>
+                            <SelectItem value="free_24h">24 цагийн өмнө үнэгүй</SelectItem>
+                            <SelectItem value="no_refund">Буцаалтгүй</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 pt-4 border-t">
+                    <label className="text-sm font-bold text-gray-700">Баазын зураг (Дээд тал нь 3)</label>
+                    <div className="flex flex-wrap gap-4">
+                      {uploadedImages.map((image, index) => (
+                        <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
+                          <img src={image} alt={`camp-${index}`} className="w-full h-full object-cover" />
+                          <button
+                            onClick={() => handleRemoveImage(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                      {uploadedImages.length < 3 && (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setImageUploadMode("file")}
+                              className={imageUploadMode === "file" ? "bg-emerald-50 border-emerald-500" : ""}
+                            >
+                              Файл
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setImageUploadMode("url")}
+                              className={imageUploadMode === "url" ? "bg-emerald-50 border-emerald-500" : ""}
+                            >
+                              Линк
+                            </Button>
+                          </div>
+                          {imageUploadMode === "file" ? (
+                            <div
+                              onClick={() => fileInputRef.current?.click()}
+                              className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
+                            >
+                              <Upload className="w-6 h-6 text-gray-400" />
+                              <span className="text-[10px] text-gray-500 mt-1">Зураг нэмэх</span>
+                              <input
+                                type="file"
+                                ref={fileInputRef}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(e) => handleFileUpload(e, "yurt")}
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="Зурагны линк..."
+                                className="w-48 h-9 text-sm"
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    handleImageUrlChange((e.target as HTMLInputElement).value, "yurt");
+                                    (e.target as HTMLInputElement).value = "";
+                                  }
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
                   <div className="flex justify-end gap-3 pt-4 border-t">
                     <Button variant="outline" onClick={() => setShowAddCamp(false)}>
                       {t("common.cancel")}
                     </Button>
-                    <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleAddCamp}>
+                    <Button className="bg-emerald-600 hover:bg-emerald-700 font-bold" onClick={handleAddCamp}>
                       {t("common.save")}
                     </Button>
                   </div>
@@ -1927,6 +2372,7 @@ export default function AdminDashboardContent() {
                     onClick={() => {
                       setShowEditYurt(false);
                       setEditingItem(null);
+                      setUploadedImages([]);
                     }}
                     className="hover:bg-emerald-100"
                   >
@@ -2014,6 +2460,24 @@ export default function AdminDashboardContent() {
                         placeholder="0"
                       />
                     </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">Байрлах төрөл</label>
+                      <Select
+                        value={campForm.accommodationType}
+                        onValueChange={(value) => setCampForm({ ...campForm, accommodationType: value })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Төрөл сонгох" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {accommodationTypes.map((type) => (
+                            <SelectItem key={type.value} value={type.value}>
+                              {type.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
                   </div>
 
                   <div>
@@ -2025,14 +2489,191 @@ export default function AdminDashboardContent() {
                     />
                   </div>
 
-                  {/* Amenities/Facilities/Policies - Omitted for brevity but can be added back if needed. 
-                      Given the token limit, I'll keep it focused on core functionality first. */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 py-6 border-t border-b">
+                    <div className="space-y-4">
+                      <label className="text-sm font-bold text-gray-700">Тохилог байдал (Amenities)</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {amenitiesOptions.map((option) => (
+                          <div key={option.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`edit-amenity-${option.value}`}
+                              checked={campForm.amenities.includes(option.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setCampForm({ ...campForm, amenities: [...campForm.amenities, option.value] });
+                                } else {
+                                  setCampForm({ ...campForm, amenities: campForm.amenities.filter((a: string) => a !== option.value) });
+                                }
+                              }}
+                            />
+                            <label htmlFor={`edit-amenity-${option.value}`} className="text-xs font-medium leading-none cursor-pointer">
+                              {option.label}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <label className="text-sm font-bold text-gray-700">Үйл ажиллагаа (Activities)</label>
+                      <div className="grid grid-cols-2 gap-2">
+                        {activitiesOptions.map((option) => (
+                          <div key={option.value} className="flex items-center space-x-2">
+                            <Checkbox
+                              id={`edit-activity-${option.value}`}
+                              checked={campForm.activities.includes(option.value)}
+                              onCheckedChange={(checked) => {
+                                if (checked) {
+                                  setCampForm({ ...campForm, activities: [...campForm.activities, option.value] });
+                                } else {
+                                  setCampForm({ ...campForm, activities: campForm.activities.filter((a: string) => a !== option.value) });
+                                }
+                              }}
+                            />
+                            <label htmlFor={`edit-activity-${option.value}`} className="text-xs font-medium leading-none cursor-pointer">
+                              {option.label}
+                            </label>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-6">
+                    <h3 className="text-md font-bold text-emerald-900 border-l-4 border-emerald-500 pl-3">Дүрэм ба Бодлого</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-600 uppercase">Check-in</label>
+                        <Input type="time" value={campForm.checkIn} onChange={(e) => setCampForm({ ...campForm, checkIn: e.target.value })} />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-600 uppercase">Check-out</label>
+                        <Input type="time" value={campForm.checkOut} onChange={(e) => setCampForm({ ...campForm, checkOut: e.target.value })} />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-600 uppercase">Хүүхдийн бодлого</label>
+                        <Select value={campForm.childrenPolicy} onValueChange={(val) => setCampForm({ ...campForm, childrenPolicy: val })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all_ages">Бүх насны хүүхэд</SelectItem>
+                            <SelectItem value="above_12">12-оос дээш нас</SelectItem>
+                            <SelectItem value="no_children">Хүүхэдгүй</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-600 uppercase">Гэрийн тэжээвэр амьтан</label>
+                        <Select value={campForm.petsPolicy} onValueChange={(val) => setCampForm({ ...campForm, petsPolicy: val })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="allowed">Зөвшөөрнө</SelectItem>
+                            <SelectItem value="not_allowed">Зөвшөөрөхгүй</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-600 uppercase">Тамхи татах</label>
+                        <Select value={campForm.smokingPolicy} onValueChange={(val) => setCampForm({ ...campForm, smokingPolicy: val })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="allowed">Зөвшөөрнө</SelectItem>
+                            <SelectItem value="no_smoking">Хориотой</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-xs font-bold text-gray-600 uppercase">Цуцлалт</label>
+                        <Select value={campForm.cancellationPolicy} onValueChange={(val) => setCampForm({ ...campForm, cancellationPolicy: val })}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="free_48h">48 цагийн өмнө үнэгүй</SelectItem>
+                            <SelectItem value="free_24h">24 цагийн өмнө үнэгүй</SelectItem>
+                            <SelectItem value="no_refund">Буцаалтгүй</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-4 pt-4 border-t">
+                    <label className="text-sm font-bold text-gray-700">Баазын зураг (Дээд тал нь 3)</label>
+                    <div className="flex flex-wrap gap-4">
+                      {uploadedImages.map((image, index) => (
+                        <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
+                          <img src={image} alt={`camp-${index}`} className="w-full h-full object-cover" />
+                          <button
+                            onClick={() => handleRemoveImage(index)}
+                            className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                      ))}
+                      {uploadedImages.length < 3 && (
+                        <div className="flex flex-col gap-2">
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setImageUploadMode("file")}
+                              className={imageUploadMode === "file" ? "bg-emerald-50 border-emerald-500" : ""}
+                            >
+                              Файл
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setImageUploadMode("url")}
+                              className={imageUploadMode === "url" ? "bg-emerald-50 border-emerald-500" : ""}
+                            >
+                              Линк
+                            </Button>
+                          </div>
+                          {imageUploadMode === "file" ? (
+                            <div
+                              onClick={() => fileInputRef.current?.click()}
+                              className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 transition-colors"
+                            >
+                              <Upload className="w-6 h-6 text-gray-400" />
+                              <span className="text-[10px] text-gray-500 mt-1">Зураг нэмэх</span>
+                              <input
+                                type="file"
+                                ref={fileInputRef}
+                                className="hidden"
+                                accept="image/*"
+                                onChange={(e) => handleFileUpload(e, "yurt")}
+                              />
+                            </div>
+                          ) : (
+                            <div className="flex gap-2">
+                              <Input
+                                placeholder="Зурагны линк..."
+                                className="w-48 h-9 text-sm"
+                                onKeyDown={(e) => {
+                                  if (e.key === "Enter") {
+                                    handleImageUrlChange((e.target as HTMLInputElement).value, "yurt");
+                                    (e.target as HTMLInputElement).value = "";
+                                  }
+                                }}
+                              />
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
 
                   <div className="flex justify-end gap-3 pt-4 border-t">
-                    <Button variant="outline" onClick={() => setShowEditYurt(false)}>
+                    <Button
+                      variant="outline"
+                      onClick={() => {
+                        setShowEditYurt(false);
+                        setEditingItem(null);
+                        setUploadedImages([]);
+                      }}
+                    >
                       {t("common.cancel")}
                     </Button>
-                    <Button className="bg-emerald-600 hover:bg-emerald-700" onClick={handleUpdateCamp}>
+                    <Button className="bg-emerald-600 hover:bg-emerald-700 font-bold" onClick={handleUpdateCamp}>
                       {t("common.save")}
                     </Button>
                   </div>
