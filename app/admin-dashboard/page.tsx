@@ -5,7 +5,7 @@ import AdminDashboardContent from "./admin-dashboard-content"
 
 export default function AdminDashboardPage() {
   return (
-    <ProtectedRoute requiredRole="admin">
+    <ProtectedRoute requiredRole="ADMIN">
       <AdminDashboardContent />
     </ProtectedRoute>
   )

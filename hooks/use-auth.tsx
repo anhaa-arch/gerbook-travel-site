@@ -1,19 +1,17 @@
 "use client"
 
 import type React from "react"
-
 import { useState, useEffect, createContext, useContext } from "react"
 import client from '@/lib/apolloClient'
 import { gql } from '@apollo/client'
+import { useRouter, useSearchParams } from 'next/navigation'
 
 interface user {
   id: string
   name: string
   email: string
-  // Normalized frontend roles
   role: "ADMIN" | "TRAVELER" | "HERDER"
   avatar?: string
-  isHerder?: boolean // Frontend flag for herder dashboard
   hostBio?: string
   hostExperience?: string
   hostLanguages?: string
@@ -37,6 +35,7 @@ interface AuthContextType {
   googleLogin: (token: string) => Promise<void>
   googleSignIn: (input: { googleId: string; email: string; name: string; avatar?: string }) => Promise<void>
   resendVerificationCode: (email: string) => Promise<{ success: boolean; message: string }>
+  redirectUser: (role: string) => void
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -44,19 +43,18 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setuser] = useState<user | null | undefined>(undefined)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const router = useRouter()
+  const searchParams = useSearchParams()
 
   useEffect(() => {
     const storeduser = localStorage.getItem("user")
     if (storeduser) {
       try {
         const rawuser = JSON.parse(storeduser)
-        const isHerder = localStorage.getItem('isHerder') === 'true'
-        // Normalize role in case older storage used backend enums or missing fields
         const normalizedRole: user["role"] = (() => {
           const roleValue = (rawuser.role || "").toString().toUpperCase()
           if (roleValue === "ADMIN") return "ADMIN"
           if (roleValue === "HERDER") return "HERDER"
-          // Treat any other as traveler
           return "TRAVELER"
         })()
         const normalizeduser: user = {
@@ -64,7 +62,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           name: rawuser.name,
           email: rawuser.email,
           avatar: rawuser.avatar,
-          isHerder,
           role: normalizedRole,
           hostBio: rawuser.hostBio,
           hostExperience: rawuser.hostExperience,
@@ -84,8 +81,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  if (user === undefined) {
-    return null // Or a loading spinner if you want
+  const redirectUser = (role: string) => {
+    // 1. Check for 'redirect' query parameter
+    const queryRedirect = searchParams.get('redirect')
+    // Safety check for startsWith
+    const redirectUrl = (typeof queryRedirect === "string" && queryRedirect.startsWith("/"))
+      ? queryRedirect
+      : null;
+
+    if (redirectUrl) {
+      router.push(redirectUrl)
+      return
+    }
+
+    // 2. Default role-based redirection
+    const upperRole = (role || "").toString().toUpperCase()
+    if (upperRole === "ADMIN") {
+      router.push("/admin-dashboard")
+    } else if (upperRole === "HERDER") {
+      router.push("/herder-dashboard")
+    } else {
+      router.push("/user-dashboard")
+    }
   }
 
   const saveuserData = async (user: user | any) => {
@@ -93,31 +110,30 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       throw new Error("Хэрэглэгчийн дата олдсонгүй")
     }
 
-    // Add herder flag from localStorage
-    const isHerder = localStorage.getItem('isHerder') === 'true';
-    // Normalize role from backend enums (ADMIN/TRAVELER/HERDER) to frontend roles
     const normalizedRole: user["role"] = (() => {
       const roleValue = (user.role || "").toString().toUpperCase()
       if (roleValue === "ADMIN") return "ADMIN"
       if (roleValue === "HERDER") return "HERDER"
-      // Treat any other as traveler
       return "TRAVELER"
     })()
-    const userWithHerderFlag: user = {
+
+    const normalizeduser: user = {
       id: user.id,
       name: user.name,
       email: user.email,
       avatar: user.avatar,
-      isHerder,
       role: normalizedRole,
       hostBio: user.hostBio,
       hostExperience: user.hostExperience,
       hostLanguages: user.hostLanguages,
     };
 
-    setuser(userWithHerderFlag)
+    setuser(normalizeduser)
     setIsAuthenticated(true)
-    localStorage.setItem("user", JSON.stringify(userWithHerderFlag))
+    localStorage.setItem("user", JSON.stringify(normalizeduser))
+
+    // Trigger redirect after state is updated
+    redirectUser(normalizedRole)
   }
 
   const logout = async () => {
@@ -126,8 +142,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("user")
     localStorage.removeItem("isHerder")
     localStorage.removeItem('token')
+    router.push('/login')
   }
-  // GraphQL operations
+
+  // GraphQL Operations
   const REQUEST_REGISTRATION_CODE = gql`
     mutation RequestRegistrationCode($input: CreateuserInput!) {
       requestRegistrationCode(input: $input) { success message }
@@ -188,15 +206,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     mutation ResetPassword($token: String!, $newPassword: String!) { resetPassword(token: $token, newPassword: $newPassword) { token user { id name email role hostBio hostExperience hostLanguages } } }
   `
 
-  const GOOGLE_LOGIN_MUTATION = gql`
-    mutation GoogleLogin($token: String!) {
-      googleLogin(token: $token) {
-        token
-        user { id name email role avatar hostBio hostExperience hostLanguages }
-      }
-    }
-  `
-
   const GOOGLE_SIGN_IN_MUTATION = gql`
     mutation GoogleSignIn($input: GoogleSignInInput!) {
       googleSignIn(input: $input) {
@@ -206,14 +215,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   `
 
-  const googleLogin = async (token: string) => {
-    const { data } = await client.mutate({ mutation: GOOGLE_LOGIN_MUTATION, variables: { token } })
-    if (data?.googleLogin) {
-      const { token: jwtToken, user } = data.googleLogin
-      localStorage.setItem('token', jwtToken)
+  const login = async (credentials: { email?: string; password?: string; phone?: string }) => {
+    if (!credentials.email || !credentials.password) {
+      throw new Error('Имэйл болон нууц үгээ оруулна уу')
+    }
+    const { data } = await client.mutate({ mutation: LOGIN_MUTATION, variables: { email: credentials.email, password: credentials.password } })
+    if (data?.login) {
+      const { token, user } = data.login
+      localStorage.setItem('token', token)
       saveuserData(user)
     } else {
-      throw new Error('Google нэвтрэлт амжилтгүй')
+      throw new Error('Нэвтрэх амжилтгүй')
     }
   }
 
@@ -228,21 +240,22 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const FORGOT_PASSWORD_MUTATION = gql`
-    mutation ForgotPassword($email: String!) { forgotPassword(email: $email) { message } }
-  `
-
-  const login = async (credentials: { email?: string; password?: string; phone?: string }) => {
-    if (!credentials.email || !credentials.password) {
-      throw new Error('Имэйл болон нууц үгээ оруулна уу')
-    }
-    const { data } = await client.mutate({ mutation: LOGIN_MUTATION, variables: { email: credentials.email, password: credentials.password } })
-    if (data?.login) {
-      const { token, user } = data.login
-      localStorage.setItem('token', token)
+  const googleLogin = async (token: string) => {
+    const GOOGLE_LOGIN_MUTATION = gql`
+      mutation GoogleLogin($token: String!) {
+        googleLogin(token: $token) {
+          token
+          user { id name email role avatar hostBio hostExperience hostLanguages }
+        }
+      }
+    `
+    const { data } = await client.mutate({ mutation: GOOGLE_LOGIN_MUTATION, variables: { token } })
+    if (data?.googleLogin) {
+      const { token: jwtToken, user } = data.googleLogin
+      localStorage.setItem('token', jwtToken)
       saveuserData(user)
     } else {
-      throw new Error('Нэвтрэх амжилтгүй')
+      throw new Error('Google нэвтрэлт амжилтгүй')
     }
   }
 
@@ -262,11 +275,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return data.requestRegistrationCode
   }
 
-  const resendVerificationCode = async (email: string) => {
-    const { data } = await client.mutate({ mutation: RESEND_REGISTRATION_CODE, variables: { email } })
-    return data.resendRegistrationCode
-  }
-
   const verifyRegistration = async (email: string, code: string) => {
     const { data } = await client.mutate({ mutation: VERIFY_REGISTRATION, variables: { email, code } })
     if (data?.verifyRegistration) {
@@ -276,6 +284,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } else {
       throw new Error('Баталгаажуулалт амжилтгүй')
     }
+  }
+
+  const resendVerificationCode = async (email: string) => {
+    const { data } = await client.mutate({ mutation: RESEND_REGISTRATION_CODE, variables: { email } })
+    return data.resendRegistrationCode
   }
 
   const requestPasswordResetCode = async (email: string) => {
@@ -288,8 +301,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return data.resetPasswordWithCode
   }
 
-  // Legacy/Other methods
   const sendOtp = async (phone: string) => {
+    const SEND_OTP_MUTATION = gql`
+      mutation SendOtp($phone: String!) { sendOtp(phone: $phone) { message } }
+    `
     await client.mutate({ mutation: SEND_OTP_MUTATION, variables: { phone } })
   }
 
@@ -315,8 +330,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const forgotPassword = async (email: string) => {
-    await client.mutate({ mutation: FORGOT_PASSWORD_MUTATION, variables: { email } })
+  if (user === undefined) {
+    return null
   }
 
   return (
@@ -336,9 +351,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         requestPasswordResetCode,
         resetPasswordWithCode,
         resetPassword,
-        forgotPassword,
         googleLogin,
         googleSignIn,
+        redirectUser,
       }}
     >
       {children}

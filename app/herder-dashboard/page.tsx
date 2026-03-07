@@ -5,7 +5,7 @@ import HerderDashboardContent from "./herder-dashboard-content"
 
 export default function HerderDashboardPage() {
   return (
-    <ProtectedRoute requiredRole="herder">
+    <ProtectedRoute requiredRole="HERDER">
       <HerderDashboardContent />
     </ProtectedRoute>
   )

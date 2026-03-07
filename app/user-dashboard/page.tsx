@@ -5,7 +5,7 @@ import UserDashboardContent from "./user-dashboard-content"
 
 export default function UserDashboardPage() {
   return (
-    <ProtectedRoute requiredRole="user">
+    <ProtectedRoute requiredRole="TRAVELER">
       <UserDashboardContent />
     </ProtectedRoute>
   )

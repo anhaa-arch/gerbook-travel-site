@@ -66,19 +66,7 @@ export default function RegisterPage() {
           title: "Amjillttai nevterlee",
           description: "Google-eer amjillttai nevterlee.",
         });
-
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-          const user = JSON.parse(storedUser);
-          const userRole = String(user.role).toUpperCase();
-          if (userRole === "ADMIN") {
-            router.replace("/admin-dashboard");
-          } else if (userRole === "HERDER") {
-            router.replace("/herder-dashboard");
-          } else {
-            router.replace("/user-dashboard");
-          }
-        }
+        // Redirection is handled by saveuserData inside googleSignIn
       } catch (err: any) {
         toast({
           title: "Google nevtrelt amjilltgui",
@@ -231,22 +219,7 @@ export default function RegisterPage() {
         title: "Амжилттай",
         description: "Таны имэйл баталгаажлаа",
       });
-
-      // The verifyRegistration call updates auth state and redirects handled by useAuth are usually better,
-      // but here we redirect manually based on the simplified roles if needed.
-      // After success, useAuth state should be updated.
-      // Re-fetch user from local storage or wait for state update.
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        const userObj = JSON.parse(storedUser);
-        const role = userObj.role?.toUpperCase();
-        const dashboardRoutes: Record<string, string> = {
-          ADMIN: "/admin-dashboard",
-          HERDER: "/herder-dashboard",
-          TRAVELER: "/user-dashboard"
-        };
-        router.push(dashboardRoutes[role] || "/user-dashboard");
-      }
+      // Redirection is now handled automatically by saveuserData in useAuth hook
     } catch (err: any) {
       throw err; // OtpModal handles the toast
     }

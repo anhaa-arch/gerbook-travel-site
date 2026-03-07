@@ -64,20 +64,7 @@ export default function LoginPage() {
           title: "Amjillttai nevterlee",
           description: "Google-eer amjillttai nevterlee.",
         });
-
-        // Route based on role
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) {
-          const user = JSON.parse(storedUser);
-          const userRole = String(user.role).toUpperCase();
-          if (userRole === "ADMIN") {
-            router.replace("/admin-dashboard");
-          } else if (userRole === "HERDER") {
-            router.replace("/herder-dashboard");
-          } else {
-            router.replace("/user-dashboard");
-          }
-        }
+        // Redirection is handled by saveuserData inside googleSignIn
       } catch (err: any) {
         toast({
           title: "Google nevtrelt amjilltgui",
@@ -131,27 +118,13 @@ export default function LoginPage() {
       return;
     }
 
-    setLoading(true);
     try {
       await login({ email: identifier, password });
 
       toast({
         title: "Амжилттай нэвтэрлээ",
       });
-
-      // Route based on role from storage (updated by saveuserData in useAuth)
-      const storedUser = localStorage.getItem("user");
-      if (storedUser) {
-        const user = JSON.parse(storedUser);
-        const userRole = String(user.role).toUpperCase();
-        if (userRole === "ADMIN") {
-          router.replace("/admin-dashboard");
-        } else if (userRole === "HERDER") {
-          router.replace("/herder-dashboard");
-        } else {
-          router.replace("/user-dashboard");
-        }
-      }
+      // Redirection is now handled automatically by saveuserData in useAuth hook
     } catch (err: any) {
       toast({
         title: "Нэвтрэх амжилтгүй",
