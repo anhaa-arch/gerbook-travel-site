@@ -8,7 +8,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { User, Settings, Package, Home, BarChart3, Users } from "lucide-react"
 
 interface DashboardNavProps {
-  userRole: "admin" | "user" | "herder"
+  userRole: "ADMIN" | "TRAVELER" | "HERDER"
 }
 
 export function DashboardNav({ userRole }: DashboardNavProps) {
@@ -17,7 +17,7 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
 
   const getNavItems = () => {
     switch (userRole) {
-      case "admin":
+      case "ADMIN":
         return [
           { href: "/admin-dashboard", label: "Overview", icon: BarChart3 },
           { href: "/admin-dashboard?tab=users", label: "Users", icon: Users },
@@ -25,7 +25,7 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
           { href: "/admin-dashboard?tab=products", label: "Products", icon: Package },
           { href: "/admin-dashboard?tab=orders", label: "Orders", icon: Settings },
         ]
-      case "herder":
+      case "HERDER":
         return [
           { href: "/herder-dashboard", label: "Overview", icon: BarChart3 },
           { href: "/herder-dashboard?tab=products", label: "My Products", icon: Package },
@@ -33,7 +33,7 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
           { href: "/herder-dashboard?tab=orders", label: "Orders", icon: Settings },
           { href: "/herder-dashboard?tab=profile", label: "Profile", icon: User },
         ]
-      case "user":
+      case "TRAVELER":
       default:
         return [
           { href: "/user-dashboard", label: "Profile", icon: User },
@@ -52,7 +52,8 @@ export function DashboardNav({ userRole }: DashboardNavProps) {
         <nav className="space-y-2">
           {navItems.map((item) => {
             const Icon = item.icon
-            const isActive = pathname === item.href || (pathname && pathname.startsWith(item.href))
+            const safePath = pathname ?? ""
+            const isActive = safePath === item.href || safePath.startsWith(item.href)
 
             return (
               <Link key={item.href} href={item.href}>

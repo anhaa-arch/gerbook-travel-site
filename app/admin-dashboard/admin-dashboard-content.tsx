@@ -157,16 +157,19 @@ export default function AdminDashboardContent() {
   const {
     data: statsData,
     loading: statsLoading,
+    error: statsError,
     refetch: refetchStats,
   } = useQuery(GET_ADMIN_STATS);
   const {
     data: usersData,
     loading: usersLoading,
+    error: usersError,
     refetch: refetchusers,
   } = useQuery(GET_ALL_userS);
   const {
     data: yurtsData,
     loading: yurtsLoading,
+    error: yurtsError,
     refetch: refetchYurts,
   } = useQuery(GET_ALL_YURTS, {
     variables: { first: 100 },
@@ -175,16 +178,19 @@ export default function AdminDashboardContent() {
   const {
     data: productsData,
     loading: productsLoading,
+    error: productsError,
     refetch: refetchProducts,
   } = useQuery(GET_ALL_PRODUCTS);
   const {
     data: ordersData,
     loading: ordersLoading,
+    error: ordersError,
     refetch: refetchOrders,
   } = useQuery(GET_ALL_ORDERS);
   const {
     data: bookingsData,
     loading: bookingsLoading,
+    error: bookingsError,
     refetch: refetchBookings,
   } = useQuery(GET_ALL_BOOKINGS);
   const { data: categoriesData, loading: categoriesLoading } =
@@ -241,7 +247,7 @@ export default function AdminDashboardContent() {
         phone: edge.node.phone || "",
         role: edge.node.role,
         status: "active",
-        joinDate: edge.node.createdAt ? edge.node.createdAt.split("T")[0] : "",
+        joinDate: edge.node.createdAt ? String(edge.node.createdAt).split("T")[0] : "",
         createdAt: edge.node.createdAt,
       };
     }) || [];
@@ -287,7 +293,7 @@ export default function AdminDashboardContent() {
       amount: edge.node.totalPrice,
       status: edge.node.status,
       shippingAddress: edge.node.shippingAddress || "",
-      date: edge.node.createdAt ? edge.node.createdAt.split("T")[0] : "",
+      date: edge.node.createdAt ? String(edge.node.createdAt).split("T")[0] : "",
       createdAt: edge.node.createdAt,
     })) || [];
 
@@ -321,7 +327,7 @@ export default function AdminDashboardContent() {
         status: edge.node.status,
         startDate: edge.node.startDate,
         endDate: edge.node.endDate,
-        date: edge.node.createdAt ? edge.node.createdAt.split("T")[0] : "",
+        date: edge.node.createdAt ? String(edge.node.createdAt).split("T")[0] : "",
         createdAt: edge.node.createdAt,
       };
     }) || [];
@@ -976,6 +982,24 @@ export default function AdminDashboardContent() {
       });
     }
   };
+
+  if (statsError || usersError || yurtsError || productsError || ordersError || bookingsError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 font-sans p-4">
+        <div className="bg-white p-6 sm:p-8 rounded-xl shadow-lg max-w-lg w-full text-center">
+          <XCircle className="w-12 h-12 sm:w-16 sm:h-16 text-red-500 mx-auto mb-4" />
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">Алдаа гарлаа</h2>
+          <p className="text-sm sm:text-base text-gray-600 mb-6">Серверээс мэдээлэл татахад асуудал гарлаа. Та дахин оролдоно уу эсвэл админд хандана уу.</p>
+          <div className="text-left bg-gray-50 p-3 sm:p-4 rounded-lg text-xs sm:text-sm text-red-600 overflow-auto max-h-40 mb-6 font-mono whitespace-pre-wrap break-all border border-red-100">
+            {statsError?.message || usersError?.message || yurtsError?.message || productsError?.message || ordersError?.message || bookingsError?.message || "Үл мэдэгдэх алдаа гарлаа."}
+          </div>
+          <Button onClick={() => window.location.reload()} className="w-full bg-emerald-600 hover:bg-emerald-700 font-bold">
+            Дахин ачаалах
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 font-sans">

@@ -188,8 +188,8 @@ export function CommentSection({ yurtId }: CommentSectionProps) {
                     >
                       <Star
                         className={`w-8 h-8 ${star <= rating
-                            ? "fill-yellow-400 text-yellow-400"
-                            : "text-gray-300"
+                          ? "fill-yellow-400 text-yellow-400"
+                          : "text-gray-300"
                           }`}
                       />
                     </button>
@@ -287,7 +287,7 @@ export function CommentSection({ yurtId }: CommentSectionProps) {
                   </div>
 
                   {/* Delete button (only for comment owner or admin) */}
-                  {user && (user.id === c.user?.id || user.role === "admin") && (
+                  {user && (user.id === c.user?.id || user.role === "ADMIN") && (
                     <Button
                       variant="ghost"
                       size="sm"

@@ -207,9 +207,9 @@ export function Header() {
                     <div className="p-1.5 sm:p-2">
                       <Link
                         href={
-                          user?.role === "admin"
+                          user?.role === "ADMIN"
                             ? "/admin-dashboard"
-                            : user?.role === "herder"
+                            : user?.role === "HERDER"
                               ? "/herder-dashboard"
                               : "/user-dashboard"
                         }
@@ -337,9 +337,9 @@ export function Header() {
                         <div className="grid grid-cols-1 gap-2">
                           <Link
                             href={
-                              user?.role === "admin"
+                              user?.role === "ADMIN"
                                 ? "/admin-dashboard"
-                                : user?.role === "herder"
+                                : user?.role === "HERDER"
                                   ? "/herder-dashboard"
                                   : "/user-dashboard"
                             }

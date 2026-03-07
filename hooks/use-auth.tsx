@@ -4,7 +4,7 @@ import type React from "react"
 import { useState, useEffect, createContext, useContext } from "react"
 import client from '@/lib/apolloClient'
 import { gql } from '@apollo/client'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 
 interface user {
   id: string
@@ -44,7 +44,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setuser] = useState<user | null | undefined>(undefined)
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const router = useRouter()
-  const searchParams = useSearchParams()
+
 
   useEffect(() => {
     const storeduser = localStorage.getItem("user")
@@ -83,11 +83,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const redirectUser = (role: string) => {
     // 1. Check for 'redirect' query parameter
-    const queryRedirect = searchParams.get('redirect')
+    let queryRedirect: string | null = null;
+    if (typeof window !== "undefined") {
+      const urlParams = new URLSearchParams(window.location.search);
+      queryRedirect = urlParams.get('redirect');
+    }
     // Safety check for startsWith
-    const redirectUrl = (typeof queryRedirect === "string" && queryRedirect.startsWith("/"))
-      ? queryRedirect
-      : null;
+    const safeRedirect = queryRedirect ?? ""
+    const redirectUrl = safeRedirect.startsWith("/") ? safeRedirect : null;
 
     if (redirectUrl) {
       router.push(redirectUrl)
