@@ -1282,13 +1282,13 @@ export default function AdminDashboardContent() {
                         <label className="text-sm font-bold text-gray-700">
                           {t("admin.users.role")}
                         </label>
-                        <Select name="role" defaultValue="USER">
+                        <Select name="role" defaultValue="TRAVELER">
                           <SelectTrigger className="border-gray-200">
                             <SelectValue placeholder={t("admin.users.role")} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="USER">Хэрэглэгч</SelectItem>
-                            <SelectItem value="OWNER">Эзэмшигч</SelectItem>
+                            <SelectItem value="TRAVELER">Аялагч</SelectItem>
+                            <SelectItem value="HERDER">Малчин</SelectItem>
                             <SelectItem value="ADMIN">Админ</SelectItem>
                           </SelectContent>
                         </Select>
@@ -1390,8 +1390,8 @@ export default function AdminDashboardContent() {
                             <SelectValue placeholder={t("admin.users.role")} />
                           </SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="USER">Хэрэглэгч</SelectItem>
-                            <SelectItem value="OWNER">Эзэмшигч</SelectItem>
+                            <SelectItem value="TRAVELER">Аялагч</SelectItem>
+                            <SelectItem value="HERDER">Малчин</SelectItem>
                             <SelectItem value="ADMIN">Админ</SelectItem>
                           </SelectContent>
                         </Select>
@@ -1474,7 +1474,7 @@ export default function AdminDashboardContent() {
                             </div>
                           </TableCell>
                           <TableCell>
-                            <Badge className={user.role === "ADMIN" ? "bg-red-100 text-red-800" : user.role === "OWNER" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}>
+                            <Badge className={user.role === "ADMIN" ? "bg-red-100 text-red-800" : user.role === "HERDER" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}>
                               {translateRole(user.role)}
                             </Badge>
                           </TableCell>
@@ -1540,7 +1540,7 @@ export default function AdminDashboardContent() {
                                         Эрх
                                       </label>
                                       <div className="mt-1">
-                                        <Badge className={user.role === "ADMIN" ? "bg-red-100 text-red-800" : user.role === "OWNER" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}>
+                                        <Badge className={user.role === "ADMIN" ? "bg-red-100 text-red-800" : user.role === "HERDER" ? "bg-blue-100 text-blue-800" : "bg-gray-100 text-gray-800"}>
                                           {translateRole(user.role)}
                                         </Badge>
                                       </div>
@@ -2091,7 +2091,7 @@ export default function AdminDashboardContent() {
                         </SelectTrigger>
                         <SelectContent className="max-h-[300px]">
                           {users
-                            .filter((u: any) => u.role === "OWNER" || u.role === "ADMIN")
+                            .filter((u: any) => u.role === "HERDER" || u.role === "ADMIN")
                             .map((u: any) => (
                               <SelectItem key={u.id} value={u.id}>
                                 {u.name} ({u.email})

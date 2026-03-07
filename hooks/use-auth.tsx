@@ -11,7 +11,7 @@ interface user {
   name: string
   email: string
   // Normalized frontend roles
-  role: "admin" | "user" | "herder"
+  role: "ADMIN" | "TRAVELER" | "HERDER"
   avatar?: string
   isHerder?: boolean // Frontend flag for herder dashboard
   hostBio?: string
@@ -53,11 +53,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         const isHerder = localStorage.getItem('isHerder') === 'true'
         // Normalize role in case older storage used backend enums or missing fields
         const normalizedRole: user["role"] = (() => {
-          const roleValue = (rawuser.role || "").toString()
-          if (roleValue === "ADMIN" || roleValue.toLowerCase() === "admin") return "admin"
-          if (roleValue === "HERDER" || roleValue.toLowerCase() === "herder") return "herder"
-          // Treat any other as customer
-          return "user"
+          const roleValue = (rawuser.role || "").toString().toUpperCase()
+          if (roleValue === "ADMIN") return "ADMIN"
+          if (roleValue === "HERDER") return "HERDER"
+          // Treat any other as traveler
+          return "TRAVELER"
         })()
         const normalizeduser: user = {
           id: rawuser.id,
@@ -95,13 +95,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     // Add herder flag from localStorage
     const isHerder = localStorage.getItem('isHerder') === 'true';
-    // Normalize role from backend enums (ADMIN/CUSTOMER/HERDER) to frontend roles
+    // Normalize role from backend enums (ADMIN/TRAVELER/HERDER) to frontend roles
     const normalizedRole: user["role"] = (() => {
-      const roleValue = (user.role || "").toString()
-      if (roleValue === "ADMIN" || roleValue.toLowerCase() === "admin") return "admin"
-      if (roleValue === "HERDER" || roleValue.toLowerCase() === "herder") return "herder"
-      // Treat any other as customer
-      return "user"
+      const roleValue = (user.role || "").toString().toUpperCase()
+      if (roleValue === "ADMIN") return "ADMIN"
+      if (roleValue === "HERDER") return "HERDER"
+      // Treat any other as traveler
+      return "TRAVELER"
     })()
     const userWithHerderFlag: user = {
       id: user.id,

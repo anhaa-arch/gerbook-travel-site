@@ -169,9 +169,8 @@ export default function UserDashboardContent() {
   const { logout, user } = useAuth();
   const router = useRouter();
 
-  // Redirect if role is not customer/user
+  // Redirect if role is not TRAVELER
   const { data: userData } = useQuery(GET_user_STATS, {
-    variables: { userId: user?.id },
     skip: !user?.id,
   });
 
@@ -357,8 +356,8 @@ export default function UserDashboardContent() {
   const allBookings = [...bookings, ...travelBookings];
 
   // Calculate stats from real data
-  const totalBookings = allBookings.length;
-  const totalOrders = orders.length;
+  const totalBookings = userData?.myBookingsStats?.totalCount || 0;
+  const totalOrders = userData?.myOrdersStats?.totalCount || 0;
   const totalSpent =
     orders.reduce((sum: number, order: Order) => sum + order.amount, 0) +
     allBookings.reduce(
@@ -761,7 +760,7 @@ export default function UserDashboardContent() {
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold">
                 Миний захиалгууд
               </h2>
-              {user?.role === "user" && (
+              {user?.role === "TRAVELER" && (
                 <Link href="/camps" className="w-full sm:w-auto">
                   <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold text-sm sm:text-base px-4 py-2">
                     Шинэ бааз захиалах

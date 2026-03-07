@@ -8,10 +8,10 @@ export const GET_user_STATS = gql`
       email
       role
     }
-    bookings(userId: $userId) {
+    myBookingsStats {
       totalCount
     }
-    orders(userId: $userId) {
+    myOrdersStats {
       totalCount
     }
   }

@@ -111,8 +111,8 @@ export const translateStatus = (status: string): string => {
     'DELIVERED': 'Хүргэгдсэн',
     'APPROVED': 'Баталгаажсан',
     'REJECTED': 'Цуцлагдсан',
-    'USER': 'Хэрэглэгч',
-    'OWNER': 'Эзэмшигч',
+    'TRAVELER': 'Аялагч',
+    'HERDER': 'Малчин',
     'ADMIN': 'Админ'
   };
 
@@ -121,12 +121,14 @@ export const translateStatus = (status: string): string => {
 
 export const translateRole = (role: string): string => {
   const translations: Record<string, string> = {
-    'USER': 'Хэрэглэгч',
-    'OWNER': 'Эзэмшигч',
-    'ADMIN': 'Админ'
+    'TRAVELER': 'Аялагч',
+    'HERDER': 'Малчин',
+    'ADMIN': 'Админ',
+    'USER': 'Аялагч',
+    'OWNER': 'Малчин'
   };
 
-  return translations[role] || role;
+  return translations[role?.toUpperCase()] || role;
 };
 
 // Export to Excel functionality

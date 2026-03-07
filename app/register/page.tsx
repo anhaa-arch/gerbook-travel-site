@@ -168,10 +168,8 @@ export default function RegisterPage() {
       let role: string;
       if (activeTab === "herder") {
         role = "HERDER";
-      } else if (activeTab === "admin") {
-        role = "ADMIN";
       } else {
-        role = "CUSTOMER";
+        role = "TRAVELER";
       }
 
       const input: any = {
@@ -241,12 +239,11 @@ export default function RegisterPage() {
       const storedUser = localStorage.getItem("user");
       if (storedUser) {
         const userObj = JSON.parse(storedUser);
-        const role = userObj.role?.toUpperCase() || "CUSTOMER";
+        const role = userObj.role?.toUpperCase();
         const dashboardRoutes: Record<string, string> = {
           ADMIN: "/admin-dashboard",
           HERDER: "/herder-dashboard",
-          CUSTOMER: "/user-dashboard",
-          USER: "/user-dashboard"
+          TRAVELER: "/user-dashboard"
         };
         router.push(dashboardRoutes[role] || "/user-dashboard");
       }
@@ -263,7 +260,7 @@ export default function RegisterPage() {
     } else if (activeTab === "admin") {
       role = "ADMIN";
     } else {
-      role = "CUSTOMER";
+      role = "TRAVELER";
     }
 
     const input = {
