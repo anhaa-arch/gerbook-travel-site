@@ -1491,109 +1491,7 @@ export default function HerderDashboardContent() {
                         </div>
                       </div>
 
-                      <div className="pt-2">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Байрны төрөл
-                        </label>
-                        <Select
-                          value={yurtForm.accommodationType}
-                          onValueChange={(value) =>
-                            setYurtForm({ ...yurtForm, accommodationType: value })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Төрөл сонгох" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {accommodationTypes.map((type) => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
 
-                      <div className="pt-2">
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Зураг оруулах ({uploadedImages.length}/3)
-                        </label>
-                        <div className="flex space-x-2 mb-2">
-                          <Button
-                            type="button"
-                            variant={imageUploadMode === "file" ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setImageUploadMode("file")}
-                            className="flex-1 h-8 text-[11px]"
-                          >
-                            <Upload className="w-3 h-3 mr-1" /> Файлаас
-                          </Button>
-                          <Button
-                            type="button"
-                            variant={imageUploadMode === "url" ? "default" : "outline"}
-                            size="sm"
-                            onClick={() => setImageUploadMode("url")}
-                            className="flex-1 h-8 text-[11px]"
-                          >
-                            <Link className="w-3 h-3 mr-1" /> Линк
-                          </Button>
-                        </div>
-                        {imageUploadMode === "file" ? (
-                          <Button
-                            type="button"
-                            variant="outline"
-                            onClick={() => fileInputRef.current?.click()}
-                            className="w-full border-dashed h-9"
-                            disabled={uploadedImages.length >= 3}
-                          >
-                            <Upload className="w-4 h-4 mr-2" /> Сонгох
-                          </Button>
-                        ) : (
-                          <div className="flex gap-2">
-                            <Input
-                              id="yurt-image-url-input"
-                              placeholder="https://..."
-                              className="font-medium h-9 text-xs"
-                            />
-                            <Button
-                              type="button"
-                              size="sm"
-                              onClick={() => {
-                                const input = document.getElementById("yurt-image-url-input") as HTMLInputElement;
-                                if (input.value.trim()) {
-                                  handleImageUrlChange(input.value.trim(), "yurt");
-                                  input.value = "";
-                                }
-                              }}
-                              disabled={uploadedImages.length >= 3}
-                            >
-                              Нэмэх
-                            </Button>
-                          </div>
-                        )}
-                        {uploadedImages.length > 0 && (
-                          <div className="grid grid-cols-3 gap-2 mt-3">
-                            {uploadedImages.map((image, index) => (
-                              <div key={index} className="relative group aspect-square">
-                                <img
-                                  src={image}
-                                  alt=""
-                                  className="w-full h-full object-cover rounded border"
-                                />
-                                <Button
-                                  type="button"
-                                  variant="destructive"
-                                  size="icon"
-                                  className="absolute -top-1 -right-1 h-5 w-5 rounded-full"
-                                  onClick={() => handleRemoveImage(index)}
-                                >
-                                  <X className="w-3 h-3" />
-                                </Button>
-                              </div>
-                            ))}
-                          </div>
-                        )}
-                      </div>
                     </div>
                   </div>
                   {/* Amenities - Checkbox */}
@@ -1927,7 +1825,7 @@ export default function HerderDashboardContent() {
                           disabled={uploadedImages.length >= 10}
                         >
                           <Upload className="w-4 h-4 mr-2" />
-                          Зураг сонгох ({uploadedImages.length}/3)
+                          Зураг сонгох ({uploadedImages.length}/10)
                         </Button>
                       </div>
                     )}
@@ -1955,7 +1853,7 @@ export default function HerderDashboardContent() {
                                 input.value = "";
                               }
                             }}
-                            disabled={uploadedImages.length >= 3}
+                            disabled={uploadedImages.length >= 10}
                           >
                             Нэмэх
                           </Button>
