@@ -506,18 +506,17 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       return;
     }
 
-    // RBAC: Only CUSTOMER can create bookings; block admins and herders
-    // Note: Frontend normalizes CUSTOMER to "user", so we accept both
+    // RBAC: Block admins and herders
     const userRole = (user.role || "").toString().toUpperCase();
     console.log('👤 User role check:', { originalRole: user.role, normalizedRole: userRole });
 
-    // Accept CUSTOMER, USER (case-insensitive)
-    const allowedRoles = ["CUSTOMER", "USER"];
+    // Accept TRAVELER, CUSTOMER, USER (case-insensitive)
+    const allowedRoles = ["TRAVELER", "CUSTOMER", "USER"];
     if (!allowedRoles.includes(userRole)) {
       console.log('❌ Invalid role:', userRole, '- Allowed roles:', allowedRoles);
       toast({
         title: "Зөвшөөрөлгүй",
-        description: `Зөвхөн CUSTOMER хэрэглэгчид захиалга үүсгэж болно. Таны role: ${user.role}`,
+        description: `Зөвхөн аялагч (TRAVELER) захиалга үүсгэж болно. Таны role: ${user.role}`,
         variant: "destructive",
       });
       return;
