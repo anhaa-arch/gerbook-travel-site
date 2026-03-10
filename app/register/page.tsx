@@ -89,9 +89,21 @@ export default function RegisterPage() {
   const [pendingEmail, setPendingEmail] = useState("");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+
+    if (name === "phone") {
+      // Only allow digits and max 8 characters
+      const digitsOnly = value.replace(/\D/g, "").slice(0, 8);
+      setFormData((prev) => ({
+        ...prev,
+        [name]: digitsOnly,
+      }));
+      return;
+    }
+
     setFormData((prev) => ({
       ...prev,
-      [e.target.name]: e.target.value,
+      [name]: value,
     }));
   };
 
@@ -156,6 +168,8 @@ export default function RegisterPage() {
       let role: string;
       if (activeTab === "herder") {
         role = "HERDER";
+      } else if (activeTab === "admin") {
+        role = "ADMIN";
       } else {
         role = "TRAVELER";
       }
@@ -400,6 +414,9 @@ export default function RegisterPage() {
                 id="phone"
                 name="phone"
                 type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                maxLength={8}
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="8 оронтой дугаар оруулна уу"

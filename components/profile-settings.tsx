@@ -242,11 +242,16 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
             </Label>
             <Input
               id="phone"
+              name="phone"
               type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={8}
               value={formData.phone}
-              onChange={(e) =>
-                setFormData({ ...formData, phone: e.target.value })
-              }
+              onChange={(e) => {
+                const value = e.target.value.replace(/\D/g, "").slice(0, 8);
+                setFormData({ ...formData, phone: value });
+              }}
               placeholder="8 оронтой дугаар оруулна уу"
               required
             />
