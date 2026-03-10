@@ -13,6 +13,15 @@ import { getFirstImage } from "@/lib/imageUtils"
 import '../../lib/i18n'
 import { useCart } from "@/hooks/use-cart"
 import { toast } from "@/components/ui/use-toast"
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination"
 
 const GET_PRODUCTS = gql`
   query GetProducts($first: Int, $filter: String, $orderBy: String) {
@@ -55,6 +64,8 @@ export default function ProductsPage() {
   const { t, i18n } = useTranslation()
   const [selectedCategory, setSelectedCategory] = useState("")
   const [priceRange, setPriceRange] = useState("")
+  const [currentPage, setCurrentPage] = useState(1)
+  const itemsPerPage = 10
   const { addToCart } = useCart()
 
   const { data: productsData, loading: productsLoading, error: productsError } = useQuery(GET_PRODUCTS, {
@@ -168,67 +179,100 @@ export default function ProductsPage() {
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
-            {filteredProducts.map((product: any) => {
-              const imageSrc = getFirstImage(product.images)
-              const inStock = product.stock > 0
-              return (
-                <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                  <div className="relative">
-                    <Image
-                      src={imageSrc}
-                      alt={product.name}
-                      width={200}
-                      height={200}
-                      className="w-full h-48 object-cover"
-                    />
-                    {!inStock && (
-                      <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                        <span className="text-white font-bold">{t("products.out_of_stock")}</span>
+            {filteredProducts
+              .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+              .map((product: any) => {
+                const imageSrc = getFirstImage(product.images)
+                const inStock = product.stock > 0
+                return (
+                  <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
+                    <div className="relative">
+                      <Image
+                        src={imageSrc}
+                        alt={product.name}
+                        width={200}
+                        height={200}
+                        className="w-full h-48 object-cover"
+                      />
+                      {!inStock && (
+                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+                          <span className="text-white font-bold">{t("products.out_of_stock")}</span>
+                        </div>
+                      )}
+                    </div>
+                    <CardContent className="p-4">
+                      <h3 className="font-bold text-base sm:text-lg mb-2">{product.name}</h3>
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="flex items-center">
+                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium">
+                            {product.category?.name || "Бүтээгдэхүүн"}
+                          </span>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-bold text-base sm:text-lg mb-2">{product.name}</h3>
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="flex items-center">
-                        <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium">
-                          {product.category?.name || "Бүтээгдэхүүн"}
+                      <div className="flex items-center text-gray-600 mb-3">
+                        <span className="text-sm font-medium">
+                          Нөөц: {product.stock} ширхэг
                         </span>
                       </div>
-                    </div>
-                    <div className="flex items-center text-gray-600 mb-3">
-                      <span className="text-sm font-medium">
-                        Нөөц: {product.stock} ширхэг
-                      </span>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <span className="text-lg sm:text-xl font-bold">{product.price}₮</span>
-                      <Button
-                        size="sm"
-                        className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                        disabled={!inStock}
-                        onClick={() => {
-                          addToCart({
-                            id: product.id,
-                            type: "PRODUCT",
-                            name: product.name,
-                            seller: "Монголын бүтээгдэхүүн",
-                            price: product.price,
-                            quantity: 1,
-                            image: imageSrc,
-                            category: product.category?.name || "Бүтээгдэхүүн",
-                          })
-                        }}
-                      >
-                        <ShoppingCart className="w-4 h-4 mr-1" />
-                        {inStock ? t("common.add_to_cart") : t("products.out_of_stock")}
-                      </Button>
-                    </div>
-                  </CardContent>
-                </Card>
-              )
-            })}
+                      <div className="flex items-center justify-between">
+                        <span className="text-lg sm:text-xl font-bold">{product.price}₮</span>
+                        <Button
+                          size="sm"
+                          className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                          disabled={!inStock}
+                          onClick={() => {
+                            addToCart({
+                              id: product.id,
+                              type: "PRODUCT",
+                              name: product.name,
+                              seller: "Монголын бүтээгдэхүүн",
+                              price: product.price,
+                              quantity: 1,
+                              image: imageSrc,
+                              category: product.category?.name || "Бүтээгдэхүүн",
+                            })
+                          }}
+                        >
+                          <ShoppingCart className="w-4 h-4 mr-1" />
+                          {inStock ? t("common.add_to_cart") : t("products.out_of_stock")}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
+                )
+              })}
           </div>
+
+          {/* Pagination */}
+          {filteredProducts.length > itemsPerPage && (
+            <Pagination className="mt-8">
+              <PaginationContent>
+                <PaginationItem>
+                  <PaginationPrevious
+                    onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                    className={currentPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+                {[...Array(Math.ceil(filteredProducts.length / itemsPerPage))].map((_, i) => (
+                  <PaginationItem key={i}>
+                    <PaginationLink
+                      isActive={currentPage === i + 1}
+                      onClick={() => setCurrentPage(i + 1)}
+                      className="cursor-pointer"
+                    >
+                      {i + 1}
+                    </PaginationLink>
+                  </PaginationItem>
+                ))}
+                <PaginationItem>
+                  <PaginationNext
+                    onClick={() => setCurrentPage(prev => Math.min(Math.ceil(filteredProducts.length / itemsPerPage), prev + 1))}
+                    className={currentPage === Math.ceil(filteredProducts.length / itemsPerPage) ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                  />
+                </PaginationItem>
+              </PaginationContent>
+            </Pagination>
+          )}
         </div>
       </section>
     </div>

@@ -183,7 +183,7 @@ export function Header() {
             </div>
 
             {isAuthenticated ? (
-              <div className="relative" ref={userMenuRef}>
+              <div className="hidden lg:block relative" ref={userMenuRef}>
                 <button
                   onClick={() => setIsuserMenuOpen(!isuserMenuOpen)}
                   className="flex items-center space-x-1 sm:space-x-2 hover:bg-gray-50 p-1 sm:p-1.5 rounded-lg transition-colors"

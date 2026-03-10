@@ -39,7 +39,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { amenitiesOptions } from "@/data/camp-options";
+import { amenitiesOptions, activitiesOptions, facilitiesOptions } from "@/data/camp-options";
 import { useQuery } from "@apollo/client";
 import "../../lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
@@ -77,6 +77,7 @@ interface Booking {
   };
   description?: string;
   amenities?: string;
+  campId?: string;
 }
 
 interface Order {
@@ -293,6 +294,7 @@ export default function UserDashboardContent() {
         } : undefined,
         description: yurt.description,
         amenities: yurt.amenities,
+        campId: yurt.id,
       };
     }) || [];
 
@@ -1752,7 +1754,7 @@ export default function UserDashboardContent() {
 
                       return allItems.length > 0 ? (
                         allItems.map((item, idx) => {
-                          const option = amenitiesOptions.find(o => o.value === item);
+                          const option = [...amenitiesOptions, ...activitiesOptions, ...facilitiesOptions].find(o => o.value === item);
                           return (
                             <div key={idx} className="flex items-center gap-2 text-sm text-gray-700 font-medium p-2 bg-emerald-50/50 rounded-lg border border-emerald-100/50">
                               <Info className="w-4 h-4 text-emerald-600" />
@@ -1774,26 +1776,32 @@ export default function UserDashboardContent() {
                     <Info className="w-4 h-4" />
                     Эзэмшигчтэй холбогдох
                   </h3>
-                  <div className="flex flex-col sm:flex-row gap-3">
+                  <div className="flex flex-col gap-3">
                     {selectedBooking.owner.phone && (
-                      <Button
-                        className="flex-1 bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200"
-                        variant="outline"
-                        onClick={() => window.location.href = `tel:${selectedBooking.owner?.phone}`}
-                      >
-                        <Phone className="w-4 h-4 mr-2" />
-                        Залгах
-                      </Button>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-xs text-emerald-800/70 font-bold uppercase ml-1">Утасны дугаар</p>
+                        <Button
+                          className="w-full bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200 justify-start"
+                          variant="outline"
+                          onClick={() => window.location.href = `tel:${selectedBooking.owner?.phone}`}
+                        >
+                          <Phone className="w-4 h-4 mr-3" />
+                          <span className="font-bold">{selectedBooking.owner.phone}</span>
+                        </Button>
+                      </div>
                     )}
                     {selectedBooking.owner.email && (
-                      <Button
-                        className="flex-1 bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200"
-                        variant="outline"
-                        onClick={() => window.location.href = `mailto:${selectedBooking.owner?.email}`}
-                      >
-                        <Mail className="w-4 h-4 mr-2" />
-                        Мэйл бичих
-                      </Button>
+                      <div className="flex flex-col gap-1">
+                        <p className="text-xs text-emerald-800/70 font-bold uppercase ml-1">Цахим шуудан</p>
+                        <Button
+                          className="w-full bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200 justify-start"
+                          variant="outline"
+                          onClick={() => window.location.href = `mailto:${selectedBooking.owner?.email}`}
+                        >
+                          <Mail className="w-4 h-4 mr-3" />
+                          <span className="font-bold">{selectedBooking.owner.email}</span>
+                        </Button>
+                      </div>
                     )}
                   </div>
                 </div>
@@ -1804,7 +1812,7 @@ export default function UserDashboardContent() {
                   Хаах
                 </Button>
                 {selectedBooking.type === "camp" && (
-                  <Link href={`/camp/${selectedBooking.id.split(':').pop()}`} className="flex-1">
+                  <Link href={`/camp/${selectedBooking.campId || selectedBooking.id.split(':').pop()}`} className="flex-1">
                     <Button variant="outline" className="w-full border-gray-200 h-full py-6">
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Хуудсыг үзэх

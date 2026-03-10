@@ -262,7 +262,7 @@ export default function CartPage() {
               </div>
             )}
 
-            <Link href="/listings" className="inline-flex items-center text-sm font-black text-emerald-600 hover:text-emerald-700 transition-colors px-2">
+            <Link href="/listings?tab=products" className="inline-flex items-center text-sm font-black text-emerald-600 hover:text-emerald-700 transition-colors px-2">
               <ArrowLeft className="w-4 h-4 mr-2" />
               ДАХИН СОНГОЛТ ХИЙХ
             </Link>

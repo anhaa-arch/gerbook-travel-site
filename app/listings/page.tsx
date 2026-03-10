@@ -25,6 +25,15 @@ import { amenitiesOptions } from "@/data/camp-options";
 import "../../lib/i18n";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/components/ui/use-toast";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
 
 const GET_YURTS = gql`
   query GetYurts($first: Int, $filter: String, $orderBy: String) {
@@ -85,6 +94,9 @@ export default function ListingsPage() {
   const [checkOut, setCheckOut] = useState<Date | null>(null);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [activeTab, setActiveTab] = useState("camps");
+  const [campPage, setCampPage] = useState(1);
+  const [productPage, setProductPage] = useState(1);
+  const itemsPerPage = 10;
 
   // Get location data from search section
   const locationData = mnData();
@@ -116,11 +128,15 @@ export default function ListingsPage() {
     const districtParam = searchParams.get("district");
     const checkInParam = searchParams.get("checkIn");
     const checkOutParam = searchParams.get("checkOut");
+    const tabParam = searchParams.get("tab");
 
     if (provinceParam) setSelectedProvince(provinceParam);
     if (districtParam) setSelectedDistrict(districtParam);
     if (checkInParam) setCheckIn(new Date(checkInParam));
     if (checkOutParam) setCheckOut(new Date(checkOutParam));
+    if (tabParam && (tabParam === "camps" || tabParam === "products")) {
+      setActiveTab(tabParam);
+    }
   }, [searchParams]);
 
   // Handle GraphQL loading and error states
@@ -347,128 +363,139 @@ export default function ListingsPage() {
                 </p>
               </div>
 
+              {/* Paginated Camps Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 {filteredCamps.length > 0 ? (
-                  filteredCamps.map((camp: any) => {
-                    const imageSrc = getFirstImage(camp.images);
+                  filteredCamps
+                    .slice((campPage - 1) * itemsPerPage, campPage * itemsPerPage)
+                    .map((camp: any) => {
+                      const imageSrc = getFirstImage(camp.images);
 
-                    // Parse amenities JSON
-                    let amenitiesList: string[] = [];
-                    try {
-                      if (camp.amenities) {
-                        const parsed = typeof camp.amenities === 'string' ? JSON.parse(camp.amenities) : camp.amenities;
-                        const items = parsed.items || [];
-                        // Map to Mongolian labels
-                        amenitiesList = items
-                          .map((value: string) => {
-                            const option = amenitiesOptions.find(a => a.value === value);
-                            return option ? option.label : value;
-                          })
-                          .filter(Boolean);
+                      // Parse amenities JSON
+                      let amenitiesList: string[] = [];
+                      try {
+                        if (camp.amenities) {
+                          const parsed = typeof camp.amenities === 'string' ? JSON.parse(camp.amenities) : camp.amenities;
+                          const items = parsed.items || [];
+                          // Map to Mongolian labels
+                          amenitiesList = items
+                            .map((value: string) => {
+                              const option = amenitiesOptions.find(a => a.value === value);
+                              return option ? option.label : value;
+                            })
+                            .filter(Boolean);
+                        }
+                      } catch (e) {
+                        // Fallback to old format (comma-separated)
+                        amenitiesList = camp.amenities ? camp.amenities.split(",") : [];
                       }
-                    } catch (e) {
-                      // Fallback to old format (comma-separated)
-                      amenitiesList = camp.amenities ? camp.amenities.split(",") : [];
-                    }
 
-                    return (
-                      <Card
-                        key={camp.id}
-                        className="overflow-hidden hover:shadow-lg transition-shadow"
-                      >
-                        <div className="relative">
-                          <Image
-                            src={imageSrc}
-                            alt={camp.name}
-                            width={300}
-                            height={200}
-                            className="w-full h-48 object-cover"
-                          />
-                          <div className="absolute top-2 right-2 bg-white rounded-full p-1">
-                            <MapPin className="w-4 h-4 text-emerald-600" />
-                          </div>
-                        </div>
-                        <CardContent className="p-6">
-                          <h3 className="font-bold text-lg mb-2">
-                            {camp.name}
-                          </h3>
-                          <div className="flex items-center justify-between mb-2">
-                            <div className="flex items-center text-gray-600">
-                              <MapPin className="w-4 h-4 mr-1" />
-                              <span className="text-sm font-medium">
-                                {camp.location}
-                              </span>
-                            </div>
-                            <div className="flex items-center text-gray-600">
-                              <Users className="w-4 h-4 mr-1" />
-                              <span className="text-sm font-medium">
-                                {camp.capacity} зочин
-                              </span>
+                      return (
+                        <Card
+                          key={camp.id}
+                          className="overflow-hidden hover:shadow-lg transition-shadow"
+                        >
+                          <div className="relative">
+                            <Image
+                              src={imageSrc}
+                              alt={camp.name}
+                              width={300}
+                              height={200}
+                              className="w-full h-48 object-cover"
+                            />
+                            <div className="absolute top-2 right-2 bg-white rounded-full p-1">
+                              <MapPin className="w-4 h-4 text-emerald-600" />
                             </div>
                           </div>
-                          <div className="mb-4">
-                            <div className="flex flex-wrap gap-1">
-                              {amenitiesList
-                                .slice(0, 3)
-                                .map((amenity: string, index: number) => (
-                                  <span
-                                    key={index}
-                                    className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium"
-                                  >
-                                    {amenity}
-                                  </span>
-                                ))}
+                          <CardContent className="p-6">
+                            <h3 className="font-bold text-lg mb-2">
+                              {camp.name}
+                            </h3>
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center text-gray-600">
+                                <MapPin className="w-4 h-4 mr-1" />
+                                <span className="text-sm font-medium">
+                                  {camp.location}
+                                </span>
+                              </div>
+                              <div className="flex items-center text-gray-600">
+                                <Users className="w-4 h-4 mr-1" />
+                                <span className="text-sm font-medium">
+                                  {camp.capacity} зочин
+                                </span>
+                              </div>
                             </div>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <span className="text-2xl font-bold">
-                                {camp.pricePerNight}₮
-                              </span>
-                              <span className="text-gray-600 ml-1 font-medium">
-                                хоног
-                              </span>
+                            <div className="mb-4">
+                              <div className="flex flex-wrap gap-1">
+                                {amenitiesList
+                                  .slice(0, 3)
+                                  .map((amenity: string, index: number) => (
+                                    <span
+                                      key={index}
+                                      className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium"
+                                    >
+                                      {amenity}
+                                    </span>
+                                  ))}
+                              </div>
                             </div>
-                            <Link href={`/camp/${camp.id}`}>
-                              <Button
-                                size="sm"
-                                className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                              >
-                                Дэлгэрэнгүй
-                              </Button>
-                            </Link>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })
+                            <div className="flex items-center justify-between">
+                              <div>
+                                <span className="text-2xl font-bold">
+                                  {camp.pricePerNight}₮
+                                </span>
+                                <span className="text-gray-600 ml-1 font-medium">
+                                  хоног
+                                </span>
+                              </div>
+                              <Link href={`/camp/${camp.id}`}>
+                                <Button
+                                  size="sm"
+                                  className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                                >
+                                  Дэлгэрэнгүй
+                                </Button>
+                              </Link>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      );
+                    })
                 ) : (
-                  <div className="col-span-full text-center py-12">
-                    <MapPin className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                    <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                      Хайлтын үр дүн олдсонгүй
-                    </h3>
-                    <p className="text-gray-500 mb-4">
-                      {selectedProvince || selectedDistrict
-                        ? `"${selectedProvince}${selectedDistrict ? " - " + selectedDistrict : ""
-                        }" газарт бааз олдсонгүй.`
-                        : "Одоогоор ямар ч бааз олдсонгүй."}
-                    </p>
-                    <Button
-                      variant="outline"
-                      onClick={() => {
-                        setSelectedProvince("Архангай");
-                        setSelectedDistrict("Цэнхэр");
-                        setCheckIn(null);
-                        setCheckOut(null);
-                      }}
-                      className="bg-transparent font-semibold"
-                    >
-                      Шүүлт цэвэрлэх
-                    </Button>
-                  </div>
+                  <p className="text-gray-500 text-center py-10">Амралт бааз олдсонгүй.</p>
                 )}
               </div>
+
+              {/* Camp Pagination */}
+              {filteredCamps.length > itemsPerPage && (
+                <Pagination className="mt-8">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setCampPage(prev => Math.max(1, prev - 1))}
+                        className={campPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    {[...Array(Math.ceil(filteredCamps.length / itemsPerPage))].map((_, i) => (
+                      <PaginationItem key={i}>
+                        <PaginationLink
+                          isActive={campPage === i + 1}
+                          onClick={() => setCampPage(i + 1)}
+                          className="cursor-pointer"
+                        >
+                          {i + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setCampPage(prev => Math.min(Math.ceil(filteredCamps.length / itemsPerPage), prev + 1))}
+                        className={campPage === Math.ceil(filteredCamps.length / itemsPerPage) ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
             </TabsContent>
 
             {/* Products Tab */}
@@ -479,75 +506,109 @@ export default function ListingsPage() {
                 </p>
               </div>
 
+              {/* Paginated Products Grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {products.map((product: any) => {
-                  const imageSrc = getFirstImage(product.images);
-                  return (
-                    <Card
-                      key={product.id}
-                      className="overflow-hidden hover:shadow-lg transition-shadow"
-                    >
-                      <div className="relative">
-                        <Image
-                          src={imageSrc}
-                          alt={product.name}
-                          width={300}
-                          height={200}
-                          className="w-full h-48 object-cover"
-                        />
-                        <div className="absolute top-2 right-2 bg-white rounded-full p-1">
-                          <Package className="w-4 h-4 text-emerald-600" />
+                {products
+                  .slice((productPage - 1) * itemsPerPage, productPage * itemsPerPage)
+                  .map((product: any) => {
+                    const imageSrc = getFirstImage(product.images);
+                    return (
+                      <Card
+                        key={product.id}
+                        className="overflow-hidden hover:shadow-lg transition-shadow"
+                      >
+                        <div className="relative">
+                          <Image
+                            src={imageSrc}
+                            alt={product.name}
+                            width={300}
+                            height={200}
+                            className="w-full h-48 object-cover"
+                          />
+                          <div className="absolute top-2 right-2 bg-white rounded-full p-1">
+                            <Package className="w-4 h-4 text-emerald-600" />
+                          </div>
                         </div>
-                      </div>
-                      <CardContent className="p-6">
-                        <h3 className="font-bold text-lg mb-2">
-                          {product.name}
-                        </h3>
-                        <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                          {product.description}
-                        </p>
-                        <div className="mb-4">
-                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium">
-                            {product.category?.name || "Ангилал"}
-                          </span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <div>
-                            <span className="text-2xl font-bold">
-                              {product.price}₮
-                            </span>
-                            <span className="text-gray-600 ml-1 font-medium">
-                              {product.stock} ширхэг
+                        <CardContent className="p-6">
+                          <h3 className="font-bold text-lg mb-2">
+                            {product.name}
+                          </h3>
+                          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
+                            {product.description}
+                          </p>
+                          <div className="mb-4">
+                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium">
+                              {product.category?.name || "Ангилал"}
                             </span>
                           </div>
-                          <Button
-                            size="sm"
-                            className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                            onClick={() => {
-                              addToCart({
-                                id: product.id,
-                                type: "PRODUCT",
-                                name: product.name,
-                                seller: "Малчин",
-                                price: product.price,
-                                quantity: 1,
-                                image: imageSrc,
-                                category: product.category?.name || "Бараа",
-                              });
-                              toast({
-                                title: "Сагсанд нэмэгдлээ",
-                                description: `${product.name} амжилттай нэмэгдлээ.`,
-                              });
-                            }}
-                          >
-                            Сагсанд нэмэх
-                          </Button>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <span className="text-2xl font-bold">
+                                {product.price}₮
+                              </span>
+                              <span className="text-gray-600 ml-1 font-medium">
+                                {product.stock} ширхэг
+                              </span>
+                            </div>
+                            <Button
+                              size="sm"
+                              className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
+                              onClick={() => {
+                                addToCart({
+                                  id: product.id,
+                                  type: "PRODUCT",
+                                  name: product.name,
+                                  seller: "Малчин",
+                                  price: product.price,
+                                  quantity: 1,
+                                  image: imageSrc,
+                                  category: product.category?.name || "Бараа",
+                                });
+                                toast({
+                                  title: "Сагсанд нэмэгдлээ",
+                                  description: `${product.name} амжилттай нэмэгдлээ.`,
+                                });
+                              }}
+                            >
+                              Сагсанд нэмэх
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
               </div>
+
+              {/* Product Pagination */}
+              {products.length > itemsPerPage && (
+                <Pagination className="mt-8">
+                  <PaginationContent>
+                    <PaginationItem>
+                      <PaginationPrevious
+                        onClick={() => setProductPage(prev => Math.max(1, prev - 1))}
+                        className={productPage === 1 ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                    {[...Array(Math.ceil(products.length / itemsPerPage))].map((_, i) => (
+                      <PaginationItem key={i}>
+                        <PaginationLink
+                          isActive={productPage === i + 1}
+                          onClick={() => setProductPage(i + 1)}
+                          className="cursor-pointer"
+                        >
+                          {i + 1}
+                        </PaginationLink>
+                      </PaginationItem>
+                    ))}
+                    <PaginationItem>
+                      <PaginationNext
+                        onClick={() => setProductPage(prev => Math.min(Math.ceil(products.length / itemsPerPage), prev + 1))}
+                        className={productPage === Math.ceil(products.length / itemsPerPage) ? "pointer-events-none opacity-50" : "cursor-pointer"}
+                      />
+                    </PaginationItem>
+                  </PaginationContent>
+                </Pagination>
+              )}
             </TabsContent>
           </Tabs>
         </div>
@@ -561,6 +622,6 @@ export default function ListingsPage() {
           setCheckOut(end);
         }}
       />
-    </div>
+    </div >
   );
 }
