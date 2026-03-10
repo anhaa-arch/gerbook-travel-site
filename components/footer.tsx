@@ -19,14 +19,6 @@ export function Footer() {
                   Малчин Camp-ийн тухай
                 </a>
               </li>
-              <li>
-                <a
-                  href="/about"
-                  className="hover:text-green-600 transition-colors inline-block"
-                >
-                  Малчин Camp хэрхэн ажилладаг ?
-                </a>
-              </li>
             </ul>
           </div>
 
