@@ -22,6 +22,7 @@ interface AuthContextType {
   isAuthenticated: boolean
   saveuserData: (user: user) => void
   logout: () => Promise<void>
+  logoutAllDevices: () => Promise<void>
   register: (userData: any) => Promise<void>
   requestRegistrationCode: (input: any) => Promise<{ success: boolean; message: string }>
   verifyRegistration: (email: string, code: string) => Promise<void>
@@ -145,6 +146,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem("user")
     localStorage.removeItem("isHerder")
     localStorage.removeItem('token')
+    await client.clearStore() // Clear Apollo cache
     router.push('/login')
   }
 
@@ -215,6 +217,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         token
         user { id name email role avatar hostBio hostExperience hostLanguages }
       }
+    }
+  `
+
+  const LOGOUT_ALL_DEVICES_MUTATION = gql`
+    mutation LogoutAllDevices {
+      logoutAllDevices
     }
   `
 
@@ -322,6 +330,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
+  const logoutAllDevices = async () => {
+    try {
+      await client.mutate({ mutation: LOGOUT_ALL_DEVICES_MUTATION })
+      await logout()
+    } catch (error) {
+      console.error("Error in logoutAllDevices:", error)
+      await logout() // Still logout locally if mutation fails
+    }
+  }
+
   const resetPassword = async (token: string, newPassword: string) => {
     const { data } = await client.mutate({ mutation: RESET_PASSWORD_MUTATION, variables: { token, newPassword } })
     if (data?.resetPassword) {
@@ -351,6 +369,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         sendOtp,
         verifyOtp,
+        logoutAllDevices,
         requestPasswordResetCode,
         resetPasswordWithCode,
         resetPassword,

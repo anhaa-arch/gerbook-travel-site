@@ -4,18 +4,37 @@ import { onError } from "@apollo/client/link/error";
 
 // Error handling link
 const errorLink = onError(({ graphQLErrors, networkError }) => {
-  if (process.env.NODE_ENV === "development") {
-    if (graphQLErrors)
+  if (graphQLErrors) {
+    for (const err of graphQLErrors) {
+      // Handle UNAUTHENTICATED or 401 errors
+      if (err.extensions?.code === 'UNAUTHENTICATED' || err.message.includes('Not authenticated')) {
+        if (typeof window !== "undefined") {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          // Force page reload to clear all state and redirect to login
+          window.location.href = "/login?redirect=" + encodeURIComponent(window.location.pathname);
+        }
+      }
+    }
+
+    if (process.env.NODE_ENV === "development") {
       graphQLErrors.forEach(({ message, locations, path }) => {
         const loc = Array.isArray(locations)
           ? locations.map(l => `${l.line}:${l.column}`).join(",")
           : String(locations);
-        // eslint-disable-next-line no-console
         console.log(`[GraphQL error]: Message: ${message}, Location: ${loc}, Path: ${path}`);
       });
-    if (networkError) {
-      // eslint-disable-next-line no-console
-      console.log(`[Network error]: ${networkError}`);
+    }
+  }
+
+  if (networkError && process.env.NODE_ENV === "development") {
+    console.log(`[Network error]: ${networkError}`);
+    if ((networkError as any).statusCode === 401) {
+      if (typeof window !== "undefined") {
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        window.location.href = "/login";
+      }
     }
   }
 });

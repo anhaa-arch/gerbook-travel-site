@@ -11,6 +11,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/components/ui/use-toast";
 import { User, Mail, Lock, Save, Eye, EyeOff, UserCircle } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
 
 const UPDATE_user = gql`
   mutation Updateuser($id: ID!, $input: UpdateuserInput!) {
@@ -43,6 +44,7 @@ interface ProfileSettingsProps {
 
 export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
   const { toast } = useToast();
+  const { logoutAllDevices } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -456,6 +458,25 @@ export function ProfileSettings({ user, onUpdate }: ProfileSettingsProps) {
             )}
           </Button>
         </form>
+
+        <div className="pt-6 border-t mt-6">
+          <h3 className="text-lg font-medium text-red-600 mb-2">Аюулгүй байдал</h3>
+          <p className="text-sm text-gray-500 mb-4">
+            Та өөрийн бүртгэлээр нэвтэрсэн бүх төхөөрөмжөөс нэгэн зэрэг гарах боломжтой.
+          </p>
+          <Button
+            type="button"
+            variant="destructive"
+            onClick={async () => {
+              if (confirm("Та бүх төхөөрөмжөөс гарахдаа итгэлтэй байна уу?")) {
+                await logoutAllDevices();
+              }
+            }}
+            disabled={loading}
+          >
+            Бүх төхөөрөмжөөс гарах
+          </Button>
+        </div>
       </CardContent>
     </Card>
   );
