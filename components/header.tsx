@@ -7,6 +7,16 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 
+const LANGUAGES = [
+  { flag: "🇲🇳", name: "Монгол", code: "mn" },
+  { flag: "🇬🇧", name: "English", code: "en" },
+  { flag: "🇨🇳", name: "中文", code: "zh" },
+  { flag: "🇯🇵", name: "日本語", code: "ja" },
+  { flag: "🇰🇷", name: "한국어", code: "ko" },
+  { flag: "🇷🇺", name: "Русский", code: "ru" },
+  { flag: "🇩🇪", name: "Deutsch", code: "de" },
+];
+
 export function Header() {
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [isuserMenuOpen, setIsuserMenuOpen] = useState(false);
@@ -157,22 +167,14 @@ export function Header() {
                     </div>
                   </div>
                   <div className="p-1.5 sm:p-2 max-h-[60vh] overflow-y-auto">
-                    {[
-                      { flag: "🇲🇳", name: "Монгол" },
-                      { flag: "🇬🇧", name: "English" },
-                      { flag: "🇨🇳", name: "中文" },
-                      { flag: "🇯🇵", name: "日本語" },
-                      { flag: "🇰🇷", name: "한국어" },
-                      { flag: "🇷🇺", name: "Русский" },
-                      { flag: "🇩🇪", name: "Deutsch" },
-                    ].map((lang, index) => (
+                    {LANGUAGES.map((lang, index) => (
                       <button
                         key={index}
-                        className="w-full flex items-center space-x-3 p-2.5 sm:p-2 hover:bg-emerald-50 rounded-lg text-left transition-colors"
+                        className="w-full flex items-center space-x-3 p-2.5 sm:p-2 hover:bg-emerald-50 rounded-lg text-left transition-colors group"
                         onClick={() => setIsLanguageOpen(false)}
                       >
-                        <span className="text-lg">{lang.flag}</span>
-                        <span className="text-sm font-bold text-gray-700">
+                        <span className="text-lg group-hover:scale-110 transition-transform">{lang.flag}</span>
+                        <span className="text-sm font-bold text-gray-700 group-hover:text-emerald-700 transition-colors">
                           {lang.name}
                         </span>
                       </button>
@@ -295,25 +297,23 @@ export function Header() {
                     </div>
 
                     {/* Language Switcher in Mobile Menu */}
-                    <div className="bg-gray-50 rounded-2xl p-4">
-                      <div className="flex items-center space-x-2 text-[10px] text-gray-400 font-black uppercase tracking-widest mb-3">
-                        <Globe className="w-3 h-3 text-emerald-600" />
-                        <span>Хэл сонгох</span>
+                    <div className="bg-emerald-50/50 rounded-3xl p-5 border border-emerald-100/50">
+                      <div className="flex items-center justify-between mb-4">
+                        <div className="flex items-center space-x-2 text-[10px] text-emerald-600 font-extrabold uppercase tracking-widest">
+                          <Globe className="w-3.5 h-3.5" />
+                          <span>Хэл сонгох</span>
+                        </div>
+                        <div className="h-1 w-8 bg-emerald-200 rounded-full"></div>
                       </div>
-                      <div className="grid grid-cols-2 gap-2">
-                        {[
-                          { flag: "🇲🇳", name: "Монгол" },
-                          { flag: "🇬🇧", name: "English" },
-                          { flag: "🇨🇳", name: "中文" },
-                          { flag: "🇷🇺", name: "Русский" },
-                        ].map((lang, index) => (
+                      <div className="grid grid-cols-2 gap-2.5">
+                        {LANGUAGES.map((lang, index) => (
                           <button
                             key={index}
-                            className="flex items-center space-x-2 p-2 bg-white rounded-lg border border-gray-100 shadow-sm"
+                            className="flex items-center space-x-3 p-2.5 bg-white rounded-2xl border border-gray-100 shadow-sm active:scale-95 transition-all hover:border-emerald-200 hover:bg-emerald-50/30 group"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            <span className="text-base">{lang.flag}</span>
-                            <span className="text-[11px] font-bold text-gray-700">{lang.name}</span>
+                            <span className="text-xl group-hover:scale-110 transition-transform">{lang.flag}</span>
+                            <span className="text-[12px] font-bold text-gray-700 group-hover:text-emerald-700 transition-colors">{lang.name}</span>
                           </button>
                         ))}
                       </div>
