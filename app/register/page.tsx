@@ -60,6 +60,7 @@ export default function RegisterPage() {
           email: googleUser.email,
           name: googleUser.name,
           avatar: googleUser.picture,
+          role: activeTab === 'herder' ? 'HERDER' : 'TRAVELER',
         });
 
         toast({

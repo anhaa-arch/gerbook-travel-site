@@ -311,8 +311,8 @@ export default function HerderDashboardContent() {
   // Yurt management functions
   const handleCreateYurt = async () => {
     try {
-      // Optimize images data - limit to first 3 images
-      const optimizedImages = uploadedImages.slice(0, 3);
+      // Optimize images data - limit to first 10 images
+      const optimizedImages = uploadedImages.slice(0, 10);
 
       await createYurt({
         variables: {
@@ -397,7 +397,7 @@ export default function HerderDashboardContent() {
                 cancellation: yurtForm.cancellationPolicy,
               },
             }),
-            images: JSON.stringify(uploadedImages.slice(0, 3)),
+            images: JSON.stringify(uploadedImages.slice(0, 10)),
           },
         },
       });
@@ -491,10 +491,17 @@ export default function HerderDashboardContent() {
       const images = JSON.parse(yurt.images);
       if (Array.isArray(images)) {
         setUploadedImages(images);
+      } else if (typeof images === "string" && images.trim().length > 0) {
+        setUploadedImages([images]);
+      } else {
+        setUploadedImages([]);
       }
     } catch (e) {
-      // Handle single image or invalid format
-      setUploadedImages([]);
+      if (typeof yurt.images === "string" && yurt.images.trim().length > 0) {
+        setUploadedImages([yurt.images]);
+      } else {
+        setUploadedImages([]);
+      }
     }
 
     setShowAddCamp(true);

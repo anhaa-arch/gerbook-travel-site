@@ -35,14 +35,17 @@ export const accommodationTypes = [
 ];
 
 export const facilitiesOptions = [
-  { value: "traditional_furnishing", label: "Уламжлалт тавилга" },
-  { value: "modern_furnishing", label: "Орчин үеийн тавилга" },
-  { value: "bedding", label: "Ор дэр" },
-  { value: "heating_stove", label: "Зуух" },
-  { value: "furniture", label: "Тавилга" },
+  { value: "traditional_furniture", label: "Уламжлалт тавилга" },
+  { value: "modern_furniture", label: "Орчин үеийн тавилга" },
+  { value: "bedding_linen", label: "Ор дэрний хэрэглэл" },
+  { value: "wardrobe_hanger", label: "Хувцасны шүүгээ / Өлгүүр" },
+  { value: "desk_chair", label: "Ширээ, сандал" },
+  { value: "luggage_storage", label: "Ачаа тээш хадгалах хэсэг" },
+  { value: "stove_heater", label: "Зуух / Галлах хэрэгсэл" },
+  { value: "electric_heater", label: "Цахилгаан халаагуур" },
+  { value: "gas_heater", label: "Газ халаагуур" },
   { value: "lighting", label: "Гэрэлтүүлэг" },
-  { value: "ventilation", label: "Агааржуулалт" },
-  { value: "storage", label: "Хадгалах сав" },
+  { value: "electrical_outlet", label: "Цахилгаан залгуур" },
 ];
 
 export const policiesOptions = {

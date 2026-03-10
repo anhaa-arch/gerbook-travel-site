@@ -34,7 +34,7 @@ interface AuthContextType {
   resetPassword: (token: string, newPassword: string) => Promise<void>
   forgotPassword?: (email: string) => Promise<void>
   googleLogin: (token: string) => Promise<void>
-  googleSignIn: (input: { googleId: string; email: string; name: string; avatar?: string }) => Promise<void>
+  googleSignIn: (input: { googleId: string; email: string; name: string; avatar?: string; role?: string }) => Promise<void>
   resendVerificationCode: (email: string) => Promise<{ success: boolean; message: string }>
   redirectUser: (role: string) => void
 }
@@ -240,7 +240,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const googleSignIn = async (input: { googleId: string; email: string; name: string; avatar?: string }) => {
+  const googleSignIn = async (input: { googleId: string; email: string; name: string; avatar?: string; role?: string }) => {
     const { data } = await client.mutate({ mutation: GOOGLE_SIGN_IN_MUTATION, variables: { input } })
     if (data?.googleSignIn) {
       const { token: jwtToken, user } = data.googleSignIn
