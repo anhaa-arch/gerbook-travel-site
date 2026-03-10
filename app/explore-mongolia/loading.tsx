@@ -6,8 +6,8 @@ export default function ExploreMongoliaLoading() {
     <div className="min-h-screen bg-gray-50 font-sans">
       <div className="text-center">
         <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-        <h2 className="text-xl font-bold text-gray-900 mb-2">Discovering Mongolia's Treasures...</h2>
-        <p className="text-gray-600 font-medium">Loading natural attractions and travel information</p>
+        <h2 className="text-xl font-bold text-gray-900 mb-2">Монголын эрдэнэсийг нээж байна...</h2>
+        <p className="text-gray-600 font-medium">Үзэсгэлэнт газрууд болон аяллын мэдээллийг уншиж байна</p>
       </div>
 
       {/* Header Skeleton */}

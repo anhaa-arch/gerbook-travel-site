@@ -312,7 +312,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">Loading camp details...</p>
+            <p className="text-gray-600 font-medium">Баазын мэдээллийг уншиж байна...</p>
           </div>
         </div>
       </div>
@@ -325,7 +325,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Error loading camp
+              Баазын мэдээллийг уншихад алдаа гарлаа
             </h1>
             <p className="text-gray-600 mb-8 font-medium">{error.message}</p>
             <Link href="/camps">
