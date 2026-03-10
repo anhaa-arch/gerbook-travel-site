@@ -18,31 +18,18 @@ export default function TermsPage() {
 
                 <div className="space-y-8">
                     <section>
-                        <h2 className="text-2xl font-bold mb-6 text-gray-900">Захиалга цуцлах болон өөрчлөх журам</h2>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <h2 className="text-2xl font-bold mb-6 text-gray-900">Цуцлалтын дүрэм</h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <Card className="border-l-4 border-l-green-500 shadow-sm">
                                 <CardHeader className="pb-2">
                                     <div className="flex items-center space-x-2 text-green-600 mb-1">
                                         <CheckCircle2 size={20} />
-                                        <span className="font-bold text-sm uppercase tracking-wider">100% Буцаалт</span>
+                                        <span className="font-bold text-sm uppercase tracking-wider">100% Буцаалттай</span>
                                     </div>
-                                    <CardTitle className="text-lg">Үнэгүй цуцлалт</CardTitle>
+                                    <CardTitle className="text-lg">7+ хоног</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-gray-600 text-sm font-medium">Аялал эхлэхээс 72 цагийн өмнө цуцалсан тохиолдолд төлбөрийг 100% буцаан олгоно.</p>
-                                </CardContent>
-                            </Card>
-
-                            <Card className="border-l-4 border-l-amber-500 shadow-sm">
-                                <CardHeader className="pb-2">
-                                    <div className="flex items-center space-x-2 text-amber-600 mb-1">
-                                        <AlertTriangle size={20} />
-                                        <span className="font-bold text-sm uppercase tracking-wider">50% Буцаалт</span>
-                                    </div>
-                                    <CardTitle className="text-lg">Хэсэгчилсэн цуцлалт</CardTitle>
-                                </CardHeader>
-                                <CardContent>
-                                    <p className="text-gray-600 text-sm font-medium">24-72 цагийн өмнө цуцалбал төлбөрийн 50%-ийг буцаан олгоно.</p>
+                                    <p className="text-gray-600 text-sm font-medium">Захиалсан хугацаанаас 7 хоногийн өмнө цуцалсан тохиолдолд төлбөрийг 100% буцаан олгоно.</p>
                                 </CardContent>
                             </Card>
 
@@ -50,15 +37,18 @@ export default function TermsPage() {
                                 <CardHeader className="pb-2">
                                     <div className="flex items-center space-x-2 text-red-600 mb-1">
                                         <XCircle size={20} />
-                                        <span className="font-bold text-sm uppercase tracking-wider">Буцаалтгүй</span>
+                                        <span className="font-bold text-sm uppercase tracking-wider">Буцаалт хийгдэхгүй</span>
                                     </div>
-                                    <CardTitle className="text-lg">Цуцлах боломжгүй</CardTitle>
+                                    <CardTitle className="text-lg">0-7 хоног</CardTitle>
                                 </CardHeader>
                                 <CardContent>
-                                    <p className="text-gray-600 text-sm font-medium">24 цагаас доош хугацаанд цуцалсан тохиолдолд төлбөр буцаан олгох боломжгүй (Малчин айл бэлтгэлээ хангасан байдаг тул).</p>
+                                    <p className="text-gray-600 text-sm font-medium">Захиалсан өдрөөс хойш 7 хоногийн дотор цуцлах хүсэлт гаргасан тохиолдолд төлбөрийн буцаалт хийгдэхгүй.</p>
                                 </CardContent>
                             </Card>
                         </div>
+                        <p className="text-sm text-gray-500 mt-6 italic">
+                            (Захиалга баталгаажсан хугацаанаас хамаарна)
+                        </p>
                     </section>
 
                     <Separator className="bg-gray-200" />
