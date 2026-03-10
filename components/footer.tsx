@@ -12,19 +12,19 @@ export function Footer() {
             </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
               <li>
-                <a 
-                  href="#" 
+                <a
+                  href="/about"
                   className="hover:text-green-600 transition-colors inline-block"
                 >
-                  Малчин Camp хэрхэн ажилладаг ?
+                  Малчин Camp-ийн тухай
                 </a>
               </li>
               <li>
-                <a 
-                  href="#" 
+                <a
+                  href="/about"
                   className="hover:text-green-600 transition-colors inline-block"
                 >
-                  Түгээмэл асуулт
+                  Малчин Camp хэрхэн ажилладаг ?
                 </a>
               </li>
             </ul>
@@ -37,16 +37,16 @@ export function Footer() {
             </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
               <li>
-                <a 
-                  href="#" 
+                <a
+                  href="/terms"
                   className="hover:text-green-600 transition-colors inline-block"
                 >
                   Захиалга цуцлах бодлого
                 </a>
               </li>
               <li>
-                <a 
-                  href="#" 
+                <a
+                  href="/privacy"
                   className="hover:text-green-600 transition-colors inline-block"
                 >
                   Нууцлалын бодлого
@@ -58,20 +58,20 @@ export function Footer() {
           {/* Column 3 */}
           <div className="sm:col-span-2 md:col-span-1">
             <h3 className="font-semibold text-xs sm:text-sm md:text-base mb-2 sm:mb-3">
-              Монгол гэр
+              Нэмэлт мэдээлэл
             </h3>
             <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
               <li>
-                <a 
-                  href="#" 
+                <a
+                  href="/mongolian-ger"
                   className="hover:text-green-600 transition-colors inline-block"
                 >
                   Аялах бус нутгууд
                 </a>
               </li>
               <li>
-                <a 
-                  href="#" 
+                <a
+                  href="/mongolian-ger"
                   className="hover:text-green-600 transition-colors inline-block"
                 >
                   Туслах мэдээлэл
@@ -89,8 +89,8 @@ export function Footer() {
             {/* Phone */}
             <div className="flex items-center justify-center space-x-1.5 sm:space-x-2">
               <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-              <a 
-                href="tel:72008822" 
+              <a
+                href="tel:72008822"
                 className="text-sm sm:text-base md:text-lg text-white font-medium hover:underline"
               >
                 72008822
@@ -100,8 +100,8 @@ export function Footer() {
             {/* Email */}
             <div className="flex items-center justify-center space-x-1.5 sm:space-x-2">
               <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-              <a 
-                href="mailto:support@malchincamp.com" 
+              <a
+                href="mailto:support@malchincamp.com"
                 className="text-xs sm:text-sm md:text-base lg:text-lg text-white font-medium hover:underline truncate max-w-[200px] sm:max-w-none"
               >
                 support@malchincamp.com
@@ -110,25 +110,25 @@ export function Footer() {
 
             {/* Social Media */}
             <div className="flex items-center justify-center space-x-3 sm:space-x-4">
-              <a 
-                href="#" 
-                aria-label="Facebook" 
+              <a
+                href="#"
+                aria-label="Facebook"
                 className="hover:scale-110 transition-transform"
               >
                 <Facebook className="w-5 h-5 sm:w-6 sm:h-6 text-white cursor-pointer" />
               </a>
-              <a 
-                href="#" 
-                aria-label="Google" 
+              <a
+                href="#"
+                aria-label="Google"
                 className="hover:scale-110 transition-transform"
               >
                 <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full text-white cursor-pointer flex items-center justify-center">
                   <span className="text-green-700 text-xs sm:text-sm font-bold">G</span>
                 </div>
               </a>
-              <a 
-                href="#" 
-                aria-label="Instagram" 
+              <a
+                href="#"
+                aria-label="Instagram"
                 className="hover:scale-110 transition-transform"
               >
                 <Instagram className="w-5 h-5 sm:w-6 sm:h-6 text-white cursor-pointer" />

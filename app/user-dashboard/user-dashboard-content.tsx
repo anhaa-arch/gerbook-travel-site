@@ -681,7 +681,17 @@ export default function UserDashboardContent() {
                                     ? "Баталгаажсан"
                                     : booking.status === "pending"
                                       ? "Хүлээгдэж байна"
-                                      : booking.status}
+                                      : booking.status === "active"
+                                        ? "Идэвхтэй"
+                                        : booking.status === "approved"
+                                          ? "Зөвшөөрсөн"
+                                          : booking.status === "declined"
+                                            ? "Татгалзсан"
+                                            : booking.status === "cancelled"
+                                              ? "Цуцлагдсан"
+                                              : booking.status === "completed"
+                                                ? "Дууссан"
+                                                : booking.status}
                                 </Badge>
                               </div>
                             </div>
@@ -743,7 +753,23 @@ export default function UserDashboardContent() {
                                 }
                                 className="text-[10px] xs:text-xs font-medium mt-1"
                               >
-                                {order.status}
+                                {order.status === "delivered"
+                                  ? "Хүргэгдсэн"
+                                  : order.status === "shipped"
+                                    ? "Илгээсэн"
+                                    : order.status === "paid"
+                                      ? "Төлсөн"
+                                      : order.status === "pending"
+                                        ? "Хүлээгдэж байна"
+                                        : order.status === "approved"
+                                          ? "Зөвшөөрсөн"
+                                          : order.status === "confirmed"
+                                            ? "Баталгаажсан"
+                                            : order.status === "cancelled"
+                                              ? "Цуцлагдсан"
+                                              : order.status === "rejected"
+                                                ? "Татгалзсан"
+                                                : order.status}
                               </Badge>
                             </div>
                           </div>
