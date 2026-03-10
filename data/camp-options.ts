@@ -32,6 +32,7 @@ export const accommodationTypes = [
   { value: "luxury_ger", label: "Тансаг гэр / Лодж гэр (Luxury/En-suite Ger - дотроо ариун цэврийн өрөөтэй)" },
   { value: "family_ger", label: "Гэр бүлийн гэр (Family Ger - олон ортой эсвэл том)" },
   { value: "couple_ger", label: "Хосын гэр (Couple Ger - 1 том ортой)" },
+  { value: "house", label: "Байшин" },
 ];
 
 export const facilitiesOptions = [
@@ -82,11 +83,8 @@ export const policiesOptions = {
     { value: "allowed", label: "Тамхи татахыг зөвшөөрнө" },
   ],
   cancellationPolicy: [
-    { value: "free_48h", label: "48 цагийн өмнө үнэгүй цуцлах" },
-    { value: "free_72h", label: "72 цагийн өмнө үнэгүй цуцлах" },
-    { value: "free_1week", label: "1 долоо хоногийн өмнө үнэгүй цуцлах" },
-    { value: "non_refundable", label: "Буцаан олголтгүй" },
-    { value: "50_refund", label: "50% буцаан олголт" },
+    { value: "refund_100_7days", label: "7 хоногийн өмнө цуцалбал 100% буцаалттай" },
+    { value: "no_refund_within_7days", label: "7 хоног дотор цуцлах боломжгүй" },
   ],
 };
 

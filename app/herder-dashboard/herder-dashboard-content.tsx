@@ -122,7 +122,7 @@ export default function HerderDashboardContent() {
     childrenPolicy: "all_ages",
     petsPolicy: "not_allowed",
     smokingPolicy: "no_smoking",
-    cancellationPolicy: "free_48h",
+    cancellationPolicy: "refund_100_7days",
     images: "",
   });
 
@@ -482,7 +482,7 @@ export default function HerderDashboardContent() {
       childrenPolicy: parsedAmenities.policies?.children || "all_ages",
       petsPolicy: parsedAmenities.policies?.pets || "not_allowed",
       smokingPolicy: parsedAmenities.policies?.smoking || "no_smoking",
-      cancellationPolicy: parsedAmenities.policies?.cancellation || "free_48h",
+      cancellationPolicy: parsedAmenities.policies?.cancellation || "refund_100_7days",
       images: yurt.images || "",
     });
 
