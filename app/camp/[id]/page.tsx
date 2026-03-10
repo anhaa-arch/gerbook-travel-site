@@ -1159,7 +1159,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                           Уншиж байна...
                         </div>
                       ) : (
-                        !checkIn || !checkOut ? "Боломжит огноо шалгах" : "Шууд захиалах"
+                        !checkIn || !checkOut ? "Амрах өдрөө сонгох" : "Шууд захиалах"
                       )}
                     </Button>
                   </div>
