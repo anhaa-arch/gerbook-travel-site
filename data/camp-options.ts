@@ -27,12 +27,11 @@ export const activitiesOptions = [
 ];
 
 export const accommodationTypes = [
-  { value: "traditional_ger", label: "Уламжлалт гэр" },
-  { value: "modern_ger", label: "Орчин үеийн гэр" },
-  { value: "luxury_ger", label: "Тансаг гэр" },
-  { value: "family_ger", label: "Гэр бүлийн гэр" },
-  { value: "single_ger", label: "Ганц хүний гэр" },
-  { value: "couple_ger", label: "Хосын гэр" },
+  { value: "traditional_ger", label: "Уламжлалт гэр (Standard Mongolian Ger)" },
+  { value: "modern_ger", label: "Орчин үеийн гэр (Modern/Standard Ger - дотроо ариун цэврийн өрөөгүй ч тохижилт сайтай)" },
+  { value: "luxury_ger", label: "Тансаг гэр / Лодж гэр (Luxury/En-suite Ger - дотроо ариун цэврийн өрөөтэй)" },
+  { value: "family_ger", label: "Гэр бүлийн гэр (Family Ger - олон ортой эсвэл том)" },
+  { value: "couple_ger", label: "Хосын гэр (Couple Ger - 1 том ортой)" },
 ];
 
 export const facilitiesOptions = [
