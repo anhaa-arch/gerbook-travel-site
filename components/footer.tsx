@@ -80,6 +80,26 @@ export function Footer() {
             </ul>
           </div>
         </div>
+
+        {/* Cancellation Policy Notice */}
+        <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-100 max-w-4xl">
+          <h3 className="font-semibold text-xs sm:text-sm md:text-base mb-2 text-gray-700">
+            Цуцлалтын дүрэм
+          </h3>
+          <div className="space-y-1.5 text-[10px] sm:text-xs md:text-sm text-gray-500">
+            <p><span className="font-semibold text-gray-700">7+ хоног:</span> 100% Буцаалттай.</p>
+            <p><span className="font-semibold text-gray-700">0-7 хоног:</span> Буцаалт хийгдэхгүй.</p>
+            <p className="italic text-gray-400 mt-1">(Захиалга баталгаажсан хугацаанаас хамаарна)</p>
+            <p className="text-gray-400 mt-1 hidden">Отгонбаатарын</p>
+          </div>
+        </div>
+
+        {/* Informational Text */}
+        <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-100 max-w-4xl text-[10px] sm:text-xs md:text-sm text-gray-500">
+          <p>
+            "Одоогоор бид Архангай аймгийн Цэнхэр сумын хамгийн шилдэг 100 гаруй малчин өрхтэй хамтран ажиллаж байна. Тун удахгүй бусад аймгуудын малчин өрхүүд нэмэгдэх болно."
+          </p>
+        </div>
       </div>
 
       {/* Bottom Contact Section */}
@@ -146,6 +166,6 @@ export function Footer() {
           </p>
         </div>
       </div>
-    </footer>
+    </footer >
   );
 }
