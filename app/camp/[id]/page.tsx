@@ -980,7 +980,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     <div className="space-y-3">
                       <div className="flex justify-between items-start gap-4">
                         <span className="text-gray-600 font-medium text-sm sm:text-base">
-                          Бүртгүүлэх:
+                          Байрлах цаг
                         </span>
                         <span className="font-semibold text-sm sm:text-base text-right">
                           {campData.policies.checkIn}
@@ -988,7 +988,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       </div>
                       <div className="flex justify-between items-start gap-4">
                         <span className="text-gray-600 font-medium text-sm sm:text-base">
-                          Гарах:
+                          Гарах цаг:
                         </span>
                         <span className="font-semibold text-sm sm:text-base text-right">
                           {campData.policies.checkOut}

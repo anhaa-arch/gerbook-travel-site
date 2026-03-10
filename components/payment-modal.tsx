@@ -192,7 +192,7 @@ export function PaymentModal({
                         <Calendar className="w-4 h-4 mt-1 text-gray-500" />
                         <div className="text-sm">
                           <p className="font-medium">Ирэх: {formatDate(bookingDetails.checkIn)}</p>
-                          <p className="font-medium">Гарах: {formatDate(bookingDetails.checkOut)}</p>
+                          <p className="font-medium">Гарах цаг: {formatDate(bookingDetails.checkOut)}</p>
                           <p className="text-gray-600 mt-1">
                             {bookingDetails.nights} хоног
                           </p>

@@ -150,7 +150,7 @@ export function SearchSection() {
         {/* Hero text */}
         <div className="text-center mb-4 sm:mb-5 md:mb-6">
           <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-1.5 sm:mb-2 font-display">
-            Монголын гэр буудлуудыг нээцгээ
+            Тасалж болохгүй талын соёл
           </h1>
 
         </div>

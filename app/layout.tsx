@@ -24,9 +24,8 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Malchin Camp - Discover Mongolia",
-  description:
-    "Experience authentic Mongolian culture through traditional ger camps, local products, and guided adventures.",
+  title: "Тасалж болохгүй талын соёл",
+  description: "Тасалж болохгүй талын соёл",
   keywords: "Mongolia, ger camps, travel, nomadic culture, adventure tourism",
   generator: "v0.dev",
 };
