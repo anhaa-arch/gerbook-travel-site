@@ -40,7 +40,8 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { amenitiesOptions, activitiesOptions, facilitiesOptions } from "@/data/camp-options";
-import { useQuery } from "@apollo/client";
+import { gql, useQuery, useMutation } from "@apollo/client";
+import { useToast } from "@/components/ui/use-toast";
 import "../../lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
@@ -78,6 +79,7 @@ interface Booking {
   description?: string;
   amenities?: string;
   campId?: string;
+  qpayInvoiceId?: string;
 }
 
 interface Order {
@@ -89,6 +91,7 @@ interface Order {
   status: string;
   date: string;
   image: string;
+  qpayInvoiceId?: string;
 }
 
 interface TravelBooking {
@@ -143,6 +146,24 @@ interface TravelRoute {
 // Enable debug logging (set to false in production)
 const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
+const CHECK_QPAY_ORDER = gql`
+  mutation CheckQPayOrder($orderId: String!) {
+    checkQPayPaymentForOrder(orderId: $orderId) {
+      id
+      status
+    }
+  }
+`;
+
+const CHECK_QPAY_BOOKING = gql`
+  mutation CheckQPayBooking($bookingId: String!) {
+    checkQPayPaymentForBooking(bookingId: $bookingId) {
+      id
+      status
+    }
+  }
+`;
+
 export default function UserDashboardContent() {
   const { t } = useTranslation();
 
@@ -167,8 +188,13 @@ export default function UserDashboardContent() {
 
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [checkingPayment, setCheckingPayment] = useState<string | null>(null);
   const { logout, user } = useAuth();
   const router = useRouter();
+  const { toast } = useToast();
+
+  const [checkOrderPayment] = useMutation(CHECK_QPAY_ORDER);
+  const [checkBookingPayment] = useMutation(CHECK_QPAY_BOOKING);
 
   // Redirect if role is not TRAVELER
   const { data: userData } = useQuery(GET_user_STATS, {
@@ -241,6 +267,38 @@ export default function UserDashboardContent() {
   }
 
   // Transform data for display
+  const handleCheckOrderPayment = async (orderId: string) => {
+    try {
+      setCheckingPayment(orderId);
+      const { data } = await checkOrderPayment({ variables: { orderId } });
+      if (data?.checkQPayPaymentForOrder?.status === "CONFIRMED") {
+        toast({ title: "Амжилттай", description: "Төлбөр төлөгдсөн байна. Захиалга баталгаажлаа.", variant: "default" });
+      } else {
+        toast({ title: "Анхааруулга", description: "Төлбөр төлөгдөөгүй байна.", variant: "destructive" });
+      }
+    } catch (err: any) {
+      toast({ title: "Алдаа", description: err.message || "Төлбөр шалгахад алдаа гарлаа", variant: "destructive" });
+    } finally {
+      setCheckingPayment(null);
+    }
+  };
+
+  const handleCheckBookingPayment = async (bookingId: string) => {
+    try {
+      setCheckingPayment(bookingId);
+      const { data } = await checkBookingPayment({ variables: { bookingId } });
+      if (data?.checkQPayPaymentForBooking?.status === "CONFIRMED") {
+        toast({ title: "Амжилттай", description: "Төлбөр төлөгдсөн байна. Захиалга баталгаажлаа.", variant: "default" });
+      } else {
+        toast({ title: "Анхааруулга", description: "Төлбөр төлөгдөөгүй байна.", variant: "destructive" });
+      }
+    } catch (err: any) {
+      toast({ title: "Алдаа", description: err.message || "Төлбөр шалгахад алдаа гарлаа", variant: "destructive" });
+    } finally {
+      setCheckingPayment(null);
+    }
+  };
+
   const bookings: Booking[] =
     bookingsData?.bookings?.edges?.map((edge: any) => {
       const yurt = edge.node?.yurt || {};
@@ -284,6 +342,7 @@ export default function UserDashboardContent() {
         guests: 2,
         amount: parseFloat(edge.node.totalPrice) || 0,
         status: edge.node.status?.toLowerCase() || "pending",
+        qpayInvoiceId: edge.node.qpayInvoiceId,
         image: primaryImage,
         type: "camp" as const,
         owner: yurt.owner ? {
@@ -315,6 +374,7 @@ export default function UserDashboardContent() {
         ) || 0,
         amount: parseFloat(edge.node.totalPrice) || 0,
         status: edge.node.status?.toLowerCase() || "pending",
+        qpayInvoiceId: edge.node.qpayInvoiceId,
         date: edge.node.createdAt?.split("T")[0] || edge.node.createdAt,
         image: primaryImage,
       };
@@ -923,15 +983,28 @@ export default function UserDashboardContent() {
                                 нийт
                               </span>
                             </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="text-gray-600 hover:text-emerald-700 font-bold text-xs"
-                              onClick={() => setSelectedBooking(booking)}
-                            >
-                              Дэлгэрэнгүй
-                              <ChevronRight className="w-3 h-3 ml-1" />
-                            </Button>
+                            <div className="flex gap-2">
+                              {booking.status === "pending" && booking.qpayInvoiceId && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-emerald-700 font-bold text-xs"
+                                  disabled={checkingPayment === booking.id}
+                                  onClick={() => handleCheckBookingPayment(booking.id)}
+                                >
+                                  {checkingPayment === booking.id ? "Шалгаж байна..." : "Төлбөр шалгах"}
+                                </Button>
+                              )}
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="text-gray-600 hover:text-emerald-700 font-bold text-xs"
+                                onClick={() => setSelectedBooking(booking)}
+                              >
+                                Дэлгэрэнгүй
+                                <ChevronRight className="w-3 h-3 ml-1" />
+                              </Button>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
@@ -1067,6 +1140,19 @@ export default function UserDashboardContent() {
                               >
                                 {order.status === "delivered" ? "Хүргэгдсэн" : order.status === "shipped" ? "Илгээсэн" : order.status === "paid" ? "Төлсөн" : order.status === "pending" ? "Хүлээгдэж байна" : order.status}
                               </Badge>
+                              {order.status === "pending" && order.qpayInvoiceId && (
+                                <div className="mt-2">
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    className="text-xs h-7 text-emerald-700 w-full"
+                                    disabled={checkingPayment === order.id}
+                                    onClick={() => handleCheckOrderPayment(order.id)}
+                                  >
+                                    {checkingPayment === order.id ? "..." : "Шалгах"}
+                                  </Button>
+                                </div>
+                              )}
                             </div>
                           </div>
                           <div className="flex justify-between text-xs text-gray-600 mt-2 pt-2 border-t">
@@ -1166,6 +1252,19 @@ export default function UserDashboardContent() {
                                             ? "Хүлээгдэж байна"
                                             : order.status}
                                   </Badge>
+                                  {order.status === "pending" && order.qpayInvoiceId && (
+                                    <div className="mt-2">
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        className="text-[10px] h-6 px-2 text-emerald-700 font-medium"
+                                        disabled={checkingPayment === order.id}
+                                        onClick={() => handleCheckOrderPayment(order.id)}
+                                      >
+                                        {checkingPayment === order.id ? "Шалгаж байна..." : "Төлбөр шалгах"}
+                                      </Button>
+                                    </div>
+                                  )}
                                 </TableCell>
                                 <TableCell className="hidden md:table-cell font-medium text-xs md:text-sm">
                                   {order.date}

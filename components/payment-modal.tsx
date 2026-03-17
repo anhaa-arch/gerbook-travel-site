@@ -15,7 +15,8 @@ import {
   Users,
   MapPin,
   Home,
-  ShoppingBag
+  ShoppingBag,
+  RefreshCw
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { gql, useMutation } from "@apollo/client";
@@ -45,6 +46,24 @@ const CREATE_ORDER_PAYMENT = gql`
     }
   }
 }
+`;
+
+const CHECK_QPAY_ORDER = gql`
+  mutation CheckQPayOrder($orderId: String!) {
+    checkQPayPaymentForOrder(orderId: $orderId) {
+      id
+      status
+    }
+  }
+`;
+
+const CHECK_QPAY_BOOKING = gql`
+  mutation CheckQPayBooking($bookingId: String!) {
+    checkQPayPaymentForBooking(bookingId: $bookingId) {
+      id
+      status
+    }
+  }
 `;
 
 interface PaymentModalProps {
@@ -123,6 +142,10 @@ export function PaymentModal({
 
   const [createBookingPayment, { error: qpayBookingMutationError }] = useMutation(CREATE_BOOKING_PAYMENT);
   const [createOrderPayment, { error: qpayOrderMutationError }] = useMutation(CREATE_ORDER_PAYMENT);
+  const [checkBookingPayment, { loading: isCheckingBooking }] = useMutation(CHECK_QPAY_BOOKING);
+  const [checkOrderPayment, { loading: isCheckingOrder }] = useMutation(CHECK_QPAY_ORDER);
+
+  const isChecking = isCheckingBooking || isCheckingOrder;
 
   // Log GraphQL errors for debugging
   useEffect(() => {
@@ -216,6 +239,29 @@ export function PaymentModal({
       setIsProcessing(false);
       onComplete(selectedMethod);
     }, 2000);
+  };
+
+  const handleCheckPayment = async () => {
+    try {
+      if (orderId) {
+        const { data } = await checkOrderPayment({ variables: { orderId } });
+        if (data?.checkQPayPaymentForOrder?.status === "CONFIRMED") {
+          onComplete("qpay");
+        } else {
+          alert("Төлбөр хараахан төлөгдөөгүй байна.");
+        }
+      } else if (bookingId) {
+        const { data } = await checkBookingPayment({ variables: { bookingId } });
+        if (data?.checkQPayPaymentForBooking?.status === "CONFIRMED") {
+          onComplete("qpay");
+        } else {
+          alert("Төлбөр хараахан төлөгдөөгүй байна.");
+        }
+      }
+    } catch (err: any) {
+      console.error("Check payment error:", err);
+      alert("Төлбөр шалгахад алдаа гарлаа: " + (err.message || "Unknown error"));
+    }
   };
 
   const formatDate = (dateStr: string) => {
@@ -573,6 +619,21 @@ export function PaymentModal({
                         ))}
                       </div>
                     </div>
+
+                    <Button
+                      onClick={handleCheckPayment}
+                      disabled={isChecking}
+                      className="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold"
+                    >
+                      {isChecking ? (
+                        <span className="flex items-center gap-2">
+                          <RefreshCw className="w-4 h-4 animate-spin" />
+                          Шалгаж байна...
+                        </span>
+                      ) : (
+                        "Төлбөр шалгах"
+                      )}
+                    </Button>
                   </div>
                 </div>
               )}
