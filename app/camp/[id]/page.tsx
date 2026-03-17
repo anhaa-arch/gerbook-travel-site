@@ -147,14 +147,12 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
         toast({
           title: "✅ Захиалга амжилттай",
-          description: "Таны camp захиалга баталгаажлаа! Dashboard дээр харагдана.",
+          description: "Төлбөр хийхэд бэлэн боллоо.",
         });
-        setCheckIn("");
-        setCheckOut("");
-        setGuests(2);
 
-        // Redirect to the traveler dashboard so the new booking is visible
-        router.push("/user-dashboard");
+        // Store the booking ID and open payment modal
+        setCurrentBookingId(data.createBooking.id);
+        setShowPaymentModal(true);
       },
       onError: (error) => {
         console.error('❌ Booking error:', error);
@@ -189,6 +187,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const [guests, setGuests] = useState(2);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [currentBookingId, setCurrentBookingId] = useState<string | null>(null);
 
   // Calculate disabled dates from bookings
   const getDisabledDates = (): Date[] => {
@@ -586,24 +585,12 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       return;
     }
 
-    console.log('✅ No overlap detected, proceeding to payment');
+    console.log('✅ No overlap detected, creating booking');
 
-    // Open payment modal instead of immediately creating booking
-    console.log('💰 Opening payment modal');
-    setShowPaymentModal(true);
-  };
-
-  const handlePaymentComplete = (paymentMethod: string) => {
-    console.log('💳 Payment completed with method:', paymentMethod);
-
-    // Close payment modal
-    setShowPaymentModal(false);
-
-    // Calculate dates
+    // Create the booking first (PENDING status), then show payment modal
     const startDate = new Date(checkIn).toISOString();
     const endDate = new Date(checkOut).toISOString();
 
-    // Call the createBooking mutation
     createBooking({
       variables: {
         input: {
@@ -613,6 +600,25 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         },
       },
     });
+  };
+
+  const handlePaymentComplete = (paymentMethod: string) => {
+    console.log('💳 Payment completed with method:', paymentMethod);
+
+    // Close payment modal
+    setShowPaymentModal(false);
+    setCurrentBookingId(null);
+    setCheckIn("");
+    setCheckOut("");
+    setGuests(2);
+
+    toast({
+      title: "✅ Захиалга баталгаажлаа",
+      description: "Таны camp захиалга баталгаажлаа! Dashboard дээр харагдана.",
+    });
+
+    // Redirect to dashboard
+    router.push("/user-dashboard");
   };
 
   return (
@@ -1235,6 +1241,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
           onClose={() => setShowPaymentModal(false)}
           onComplete={handlePaymentComplete}
           amount={calculateTotal() + Math.round(calculateTotal() * 0.1)}
+          bookingId={currentBookingId || undefined}
           bookingDetails={{
             campName: campData.name,
             location: campData.location,

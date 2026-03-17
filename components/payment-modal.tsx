@@ -95,6 +95,7 @@ export function PaymentModal({
   onComplete,
   amount,
   bookingDetails,
+  bookingId,
 }: PaymentModalProps) {
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
