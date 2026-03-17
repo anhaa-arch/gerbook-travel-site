@@ -23,15 +23,28 @@ import QRCode from "react-qr-code";
 
 const CREATE_BOOKING_PAYMENT = gql`
   mutation CreateBookingPayment($bookingId: String!) {
-    createBookingPayment(bookingId: $bookingId) {
-      invoiceId
-      qrText
+  createBookingPayment(bookingId: $bookingId) {
+    invoiceId
+    qrText
       urls {
-        name
-        link
-      }
+      name
+      link
     }
   }
+}
+`;
+
+const CREATE_ORDER_PAYMENT = gql`
+  mutation CreateOrderPayment($orderId: String!) {
+  createOrderPayment(orderId: $orderId) {
+    invoiceId
+    qrText
+      urls {
+      name
+      link
+    }
+  }
+}
 `;
 
 interface PaymentModalProps {
@@ -52,6 +65,7 @@ interface PaymentModalProps {
     image?: string;
   };
   bookingId?: string;
+  orderId?: string;
 }
 
 const banks = [
@@ -96,6 +110,7 @@ export function PaymentModal({
   amount,
   bookingDetails,
   bookingId,
+  orderId,
 }: PaymentModalProps) {
   const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
@@ -106,14 +121,18 @@ export function PaymentModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const [qpayData, setQpayData] = useState<any>(null);
 
-  const [createBookingPayment, { error: qpayMutationError }] = useMutation(CREATE_BOOKING_PAYMENT);
+  const [createBookingPayment, { error: qpayBookingMutationError }] = useMutation(CREATE_BOOKING_PAYMENT);
+  const [createOrderPayment, { error: qpayOrderMutationError }] = useMutation(CREATE_ORDER_PAYMENT);
 
   // Log GraphQL errors for debugging
   useEffect(() => {
-    if (qpayMutationError) {
-      console.error('CreateBookingPayment GraphQL error:', qpayMutationError.graphQLErrors, qpayMutationError.networkError);
+    if (qpayBookingMutationError) {
+      console.error('CreateBookingPayment GraphQL error:', qpayBookingMutationError.graphQLErrors, qpayBookingMutationError.networkError);
     }
-  }, [qpayMutationError]);
+    if (qpayOrderMutationError) {
+      console.error('CreateOrderPayment GraphQL error:', qpayOrderMutationError.graphQLErrors, qpayOrderMutationError.networkError);
+    }
+  }, [qpayBookingMutationError, qpayOrderMutationError]);
 
   const displayTotal = bookingDetails?.total || amount || 0;
 
@@ -151,21 +170,35 @@ export function PaymentModal({
     setIsProcessing(true);
 
     if (selectedMethod === "qpay") {
-      if (!bookingId) {
-        console.error('QPay Error: Missing bookingId — cannot call createBookingPayment with empty variables');
+      if (!bookingId && !orderId) {
+        console.error('QPay Error: Missing bookingId and orderId — cannot call QPay mutations with empty variables');
         alert("Захиалгын ID олдсонгүй. Дахин оролдоно уу.");
         setIsProcessing(false);
         return;
       }
 
       try {
-        console.log('CreateBookingPayment vars:', { bookingId });
-        const { data } = await createBookingPayment({
-          variables: { bookingId: bookingId },
-        });
+        let qpayResponseData = null;
 
-        if (data?.createBookingPayment) {
-          setQpayData(data.createBookingPayment);
+        // If it's a product order, prioritize order payment
+        if (orderId) {
+          console.log('CreateOrderPayment vars:', { orderId });
+          const { data } = await createOrderPayment({
+            variables: { orderId: orderId },
+          });
+          qpayResponseData = data?.createOrderPayment;
+        }
+        // Otherwise it's a camp booking payment
+        else if (bookingId) {
+          console.log('CreateBookingPayment vars:', { bookingId });
+          const { data } = await createBookingPayment({
+            variables: { bookingId: bookingId },
+          });
+          qpayResponseData = data?.createBookingPayment;
+        }
+
+        if (qpayResponseData) {
+          setQpayData(qpayResponseData);
         }
       } catch (err: any) {
         console.error("QPay Error:", err);
@@ -327,13 +360,15 @@ export function PaymentModal({
                     key={method.id}
                     onClick={() => setSelectedMethod(method.id)}
                     disabled={!method.available || isProcessing}
-                    className={`w-full text-left p-4 rounded-lg border-2 transition-all ${selectedMethod === method.id
-                      ? "border-emerald-500 bg-emerald-50"
-                      : "border-gray-200 hover:border-gray-300"
-                      } ${!method.available
-                        ? "opacity-50 cursor-not-allowed"
-                        : "cursor-pointer"
-                      }`}
+                    className={`w-full text-left p-4 rounded-lg border-2 transition-all ${
+  selectedMethod === method.id
+  ? "border-emerald-500 bg-emerald-50"
+  : "border-gray-200 hover:border-gray-300"
+} ${
+  !method.available
+  ? "opacity-50 cursor-not-allowed"
+  : "cursor-pointer"
+}`}
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
@@ -369,10 +404,11 @@ export function PaymentModal({
                       <button
                         key={bank.id}
                         onClick={() => setSelectedBank(bank.id)}
-                        className={`p-3 rounded-lg border-2 text-left transition-all ${selectedBank === bank.id
-                          ? "border-emerald-500 bg-emerald-50"
-                          : "border-gray-200 hover:border-gray-300 bg-white"
-                          }`}
+                        className={`p-3 rounded-lg border-2 text-left transition-all ${
+  selectedBank === bank.id
+  ? "border-emerald-500 bg-emerald-50"
+  : "border-gray-200 hover:border-gray-300 bg-white"
+}`}
                       >
                         <div className="flex items-center justify-between">
                           <div className="flex items-center gap-3">
@@ -541,8 +577,8 @@ export function PaymentModal({
                 </div>
               )}
 
-              {/* Warning if QPay selected but booking not yet created */}
-              {selectedMethod === "qpay" && !bookingId && (
+              {/* Warning if QPay selected but booking/order not yet created */}
+              {selectedMethod === "qpay" && !bookingId && !orderId && (
                 <div className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
                   ⚠️ Захиалгын ID үүсгэгдээгүй байна. Хэрэв "Захиалах" товч дарж захиалга үүсгэсний дараа л QPay-ийн нэхэмжлэл гарна.
                 </div>

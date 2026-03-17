@@ -49,75 +49,90 @@ export default function CartPage() {
   const [isProcessing, setIsProcessing] = useState(false);
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [orderId, setOrderId] = useState<string | undefined>(undefined);
+  const [bookingId, setBookingId] = useState<string | undefined>(undefined);
 
   const [createOrder] = useMutation(CREATE_ORDER);
   const [createBooking] = useMutation(CREATE_BOOKING);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (!isAuthenticated) {
       router.push("/login?redirect=/cart");
       return;
     }
-    setShowPaymentModal(true);
-  };
 
-  const handlePaymentComplete = async (paymentMethod: string) => {
     setIsProcessing(true);
-    setShowPaymentModal(false);
 
     try {
-      // 1. Process Order (Products)
+      // 1. Create Order for products BEFORE opening payment modal
       if (cartItems.length > 0) {
         const items = cartItems.map(item => ({
           productId: item.id,
           quantity: item.quantity
         }));
 
-        await createOrder({
+        const { data } = await createOrder({
           variables: {
             input: {
               shippingAddress: "Улаанбаатар хот",
-              paymentInfo: paymentMethod || "QPAY",
+              paymentInfo: "QPAY",
               items
             }
           }
         });
+
+        if (data?.createOrder?.id) {
+          setOrderId(data.createOrder.id);
+        }
       }
 
-      // 2. Process Bookings (Camps)
-      for (const booking of bookingCart) {
-        await createBooking({
+      // 2. Create Booking for camps BEFORE opening payment modal
+      if (bookingCart.length > 0) {
+        // Create only the first booking for now (QPay supports one invoice at a time)
+        const firstBooking = bookingCart[0];
+        const { data } = await createBooking({
           variables: {
             input: {
-              yurtId: booking.id,
-              startDate: booking.startDate,
-              endDate: booking.endDate
+              yurtId: firstBooking.id,
+              startDate: firstBooking.startDate,
+              endDate: firstBooking.endDate
             }
           }
         });
+
+        if (data?.createBooking?.id) {
+          setBookingId(data.createBooking.id);
+        }
       }
 
-      toast({
-        title: "Амжилттай",
-        description: "Таны захиалга бүртгэгдлээ. Бид удахгүй холбогдох болно.",
-      });
-
-      // Clear relevant local storage
-      clearCart();
-      localStorage.removeItem("bookingCart");
-      localStorage.removeItem("selectedItems");
-
-      router.push("/user-dashboard");
+      // Now open the payment modal with the created IDs
+      setShowPaymentModal(true);
     } catch (error) {
       console.error("Checkout error:", error);
       toast({
         title: "Алдаа",
-        description: "Захиалга хийхэд алдаа гарлаа. Дахин оролдоно уу.",
+        description: "Захиалга үүсгэхэд алдаа гарлаа. Дахин оролдоно уу.",
         variant: "destructive",
       });
     } finally {
       setIsProcessing(false);
     }
+  };
+
+  const handlePaymentComplete = async (paymentMethod: string) => {
+    setShowPaymentModal(false);
+
+    toast({
+      title: "Амжилттай",
+      description: "Таны захиалга бүртгэгдлээ. Бид удахгүй холбогдох болно.",
+    });
+
+    // Clear relevant local storage
+    clearCart();
+    localStorage.removeItem("bookingCart");
+    localStorage.removeItem("selectedItems");
+
+    router.push("/user-dashboard");
   };
 
   const hasItems = cartItems.length > 0 || bookingCart.length > 0;
@@ -323,6 +338,8 @@ export default function CartPage() {
         onClose={() => setShowPaymentModal(false)}
         onComplete={handlePaymentComplete}
         amount={totalPrice}
+        orderId={orderId}
+        bookingId={bookingId}
       />
     </div>
   );
