@@ -47,6 +47,11 @@ export const facilitiesOptions = [
   { value: "gas_heater", label: "Газ халаагуур" },
   { value: "lighting", label: "Гэрэлтүүлэг" },
   { value: "electrical_outlet", label: "Цахилгаан залгуур" },
+  { value: "traditional_furnishing", label: "Уламжлалт тохижилт" },
+  { value: "bedding", label: "Ор дэрний хэрэглэл" },
+  { value: "furniture", label: "Тавилга" },
+  { value: "ventilation", label: "Агааржуулалт" },
+  { value: "storage", label: "Хадгалах хэсэг" },
 ];
 
 export const policiesOptions = {

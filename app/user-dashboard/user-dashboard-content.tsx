@@ -92,6 +92,14 @@ interface Order {
   date: string;
   image: string;
   qpayInvoiceId?: string;
+  items?: Array<{
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+    image: string;
+    category?: string;
+  }>;
 }
 
 interface TravelBooking {
@@ -188,6 +196,7 @@ export default function UserDashboardContent() {
 
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
   const [checkingPayment, setCheckingPayment] = useState<string | null>(null);
   const { logout, user } = useAuth();
   const router = useRouter();
@@ -359,26 +368,45 @@ export default function UserDashboardContent() {
 
   const orders: Order[] =
     ordersData?.orders?.edges?.map((edge: any) => {
-      const firstItem = edge.node?.orderitem?.[0];
+      const orderNode = edge.node || {};
+      const orderItems = orderNode.orderitem || [];
+      const firstItem = orderItems[0];
       const product = firstItem?.product || {};
       const images = product.images;
       const primaryImage = getPrimaryImage(images);
 
       return {
-        id: edge.node.id,
+        id: orderNode.id,
         product: product.name || "Multiple items",
         seller: "Малчин",
-        quantity: edge.node.orderitem?.reduce(
+        quantity: orderItems.reduce(
           (sum: number, item: any) => sum + (item.quantity || 0),
           0
         ) || 0,
-        amount: parseFloat(edge.node.totalPrice) || 0,
-        status: edge.node.status?.toLowerCase() || "pending",
-        qpayInvoiceId: edge.node.qpayInvoiceId,
-        date: edge.node.createdAt?.split("T")[0] || edge.node.createdAt,
+        amount: parseFloat(orderNode.totalPrice) || 0,
+        status: orderNode.status?.toLowerCase() || "pending",
+        qpayInvoiceId: orderNode.qpayInvoiceId,
+        date: orderNode.createdAt?.split("T")[0] || orderNode.createdAt,
         image: primaryImage,
+        items: orderItems.map((item: any) => ({
+          id: item.id,
+          name: item.product?.name || "Unknown Product",
+          price: item.price || 0,
+          quantity: item.quantity || 0,
+          image: getPrimaryImage(item.product?.images),
+          category: item.product?.category?.name,
+        })),
       };
     }) || [];
+
+  const translateCategory = (cat: string | undefined) => {
+    if (!cat) return "";
+    const lower = cat.toLowerCase();
+    if (lower.includes("dairy")) return "Сүүн бүтээгдэхүүн";
+    if (lower.includes("handicraft")) return "Гар урлал";
+    if (lower.includes("meat")) return "Махан бүтээгдэхүүн";
+    return cat;
+  };
 
   const travelBookings: Booking[] =
     travelBookingsData?.travelBookings?.edges?.map((edge: any) => {
@@ -1155,9 +1183,20 @@ export default function UserDashboardContent() {
                               )}
                             </div>
                           </div>
-                          <div className="flex justify-between text-xs text-gray-600 mt-2 pt-2 border-t">
-                            <span>Тоо: {order.quantity}</span>
-                            <span>{order.date}</span>
+                          <div className="flex justify-between items-center text-xs text-gray-600 mt-2 pt-2 border-t">
+                            <div className="flex gap-4">
+                              <span>Тоо: {order.quantity}</span>
+                              <span>{order.date}</span>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-7 text-xs text-emerald-700 font-bold p-0"
+                              onClick={() => setSelectedOrder(order)}
+                            >
+                              Дэлгэрэнгүй
+                              <ChevronRight className="w-3 h-3 ml-1" />
+                            </Button>
                           </div>
                         </CardContent>
                       </Card>
@@ -1268,6 +1307,17 @@ export default function UserDashboardContent() {
                                 </TableCell>
                                 <TableCell className="hidden md:table-cell font-medium text-xs md:text-sm">
                                   {order.date}
+                                </TableCell>
+                                <TableCell>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    className="text-gray-600 hover:text-emerald-700 font-bold text-xs"
+                                    onClick={() => setSelectedOrder(order)}
+                                  >
+                                    Дэлгэрэнгүй
+                                    <ChevronRight className="w-3 h-3 ml-1" />
+                                  </Button>
                                 </TableCell>
                               </TableRow>
                             ))}
@@ -1943,6 +1993,106 @@ export default function UserDashboardContent() {
                       Хуудсыг үзэх
                     </Button>
                   </Link>
+                )}
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+ 
+      {/* Order Detail Modal */}
+      <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold font-display">
+              Захиалгын дэлгэрэнгүй
+            </DialogTitle>
+          </DialogHeader>
+
+          {selectedOrder && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row justify-between gap-4">
+                <div className="space-y-1">
+                  <h2 className="text-2xl font-bold text-gray-900">Захиалга #{selectedOrder.id.substring(0, 8)}</h2>
+                  <p className="text-sm text-gray-500 font-medium">Огноо: {selectedOrder.date}</p>
+                </div>
+                <div className="text-left sm:text-right">
+                  <Badge className={`px-3 py-1 font-bold ${selectedOrder.status === "paid" || selectedOrder.status === "delivered" ? "bg-green-500" : "bg-amber-500"
+                    }`}>
+                    {selectedOrder.status.toUpperCase()}
+                  </Badge>
+                  <div className="text-lg font-black text-emerald-700 mt-1">
+                    ₮{selectedOrder.amount.toLocaleString()}
+                  </div>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="space-y-4">
+                <h3 className="font-bold text-gray-900">Захиалсан бараанууд</h3>
+                <div className="space-y-3">
+                  {selectedOrder.items?.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
+                      <img
+                        src={item.image || "/placeholder.svg"}
+                        alt={item.name}
+                        className="w-16 h-16 rounded-lg object-cover bg-white"
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).src = "/placeholder.svg";
+                        }}
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-bold text-gray-900 truncate">{item.name}</h4>
+                        <div className="flex items-center gap-2 mt-1">
+                          {item.category && (
+                            <Badge variant="outline" className="text-[10px] bg-white text-emerald-700 border-emerald-100">
+                              {translateCategory(item.category)}
+                            </Badge>
+                          )}
+                          <span className="text-xs text-gray-500 font-medium">Тоо: {item.quantity}</span>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <p className="font-bold text-gray-900">₮{item.price.toLocaleString()}</p>
+                        <p className="text-[10px] text-gray-500 font-bold uppercase">Нэгж үнэ</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
+                <h3 className="font-bold text-emerald-900 mb-3 flex items-center gap-2">
+                  <Package className="w-4 h-4" />
+                  Хүргэлтийн мэдээлэл
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-emerald-800/70 font-medium">Төлөв:</span>
+                    <span className="font-bold text-emerald-900 capitalize">{selectedOrder.status}</span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-emerald-800/70 font-medium">Борлуулагч:</span>
+                    <span className="font-bold text-emerald-900">{selectedOrder.seller}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex gap-3 pt-2">
+                <Button className="flex-1 bg-gray-900 hover:bg-black text-white py-6 font-bold" onClick={() => setSelectedOrder(null)}>
+                  Хаах
+                </Button>
+                {selectedOrder.status === "pending" && selectedOrder.qpayInvoiceId && (
+                  <Button
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-6 font-bold shadow-lg shadow-emerald-100"
+                    onClick={() => {
+                      handleCheckOrderPayment(selectedOrder.id);
+                      setSelectedOrder(null);
+                    }}
+                  >
+                    Төлбөр шалгах
+                  </Button>
                 )}
               </div>
             </div>

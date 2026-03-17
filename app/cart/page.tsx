@@ -155,8 +155,10 @@ export default function CartPage() {
 
     // Clear relevant local storage
     clearCart();
+    localStorage.removeItem("malchin_cart");
     localStorage.removeItem("bookingCart");
     localStorage.removeItem("selectedItems");
+    localStorage.removeItem("selectedCategories");
 
     router.push("/user-dashboard");
   };
@@ -175,7 +177,7 @@ export default function CartPage() {
         </p>
         <Link href="/listings">
           <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl px-8 h-12 font-black shadow-lg shadow-emerald-100 transition-all active:scale-95">
-            Шоппинг хийх
+            Худалдан авалт хийх
           </Button>
         </Link>
       </div>

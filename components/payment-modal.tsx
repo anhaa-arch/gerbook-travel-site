@@ -237,6 +237,7 @@ export function PaymentModal({
     // Simulate payment processing
     setTimeout(() => {
       setIsProcessing(false);
+      alert("Төлбөр амжилттай төлөгдлөө!");
       onComplete(selectedMethod);
     }, 2000);
   };
@@ -246,6 +247,7 @@ export function PaymentModal({
       if (orderId) {
         const { data } = await checkOrderPayment({ variables: { orderId } });
         if (data?.checkQPayPaymentForOrder?.status === "CONFIRMED") {
+          alert("Төлбөр амжилттай төлөгдлөө!");
           onComplete("qpay");
         } else {
           alert("Төлбөр хараахан төлөгдөөгүй байна.");
@@ -253,6 +255,7 @@ export function PaymentModal({
       } else if (bookingId) {
         const { data } = await checkBookingPayment({ variables: { bookingId } });
         if (data?.checkQPayPaymentForBooking?.status === "CONFIRMED") {
+          alert("Төлбөр амжилттай төлөгдлөө!");
           onComplete("qpay");
         } else {
           alert("Төлбөр хараахан төлөгдөөгүй байна.");
