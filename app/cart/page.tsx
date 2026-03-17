@@ -27,6 +27,7 @@ const CREATE_ORDER = gql`
     createOrder(input: $input) {
       id
       status
+      __typename
     }
   }
 `;
@@ -52,6 +53,11 @@ export default function CartPage() {
   const [orderId, setOrderId] = useState<string | undefined>(undefined);
   const [bookingId, setBookingId] = useState<string | undefined>(undefined);
 
+  const [shippingAddress, setShippingAddress] = useState("");
+  const [receiverName, setReceiverName] = useState("");
+  const [receiverPhone, setReceiverPhone] = useState("");
+  const [formErrors, setFormErrors] = useState<{name?: string; phone?: string; address?: string}>({});
+
   const [createOrder] = useMutation(CREATE_ORDER);
   const [createBooking] = useMutation(CREATE_BOOKING);
 
@@ -59,6 +65,24 @@ export default function CartPage() {
     if (!isAuthenticated) {
       router.push("/login?redirect=/cart");
       return;
+    }
+
+    if (cartItems.length > 0) {
+      const errors: any = {};
+      if (!receiverName.trim()) errors.name = "Хүлээн авах хүний нэр шаардлагатай";
+      if (!receiverPhone.trim()) errors.phone = "Утасны дугаар шаардлагатай";
+      if (!shippingAddress.trim()) errors.address = "Хүргэлтийн хаяг шаардлагатай";
+      
+      if (Object.keys(errors).length > 0) {
+        setFormErrors(errors);
+        toast({
+          title: "Мэдээлэл дутуу байна",
+          description: "Хүргэлтийн мэдээллийг гүйцэд бөглөнө үү.",
+          variant: "destructive",
+        });
+        return;
+      }
+      setFormErrors({});
     }
 
     setIsProcessing(true);
@@ -74,7 +98,9 @@ export default function CartPage() {
         const { data } = await createOrder({
           variables: {
             input: {
-              shippingAddress: "Улаанбаатар хот",
+              shippingAddress,
+              receiverName,
+              receiverPhone,
               paymentInfo: "QPAY",
               items
             }
@@ -304,6 +330,40 @@ export default function CartPage() {
                     <span className="text-3xl font-black text-gray-900 tracking-tighter">₮{totalPrice.toLocaleString()}</span>
                   </div>
                 </div>
+
+                {cartItems.length > 0 && (
+                  <div className="space-y-4 mb-8 bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-4">Хүргэлтийн мэдээлэл</h3>
+                    <div>
+                      <input 
+                        className={`w-full px-4 py-3 rounded-xl border ${formErrors.name ? 'border-red-500' : 'border-gray-200'} text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500`}
+                        placeholder="Хүлээн авах хүний нэр"
+                        value={receiverName}
+                        onChange={e => setReceiverName(e.target.value)}
+                      />
+                      {formErrors.name && <p className="text-red-500 text-xs mt-1 font-bold">{formErrors.name}</p>}
+                    </div>
+                    <div>
+                      <input 
+                        className={`w-full px-4 py-3 rounded-xl border ${formErrors.phone ? 'border-red-500' : 'border-gray-200'} text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500`}
+                        placeholder="Утасны дугаар (8 оронтой)"
+                        value={receiverPhone}
+                        onChange={e => setReceiverPhone(e.target.value)}
+                      />
+                      {formErrors.phone && <p className="text-red-500 text-xs mt-1 font-bold">{formErrors.phone}</p>}
+                    </div>
+                    <div>
+                      <textarea 
+                        className={`w-full px-4 py-3 rounded-xl border ${formErrors.address ? 'border-red-500' : 'border-gray-200'} text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none`}
+                        placeholder="Хүргэлтийн хаяг (Дэлгэрэнгүй)"
+                        rows={2}
+                        value={shippingAddress}
+                        onChange={e => setShippingAddress(e.target.value)}
+                      />
+                      {formErrors.address && <p className="text-red-500 text-xs mt-1 font-bold">{formErrors.address}</p>}
+                    </div>
+                  </div>
+                )}
 
                 <div className="space-y-4 mb-8">
                   <div className="flex items-center space-x-3 text-[11px] text-gray-400 font-bold uppercase">
