@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -106,7 +106,14 @@ export function PaymentModal({
   const [isProcessing, setIsProcessing] = useState(false);
   const [qpayData, setQpayData] = useState<any>(null);
 
-  const [createBookingPayment] = useMutation(CREATE_BOOKING_PAYMENT);
+  const [createBookingPayment, { error: qpayMutationError }] = useMutation(CREATE_BOOKING_PAYMENT);
+
+  // Log GraphQL errors for debugging
+  useEffect(() => {
+    if (qpayMutationError) {
+      console.error('CreateBookingPayment GraphQL error:', qpayMutationError.graphQLErrors, qpayMutationError.networkError);
+    }
+  }, [qpayMutationError]);
 
   const displayTotal = bookingDetails?.total || amount || 0;
 
@@ -144,9 +151,17 @@ export function PaymentModal({
     setIsProcessing(true);
 
     if (selectedMethod === "qpay") {
+      if (!bookingId) {
+        console.error('QPay Error: Missing bookingId — cannot call createBookingPayment with empty variables');
+        alert("Захиалгын ID олдсонгүй. Дахин оролдоно уу.");
+        setIsProcessing(false);
+        return;
+      }
+
       try {
+        console.log('CreateBookingPayment vars:', { bookingId });
         const { data } = await createBookingPayment({
-          variables: { bookingId },
+          variables: { bookingId: bookingId },
         });
 
         if (data?.createBookingPayment) {
@@ -154,6 +169,8 @@ export function PaymentModal({
         }
       } catch (err: any) {
         console.error("QPay Error:", err);
+        if (err.graphQLErrors) console.error("GraphQL errors:", err.graphQLErrors);
+        if (err.networkError) console.error("Network error:", err.networkError);
         alert("QPay нэхэмжлэл үүсгэхэд алдаа гарлаа: " + (err.message || "Unknown error"));
       } finally {
         setIsProcessing(false);
@@ -528,7 +545,7 @@ export function PaymentModal({
               <div className="space-y-3 mt-6">
                 <Button
                   onClick={handlePayment}
-                  disabled={!selectedMethod || isProcessing || (selectedMethod === 'qpay' && qpayData)}
+                  disabled={!selectedMethod || isProcessing || (selectedMethod === 'qpay' && qpayData) || (selectedMethod === 'qpay' && !bookingId)}
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6 text-lg font-semibold"
                 >
                   {isProcessing ? (
