@@ -541,11 +541,18 @@ export function PaymentModal({
                 </div>
               )}
 
+              {/* Warning if QPay selected but booking not yet created */}
+              {selectedMethod === "qpay" && !bookingId && (
+                <div className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
+                  ⚠️ Захиалгын ID үүсгэгдээгүй байна. Хэрэв "Захиалах" товч дарж захиалга үүсгэсний дараа л QPay-ийн нэхэмжлэл гарна.
+                </div>
+              )}
+
               {/* Payment Button */}
               <div className="space-y-3 mt-6">
                 <Button
                   onClick={handlePayment}
-                  disabled={!selectedMethod || isProcessing || (selectedMethod === 'qpay' && qpayData) || (selectedMethod === 'qpay' && !bookingId)}
+                  disabled={!selectedMethod || isProcessing || (selectedMethod === 'qpay' && !!qpayData)}
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6 text-lg font-semibold"
                 >
                   {isProcessing ? (
