@@ -18,6 +18,21 @@ import {
   ShoppingBag
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+import { gql, useMutation } from "@apollo/client";
+import QRCode from "react-qr-code";
+
+const CREATE_BOOKING_PAYMENT = gql`
+  mutation CreateBookingPayment($bookingId: String!) {
+    createBookingPayment(bookingId: $bookingId) {
+      invoiceId
+      qrText
+      urls {
+        name
+        link
+      }
+    }
+  }
+`;
 
 interface PaymentModalProps {
   isOpen: boolean;
@@ -36,6 +51,7 @@ interface PaymentModalProps {
     total: number;
     image?: string;
   };
+  bookingId?: string;
 }
 
 const banks = [
@@ -87,6 +103,9 @@ export function PaymentModal({
   const [cardExpiry, setCardExpiry] = useState("");
   const [cardCVV, setCardCVV] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
+  const [qpayData, setQpayData] = useState<any>(null);
+
+  const [createBookingPayment] = useMutation(CREATE_BOOKING_PAYMENT);
 
   const displayTotal = bookingDetails?.total || amount || 0;
 
@@ -122,6 +141,24 @@ export function PaymentModal({
     }
 
     setIsProcessing(true);
+
+    if (selectedMethod === "qpay") {
+      try {
+        const { data } = await createBookingPayment({
+          variables: { bookingId },
+        });
+
+        if (data?.createBookingPayment) {
+          setQpayData(data.createBookingPayment);
+        }
+      } catch (err: any) {
+        console.error("QPay Error:", err);
+        alert("QPay нэхэмжлэл үүсгэхэд алдаа гарлаа: " + (err.message || "Unknown error"));
+      } finally {
+        setIsProcessing(false);
+      }
+      return;
+    }
 
     // Simulate payment processing
     setTimeout(() => {
@@ -449,11 +486,45 @@ export function PaymentModal({
                 </div>
               )}
 
+              {/* QPay Details */}
+              {selectedMethod === "qpay" && qpayData && (
+                <div className="space-y-4 p-6 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="flex flex-col items-center gap-4 text-center">
+                    <h4 className="font-bold text-lg">QPay-ээр төлөх</h4>
+
+                    <div className="bg-white p-4 rounded-xl shadow-sm">
+                      <QRCode value={qpayData.qrText} size={200} />
+                    </div>
+
+                    <p className="text-sm text-gray-600 px-4">
+                      Та өөрийн банкны аппликейшныг ашиглан дээрх QR кодыг уншуулж төлбөрөө төлнө үү.
+                    </p>
+
+                    <div className="w-full space-y-2 mt-2">
+                      <p className="text-xs font-bold text-gray-500 uppercase text-left">Wallet / Апп-аар төлөх:</p>
+                      <div className="grid grid-cols-2 gap-2">
+                        {qpayData.urls.map((url: any) => (
+                          <a
+                            key={url.name}
+                            href={url.link}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="flex items-center justify-center p-2 bg-white border rounded text-xs font-semibold hover:bg-gray-50 transition-colors"
+                          >
+                            {url.name}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* Payment Button */}
               <div className="space-y-3 mt-6">
                 <Button
                   onClick={handlePayment}
-                  disabled={!selectedMethod || isProcessing}
+                  disabled={!selectedMethod || isProcessing || (selectedMethod === 'qpay' && qpayData)}
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-6 text-lg font-semibold"
                 >
                   {isProcessing ? (
