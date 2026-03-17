@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Card, CardContent } from "@/components/ui/card";
@@ -188,6 +188,9 @@ export function PaymentModal({
           <DialogTitle className="text-xl md:text-2xl font-bold">
             Төлбөр төлөх
           </DialogTitle>
+          <DialogDescription className="text-sm text-gray-500">
+            Төлбөрөө QPay болон банкны апп-аар төлнө үү.
+          </DialogDescription>
         </DialogHeader>
 
         <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mt-4">
