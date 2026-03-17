@@ -380,18 +380,12 @@ export function PaymentModal({
                         <p className="text-lg font-black text-emerald-700">₮{displayTotal.toLocaleString()}</p>
                       </div>
                     </div>
-                    <p className="text-sm text-gray-600">
-                      Сагсанд байгаа бүх бараа болон үйлчилгээний нийт төлбөр.
-                    </p>
                   </div>
                 )}
               </CardContent>
             </Card>
 
             <div className="mt-4 p-3 bg-blue-50 rounded-lg">
-              <p className="text-xs text-gray-600">
-                💡 Төлбөр амжилттай төлөгдсөний дараа захиалга баталгаажна.
-              </p>
             </div>
           </div>
 
@@ -673,9 +667,6 @@ export function PaymentModal({
               </div>
 
               <div className="text-xs text-gray-500 text-center">
-                <p>
-                  🔒 Таны төлбөр аюулгүй SSL шифрлэлттэй боловсруулагдана.
-                </p>
               </div>
             </div>
           </div>
