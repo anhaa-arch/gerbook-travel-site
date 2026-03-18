@@ -104,6 +104,37 @@ import {
 import mnzipDataRaw from "@/data/mnzip.json";
 import { Checkbox } from "@/components/ui/checkbox";
 
+const translateCategory = (cat: string | undefined) => {
+  if (!cat) return "Ангилалгүй";
+  const lower = cat.toLowerCase();
+  if (lower.includes("dairy") || lower.includes("сүү") || lower.includes("tsagaan idee")) return "Мах, сүүн бүтээгдэхүүн";
+  if (lower.includes("handicraft") || lower.includes("гар урлал")) return "Гар урлал";
+  if (lower.includes("meat") || lower.includes("мах")) return "Махан бүтээгдэхүүн";
+  if (lower.includes("souvenir") || lower.includes("бэлэг")) return "Бэлэг дурсгал";
+  return cat;
+};
+
+const parseAmenities = (amenitiesStr?: string) => {
+  if (!amenitiesStr) return { items: [], activities: [], facilities: [], policies: {} };
+  try {
+    const parsed = JSON.parse(amenitiesStr);
+    return {
+      items: parsed.items || [],
+      activities: parsed.activities || [],
+      facilities: parsed.facilities || [],
+      accommodationType: parsed.accommodationType || "",
+      policies: parsed.policies || {},
+    };
+  } catch {
+    return {
+      items: amenitiesStr.split(",").map(a => a.trim()),
+      activities: [],
+      facilities: [],
+      policies: {}
+    };
+  }
+};
+
 export default function AdminDashboardContent() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("overview");
@@ -278,6 +309,8 @@ export default function AdminDashboardContent() {
       category: edge.node.category?.name || "Uncategorized",
       price: edge.node.price,
       stock: edge.node.stock,
+      images: edge.node.images,
+      description: edge.node.description,
       status: edge.node.stock > 0 ? "active" : "out_of_stock",
       createdAt: edge.node.createdAt,
     })) || [];
@@ -543,7 +576,18 @@ export default function AdminDashboardContent() {
 
   const handleEditProductPopulate = (product: any) => {
     setEditingItem(product);
-    setUploadedImages(Array.isArray(product.images) ? product.images : []);
+    
+    // Set images
+    let images: string[] = [];
+    try {
+      if (product.images) {
+        images = typeof product.images === 'string' ? JSON.parse(product.images) : product.images;
+      }
+    } catch (e) {
+      console.error('Failed to parse product images:', e);
+      images = Array.isArray(product.images) ? product.images : [];
+    }
+    setUploadedImages(images);
     setShowEditProduct(true);
   };
 
@@ -1936,7 +1980,7 @@ export default function AdminDashboardContent() {
                             {product.seller}
                           </TableCell>
                           <TableCell className="font-medium">
-                            {product.category}
+                            {translateCategory(product.category)}
                           </TableCell>
                           <TableCell className="font-bold">
                             ₮{product.price.toLocaleString()}
@@ -2269,9 +2313,9 @@ export default function AdminDashboardContent() {
                         <Select value={campForm.childrenPolicy} onValueChange={(val) => setCampForm({ ...campForm, childrenPolicy: val })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all_ages">Бүх насны хүүхэд</SelectItem>
-                            <SelectItem value="above_12">12-оос дээш нас</SelectItem>
-                            <SelectItem value="no_children">Хүүхэдгүй</SelectItem>
+                            {policiesOptions.childrenPolicy.map((p) => (
+                              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -2280,8 +2324,9 @@ export default function AdminDashboardContent() {
                         <Select value={campForm.petsPolicy} onValueChange={(val) => setCampForm({ ...campForm, petsPolicy: val })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="allowed">Зөвшөөрнө</SelectItem>
-                            <SelectItem value="not_allowed">Зөвшөөрөхгүй</SelectItem>
+                            {policiesOptions.petsPolicy.map((p) => (
+                              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -2290,8 +2335,9 @@ export default function AdminDashboardContent() {
                         <Select value={campForm.smokingPolicy} onValueChange={(val) => setCampForm({ ...campForm, smokingPolicy: val })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="allowed">Зөвшөөрнө</SelectItem>
-                            <SelectItem value="no_smoking">Хориотой</SelectItem>
+                            {policiesOptions.smokingPolicy.map((p) => (
+                              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -2300,9 +2346,9 @@ export default function AdminDashboardContent() {
                         <Select value={campForm.cancellationPolicy} onValueChange={(val) => setCampForm({ ...campForm, cancellationPolicy: val })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="free_48h">48 цагийн өмнө үнэгүй</SelectItem>
-                            <SelectItem value="free_24h">24 цагийн өмнө үнэгүй</SelectItem>
-                            <SelectItem value="no_refund">Буцаалтгүй</SelectItem>
+                            {policiesOptions.cancellationPolicy.map((p) => (
+                              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -2582,9 +2628,9 @@ export default function AdminDashboardContent() {
                         <Select value={campForm.childrenPolicy} onValueChange={(val) => setCampForm({ ...campForm, childrenPolicy: val })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="all_ages">Бүх насны хүүхэд</SelectItem>
-                            <SelectItem value="above_12">12-оос дээш нас</SelectItem>
-                            <SelectItem value="no_children">Хүүхэдгүй</SelectItem>
+                            {policiesOptions.childrenPolicy.map((p) => (
+                              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -2593,8 +2639,9 @@ export default function AdminDashboardContent() {
                         <Select value={campForm.petsPolicy} onValueChange={(val) => setCampForm({ ...campForm, petsPolicy: val })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="allowed">Зөвшөөрнө</SelectItem>
-                            <SelectItem value="not_allowed">Зөвшөөрөхгүй</SelectItem>
+                            {policiesOptions.petsPolicy.map((p) => (
+                              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -2603,8 +2650,9 @@ export default function AdminDashboardContent() {
                         <Select value={campForm.smokingPolicy} onValueChange={(val) => setCampForm({ ...campForm, smokingPolicy: val })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="allowed">Зөвшөөрнө</SelectItem>
-                            <SelectItem value="no_smoking">Хориотой</SelectItem>
+                            {policiesOptions.smokingPolicy.map((p) => (
+                              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -2613,9 +2661,9 @@ export default function AdminDashboardContent() {
                         <Select value={campForm.cancellationPolicy} onValueChange={(val) => setCampForm({ ...campForm, cancellationPolicy: val })}>
                           <SelectTrigger><SelectValue /></SelectTrigger>
                           <SelectContent>
-                            <SelectItem value="free_48h">48 цагийн өмнө үнэгүй</SelectItem>
-                            <SelectItem value="free_24h">24 цагийн өмнө үнэгүй</SelectItem>
-                            <SelectItem value="no_refund">Буцаалтгүй</SelectItem>
+                            {policiesOptions.cancellationPolicy.map((p) => (
+                              <SelectItem key={p.value} value={p.value}>{p.label}</SelectItem>
+                            ))}
                           </SelectContent>
                         </Select>
                       </div>
@@ -2770,6 +2818,41 @@ export default function AdminDashboardContent() {
                                         <label className="text-sm font-semibold text-gray-700">Үнэ</label>
                                         <p className="text-lg font-bold text-emerald-600">{formatCurrency(camp.price)}</p>
                                       </div>
+                                    </div>
+                                    
+                                    {/* Amenities and Policies Preview */}
+                                    <div className="border-t pt-3 space-y-3">
+                                      {(() => {
+                                        const ams = parseAmenities(camp.amenities);
+                                        const allItems = [...ams.items, ...ams.activities, ...ams.facilities];
+                                        return (
+                                          <>
+                                            {allItems.length > 0 && (
+                                              <div>
+                                                <label className="text-xs font-bold text-gray-500 uppercase">Тохижилт ба Үйлчилгээ</label>
+                                                <div className="flex flex-wrap gap-1.5 mt-1">
+                                                  {allItems.map((item, idx) => {
+                                                    const option = [...amenitiesOptions, ...activitiesOptions, ...facilitiesOptions].find(o => o.value === item);
+                                                    return (
+                                                      <Badge key={idx} variant="outline" className="text-[10px] bg-emerald-50 text-emerald-700 border-emerald-100">
+                                                        {option ? option.label : item}
+                                                      </Badge>
+                                                    );
+                                                  })}
+                                                </div>
+                                              </div>
+                                            )}
+                                            {ams.policies?.cancellation && (
+                                              <div>
+                                                <label className="text-xs font-bold text-gray-500 uppercase">Цуцлалтын дүрэм</label>
+                                                <p className="text-xs text-gray-700 mt-1 bg-gray-50 p-2 rounded border border-gray-100 whitespace-pre-line">
+                                                  {(policiesOptions.cancellationPolicy.find(o => o.value === ams.policies.cancellation)?.label) || ams.policies.cancellation}
+                                                </p>
+                                              </div>
+                                            )}
+                                          </>
+                                        );
+                                      })()}
                                     </div>
                                   </div>
                                 </DialogContent>

@@ -156,7 +156,7 @@ const DEBUG_MODE = process.env.NODE_ENV === 'development';
 
 const CHECK_QPAY_ORDER = gql`
   mutation CheckQPayOrder($orderId: String!) {
-    checkQPayPaymentForOrder(orderId: $orderId) {
+    checkQPayPaymentAndConfirmOrder(orderId: $orderId) {
       id
       status
     }
@@ -165,7 +165,7 @@ const CHECK_QPAY_ORDER = gql`
 
 const CHECK_QPAY_BOOKING = gql`
   mutation CheckQPayBooking($bookingId: String!) {
-    checkQPayPaymentForBooking(bookingId: $bookingId) {
+    checkQPayPaymentAndConfirmBooking(bookingId: $bookingId) {
       id
       status
     }
@@ -184,6 +184,7 @@ export default function UserDashboardContent() {
         activities: parsed.activities || [],
         facilities: parsed.facilities || [],
         accommodationType: parsed.accommodationType || "",
+        policies: parsed.policies || {},
       };
     } catch {
       return {
@@ -280,7 +281,7 @@ export default function UserDashboardContent() {
     try {
       setCheckingPayment(orderId);
       const { data } = await checkOrderPayment({ variables: { orderId } });
-      if (data?.checkQPayPaymentForOrder?.status === "CONFIRMED") {
+      if (data?.checkQPayPaymentAndConfirmOrder?.status === "CONFIRMED") {
         toast({ title: "Амжилттай", description: "Төлбөр төлөгдсөн байна. Захиалга баталгаажлаа.", variant: "default" });
       } else {
         toast({ title: "Анхааруулга", description: "Төлбөр төлөгдөөгүй байна.", variant: "destructive" });
@@ -296,7 +297,7 @@ export default function UserDashboardContent() {
     try {
       setCheckingPayment(bookingId);
       const { data } = await checkBookingPayment({ variables: { bookingId } });
-      if (data?.checkQPayPaymentForBooking?.status === "CONFIRMED") {
+      if (data?.checkQPayPaymentAndConfirmBooking?.status === "CONFIRMED") {
         toast({ title: "Амжилттай", description: "Төлбөр төлөгдсөн байна. Захиалга баталгаажлаа.", variant: "default" });
       } else {
         toast({ title: "Анхааруулга", description: "Төлбөр төлөгдөөгүй байна.", variant: "destructive" });
@@ -1919,6 +1920,18 @@ export default function UserDashboardContent() {
                 </div>
               )}
 
+              {(() => {
+                const ams = parseAmenities(selectedBooking.amenities);
+                return ams.policies?.cancellation && (
+                  <div className="space-y-2">
+                    <h3 className="font-bold text-gray-900">Цуцлалтын бодлого</h3>
+                    <p className="text-sm text-gray-600 leading-relaxed font-medium whitespace-pre-line bg-gray-50 p-3 rounded-lg border border-gray-100">
+                      {([...(policiesOptions.cancellationPolicy || [])].find(o => o.value === ams.policies.cancellation)?.label) || ams.policies.cancellation}
+                    </p>
+                  </div>
+                );
+              })()}
+
               {selectedBooking.amenities && (
                 <div className="space-y-4">
                   <h3 className="font-bold text-gray-900">Үйлчилгээ ба тав тух</h3>
@@ -1986,6 +1999,18 @@ export default function UserDashboardContent() {
                 <Button className="flex-1 bg-gray-900 hover:bg-black text-white py-6" onClick={() => setSelectedBooking(null)}>
                   Хаах
                 </Button>
+                {selectedBooking.status === "pending" && selectedBooking.qpayInvoiceId && (
+                  <Button
+                    className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-6 font-bold"
+                    disabled={checkingPayment === selectedBooking.id}
+                    onClick={() => {
+                      handleCheckBookingPayment(selectedBooking.id);
+                      setSelectedBooking(null);
+                    }}
+                  >
+                    {checkingPayment === selectedBooking.id ? "Шалгаж байна..." : "Төлбөр шалгах"}
+                  </Button>
+                )}
                 {selectedBooking.type === "camp" && (
                   <Link href={`/camp/${selectedBooking.campId || selectedBooking.id.split(':').pop()}`} className="flex-1">
                     <Button variant="outline" className="w-full border-gray-200 h-full py-6">

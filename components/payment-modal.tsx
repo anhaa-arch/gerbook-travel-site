@@ -50,7 +50,7 @@ const CREATE_ORDER_PAYMENT = gql`
 
 const CHECK_QPAY_ORDER = gql`
   mutation CheckQPayOrder($orderId: String!) {
-    checkQPayPaymentForOrder(orderId: $orderId) {
+    checkQPayPaymentAndConfirmOrder(orderId: $orderId) {
       id
       status
     }
@@ -59,7 +59,7 @@ const CHECK_QPAY_ORDER = gql`
 
 const CHECK_QPAY_BOOKING = gql`
   mutation CheckQPayBooking($bookingId: String!) {
-    checkQPayPaymentForBooking(bookingId: $bookingId) {
+    checkQPayPaymentAndConfirmBooking(bookingId: $bookingId) {
       id
       status
     }
@@ -99,25 +99,17 @@ const paymentMethods = [
   {
     id: "qpay",
     name: "QPay",
-    description: "Хурдан, шуурхай хуваан төлөх.",
+    description: "QPay-ээр төлөх (Уншиж байна...)",
     icon: "🇲🇳",
     color: "bg-blue-600",
     available: true,
   },
   {
     id: "bank_transfer",
-    name: "Банкны дансаар",
-    description: "Банк сонгож данс руу шилжүүлэг хийх",
+    name: "Нэхэмжлэхээр төлөх",
+    description: "Дансаар шилжүүлж баталгаажуулах.",
     icon: "🏦",
-    color: "bg-indigo-600",
-    available: true,
-  },
-  {
-    id: "card",
-    name: "Банкны карт",
-    description: "Visa, Mastercard, UnionPay",
-    icon: "💳",
-    color: "bg-gray-700",
+    color: "bg-emerald-600",
     available: true,
   },
 ];
@@ -131,7 +123,7 @@ export function PaymentModal({
   bookingId,
   orderId,
 }: PaymentModalProps) {
-  const [selectedMethod, setSelectedMethod] = useState<string | null>(null);
+  const [selectedMethod, setSelectedMethod] = useState<string | null>("qpay");
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
   const [cardNumber, setCardNumber] = useState("");
@@ -246,7 +238,7 @@ export function PaymentModal({
     try {
       if (orderId) {
         const { data } = await checkOrderPayment({ variables: { orderId } });
-        if (data?.checkQPayPaymentForOrder?.status === "CONFIRMED") {
+        if (data?.checkQPayPaymentAndConfirmOrder?.status === "CONFIRMED") {
           alert("Төлбөр амжилттай төлөгдлөө!");
           onComplete("qpay");
         } else {
@@ -254,7 +246,7 @@ export function PaymentModal({
         }
       } else if (bookingId) {
         const { data } = await checkBookingPayment({ variables: { bookingId } });
-        if (data?.checkQPayPaymentForBooking?.status === "CONFIRMED") {
+        if (data?.checkQPayPaymentAndConfirmBooking?.status === "CONFIRMED") {
           alert("Төлбөр амжилттай төлөгдлөө!");
           onComplete("qpay");
         } else {

@@ -1029,7 +1029,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     <h4 className="font-semibold text-gray-900 mb-2 text-sm sm:text-base">
                       Цуцлалтын бодлого
                     </h4>
-                    <p className="text-sm text-gray-700 font-medium">
+                    <p className="text-sm text-gray-700 font-medium whitespace-pre-line">
                       {campData.policies.cancellation}
                     </p>
                   </div>

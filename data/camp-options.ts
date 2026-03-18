@@ -11,6 +11,8 @@ export const amenitiesOptions = [
   { value: "hot_water", label: "Халуун ус" },
   { value: "kitchen", label: "Гал тогоо" },
   { value: "restaurant", label: "Ресторан" },
+  { value: "heating_stove", label: "Зуух / Галлах хэрэгсэл" },
+  { value: "abs", label: "ABS систем" },
 ];
 
 export const activitiesOptions = [
@@ -90,6 +92,7 @@ export const policiesOptions = {
   cancellationPolicy: [
     { value: "refund_100_7days", label: "7 хоногийн өмнө цуцалбал 100% буцаалттай" },
     { value: "no_refund_within_7days", label: "7 хоног дотор цуцлах боломжгүй" },
+    { value: "free_72h", label: "7+ хоног: 100% Буцаалттай.\n0-7 хоног: Буцаалт хийгдэхгүй.\n(Захиалга баталгаажсан хугацаанаас хамаарна)" },
   ],
 };
 

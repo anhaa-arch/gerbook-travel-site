@@ -82,6 +82,7 @@ import {
   DELETE_PRODUCT,
   UPDATE_BOOKING_STATUS,
 } from "./queries";
+import { translateStatus } from "@/lib/admin-utils";
 
 export default function HerderDashboardContent() {
   const { t } = useTranslation();
@@ -301,7 +302,7 @@ export default function HerderDashboardContent() {
       checkOut: edge.node.endDate,
       guests: 2, // Default value since backend doesn't have this field yet
       amount: edge.node.totalPrice,
-      paymentStatus: edge.node.status === "PENDING" || edge.node.status === "CONFIRMED" ? "unpaid" : "paid", // Derive from status
+      paymentStatus: ["CONFIRMED", "APPROVED", "PAID", "COMPLETED"].includes(edge.node.status) ? "paid" : "unpaid",
       status: edge.node.status.toLowerCase(),
       rawStatus: edge.node.status, // Keep original uppercase status
       image: getPrimaryImage(edge.node.yurt?.images),
@@ -2074,13 +2075,13 @@ export default function HerderDashboardContent() {
                             <TableCell>
                               <Badge
                                 variant={
-                                  order.status === "completed"
+                                  ["completed", "confirmed", "approved", "paid"].includes(order.status)
                                     ? "default"
                                     : "secondary"
                                 }
                                 className="font-medium"
                               >
-                                {order.status}
+                                {translateStatus(order.status.toUpperCase())}
                               </Badge>
                             </TableCell>
                             <TableCell className="hidden sm:table-cell font-medium">
@@ -2141,7 +2142,7 @@ export default function HerderDashboardContent() {
                                   </div>
                                   <Badge
                                     variant={
-                                      booking.status === "confirmed"
+                                      ["confirmed", "approved", "paid", "completed"].includes(booking.status)
                                         ? "default"
                                         : booking.status === "pending"
                                           ? "secondary"
@@ -2149,7 +2150,7 @@ export default function HerderDashboardContent() {
                                     }
                                     className="font-medium"
                                   >
-                                    {booking.status}
+                                    {translateStatus(booking.rawStatus)}
                                   </Badge>
                                 </div>
 
