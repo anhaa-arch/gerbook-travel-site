@@ -123,7 +123,7 @@ export default function HomePage() {
               },
               {
                 icon: <Home className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />,
-                title: "500+",
+                title: "100",
                 desc: "Малчин өрх"
               },
               {

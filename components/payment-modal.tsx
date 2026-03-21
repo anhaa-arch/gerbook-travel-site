@@ -350,12 +350,6 @@ export function PaymentModal({
                             ₮{(bookingDetails.pricePerNight * bookingDetails.nights).toLocaleString()}
                           </span>
                         </div>
-                        <div className="flex justify-between">
-                          <span className="text-gray-600">Үйлчилгээний хураамж</span>
-                          <span className="font-medium">
-                            ₮{bookingDetails.serviceFee.toLocaleString()}
-                          </span>
-                        </div>
                         <Separator />
                         <div className="flex justify-between text-base font-bold">
                           <span>Нийт дүн</span>

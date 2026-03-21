@@ -24,8 +24,8 @@ const montserrat = Montserrat({
 });
 
 export const metadata: Metadata = {
-  title: "Тасалж болохгүй талын соёл",
-  description: "Тасалж болохгүй талын соёл",
+  title: "ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
+  description: "ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
   keywords: "Mongolia, ger camps, travel, nomadic culture, adventure tourism",
   generator: "v0.dev",
 };

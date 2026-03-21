@@ -1129,19 +1129,11 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                           ₮{calculateTotal().toLocaleString()}
                         </span>
                       </div>
-                      <div className="flex justify-between text-sm">
-                        <span className="font-medium">Үйлчилгээний хураамж</span>
-                        <span className="font-semibold">
-                          ₮{Math.round(calculateTotal() * 0.1).toLocaleString()}
-                        </span>
-                      </div>
                       <Separator />
                       <div className="flex justify-between font-bold">
                         <span>Нийт</span>
                         <span>
-                          ₮
-                          {(calculateTotal() +
-                            Math.round(calculateTotal() * 0.1)).toLocaleString()}
+                          ₮{calculateTotal().toLocaleString()}
                         </span>
                       </div>
                     </div>
@@ -1240,7 +1232,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
           isOpen={showPaymentModal}
           onClose={() => setShowPaymentModal(false)}
           onComplete={handlePaymentComplete}
-          amount={calculateTotal() + Math.round(calculateTotal() * 0.1)}
+          amount={calculateTotal()}
           bookingId={currentBookingId || undefined}
           bookingDetails={{
             campName: campData.name,
@@ -1253,8 +1245,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
               (1000 * 60 * 60 * 24)
             ),
             pricePerNight: campData.price,
-            serviceFee: Math.round(calculateTotal() * 0.1),
-            total: calculateTotal() + Math.round(calculateTotal() * 0.1),
+            serviceFee: 0,
+            total: calculateTotal(),
             image: campData.images[0] || getPrimaryImage(camp.images),
           }}
         />

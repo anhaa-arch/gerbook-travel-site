@@ -10,11 +10,7 @@ import { useCart } from "@/hooks/use-cart";
 const LANGUAGES = [
   { flag: "🇲🇳", name: "Монгол", code: "mn" },
   { flag: "🇬🇧", name: "English", code: "en" },
-  { flag: "🇨🇳", name: "中文", code: "zh" },
-  { flag: "🇯🇵", name: "日本語", code: "ja" },
   { flag: "🇰🇷", name: "한국어", code: "ko" },
-  { flag: "🇷🇺", name: "Русский", code: "ru" },
-  { flag: "🇩🇪", name: "Deutsch", code: "de" },
 ];
 
 export function Header() {
@@ -119,7 +115,7 @@ export function Header() {
                   href="/listings"
                   className="text-gray-500 hover:text-gray-900 focus:text-gray-900 font-bold border-b-2 border-green-600 text-sm md:text-base"
                 >
-                  Амралт баазууд
+                  Малчин Кэмп
                 </Link>
 
               </nav>
@@ -282,7 +278,7 @@ export function Header() {
                         <div className="w-10 h-10 bg-emerald-50 rounded-xl flex items-center justify-center mr-3">
                           <Compass className="w-5 h-5 text-emerald-600" />
                         </div>
-                        <span className="text-sm text-gray-900 font-bold">Амралт баазууд</span>
+                        <span className="text-sm text-gray-900 font-bold">Малчин Кэмп</span>
                       </Link>
                       <Link
                         href="/products"

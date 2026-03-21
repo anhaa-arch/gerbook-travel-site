@@ -132,15 +132,6 @@ export function Footer() {
                 <Facebook className="w-5 h-5 sm:w-6 sm:h-6 text-white cursor-pointer" />
               </a>
               <a
-                href="#"
-                aria-label="Google"
-                className="hover:scale-110 transition-transform"
-              >
-                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full text-white cursor-pointer flex items-center justify-center">
-                  <span className="text-green-700 text-xs sm:text-sm font-bold">G</span>
-                </div>
-              </a>
-              <a
                 href="https://www.instagram.com/malchincamp?igsh=MWo3MDlxOTdwdzBndA%3D%3D&utm_source=qr"
                 target="_blank"
                 rel="noopener noreferrer"
@@ -148,6 +139,15 @@ export function Footer() {
                 className="hover:scale-110 transition-transform"
               >
                 <Instagram className="w-5 h-5 sm:w-6 sm:h-6 text-white cursor-pointer" />
+              </a>
+              <a
+                href="#"
+                aria-label="Gmail"
+                className="hover:scale-110 transition-transform"
+              >
+                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full text-white cursor-pointer flex items-center justify-center">
+                  <span className="text-green-700 text-[10px] sm:text-[11px] font-bold">M</span>
+                </div>
               </a>
             </div>
           </div>
