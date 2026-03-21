@@ -102,10 +102,10 @@ export function Footer() {
             <div className="flex items-center justify-center space-x-1.5 sm:space-x-2">
               <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
               <a
-                href="tel:72008822"
+                href="tel:85868721"
                 className="text-sm sm:text-base md:text-lg text-white font-medium hover:underline"
               >
-                72008822
+                85868721
               </a>
             </div>
 
@@ -123,7 +123,9 @@ export function Footer() {
             {/* Social Media */}
             <div className="flex items-center justify-center space-x-3 sm:space-x-4">
               <a
-                href="#"
+                href="https://www.facebook.com/share/14XZc4zyjaG/?mibextid=wwXIfr"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Facebook"
                 className="hover:scale-110 transition-transform"
               >
@@ -139,7 +141,9 @@ export function Footer() {
                 </div>
               </a>
               <a
-                href="#"
+                href="https://www.instagram.com/malchincamp?igsh=MWo3MDlxOTdwdzBndA%3D%3D&utm_source=qr"
+                target="_blank"
+                rel="noopener noreferrer"
                 aria-label="Instagram"
                 className="hover:scale-110 transition-transform"
               >

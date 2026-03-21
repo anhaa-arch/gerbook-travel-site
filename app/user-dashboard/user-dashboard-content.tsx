@@ -18,6 +18,7 @@ import {
   Info,
   ChevronRight,
   ExternalLink,
+  RefreshCcw,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -39,7 +40,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
-import { amenitiesOptions, activitiesOptions, facilitiesOptions } from "@/data/camp-options";
+import { amenitiesOptions, activitiesOptions, facilitiesOptions, policiesOptions } from "@/data/camp-options";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useToast } from "@/components/ui/use-toast";
 import "../../lib/i18n";
@@ -229,7 +230,7 @@ export default function UserDashboardContent() {
   });
 
   // Fetch real data from database
-  const { data: bookingsData, loading: bookingsLoading, error: bookingsError } = useQuery(
+  const { data: bookingsData, loading: bookingsLoading, error: bookingsError, refetch: refetchBookings } = useQuery(
     GET_user_BOOKINGS,
     {
       variables: { userId: user?.id },
@@ -237,7 +238,7 @@ export default function UserDashboardContent() {
     }
   );
 
-  const { data: ordersData, loading: ordersLoading, error: ordersError } = useQuery(
+  const { data: ordersData, loading: ordersLoading, error: ordersError, refetch: refetchOrders } = useQuery(
     GET_user_ORDERS,
     {
       variables: { userId: user?.id },
@@ -282,7 +283,8 @@ export default function UserDashboardContent() {
       setCheckingPayment(orderId);
       const { data } = await checkOrderPayment({ variables: { orderId } });
       if (data?.checkQPayPaymentAndConfirmOrder?.status === "CONFIRMED") {
-        toast({ title: "Амжилттай", description: "Төлбөр төлөгдсөн байна. Захиалга баталгаажлаа.", variant: "default" });
+        toast({ title: "Амжилттай", description: "Таны төлбөр амжилттай, захиалгын төлөв CONFIRMED боллоо.", variant: "default" });
+        refetchOrders();
       } else {
         toast({ title: "Анхааруулга", description: "Төлбөр төлөгдөөгүй байна.", variant: "destructive" });
       }
@@ -298,7 +300,8 @@ export default function UserDashboardContent() {
       setCheckingPayment(bookingId);
       const { data } = await checkBookingPayment({ variables: { bookingId } });
       if (data?.checkQPayPaymentAndConfirmBooking?.status === "CONFIRMED") {
-        toast({ title: "Амжилттай", description: "Төлбөр төлөгдсөн байна. Захиалга баталгаажлаа.", variant: "default" });
+        toast({ title: "Амжилттай", description: "Таны төлбөр амжилттай, захиалгын төлөв CONFIRMED боллоо.", variant: "default" });
+        refetchBookings();
       } else {
         toast({ title: "Анхааруулга", description: "Төлбөр төлөгдөөгүй байна.", variant: "destructive" });
       }
@@ -1017,11 +1020,12 @@ export default function UserDashboardContent() {
                                 <Button
                                   variant="outline"
                                   size="sm"
-                                  className="text-emerald-700 font-bold text-xs"
+                                  className="text-emerald-700 font-bold text-xs border-emerald-200 hover:bg-emerald-50"
                                   disabled={checkingPayment === booking.id}
                                   onClick={() => handleCheckBookingPayment(booking.id)}
                                 >
-                                  {checkingPayment === booking.id ? "Шалгаж байна..." : "Төлбөр шалгах"}
+                                  <RefreshCcw className={`w-3 h-3 mr-1 ${checkingPayment === booking.id ? "animate-spin" : ""}`} />
+                                  {checkingPayment === booking.id ? "Шалгаж байна..." : "Төлбөр амжилттай эсэхийг шалгах"}
                                 </Button>
                               )}
                               <Button
@@ -1174,11 +1178,12 @@ export default function UserDashboardContent() {
                                   <Button
                                     size="sm"
                                     variant="outline"
-                                    className="text-xs h-7 text-emerald-700 w-full"
+                                    className="text-[10px] h-7 text-emerald-700 w-full border-emerald-200"
                                     disabled={checkingPayment === order.id}
                                     onClick={() => handleCheckOrderPayment(order.id)}
                                   >
-                                    {checkingPayment === order.id ? "..." : "Шалгах"}
+                                    <RefreshCcw className={`w-2.5 h-2.5 mr-1 ${checkingPayment === order.id ? "animate-spin" : ""}`} />
+                                    {checkingPayment === order.id ? "..." : "Төлбөр шалгах"}
                                   </Button>
                                 </div>
                               )}
@@ -1297,10 +1302,11 @@ export default function UserDashboardContent() {
                                       <Button
                                         size="sm"
                                         variant="outline"
-                                        className="text-[10px] h-6 px-2 text-emerald-700 font-medium"
+                                        className="text-[10px] h-6 px-2 text-emerald-700 font-medium border-emerald-200"
                                         disabled={checkingPayment === order.id}
                                         onClick={() => handleCheckOrderPayment(order.id)}
                                       >
+                                        <RefreshCcw className={`w-2.5 h-2.5 mr-1 ${checkingPayment === order.id ? "animate-spin" : ""}`} />
                                         {checkingPayment === order.id ? "Шалгаж байна..." : "Төлбөр шалгах"}
                                       </Button>
                                     </div>
@@ -2008,7 +2014,8 @@ export default function UserDashboardContent() {
                       setSelectedBooking(null);
                     }}
                   >
-                    {checkingPayment === selectedBooking.id ? "Шалгаж байна..." : "Төлбөр шалгах"}
+                    <RefreshCcw className={`w-4 h-4 mr-2 ${checkingPayment === selectedBooking.id ? "animate-spin" : ""}`} />
+                    {checkingPayment === selectedBooking.id ? "Шалгаж байна..." : "Төлбөр амжилттай эсэхийг шалгах"}
                   </Button>
                 )}
                 {selectedBooking.type === "camp" && (
@@ -2111,12 +2118,14 @@ export default function UserDashboardContent() {
                 {selectedOrder.status === "pending" && selectedOrder.qpayInvoiceId && (
                   <Button
                     className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white py-6 font-bold shadow-lg shadow-emerald-100"
+                    disabled={checkingPayment === selectedOrder.id}
                     onClick={() => {
                       handleCheckOrderPayment(selectedOrder.id);
                       setSelectedOrder(null);
                     }}
                   >
-                    Төлбөр шалгах
+                    <RefreshCcw className={`w-4 h-4 mr-2 ${checkingPayment === selectedOrder.id ? "animate-spin" : ""}`} />
+                    {checkingPayment === selectedOrder.id ? "Шалгаж байна..." : "Төлбөр амжилттай эсэхийг шалгах"}
                   </Button>
                 )}
               </div>
