@@ -131,6 +131,17 @@ export const translateRole = (role: string): string => {
   return translations[role?.toUpperCase()] || role;
 };
 
+export const translateCategory = (cat: string | undefined): string => {
+  if (!cat) return "Ангилалгүй";
+  const lower = cat.toLowerCase();
+  if (lower.includes("dairy") || lower.includes("сүү") || lower.includes("tsagaan idee") || lower.includes("цагаан идээ")) return "Цагаан идээ";
+  if (lower.includes("handicraft") || lower.includes("гар урлал")) return "Гар урлал";
+  if (lower.includes("meat") || lower.includes("мах")) return "Мах";
+  if (lower.includes("souvenir") || lower.includes("бэлэг")) return "Бэлэг дурсгал";
+  if (lower.includes("textile") || lower.includes("нэхмэл")) return "Нэхмэл эдлэл";
+  return cat;
+};
+
 // Export to Excel functionality
 export const exportToExcel = async (data: any[], filename: string) => {
   try {

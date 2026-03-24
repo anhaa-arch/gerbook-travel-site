@@ -95,14 +95,14 @@ export const productCategories = [
     id: "dairy",
     name: {
       en: "Dairy Products",
-      mn: "Сүүн бүтээгдэхүүн",
+      mn: "Цагаан идээ",
     },
   },
   {
     id: "meat",
     name: {
       en: "Meat Products",
-      mn: "Махан бүтээгдэхүүн",
+      mn: "Мах",
     },
   },
   {

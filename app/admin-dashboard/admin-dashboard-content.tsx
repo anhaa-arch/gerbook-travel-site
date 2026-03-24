@@ -95,6 +95,7 @@ import {
   prepareusersForExport,
   prepareYurtsForExport,
   calculateNights,
+  translateCategory,
 } from "@/lib/admin-utils";
 import {
   amenitiesOptions,
@@ -106,15 +107,6 @@ import {
 import mnzipDataRaw from "@/data/mnzip.json";
 import { Checkbox } from "@/components/ui/checkbox";
 
-const translateCategory = (cat: string | undefined) => {
-  if (!cat) return "Ангилалгүй";
-  const lower = cat.toLowerCase();
-  if (lower.includes("dairy") || lower.includes("сүү") || lower.includes("tsagaan idee")) return "Цагаан идээ";
-  if (lower.includes("handicraft") || lower.includes("гар урлал")) return "Гар урлал";
-  if (lower.includes("meat") || lower.includes("мах")) return "Мах";
-  if (lower.includes("souvenir") || lower.includes("бэлэг")) return "Бэлэг дурсгал";
-  return cat;
-};
 
 const parseAmenities = (amenitiesStr?: string) => {
   if (!amenitiesStr) return { items: [], activities: [], facilities: [], policies: {} };
@@ -310,10 +302,7 @@ export default function AdminDashboardContent() {
       id: edge.node.id,
       name: edge.node.name,
       seller: edge.node.owner?.name || "Борлуулагч",
-      category: edge.node.category?.name === "Dairy" ? "Цагаан идээ" :
-                edge.node.category?.name === "Meat" ? "Мах" :
-                edge.node.category?.name === "Handicraft" ? "Гар урлал" :
-                edge.node.category?.name || "Ангилалгүй",
+      category: translateCategory(edge.node.category?.name),
       price: edge.node.price,
       stock: edge.node.stock,
       images: edge.node.images,

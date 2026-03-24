@@ -82,7 +82,7 @@ import {
   DELETE_PRODUCT,
   UPDATE_BOOKING_STATUS,
 } from "./queries";
-import { translateStatus } from "@/lib/admin-utils";
+import { translateStatus, translateCategory } from "@/lib/admin-utils";
 
 export default function HerderDashboardContent() {
   const { t } = useTranslation();
@@ -255,7 +255,7 @@ export default function HerderDashboardContent() {
     productsData?.products?.edges?.map((edge: any) => ({
       id: edge.node.id,
       name: edge.node.name,
-      category: edge.node.category?.name || "Uncategorized",
+      category: translateCategory(edge.node.category?.name),
       price: edge.node.price,
       stock: edge.node.stock,
       sold: 0, // Default sold count
