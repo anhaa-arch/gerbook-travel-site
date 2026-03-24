@@ -163,16 +163,18 @@ export function SearchSection() {
     <div className="bg-white py-3 sm:py-4 md:py-6 lg:py-8">
       <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         {/* Hero text */}
-        <div className="text-center mb-4 sm:mb-5 md:mb-6">
-          <h1 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-1.5 sm:mb-2 font-display">
+        <div className="text-center mb-8 sm:mb-12 mt-4 sm:mt-8">
+          <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#0F3D2E] via-emerald-800 to-[#0F3D2E] tracking-tight leading-tight mb-4 font-display drop-shadow-sm py-1">
             ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ
           </h1>
-
+          <p className="text-sm sm:text-base md:text-lg text-gray-500 max-w-2xl mx-auto font-medium tracking-wide">
+            Монголын уламжлалт өв соёл, нүүдэлчдийн ахуйг мэдрэх аялал
+          </p>
         </div>
 
         {/* Search Bar */}
-        <div className="bg-white p-3 sm:p-4 md:p-5 lg:p-6 rounded-xl md:rounded-2xl lg:rounded-full shadow-md sm:shadow-lg border border-gray-100">
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-2.5 md:gap-3 items-stretch sm:items-end">
+        <div className="bg-white/90 backdrop-blur-xl p-4 sm:p-5 md:p-6 lg:p-8 rounded-[2rem] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border border-white/60 ring-1 ring-black/[0.03] max-w-5xl mx-auto transform transition-all hover:shadow-[0_8px_50px_-12px_rgba(0,0,0,0.15)] auto-mx">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-end">
 
             {/* Province (Аймаг) */}
             <div className="flex-1 relative min-w-0" ref={provinceRef}>
