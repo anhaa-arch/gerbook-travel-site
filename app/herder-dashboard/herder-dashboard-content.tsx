@@ -1185,7 +1185,7 @@ export default function HerderDashboardContent() {
                               variant="outline"
                               onClick={() => fileInputRef.current?.click()}
                               className="w-full border-dashed"
-                              disabled={uploadedImages.length >= 10}
+                              disabled={uploadedImages.length >= 6}
                             >
                               <Upload className="w-4 h-4 mr-2" /> Сонгох
                             </Button>
@@ -1207,7 +1207,7 @@ export default function HerderDashboardContent() {
                                   input.value = "";
                                 }
                               }}
-                              disabled={uploadedImages.length >= 10}
+                              disabled={uploadedImages.length >= 6}
                             >
                               Нэмэх
                             </Button>
@@ -1830,7 +1830,7 @@ export default function HerderDashboardContent() {
                           variant="outline"
                           onClick={() => fileInputRef.current?.click()}
                           className="w-full"
-                          disabled={uploadedImages.length >= 10}
+                          disabled={uploadedImages.length >= 6}
                         >
                           <Upload className="w-4 h-4 mr-2" />
                           Зураг сонгох ({uploadedImages.length}/6)
@@ -1861,7 +1861,7 @@ export default function HerderDashboardContent() {
                                 input.value = "";
                               }
                             }}
-                            disabled={uploadedImages.length >= 10}
+                            disabled={uploadedImages.length >= 6}
                           >
                             Нэмэх
                           </Button>

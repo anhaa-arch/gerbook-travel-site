@@ -81,6 +81,10 @@ export const GET_ALL_PRODUCTS = gql`
             id
             name
           }
+          owner {
+            id
+            name
+          }
           createdAt
         }
       }
@@ -316,5 +320,17 @@ export const REJECT_ORDER = gql`
       id
       status
     }
+  }
+`
+
+export const DELETE_ORDER = gql`
+  mutation DeleteOrder($id: ID!) {
+    deleteOrder(id: $id)
+  }
+`
+
+export const DELETE_BOOKING = gql`
+  mutation DeleteBooking($id: ID!) {
+    deleteBooking(id: $id)
   }
 `

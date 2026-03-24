@@ -78,6 +78,8 @@ import {
   UPDATE_BOOKING,
   APPROVE_ORDER,
   REJECT_ORDER,
+  DELETE_ORDER,
+  DELETE_BOOKING,
 } from "./queries";
 import {
   formatDate,
@@ -240,6 +242,8 @@ export default function AdminDashboardContent() {
   const [updateBooking] = useMutation(UPDATE_BOOKING);
   const [approveOrder] = useMutation(APPROVE_ORDER);
   const [rejectOrder] = useMutation(REJECT_ORDER);
+  const [deleteOrder] = useMutation(DELETE_ORDER);
+  const [deleteBooking] = useMutation(DELETE_BOOKING);
 
   // Transform data for display
   const stats = {
@@ -305,8 +309,11 @@ export default function AdminDashboardContent() {
     productsData?.products?.edges?.map((edge: any) => ({
       id: edge.node.id,
       name: edge.node.name,
-      seller: "Seller", // Default seller
-      category: edge.node.category?.name || "Uncategorized",
+      seller: edge.node.owner?.name || "Борлуулагч",
+      category: edge.node.category?.name === "Dairy" ? "Цагаан идээ" :
+                edge.node.category?.name === "Meat" ? "Мах" :
+                edge.node.category?.name === "Handicraft" ? "Гар урлал" :
+                edge.node.category?.name || "Ангилалгүй",
       price: edge.node.price,
       stock: edge.node.stock,
       images: edge.node.images,
@@ -404,6 +411,12 @@ export default function AdminDashboardContent() {
       } else if (selectedItem.type === "product") {
         mutation = deleteProduct;
         refetchFunction = refetchProducts;
+      } else if (selectedItem.type === "order") {
+        mutation = deleteOrder;
+        refetchFunction = refetchOrders;
+      } else if (selectedItem.type === "booking" || selectedItem.type === "camp") {
+        mutation = deleteBooking;
+        refetchFunction = refetchBookings;
       }
 
       if (mutation && refetchFunction) {
@@ -644,8 +657,8 @@ export default function AdminDashboardContent() {
         ? `${campForm.province}, ${campForm.district}`
         : campForm.province;
 
-      // Optimize images - limit to 3
-      const optimizedImages = uploadedImages.slice(0, 10);
+      // Optimize images - limit to 6
+      const optimizedImages = uploadedImages.slice(0, 6);
 
       const input = {
         name: campForm.name,
@@ -731,8 +744,8 @@ export default function AdminDashboardContent() {
         ? `${campForm.province}, ${campForm.district}`
         : campForm.province;
 
-      // Optimize images - limit to 3
-      const optimizedImages = uploadedImages.slice(0, 10);
+      // Optimize images - limit to 6
+      const optimizedImages = uploadedImages.slice(0, 6);
 
       const input = {
         name: campForm.name,
@@ -1733,7 +1746,7 @@ export default function AdminDashboardContent() {
                             </button>
                           </div>
                         ))}
-                        {uploadedImages.length < 3 && (
+                        {uploadedImages.length < 6 && (
                           <div className="flex flex-col gap-2">
                             <div className="flex gap-2">
                               <Button
@@ -1805,7 +1818,7 @@ export default function AdminDashboardContent() {
             {showEditProduct && editingItem && (
               <Card className="border-emerald-100 shadow-md">
                 <CardHeader className="flex flex-row items-center justify-between border-b bg-emerald-50/30">
-                  <CardTitle className="font-bold text-emerald-900">{t("admin.products.edit")}</CardTitle>
+                  <CardTitle className="font-bold text-emerald-900">{t("admin.products.edit", "Бүтээгдэхүүн засах")}</CardTitle>
                   <Button
                     variant="ghost"
                     size="sm"
@@ -1870,7 +1883,7 @@ export default function AdminDashboardContent() {
                             </button>
                           </div>
                         ))}
-                        {uploadedImages.length < 3 && (
+                        {uploadedImages.length < 6 && (
                           <div className="flex flex-col gap-2">
                             <div className="flex gap-2">
                               <Button
@@ -2369,7 +2382,7 @@ export default function AdminDashboardContent() {
                           </button>
                         </div>
                       ))}
-                      {uploadedImages.length < 3 && (
+                      {uploadedImages.length < 6 && (
                         <div className="flex flex-col gap-2">
                           <div className="flex gap-2">
                             <Button
@@ -2684,7 +2697,7 @@ export default function AdminDashboardContent() {
                           </button>
                         </div>
                       ))}
-                      {uploadedImages.length < 3 && (
+                      {uploadedImages.length < 6 && (
                         <div className="flex flex-col gap-2">
                           <div className="flex gap-2">
                             <Button
@@ -3313,7 +3326,13 @@ export default function AdminDashboardContent() {
                                     </div>
                                   </DialogContent>
                                 </Dialog>
-
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => handleDelete({ ...booking, type: "booking" })}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
                                 <Select
                                   value={booking.status}
                                   onValueChange={(value) => handleUpdateBookingStatus(booking.id, value)}
