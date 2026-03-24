@@ -2,7 +2,7 @@
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, MapPin, Calendar, Users, Route, Compass, ShieldCheck, Home } from "lucide-react";
+import { Search, MapPin, Calendar, Users, Route, Compass, ShieldCheck, Home, Maximize2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,6 +23,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
+import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 
 const GET_PRODUCTS = gql`
   query GetProducts($first: Int) {
@@ -67,6 +68,7 @@ export default function HomePage() {
   const { toast } = useToast();
   const [campPage, setCampPage] = useState(1);
   const [productPage, setProductPage] = useState(1);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const itemsPerPage = 10;
   const {
     data: productsData,
@@ -112,37 +114,37 @@ export default function HomePage() {
       </div>
 
       {/* Trust & Features Section */}
-      <div className="bg-gray-50/50 border-y border-gray-100 py-8 sm:py-12">
+      <div className="bg-gray-50/50 border-y border-gray-100 py-3 sm:py-4">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
+          <div className="grid grid-cols-4 gap-2 sm:gap-6">
             {[
               {
-                icon: <Users className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />,
+                icon: <Users className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
                 title: "2,000+",
-                desc: "Идэвхтэй аялагч"
+                desc: "Идэвхтэй"
               },
               {
-                icon: <Home className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />,
-                title: "100",
-                desc: "Малчин өрх"
+                icon: <Home className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
+                title: "100+",
+                desc: "Малчин"
               },
               {
-                icon: <Compass className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />,
+                icon: <Compass className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
                 title: "100%",
-                desc: "Бодит туршлага"
+                desc: "Бодит"
               },
               {
-                icon: <ShieldCheck className="w-5 h-5 sm:w-6 sm:h-6 text-emerald-600" />,
+                icon: <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
                 title: "Аюулгүй",
-                desc: "Баталгаат төлбөр"
+                desc: "Баталгаат"
               },
             ].map((stat, i) => (
-              <div key={i} className="flex flex-col items-center text-center space-y-2">
-                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white rounded-2xl shadow-sm border border-emerald-50 flex items-center justify-center mb-1">
+              <div key={i} className="flex flex-col items-center text-center space-y-1 px-1">
+                <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white rounded-xl shadow-sm border border-emerald-50 flex items-center justify-center mb-0.5">
                   {stat.icon}
                 </div>
-                <h3 className="text-base sm:text-xl font-black text-gray-900 leading-tight">{stat.title}</h3>
-                <p className="text-[10px] sm:text-xs font-bold text-gray-500 uppercase tracking-widest">{stat.desc}</p>
+                <h3 className="text-[10px] sm:text-base font-black text-gray-900 leading-tight">{stat.title}</h3>
+                <p className="text-[8px] sm:text-[9px] font-bold text-gray-500 uppercase tracking-tighter">{stat.desc}</p>
               </div>
             ))}
           </div>
@@ -167,7 +169,7 @@ export default function HomePage() {
           </div>
 
           {/* Featured Camps - Responsive grid */}
-          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5 lg:gap-6 mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-5 lg:gap-6 mb-6">
             {yurts
               .slice((campPage - 1) * itemsPerPage, campPage * itemsPerPage)
               .map((camp: any) => (
@@ -183,41 +185,47 @@ export default function HomePage() {
                       height={200}
                       className="w-full h-36 xs:h-40 sm:h-44 md:h-48 object-cover"
                     />
-                    <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 bg-emerald-600 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[9px] xs:text-[10px] font-medium">
+                    <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 bg-emerald-600 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[8px] sm:text-[10px] font-medium">
                       Онцгой хамтрагч
                     </div>
                   </div>
-                  <CardContent className="p-2.5 xs:p-3 sm:p-4">
-                    <h3 className="font-semibold text-sm xs:text-base md:text-lg mb-1.5 sm:mb-2 truncate">
-                      {camp.name}
-                    </h3>
-                    <div className="flex items-center text-gray-600 mb-1.5 sm:mb-2">
-                      <MapPin className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                      <span className="text-xs xs:text-sm truncate font-medium">
-                        {camp.location}
-                      </span>
+                  <CardContent className="p-3 sm:p-5">
+                    <div className="flex justify-between items-start mb-1 sm:mb-3">
+                      <h3 className="font-bold text-sm sm:text-xl md:text-2xl text-gray-900 leading-tight truncate">
+                        {camp.name}
+                      </h3>
                     </div>
-                    <div className="flex items-center justify-between mb-2.5 xs:mb-3 sm:mb-4">
+
+                    <div className="grid grid-cols-1 gap-1 sm:gap-2 mb-3 sm:mb-4">
                       <div className="flex items-center text-gray-600">
-                        <Users className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1" />
-                        <span className="text-xs xs:text-sm font-medium">
+                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-emerald-600 flex-shrink-0" />
+                        <span className="text-[10px] sm:text-sm font-medium truncate">
+                          {camp.location}
+                        </span>
+                      </div>
+                      <div className="flex items-center text-gray-600">
+                        <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-emerald-600 flex-shrink-0" />
+                        <span className="text-[10px] sm:text-sm font-medium">
                           {camp.capacity} {t("camps.guests")}
                         </span>
                       </div>
                     </div>
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <span className="text-base xs:text-lg md:text-xl font-bold">
-                          {camp.pricePerNight?.toLocaleString()}₮
+
+                    <div className="pt-2 sm:pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
+                      <div className="flex flex-col">
+                        <span className="hidden sm:block text-xs text-gray-500 font-medium uppercase tracking-wider mb-0.5">
+                          1 хоногийн
                         </span>
-                        <span className="text-gray-600 ml-0.5 sm:ml-1 text-[10px] xs:text-xs sm:text-sm font-medium">
-                          хоног
-                        </span>
+                        <div className="flex items-baseline">
+                          <span className="text-sm sm:text-2xl font-black text-gray-900">
+                            {camp.pricePerNight?.toLocaleString()}₮
+                          </span>
+                          <span className="sm:hidden text-[8px] text-gray-500 ml-1 font-medium italic">/хоног</span>
+                        </div>
                       </div>
-                      <Link href={`/camp/${camp.id}`}>
+                      <Link href={`/camp/${camp.id}`} className="w-full sm:w-auto">
                         <Button
-                          size="sm"
-                          className="bg-emerald-600 hover:bg-emerald-700 font-semibold text-[10px] xs:text-xs sm:text-sm px-2 xs:px-3 h-7 xs:h-8 sm:h-9"
+                          className="w-full bg-emerald-600 hover:bg-emerald-700 font-bold text-[10px] sm:text-sm px-2 sm:px-6 h-8 sm:h-10 shadow-sm transition-all active:scale-95"
                         >
                           {t("common.book_now")}
                         </Button>
@@ -335,14 +343,23 @@ export default function HomePage() {
                     key={product.id}
                     className="overflow-hidden hover:shadow-lg transition-all duration-200"
                   >
-                    <div className="relative">
+                    <div
+                      className="relative cursor-pointer group"
+                      onClick={() => setSelectedImage(imageSrc)}
+                    >
                       <Image
                         src={imageSrc}
                         alt={product.name}
                         width={200}
                         height={200}
-                        className="w-full h-36 xs:h-40 sm:h-44 md:h-48 object-cover"
+                        className="w-full h-36 xs:h-40 sm:h-44 md:h-48 object-cover transition-transform duration-300 group-hover:scale-105"
                       />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white gap-2">
+                        <Maximize2 className="w-5 h-5 sm:w-6 sm:h-6" />
+                        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-black/20 px-2 py-1 rounded-full backdrop-blur-sm">
+                          Томруулах
+                        </span>
+                      </div>
                     </div>
                     <CardContent className="p-3 sm:p-4 md:p-6">
                       <h3 className="font-semibold text-sm xs:text-base md:text-lg mb-2 sm:mb-3 truncate">
@@ -415,6 +432,24 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
+        <DialogContent className="max-w-[95vw] md:max-w-[85vw] max-h-[95vh] p-0 overflow-hidden bg-transparent border-none shadow-none flex items-center justify-center">
+          <DialogTitle className="sr-only">Зургийн түүвэр</DialogTitle>
+          {selectedImage && (
+            <div className="relative w-full h-full flex items-center justify-center p-2 sm:p-4">
+              <Image
+                src={selectedImage}
+                alt="Preview"
+                width={1200}
+                height={800}
+                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                priority
+              />
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

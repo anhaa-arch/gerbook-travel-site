@@ -26,7 +26,7 @@ export default function MongolianGerPage() {
                             <div className="bg-emerald-600 p-8 text-white relative overflow-hidden">
                                 <Mountain className="absolute -right-10 -bottom-10 w-48 h-48 opacity-10" />
                                 <p className="text-xl font-bold relative z-10 leading-relaxed">
-                                    "Одоогоор бид Архангай аймгийн Цэнхэр сумын хамгийн шилдэг 100 гаруй малчин өрхтэй хамтран ажиллаж байна. Тун удахгүй бусад аймгуудын малчин өрхүүд нэмэгдэх болно."
+                                    "Одоогоор бид Архангай аймгийн Цэнхэр сум болон Өвөрхангай аймгийн Хужирт сумын хамгийн шилдэг 100 гаруй малчин өрхтэй хамтран ажиллаж байна. Тун удахгүй бусад аймгуудын малчин өрхүүд нэмэгдэх болно."
                                 </p>
                             </div>
                         </Card>
