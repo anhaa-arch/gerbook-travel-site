@@ -899,11 +899,11 @@ export default function AdminDashboardContent() {
         return;
       }
 
-      // Check if we already have 3 images
-      if (uploadedImages.length >= 3) {
+      // Check if we already have 6 images
+      if (uploadedImages.length >= 6) {
         toast({
           title: "Алдаа",
-          description: "Дээд тал 3 зураг оруулж болно",
+          description: "Дээд тал 6 зураг оруулж болно",
           variant: "destructive" as any,
         });
         return;
@@ -925,11 +925,11 @@ export default function AdminDashboardContent() {
   const handleImageUrlChange = (url: string, formType: "yurt" | "product") => {
     if (!url.trim()) return;
 
-    // Check if we already have 10 images
-    if (uploadedImages.length >= 10) {
+    // Check if we already have 6 images
+    if (uploadedImages.length >= 6) {
       toast({
         title: "Алдаа",
-        description: "Дээд тал 10 зураг оруулж болно",
+        description: "Дээд тал 6 зураг оруулж болно",
         variant: "destructive" as any,
       });
       return;
@@ -1719,7 +1719,7 @@ export default function AdminDashboardContent() {
                     </div>
 
                     <div className="space-y-4 pt-4 border-t mt-6">
-                      <label className="text-sm font-bold text-gray-700">Бүтээгдэхүүний зураг (Дээд тал нь 10)</label>
+                      <label className="text-sm font-bold text-gray-700">Бүтээгдэхүүний зураг (Дээд тал нь 6)</label>
                       <div className="flex flex-wrap gap-4">
                         {uploadedImages.map((image, index) => (
                           <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
@@ -1856,7 +1856,7 @@ export default function AdminDashboardContent() {
                     </div>
 
                     <div className="space-y-4 pt-4 border-t mt-6">
-                      <label className="text-sm font-bold text-gray-700">Бүтээгдэхүүний зураг (Дээд тал нь 10)</label>
+                      <label className="text-sm font-bold text-gray-700">Бүтээгдэхүүний зураг (Дээд тал нь 6)</label>
                       <div className="flex flex-wrap gap-4">
                         {uploadedImages.map((image, index) => (
                           <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
@@ -2356,7 +2356,7 @@ export default function AdminDashboardContent() {
                   </div>
 
                   <div className="space-y-4 pt-4 border-t">
-                    <label className="text-sm font-bold text-gray-700">Баазын зураг (Дээд тал нь 10)</label>
+                    <label className="text-sm font-bold text-gray-700">Баазын зураг (Дээд тал нь 6)</label>
                     <div className="flex flex-wrap gap-4">
                       {uploadedImages.map((image, index) => (
                         <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
@@ -2671,7 +2671,7 @@ export default function AdminDashboardContent() {
                   </div>
 
                   <div className="space-y-4 pt-4 border-t">
-                    <label className="text-sm font-bold text-gray-700">Баазын зураг (Дээд тал нь 10)</label>
+                    <label className="text-sm font-bold text-gray-700">Баазын зураг (Дээд тал нь 6)</label>
                     <div className="flex flex-wrap gap-4">
                       {uploadedImages.map((image, index) => (
                         <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">

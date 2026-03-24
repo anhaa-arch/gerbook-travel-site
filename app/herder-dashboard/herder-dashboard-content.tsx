@@ -642,11 +642,11 @@ export default function HerderDashboardContent() {
         return;
       }
 
-      // Check if we already have 3 images
-      if (uploadedImages.length >= 3) {
+      // Check if we already have 6 images
+      if (uploadedImages.length >= 6) {
         toast({
           title: "Алдаа",
-          description: "Дээд тал 3 зураг оруулж болно",
+          description: "Дээд тал 6 зураг оруулж болно",
           variant: "destructive" as any,
         });
         return;
@@ -668,11 +668,11 @@ export default function HerderDashboardContent() {
   const handleImageUrlChange = (url: string, formType: "yurt" | "product") => {
     if (!url.trim()) return;
 
-    // Check if we already have 10 images
-    if (uploadedImages.length >= 10) {
+    // Check if we already have 6 images
+    if (uploadedImages.length >= 6) {
       toast({
         title: "Алдаа",
-        description: "Дээд тал 10 зураг оруулж болно",
+        description: "Дээд тал 6 зураг оруулж болно",
         variant: "destructive" as any,
       });
       return;
@@ -1147,7 +1147,7 @@ export default function HerderDashboardContent() {
 
                       <div className="pt-2">
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Зураг оруулах ({uploadedImages.length}/10)
+                          Зураг оруулах ({uploadedImages.length}/6)
                         </label>
 
                         <div className="flex space-x-2 mb-3">
@@ -1783,7 +1783,7 @@ export default function HerderDashboardContent() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Зураг оруулах ({uploadedImages.length}/10)
+                      Зураг оруулах ({uploadedImages.length}/6)
                     </label>
 
                     {/* Image Upload Mode Toggle */}
@@ -1833,7 +1833,7 @@ export default function HerderDashboardContent() {
                           disabled={uploadedImages.length >= 10}
                         >
                           <Upload className="w-4 h-4 mr-2" />
-                          Зураг сонгох ({uploadedImages.length}/10)
+                          Зураг сонгох ({uploadedImages.length}/6)
                         </Button>
                       </div>
                     )}
