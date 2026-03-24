@@ -1,167 +1,93 @@
 import { Phone, Mail, Facebook, Instagram } from "lucide-react";
+import Image from "next/image";
 
 export function Footer() {
   return (
-    <footer className="w-full bg-white text-gray-580 border-t border-gray-200">
-      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 pt-6 sm:pt-8 md:pt-12 pb-3">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-          {/* Column 1 */}
-          <div>
-            <h3 className="font-semibold text-xs sm:text-sm md:text-base mb-2 sm:mb-3">
-              Malchin Camp-ийн тухай
-            </h3>
-            <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-              <li>
-                <a
-                  href="/about"
-                  className="hover:text-green-600 transition-colors inline-block"
-                >
-                  Малчин Camp-ийн тухай
-                </a>
-              </li>
-            </ul>
+    <footer className="w-full relative flex flex-col font-sans">
+      <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] lg:aspect-[2.5/1] xl:aspect-[3/1] min-h-[350px] sm:min-h-[400px] flex flex-col justify-end pb-8 sm:pb-12 text-white">
+        
+        {/* Actual Image Background */}
+        <Image
+          src="/footer-bg.png"
+          alt="Mountain Pattern Footer"
+          fill
+          className="object-cover object-bottom pointer-events-none z-0"
+          quality={100}
+          priority
+        />
+        
+        {/* Subtle bottom dark gradient overlay to ensure text legibility at smaller breakpoints where the image might get cropped */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0F3D2E]/80 via-[#1F7A5A]/20 to-transparent z-0 pointer-events-none"></div>
+
+        {/* Content Container */}
+        <div className="relative z-10 max-w-4xl mx-auto px-6 flex flex-col items-center justify-center space-y-6 sm:space-y-8 mt-auto pt-32">
+          
+          {/* Row 1: Phone and Email */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-8 text-sm sm:text-base md:text-lg font-medium tracking-wide drop-shadow-md">
+            <a href="tel:85868721" className="flex items-center gap-2.5 hover:text-green-200 transition-colors">
+              <Phone className="w-5 h-5 opacity-90" />
+              <span>85868721</span>
+            </a>
+            
+            {/* Dot separator visible only on breakpoints larger than sm */}
+            <span className="hidden sm:block opacity-40 select-none">|</span>
+            
+            <a href="mailto:support@malchincamp.com" className="flex items-center gap-2.5 hover:text-green-200 transition-colors">
+              <Mail className="w-5 h-5 opacity-90" />
+              <span>support@malchincamp.com</span>
+            </a>
           </div>
 
-          {/* Column 2 */}
-          <div>
-            <h3 className="font-semibold text-xs sm:text-sm md:text-base mb-2 sm:mb-3">
-              Үйлчилгээний нөхцөл
-            </h3>
-            <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-              <li>
-                <a
-                  href="/terms"
-                  className="hover:text-green-600 transition-colors inline-block"
-                >
-                  Захиалга цуцлах бодлого
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/privacy"
-                  className="hover:text-green-600 transition-colors inline-block"
-                >
-                  Нууцлалын бодлого
-                </a>
-              </li>
-            </ul>
+          {/* Row 2: Social Media Icons */}
+          <div className="flex items-center justify-center gap-6 sm:gap-8">
+            <a
+              href="https://www.facebook.com/share/14XZc4zyjaG/?mibextid=wwXIfr"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Facebook"
+              className="p-2 hover:bg-white/10 rounded-full transition-all duration-300 transform hover:scale-110 drop-shadow-md"
+            >
+              <Facebook className="w-6 h-6 sm:w-7 sm:h-7 opacity-90" />
+            </a>
+            <a
+              href="https://www.instagram.com/malchincamp?igsh=MWo3MDlxOTdwdzBndA%3D%3D&utm_source=qr"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="Instagram"
+              className="p-2 hover:bg-white/10 rounded-full transition-all duration-300 transform hover:scale-110 drop-shadow-md"
+            >
+              <Instagram className="w-6 h-6 sm:w-7 sm:h-7 opacity-90" />
+            </a>
+            <a
+              href="#"
+              aria-label="Website"
+              className="p-2 hover:bg-white/10 rounded-full transition-all duration-300 transform hover:scale-110 flex items-center justify-center drop-shadow-md"
+            >
+              <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white/90 rounded-md flex items-center justify-center shadow-sm">
+                <span className="text-[#0F3D2E] text-xs sm:text-sm font-bold tracking-tighter">M</span>
+              </div>
+            </a>
           </div>
 
-          {/* Column 3 */}
-          <div className="sm:col-span-2 md:col-span-1">
-            <h3 className="font-semibold text-xs sm:text-sm md:text-base mb-2 sm:mb-3">
-              Нэмэлт мэдээлэл
-            </h3>
-            <ul className="space-y-1.5 sm:space-y-2 text-xs sm:text-sm">
-              <li>
-                <a
-                  href="/mongolian-ger"
-                  className="hover:text-green-600 transition-colors inline-block"
-                >
-                  Аялах бус нутгууд
-                </a>
-              </li>
-              <li>
-                <a
-                  href="/mongolian-ger"
-                  className="hover:text-green-600 transition-colors inline-block"
-                >
-                  Туслах мэдээлэл
-                </a>
-              </li>
-            </ul>
-          </div>
-        </div>
+          {/* Divider Line */}
+          <div className="w-full max-w-[200px] sm:max-w-xs border-t border-white/20 rounded-full my-2"></div>
 
-        {/* Cancellation Policy Notice */}
-        <div className="mt-6 sm:mt-8 pt-4 sm:pt-6 border-t border-gray-100 max-w-4xl">
-          <h3 className="font-semibold text-xs sm:text-sm md:text-base mb-2 text-gray-700">
-            Цуцлалтын дүрэм
-          </h3>
-          <div className="space-y-1.5 text-[10px] sm:text-xs md:text-sm text-gray-500">
-            <p><span className="font-semibold text-gray-700">7+ хоног:</span> 100% Буцаалттай.</p>
-            <p><span className="font-semibold text-gray-700">0-7 хоног:</span> Буцаалт хийгдэхгүй.</p>
-            <p className="italic text-gray-400 mt-1">(Захиалга баталгаажсан хугацаанаас хамаарна)</p>
-            <p className="text-gray-400 mt-1 hidden">Отгонбаатарын</p>
+          {/* Copyright and URL */}
+          <div className="flex flex-col items-center justify-center space-y-1.5 text-center drop-shadow-md">
+            <p className="text-xs sm:text-sm text-white/90 font-light tracking-wide">
+              © {new Date().getFullYear()} Malchin Camp. Бүх эрх хуулиар хамгаалагдсан.
+            </p>
+            <a 
+              href="https://malchincamp.mn" 
+              className="text-sm sm:text-base font-medium opacity-90 hover:opacity-100 hover:text-green-200 transition-colors"
+            >
+              malchincamp.mn
+            </a>
           </div>
-        </div>
 
-        {/* Informational Text */}
-        <div className="mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-100 max-w-4xl text-[10px] sm:text-xs md:text-sm text-gray-500">
-          <p>
-            "Одоогоор бид Архангай аймгийн Цэнхэр сум болон Өвөрхангай аймгийн Хужирт сумын хамгийн шилдэг 100 гаруй малчин өрхтэй хамтран ажиллаж байна. Тун удахгүй бусад аймгуудын малчин өрхүүд нэмэгдэх болно."
-          </p>
         </div>
       </div>
-
-      {/* Bottom Contact Section */}
-      <div className="bg-green-600 mt-6 sm:mt-8 py-4 sm:py-5 md:py-6 w-full rounded-t-2xl sm:rounded-t-3xl md:rounded-t-full">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <div className="flex flex-col sm:flex-row items-center justify-center sm:justify-evenly gap-3 sm:gap-4 md:gap-6">
-            {/* Phone */}
-            <div className="flex items-center justify-center space-x-1.5 sm:space-x-2">
-              <Phone className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-              <a
-                href="tel:85868721"
-                className="text-sm sm:text-base md:text-lg text-white font-medium hover:underline"
-              >
-                85868721
-              </a>
-            </div>
-
-            {/* Email */}
-            <div className="flex items-center justify-center space-x-1.5 sm:space-x-2">
-              <Mail className="w-4 h-4 sm:w-5 sm:h-5 text-white flex-shrink-0" />
-              <a
-                href="mailto:support@malchincamp.com"
-                className="text-xs sm:text-sm md:text-base lg:text-lg text-white font-medium hover:underline truncate max-w-[200px] sm:max-w-none"
-              >
-                support@malchincamp.com
-              </a>
-            </div>
-
-            {/* Social Media */}
-            <div className="flex items-center justify-center space-x-3 sm:space-x-4">
-              <a
-                href="https://www.facebook.com/share/14XZc4zyjaG/?mibextid=wwXIfr"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-                className="hover:scale-110 transition-transform"
-              >
-                <Facebook className="w-5 h-5 sm:w-6 sm:h-6 text-white cursor-pointer" />
-              </a>
-              <a
-                href="https://www.instagram.com/malchincamp?igsh=MWo3MDlxOTdwdzBndA%3D%3D&utm_source=qr"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Instagram"
-                className="hover:scale-110 transition-transform"
-              >
-                <Instagram className="w-5 h-5 sm:w-6 sm:h-6 text-white cursor-pointer" />
-              </a>
-              <a
-                href="#"
-                aria-label="Gmail"
-                className="hover:scale-110 transition-transform"
-              >
-                <div className="w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full text-white cursor-pointer flex items-center justify-center">
-                  <span className="text-green-700 text-[10px] sm:text-[11px] font-bold">M</span>
-                </div>
-              </a>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Copyright */}
-      <div className="bg-green-700 py-2 sm:py-3">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
-          <p className="text-center text-[10px] sm:text-xs text-white">
-            © {new Date().getFullYear()} Malchin Camp. Бүх эрх хуулиар хамгаалагдсан.
-          </p>
-        </div>
-      </div>
-    </footer >
+    </footer>
   );
 }
+
