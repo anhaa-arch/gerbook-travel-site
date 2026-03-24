@@ -168,7 +168,7 @@ export function SearchSection() {
             ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-gray-500 max-w-2xl mx-auto font-medium tracking-wide">
-            Монголын уламжлалт өв соёл, нүүдэлчдийн ахуйг мэдрэх аялал
+            НҮҮДЭЛЧИН АХУЙ СОЁЛ МОНГОЛЫН БАЯЛАГ
           </p>
         </div>
 
