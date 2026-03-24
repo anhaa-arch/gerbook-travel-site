@@ -1147,7 +1147,7 @@ export default function HerderDashboardContent() {
 
                       <div className="pt-2">
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Зураг оруулах ({uploadedImages.length}/3)
+                          Зураг оруулах ({uploadedImages.length}/10)
                         </label>
 
                         <div className="flex space-x-2 mb-3">

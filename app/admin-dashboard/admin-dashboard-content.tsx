@@ -1719,7 +1719,7 @@ export default function AdminDashboardContent() {
                     </div>
 
                     <div className="space-y-4 pt-4 border-t mt-6">
-                      <label className="text-sm font-bold text-gray-700">Бүтээгдэхүүний зураг (Дээд тал нь 3)</label>
+                      <label className="text-sm font-bold text-gray-700">Бүтээгдэхүүний зураг (Дээд тал нь 10)</label>
                       <div className="flex flex-wrap gap-4">
                         {uploadedImages.map((image, index) => (
                           <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
@@ -1856,7 +1856,7 @@ export default function AdminDashboardContent() {
                     </div>
 
                     <div className="space-y-4 pt-4 border-t mt-6">
-                      <label className="text-sm font-bold text-gray-700">Бүтээгдэхүүний зураг (Дээд тал нь 3)</label>
+                      <label className="text-sm font-bold text-gray-700">Бүтээгдэхүүний зураг (Дээд тал нь 10)</label>
                       <div className="flex flex-wrap gap-4">
                         {uploadedImages.map((image, index) => (
                           <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
@@ -2356,7 +2356,7 @@ export default function AdminDashboardContent() {
                   </div>
 
                   <div className="space-y-4 pt-4 border-t">
-                    <label className="text-sm font-bold text-gray-700">Баазын зураг (Дээд тал нь 3)</label>
+                    <label className="text-sm font-bold text-gray-700">Баазын зураг (Дээд тал нь 10)</label>
                     <div className="flex flex-wrap gap-4">
                       {uploadedImages.map((image, index) => (
                         <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
@@ -2671,7 +2671,7 @@ export default function AdminDashboardContent() {
                   </div>
 
                   <div className="space-y-4 pt-4 border-t">
-                    <label className="text-sm font-bold text-gray-700">Баазын зураг (Дээд тал нь 3)</label>
+                    <label className="text-sm font-bold text-gray-700">Баазын зураг (Дээд тал нь 10)</label>
                     <div className="flex flex-wrap gap-4">
                       {uploadedImages.map((image, index) => (
                         <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
