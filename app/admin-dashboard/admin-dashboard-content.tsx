@@ -645,7 +645,7 @@ export default function AdminDashboardContent() {
         : campForm.province;
 
       // Optimize images - limit to 3
-      const optimizedImages = uploadedImages.slice(0, 3);
+      const optimizedImages = uploadedImages.slice(0, 10);
 
       const input = {
         name: campForm.name,
@@ -732,7 +732,7 @@ export default function AdminDashboardContent() {
         : campForm.province;
 
       // Optimize images - limit to 3
-      const optimizedImages = uploadedImages.slice(0, 3);
+      const optimizedImages = uploadedImages.slice(0, 10);
 
       const input = {
         name: campForm.name,
@@ -889,11 +889,11 @@ export default function AdminDashboardContent() {
     if (files && files.length > 0) {
       const file = files[0];
 
-      // Check file size (max 2MB)
-      if (file.size > 2 * 1024 * 1024) {
+      // Check file size (max 20MB)
+      if (file.size > 20 * 1024 * 1024) {
         toast({
           title: "Алдаа",
-          description: "Зурагны хэмжээ 2MB-аас их байна",
+          description: "Зурагны хэмжээ 20MB-аас их байна",
           variant: "destructive" as any,
         });
         return;
@@ -925,11 +925,11 @@ export default function AdminDashboardContent() {
   const handleImageUrlChange = (url: string, formType: "yurt" | "product") => {
     if (!url.trim()) return;
 
-    // Check if we already have 3 images
-    if (uploadedImages.length >= 3) {
+    // Check if we already have 10 images
+    if (uploadedImages.length >= 10) {
       toast({
         title: "Алдаа",
-        description: "Дээд тал 3 зураг оруулж болно",
+        description: "Дээд тал 10 зураг оруулж болно",
         variant: "destructive" as any,
       });
       return;
