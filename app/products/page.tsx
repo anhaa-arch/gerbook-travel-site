@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { productCategories } from "@/lib/data"
 import { gql, useQuery } from "@apollo/client"
 import { getFirstImage } from "@/lib/imageUtils"
+import { translateCategory } from "@/lib/admin-utils"
 import '../../lib/i18n'
 import { useCart } from "@/hooks/use-cart"
 import { toast } from "@/components/ui/use-toast"
@@ -123,7 +124,7 @@ export default function ProductsPage() {
                   <SelectItem value="all">{t("products.all_categories")}</SelectItem>
                   {categories.map((category: any) => (
                     <SelectItem key={category.id} value={category.id}>
-                      {category.name}
+                      {translateCategory(category.name)}
                     </SelectItem>
                   ))}
                 </SelectContent>
@@ -205,7 +206,7 @@ export default function ProductsPage() {
                       <div className="flex items-center justify-between mb-2">
                         <div className="flex items-center">
                           <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium">
-                            {product.category?.name || "Бүтээгдэхүүн"}
+                            {translateCategory(product.category?.name)}
                           </span>
                         </div>
                       </div>
@@ -229,7 +230,7 @@ export default function ProductsPage() {
                               price: product.price,
                               quantity: 1,
                               image: imageSrc,
-                              category: product.category?.name || "Бүтээгдэхүүн",
+                              category: translateCategory(product.category?.name),
                             })
                           }}
                         >
