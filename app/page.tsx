@@ -22,7 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import "../lib/i18n";
 import { gql, useQuery } from "@apollo/client";
-import { Footer } from "@/components/footer";
+
 import { SearchSection } from "@/components/search/SearchSection";
 import { getFirstImage, getPrimaryImage } from "@/lib/imageUtils";
 import { useCart } from "@/hooks/use-cart";
@@ -48,6 +48,7 @@ const GET_PRODUCTS = gql`
           name
           price
           images
+          stock
         }
       }
     }
@@ -390,7 +391,8 @@ export default function HomePage() {
                                     price: product.price,
                                     quantity: 1,
                                     image: imageSrc,
-                                    type: "PRODUCT"
+                                    type: "PRODUCT",
+                                    stock: product.stock
                                   });
                                 } catch (error) {
                                   toast({
@@ -445,7 +447,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Footer />
+
     </div>
   );
 }

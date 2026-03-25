@@ -262,6 +262,7 @@ export default function ProductsPage() {
                                   quantity: 1,
                                   image: imageSrc,
                                   category: translateCategory(product.category?.name),
+                                  stock: product.stock
                                 })
                                 toast({
                                   title: "Амжилттай",

@@ -589,6 +589,7 @@ export default function ListingsPage() {
                                       quantity: 1,
                                       image: imageSrc,
                                       category: product.category?.name || "Бараа",
+                                      stock: product.stock
                                     });
                                     toast({
                                       title: "Сагсанд нэмэгдлээ",

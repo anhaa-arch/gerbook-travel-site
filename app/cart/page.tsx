@@ -347,10 +347,12 @@ export default function CartPage() {
                     </div>
                     <div>
                       <input 
+                        type="tel"
                         className={`w-full px-4 py-3 rounded-xl border ${formErrors.phone ? 'border-red-500' : 'border-gray-200'} text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500`}
                         placeholder="Утасны дугаар (8 оронтой)"
                         value={receiverPhone}
-                        onChange={e => setReceiverPhone(e.target.value)}
+                        onChange={e => setReceiverPhone(e.target.value.replace(/\D/g, '').slice(0, 8))}
+                        maxLength={8}
                       />
                       {formErrors.phone && <p className="text-red-500 text-xs mt-1 font-bold">{formErrors.phone}</p>}
                     </div>

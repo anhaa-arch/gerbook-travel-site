@@ -14,6 +14,7 @@ export interface CartItem {
   quantity: number;
   image: string;
   category?: string;
+  stock?: number;
   // For Camps/Travel
   startDate?: string;
   endDate?: string;
@@ -105,12 +106,35 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
       if (existingIndex > -1) {
         const updated = [...prev];
+        const newQuantity = updated[existingIndex].quantity + item.quantity;
+        
+        // Check stock
+        if (item.stock !== undefined && newQuantity > item.stock) {
+          toast({
+            title: "Нөөц хүрэлцээгүй",
+            description: `Уучлаарай, энэ барааны үлдэгдэл ${item.stock} байна.`,
+            variant: "destructive",
+          });
+          return prev;
+        }
+
         updated[existingIndex] = {
           ...updated[existingIndex],
-          quantity: updated[existingIndex].quantity + item.quantity
+          quantity: newQuantity
         };
         return updated;
       }
+
+      // Check stock for new item
+      if (item.stock !== undefined && item.quantity > item.stock) {
+        toast({
+          title: "Нөөц хүрэлцээгүй",
+          description: `Уучлаарай, энэ барааны үлдэгдэл ${item.stock} байна.`,
+          variant: "destructive",
+        });
+        return prev;
+      }
+
       return [...prev, item];
     });
 
@@ -146,7 +170,21 @@ export function CartProvider({ children }: { children: ReactNode }) {
       return;
     }
     setCartItems((prev) =>
-      prev.map((i) => getClientId(i) === clientId ? { ...i, quantity } : i)
+      prev.map((i) => {
+        if (getClientId(i) === clientId) {
+          // Check stock
+          if (i.stock !== undefined && quantity > i.stock) {
+            toast({
+              title: "Нөөц хүрэлцээгүй",
+              description: `Уучлаарай, энэ барааны үлдэгдэл ${i.stock} байна.`,
+              variant: "destructive",
+            });
+            return i;
+          }
+          return { ...i, quantity };
+        }
+        return i;
+      })
     );
   }, [removeFromCart]);
 
