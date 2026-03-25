@@ -4,8 +4,8 @@ import { MapPin, Info, Heart, Mountain } from "lucide-react";
 
 export default function MongolianGerPage() {
     return (
-        <div className="min-h-screen bg-gray-50 pt-20 pb-12">
-            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="min-h-screen pt-20 pb-12">
+            <div className="max-w-4xl 2xl:max-w-6xl 3xl:max-w-7xl 4k:max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="text-center mb-12">
                     <Badge className="mb-4 bg-amber-100 text-amber-800 border-none px-4 py-1">Монгол ахуй</Badge>
                     <h1 className="text-3xl md:text-5xl font-extrabold text-gray-900 mb-6 tracking-tight">

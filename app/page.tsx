@@ -121,7 +121,7 @@ export default function HomePage() {
 
   return (
     <div className="h-full bg-white">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-6xl 2xl:max-w-7xl 3xl:max-w-[1800px] 4k:max-w-[2400px] mx-auto">
         <div className="bg-white py-4 sm:py-6 md:py-8">
           <SearchSection />
         </div>
@@ -129,7 +129,7 @@ export default function HomePage() {
 
       {/* Trust & Features Section */}
       <div className="bg-gray-50/50 border-y border-gray-100 py-3 sm:py-4">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[2000px] 4k:max-w-[2800px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-4 gap-2 sm:gap-6">
             {[
               {
@@ -167,7 +167,7 @@ export default function HomePage() {
 
       {/* Featured Camps Section */}
       <section className="py-6 sm:py-8 md:py-12 lg:py-16">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[2000px] 4k:max-w-[2800px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-gray-900 flex items-center gap-3">
               {t("home.featured_camps")}
@@ -182,7 +182,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-5 lg:gap-6 mb-6">
+          <div className="grid grid-cols-2 lg:grid-cols-4 3xl:grid-cols-6 4k:grid-cols-8 gap-2 sm:gap-4 md:gap-5 lg:gap-6 mb-6">
             {yurts
               .slice((campPage - 1) * itemsPerPage, campPage * itemsPerPage)
               .map((camp: any) => {
@@ -308,7 +308,7 @@ export default function HomePage() {
 
       {/* Featured Products */}
       <section className="py-6 sm:py-8 md:py-12 lg:py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[2000px] 4k:max-w-[2800px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
             <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-gray-900">
               {t("products.title")}
@@ -323,7 +323,7 @@ export default function HomePage() {
             </Link>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6 lg:gap-8">
+          <div className="grid grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4 4k:grid-cols-6 gap-2 sm:gap-4 md:gap-6 lg:gap-8">
             {productEdges
               .slice((productPage - 1) * itemsPerPage, productPage * itemsPerPage)
               .map((edge: any) => {

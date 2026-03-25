@@ -4,7 +4,7 @@ import Image from "next/image";
 export function Footer() {
   return (
     <footer className="w-full relative flex flex-col font-sans">
-      <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] lg:aspect-[2.5/1] xl:aspect-[3/1] min-h-[350px] sm:min-h-[400px] flex flex-col justify-end pb-8 sm:pb-12 text-[#0F3D2E]">
+      <div className="relative w-full aspect-[4/3] sm:aspect-[16/9] md:aspect-[21/9] lg:aspect-[2.5/1] xl:aspect-[3/1] 2xl:aspect-[4/1] 2xl:max-h-[600px] min-h-[350px] sm:min-h-[400px] flex flex-col justify-end pb-8 sm:pb-12 text-[#0F3D2E]">
         
         {/* Actual Image Background */}
         <Image

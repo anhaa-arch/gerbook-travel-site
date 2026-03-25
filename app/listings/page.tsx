@@ -240,7 +240,7 @@ export default function ListingsPage() {
     <div className="min-h-screen bg-gray-50 font-sans">
       {/* Page Header */}
       <section className="bg-white border-b border-gray-200 py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[2000px] 4k:max-w-[2800px] mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-6 font-display">
             Бүх жагсаалт
           </h1>
@@ -325,7 +325,7 @@ export default function ListingsPage() {
 
       {/* Tabs Section */}
       <section className="py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[2000px] 4k:max-w-[2800px] mx-auto px-4 sm:px-6 lg:px-8">
           <Tabs
             value={activeTab}
             onValueChange={setActiveTab}
@@ -365,7 +365,7 @@ export default function ListingsPage() {
               </div>
 
               {/* Paginated Camps Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4 4k:grid-cols-5 gap-8">
                 {filteredCamps.length > 0 ? (
                   filteredCamps
                     .slice((campPage - 1) * itemsPerPage, campPage * itemsPerPage)
@@ -517,7 +517,7 @@ export default function ListingsPage() {
               </div>
 
               {/* Paginated Products Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4 4k:grid-cols-5 gap-8">
                 {products
                   .slice((productPage - 1) * itemsPerPage, productPage * itemsPerPage)
                   .map((product: any) => {

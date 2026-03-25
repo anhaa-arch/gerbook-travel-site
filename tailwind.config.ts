@@ -12,6 +12,8 @@ const config: Config = {
     extend: {
       screens: {
         'xs': '475px',
+        '3xl': '1920px',
+        '4k': '2560px',
       },
       fontFamily: {
         sans: ["var(--font-montserrat)", "system-ui", "sans-serif"],

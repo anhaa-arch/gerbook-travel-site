@@ -227,7 +227,7 @@ export function Header() {
           alt="Traditional Mongolian Cloud Pattern"
           width={1920}
           height={300}
-          className="w-full max-w-[1920px] h-auto object-cover object-bottom"
+          className="w-full xl:max-w-none h-auto object-cover object-bottom"
           priority
           quality={100}
         />

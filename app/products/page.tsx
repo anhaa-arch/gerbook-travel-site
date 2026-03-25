@@ -110,7 +110,7 @@ export default function ProductsPage() {
     <div className="min-h-screen bg-gray-50 font-sans">
       {/* Page Header */}
       <section className="bg-white border-b border-gray-200 py-6 sm:py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[2000px] 4k:max-w-[2800px] mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-6 font-display">{t("products.title")}</h1>
 
           {/* Filters */}
@@ -175,12 +175,12 @@ export default function ProductsPage() {
 
       {/* Products Grid */}
       <section className="py-6 sm:py-8">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[2000px] 4k:max-w-[2800px] mx-auto px-4 sm:px-6 lg:px-8">
           <div className="mb-6">
             <p className="text-gray-600 font-medium">{filteredProducts.length} бүтээгдэхүүн олдлоо</p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 4k:grid-cols-6 gap-4 sm:gap-6">
             {filteredProducts
               .slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
               .map((product: any) => {

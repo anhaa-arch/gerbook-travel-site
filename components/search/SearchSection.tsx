@@ -161,7 +161,7 @@ export function SearchSection() {
 
   return (
     <div className="bg-white py-3 sm:py-4 md:py-6 lg:py-8">
-      <div className="max-w-6xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+      <div className="max-w-6xl 2xl:max-w-7xl 3xl:max-w-[1800px] 4k:max-w-[2400px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         {/* Hero text */}
         <div className="text-center mb-8 sm:mb-12 mt-4 sm:mt-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#0F3D2E] via-emerald-800 to-[#0F3D2E] tracking-tight leading-tight mb-4 font-display drop-shadow-sm py-1">
@@ -173,7 +173,7 @@ export function SearchSection() {
         </div>
 
         {/* Search Bar */}
-        <div className="bg-white/90 backdrop-blur-xl p-4 sm:p-5 md:p-6 lg:p-8 rounded-[2rem] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border border-white/60 ring-1 ring-black/[0.03] max-w-5xl mx-auto transform transition-all hover:shadow-[0_8px_50px_-12px_rgba(0,0,0,0.15)] auto-mx">
+        <div className="bg-white/90 backdrop-blur-xl p-4 sm:p-5 md:p-6 lg:p-8 rounded-[2rem] shadow-[0_8px_40px_-12px_rgba(0,0,0,0.1)] border border-white/60 ring-1 ring-black/[0.03] max-w-5xl 2xl:max-w-6xl 3xl:max-w-[1800px] 4k:max-w-[2400px] mx-auto transform transition-all hover:shadow-[0_8px_50px_-12px_rgba(0,0,0,0.15)] auto-mx">
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 items-stretch sm:items-end">
 
             {/* Province (Аймаг) */}

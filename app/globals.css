@@ -88,6 +88,11 @@
   body {
     @apply bg-background text-foreground;
     font-family: var(--font-montserrat), system-ui, sans-serif;
+    /* Subtle background for ultra-wide screens to prevent the "void" look */
+    background-image: radial-gradient(#1b7c53 0.5px, transparent 0.5px);
+    background-size: 30px 30px;
+    background-attachment: fixed;
+    background-color: #fcfdf9; /* Slightly off-white for premium feel */
   }
   
   /* Hide scrollbar for Chrome, Safari and Opera */
