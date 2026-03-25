@@ -1,7 +1,7 @@
 "use client"
 
 import type React from "react"
-import { useState, useEffect, createContext, useContext } from "react"
+import { useState, useEffect, createContext, useContext, useCallback } from "react"
 import client from '@/lib/apolloClient'
 import { gql } from '@apollo/client'
 import { useRouter } from 'next/navigation'
@@ -82,6 +82,32 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
+  // Auto-logout after 10 minutes of inactivity
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    let timeoutId: NodeJS.Timeout;
+    const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+
+    const resetTimer = () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        console.log("Logging out due to inactivity");
+        logout();
+      }, INACTIVITY_TIMEOUT);
+    };
+
+    const events = ["mousemove", "mousedown", "keydown", "scroll", "touchstart"];
+    events.forEach(event => window.addEventListener(event, resetTimer));
+
+    resetTimer(); // Initialize timer
+
+    return () => {
+      if (timeoutId) clearTimeout(timeoutId);
+      events.forEach(event => window.removeEventListener(event, resetTimer));
+    };
+  }, [isAuthenticated]);
+
   const redirectUser = (role: string) => {
     // 1. Check for 'redirect' query parameter
     let queryRedirect: string | null = null;
@@ -140,7 +166,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     redirectUser(normalizedRole)
   }
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     setuser(null)
     setIsAuthenticated(false)
     localStorage.removeItem("user")
@@ -148,7 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('token')
     await client.clearStore() // Clear Apollo cache
     router.push('/login')
-  }
+  }, [router]);
 
   // GraphQL Operations
   const REQUEST_REGISTRATION_CODE = gql`
@@ -330,7 +356,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const logoutAllDevices = async () => {
+  const logoutAllDevices = useCallback(async () => {
     try {
       await client.mutate({ mutation: LOGOUT_ALL_DEVICES_MUTATION })
       await logout()
@@ -338,7 +364,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       console.error("Error in logoutAllDevices:", error)
       await logout() // Still logout locally if mutation fails
     }
-  }
+  }, [logout]);
 
   const resetPassword = async (token: string, newPassword: string) => {
     const { data } = await client.mutate({ mutation: RESET_PASSWORD_MUTATION, variables: { token, newPassword } })
