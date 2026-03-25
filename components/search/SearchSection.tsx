@@ -309,7 +309,7 @@ export function SearchSection() {
                   className="w-full h-9 sm:h-10 pl-7 sm:pl-9 pr-8 sm:pr-9 rounded-lg cursor-pointer text-xs sm:text-sm text-left border border-gray-200 hover:border-emerald-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all bg-white flex items-center"
                 >
                   <span className={selectedGuests > 1 ? "text-gray-800 font-medium" : "text-gray-400"}>
-                    {formatGuests() || "Зочин нэмэх"}
+                    {formatGuests() || "Зочид"}
                   </span>
                 </button>
                 {selectedGuests > 1 && (

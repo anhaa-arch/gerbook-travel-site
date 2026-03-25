@@ -13,6 +13,8 @@ import { useAuth } from "@/hooks/use-auth";
 import { gql, useMutation } from "@apollo/client";
 import OtpModal from "@/components/otp-modal";
 import { useGoogleLogin } from "@react-oauth/google";
+import { Header } from "@/components/header";
+import { Footer } from "@/components/footer";
 
 const REGISTER_MUTATION = gql`
   mutation Register($input: CreateuserInput!) {
@@ -261,7 +263,8 @@ export default function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row">
+    <div className="min-h-screen flex flex-col bg-[#fcfdf9]">
+      <Header />
       <OtpModal
         open={showOtpModal}
         onOpenChange={setShowOtpModal}
@@ -269,114 +272,92 @@ export default function RegisterPage() {
         onVerify={handleVerifyOtp}
         onResend={handleResendOtp}
       />
-      {/* Left side - Registration form */}
-      <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white py-8 lg:py-0">
-        <div className="max-w-md w-full space-y-6">
-          {/* Logo */}
-          <div className="text-center">
-            <Link
-              href="/"
-              className="flex items-center justify-center space-x-2 mb-8"
-            >
-              <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
-                <div className="w-5 h-5 bg-white rounded-full flex items-center justify-center">
-                  <div className="w-3 h-3 bg-green-600 rounded-full"></div>
+      <div className="flex-1 flex flex-col lg:flex-row">
+        <div className="flex-1 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white py-12 lg:py-0">
+          <div className="max-w-md w-full space-y-8">
+            <div className="text-center">
+              <Link
+                href="/"
+                className="inline-flex items-center space-x-3 mb-8 group transition-transform active:scale-95"
+              >
+                <div className="w-10 h-10 bg-[#1b7c53] rounded-xl flex items-center justify-center shadow-lg shadow-[#1b7c53]/20">
+                  <div className="w-6 h-6 bg-white rounded-lg flex items-center justify-center">
+                    <div className="w-3 h-3 bg-[#1b7c53] rounded-full"></div>
+                  </div>
                 </div>
-              </div>
-              <span className="text-xl font-semibold text-gray-900">
-                Malchin Camp
-              </span>
-            </Link>
+                <span className="text-2xl font-black text-gray-900 tracking-tight">
+                  MALCHIN
+                </span>
+              </Link>
 
-            <div className="flex justify-center mb-6">
-              <div className="relative">
-                <button
-                  onClick={() => setIsLanguageOpen(!isLanguageOpen)}
-                  className="flex items-center space-x-2 hover:bg-gray-50 p-2 rounded-lg"
-                >
-                  <img
-                    src="/mng-flag.jpg"
-                    alt="Монгол туг"
-                    className="w-6 h-6 rounded-full object-cover"
-                  />
-                  <ChevronDown className="w-4 h-4 text-gray-600" />
-                </button>
+              <div className="flex justify-center mb-10">
+                <div className="relative">
+                  <button
+                    onClick={() => setIsLanguageOpen(!isLanguageOpen)}
+                    className="flex items-center space-x-3 bg-gray-50 hover:bg-emerald-50 border border-gray-100 px-4 py-2 rounded-2xl transition-all"
+                  >
+                    <span className="text-xl">🇲🇳</span>
+                    <span className="text-sm font-bold text-gray-700">Монгол</span>
+                    <ChevronDown className="w-4 h-4 text-gray-400" />
+                  </button>
 
-                {isLanguageOpen && (
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-gray-200 rounded-lg shadow-lg z-50">
-                    <div className="p-3 border-b border-gray-100">
-                      <div className="flex items-center space-x-2 text-sm text-gray-600">
-                        <Globe className="w-4 h-4" />
-                        <span>Бүх хэлийг харуулах</span>
+                  {isLanguageOpen && (
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-48 bg-white border border-gray-100 rounded-3xl shadow-2xl z-50 animate-in fade-in slide-in-from-top-2 duration-200 overflow-hidden">
+                      <div className="p-2 space-y-1">
+                        {[
+                          { flag: "🇲🇳", name: "Монгол", code: "mn" },
+                          { flag: "🇬🇧", name: "English", code: "en" },
+                          { flag: "🇰🇷", name: "한국어", code: "ko" },
+                        ].map((lang, index) => (
+                          <button
+                            key={index}
+                            className="w-full flex items-center space-x-3 p-3 hover:bg-emerald-50 rounded-2xl transition-colors text-left group"
+                            onClick={() => setIsLanguageOpen(false)}
+                          >
+                            <span className="text-xl group-hover:scale-110 transition-transform font-bold">{lang.flag}</span>
+                            <span className="text-sm font-bold text-gray-700 group-hover:text-[#1b7c53]">
+                              {lang.name}
+                            </span>
+                          </button>
+                        ))}
                       </div>
                     </div>
-                    <div className="p-2">
-                      {[
-                        { flag: "🇲🇳", name: "Монгол" },
-                        { flag: "🇬🇧", name: "Англи" },
-                        { flag: "🇨🇳", name: "Хятад" },
-                        { flag: "🇯🇵", name: "Япон" },
-                        { flag: "🇰🇷", name: "Солонгос" },
-                        { flag: "🇷🇺", name: "Орос" },
-                        { flag: "🇩🇪", name: "Герман" },
-                      ].map((lang, index) => (
-                        <button
-                          key={index}
-                          className="w-full flex items-center space-x-3 p-2 hover:bg-gray-50 rounded-md text-left"
-                          onClick={() => setIsLanguageOpen(false)}
-                        >
-                          <span className="text-lg">{lang.flag}</span>
-                          <span className="text-sm text-gray-700">
-                            {lang.name}
-                          </span>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                  )}
+                </div>
               </div>
-            </div>
-          </div>
 
-          {/* Title */}
-          <div className="text-center">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Бүртгүүлэх
-            </h2>
-          </div>
+              <h2 className="text-3xl font-black text-gray-900 mb-2">Бүртгүүлэх</h2>
+            </div>
 
           {/* Tabs */}
-          <div className="flex bg-gray-100 rounded-lg p-1 mb-6">
+          <div className="flex bg-gray-50/50 rounded-2xl p-1 mb-8 border border-gray-100">
             <button
-              onClick={() => {
-                setActiveTab("customer");
-              }}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "customer"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
-                }`}
+              onClick={() => setActiveTab("customer")}
+              className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all ${
+                activeTab === "customer"
+                  ? "bg-white text-[#1b7c53] shadow-md"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
             >
               Аялагч
             </button>
             <button
-              onClick={() => {
-                setActiveTab("herder");
-              }}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "herder"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
-                }`}
+              onClick={() => setActiveTab("herder")}
+              className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all ${
+                activeTab === "herder"
+                  ? "bg-white text-[#1b7c53] shadow-md"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
             >
               Малчин
             </button>
             <button
-              onClick={() => {
-                setActiveTab("admin");
-              }}
-              className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-colors ${activeTab === "admin"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-600 hover:text-gray-900"
-                }`}
+              onClick={() => setActiveTab("admin")}
+              className={`flex-1 py-3 px-4 rounded-xl text-sm font-bold transition-all ${
+                activeTab === "admin"
+                  ? "bg-white text-[#1b7c53] shadow-md"
+                  : "text-gray-500 hover:text-gray-900"
+              }`}
               title="Админ хэрэглэгч бүртгүүлэх"
             >
               Админ
@@ -386,10 +367,7 @@ export default function RegisterPage() {
           {/* Registration Form */}
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <Label
-                htmlFor="identifier"
-                className="text-sm font-medium text-gray-700"
-              >
+              <Label htmlFor="identifier" className="text-gray-700">
                 Нэвтрэх нэр
               </Label>
               <Input
@@ -400,15 +378,12 @@ export default function RegisterPage() {
                 onChange={handleChange}
                 placeholder="Имэйл хаягаа оруулна уу"
                 required
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                className="mt-2 bg-gray-50/50 border-gray-200 rounded-2xl h-12 focus:ring-emerald-500 focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <Label
-                htmlFor="phone"
-                className="text-sm font-medium text-gray-700"
-              >
+              <Label htmlFor="phone" className="text-gray-700">
                 Утасны дугаар (Заавал биш)
               </Label>
               <Input
@@ -421,15 +396,12 @@ export default function RegisterPage() {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="8 оронтой дугаар оруулна уу"
-                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                className="mt-2 bg-gray-50/50 border-gray-200 rounded-2xl h-12 focus:ring-emerald-500 focus:border-emerald-500"
               />
             </div>
 
             <div>
-              <Label
-                htmlFor="password"
-                className="text-sm font-medium text-gray-700"
-              >
+              <Label htmlFor="password" className="text-gray-700">
                 Нууц үг
               </Label>
               <div className="relative">
@@ -441,14 +413,12 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   placeholder="Нууц үгээ оруулна уу."
                   required
-                  className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  className="mt-2 bg-gray-50/50 border-gray-200 pr-10 rounded-2xl h-12 focus:ring-emerald-500 focus:border-emerald-500"
                 />
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label="Toggle password visibility"
-                  title="Toggle password visibility"
                 >
                   {showPassword ? (
                     <EyeOff className="h-5 w-5 text-gray-400" />
@@ -460,10 +430,7 @@ export default function RegisterPage() {
             </div>
 
             <div>
-              <Label
-                htmlFor="confirmPassword"
-                className="text-sm font-medium text-gray-700"
-              >
+              <Label htmlFor="confirmPassword" className="text-gray-700">
                 Нууц үг баталгаажуулах
               </Label>
               <div className="relative">
@@ -475,14 +442,12 @@ export default function RegisterPage() {
                   onChange={handleChange}
                   placeholder="Нууц үгээ дахин оруулна уу"
                   required
-                  className="mt-1 block w-full px-3 py-2 pr-10 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-green-500 focus:border-green-500"
+                  className="mt-2 bg-gray-50/50 border-gray-200 pr-10 rounded-2xl h-12 focus:ring-emerald-500 focus:border-emerald-500"
                 />
                 <button
                   type="button"
                   className="absolute inset-y-0 right-0 pr-3 flex items-center"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  aria-label="Toggle confirm password visibility"
-                  title="Toggle confirm password visibility"
                 >
                   {showConfirmPassword ? (
                     <EyeOff className="h-5 w-5 text-gray-400" />
@@ -497,7 +462,7 @@ export default function RegisterPage() {
 
             <Button
               type="submit"
-              className="w-full bg-green-700 hover:bg-green-800 text-white py-2 px-4 rounded-md font-medium"
+              className="w-full bg-[#1b7c53] hover:bg-[#156040] text-white py-6 rounded-2xl font-bold shadow-lg shadow-[#1b7c53]/20 transition-all active:scale-[0.98] mt-4"
               disabled={loading}
             >
               {loading ? "Түр хүлээнэ үү..." : "Үргэлжлүүлэх"}
@@ -509,7 +474,7 @@ export default function RegisterPage() {
               Бүртгэлтэй хэрэглэгч үү?{" "}
               <Link
                 href="/login"
-                className="font-medium text-green-600 hover:text-green-500"
+                className="font-bold text-[#1b7c53] hover:text-[#156040] underline"
               >
                 Нэвтрэх
               </Link>
@@ -530,7 +495,7 @@ export default function RegisterPage() {
             <Button
               type="button"
               variant="outline"
-              className="w-full flex items-center justify-center space-x-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+              className="w-full flex items-center justify-center space-x-3 py-6 border-2 border-gray-100 hover:border-gray-200 bg-white rounded-2xl font-bold transition-all active:scale-[0.98]"
               onClick={() => handleGoogleLogin()}
             >
               <svg className="w-5 h-5" viewBox="0 0 24 24">
@@ -551,18 +516,7 @@ export default function RegisterPage() {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              <span>Sign in with Google</span>
-            </Button>
-
-            <Button
-              type="button"
-              variant="outline"
-              className="w-full flex items-center justify-center space-x-2 py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-black text-white hover:bg-gray-800"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M18.71 19.5c-.83 1.24-1.71 2.45-3.05 2.47-1.34.03-1.77-.79-3.29-.79-1.53 0-2 .77-3.27.82-1.31.05-2.3-1.32-3.14-2.53C4.25 17 2.94 12.45 4.7 9.39c.87-1.52 2.43-2.48 4.12-2.51 1.28-.02 2.5.87 3.29.87.78 0 2.26-1.07 3.81-.91.65.03 2.47.26 3.64 1.98-.09.06-2.17 1.28-2.15 3.81.03 3.02 2.65 4.03 2.68 4.04-.03.07-.42 1.44-1.38 2.83M13 3.5c.73-.83 1.94-1.46 2.94-1.5.13 1.17-.34 2.35-1.04 3.19-.69.85-1.83 1.51-2.95 1.42-.15-1.15.41-2.35 1.05-3.11z" />
-              </svg>
-              <span>Sign in with Apple</span>
+              <span>Google-ээр бүртгүүлэх</span>
             </Button>
           </div>
 
@@ -576,32 +530,34 @@ export default function RegisterPage() {
       {/* Right side - Sidebar for larger screens */}
       <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-green-600 to-green-800 items-center justify-center p-8">
         <div className="text-center text-white max-w-md">
-          <h2 className="text-3xl font-bold mb-4">Монголын байгалийн сайхан</h2>
-          <p className="text-lg mb-6 opacity-90">
-            Гэр амралт, байгалийн сайхан, малчны амьдралыг мэдрэх боломж
+          <h2 className="text-4xl font-black mb-6 drop-shadow-md">ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ</h2>
+          <p className="text-xl mb-10 opacity-90 font-bold tracking-wide">
+            НҮҮДЭЛЧИН АХУЙ СОЁЛ МОНГОЛЫН БАЯЛАГ
           </p>
-          <div className="space-y-4">
-            <div className="flex items-center justify-center space-x-3">
-              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                <span className="text-lg">🏕️</span>
+          <div className="space-y-6">
+            <div className="flex items-center justify-center space-x-4 group">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span className="text-2xl">🏕️</span>
               </div>
-              <span className="text-lg">Гэр амралт</span>
+              <span className="text-xl font-bold">Гэр амралт</span>
             </div>
-            <div className="flex items-center justify-center space-x-3">
-              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                <span className="text-lg">🌄</span>
+            <div className="flex items-center justify-center space-x-4 group">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span className="text-2xl">🌄</span>
               </div>
-              <span className="text-lg">Байгалийн сайхан</span>
+              <span className="text-xl font-bold">Байгалийн сайхан</span>
             </div>
-            <div className="flex items-center justify-center space-x-3">
-              <div className="w-8 h-8 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                <span className="text-lg">🐎</span>
+            <div className="flex items-center justify-center space-x-4 group">
+              <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
+                <span className="text-2xl">🐎</span>
               </div>
-              <span className="text-lg">Малчны амьдрал</span>
+              <span className="text-xl font-bold">Малчны амьдрал</span>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <Footer />
+  </div>
   );
 }
