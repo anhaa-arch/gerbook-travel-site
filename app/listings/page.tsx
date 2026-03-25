@@ -5,10 +5,11 @@ import { useSearchParams } from "next/navigation";
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { MapPin, Star, Users, Filter, Package, Home, X, Calendar } from "lucide-react";
+import { MapPin, Star, Users, Filter, Package, Home, X, Calendar, ShoppingCart, ZoomIn } from "lucide-react";
 import { DatePickerModal } from "@/components/search/date-picker-modal";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
 import {
   Select,
   SelectContent,
@@ -393,71 +394,80 @@ export default function ListingsPage() {
                       return (
                         <Card
                           key={camp.id}
-                          className="overflow-hidden hover:shadow-lg transition-shadow"
+                          className="relative group border border-emerald-900/10 bg-[#fdfcf0] rounded-2xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5"
                         >
-                          <div className="relative">
-                            <Image
-                              src={imageSrc}
-                              alt={camp.name}
-                              width={300}
-                              height={200}
-                              className="w-full h-48 object-cover"
-                            />
-                            <div className="absolute top-2 right-2 bg-white rounded-full p-1">
-                              <MapPin className="w-4 h-4 text-emerald-600" />
+                          <div className="flex flex-col h-full">
+                            <div className="relative h-48 w-full overflow-hidden">
+                              <Dialog>
+                                <DialogTrigger asChild>
+                                  <div className="relative h-full w-full cursor-zoom-in group/img">
+                                    <Image
+                                      src={imageSrc}
+                                      alt={camp.name}
+                                      fill
+                                      className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                    />
+                                    <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center">
+                                      <ZoomIn className="text-white opacity-0 group-hover/img:opacity-100 transition-opacity w-8 h-8" />
+                                    </div>
+                                  </div>
+                                </DialogTrigger>
+                                <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+                                  <div className="relative aspect-video w-full h-full max-h-[85vh]">
+                                    <Image
+                                      src={imageSrc}
+                                      alt={camp.name}
+                                      fill
+                                      className="object-contain"
+                                      priority
+                                    />
+                                  </div>
+                                </DialogContent>
+                              </Dialog>
+                              <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 shadow-lg backdrop-blur-sm pointer-events-none">
+                                {camp.location.split(',')[0]}
+                              </div>
+                            </div>
+
+                            <div className="p-4 sm:p-5 flex flex-col flex-1">
+                              <div className="mb-3 sm:mb-4">
+                                <h3 className="font-black text-base sm:text-lg text-[#0F3D2E] leading-tight tracking-tight uppercase line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+                                  {camp.name}
+                                </h3>
+                              </div>
+
+                              <div className="space-y-1.5 mb-5 sm:mb-6 text-[#0F3D2E]/80 font-bold">
+                                <div className="flex items-center text-xs sm:text-sm">
+                                  <MapPin className="w-3.5 h-3.5 mr-2 text-emerald-600 flex-shrink-0" />
+                                  <span className="truncate">{camp.location}</span>
+                                </div>
+                                <div className="flex items-center text-xs sm:text-sm">
+                                  <Users className="w-3.5 h-3.5 mr-2 text-emerald-600 flex-shrink-0" />
+                                  <span>{camp.capacity} зочин</span>
+                                </div>
+                              </div>
+
+                              <div className="mt-auto space-y-3 sm:space-y-4">
+                                <div className="h-px bg-[#0F3D2E]/10 w-full" />
+                                <div className="flex flex-col lg:flex-row xl:flex-col 2xl:flex-row lg:items-center xl:items-stretch 2xl:items-center justify-between gap-3 sm:gap-4 w-full">
+                                  <div className="flex items-baseline min-w-0">
+                                    <span className="text-xl sm:text-2xl font-black text-[#0F3D20] leading-none whitespace-nowrap">
+                                      {camp.pricePerNight?.toLocaleString()}
+                                    </span>
+                                    <span className="text-[#0F3D20] ml-1 font-bold text-sm sm:text-base">₮</span>
+                                  </div>
+                                  <Link href={`/camp/${camp.id}`} className="w-full lg:w-auto xl:w-full 2xl:w-auto">
+                                    <Button
+                                      size="sm"
+                                      className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-xs sm:text-sm px-4 sm:px-6 h-10 rounded-xl shadow-lg transition-all active:scale-95"
+                                    >
+                                      Захиалах
+                                    </Button>
+                                  </Link>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                          <CardContent className="p-6">
-                            <h3 className="font-bold text-lg mb-2">
-                              {camp.name}
-                            </h3>
-                            <div className="flex items-center justify-between mb-2">
-                              <div className="flex items-center text-gray-600">
-                                <MapPin className="w-4 h-4 mr-1" />
-                                <span className="text-sm font-medium">
-                                  {camp.location}
-                                </span>
-                              </div>
-                              <div className="flex items-center text-gray-600">
-                                <Users className="w-4 h-4 mr-1" />
-                                <span className="text-sm font-medium">
-                                  {camp.capacity} зочин
-                                </span>
-                              </div>
-                            </div>
-                            <div className="mb-4">
-                              <div className="flex flex-wrap gap-1">
-                                {amenitiesList
-                                  .slice(0, 3)
-                                  .map((amenity: string, index: number) => (
-                                    <span
-                                      key={index}
-                                      className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium"
-                                    >
-                                      {amenity}
-                                    </span>
-                                  ))}
-                              </div>
-                            </div>
-                            <div className="flex items-center justify-between">
-                              <div>
-                                <span className="text-2xl font-bold">
-                                  {camp.pricePerNight}₮
-                                </span>
-                                <span className="text-gray-600 ml-1 font-medium">
-                                  хоног
-                                </span>
-                              </div>
-                              <Link href={`/camp/${camp.id}`}>
-                                <Button
-                                  size="sm"
-                                  className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                                >
-                                  Дэлгэрэнгүй
-                                </Button>
-                              </Link>
-                            </div>
-                          </CardContent>
                         </Card>
                       );
                     })
@@ -515,65 +525,83 @@ export default function ListingsPage() {
                     return (
                       <Card
                         key={product.id}
-                        className="overflow-hidden hover:shadow-lg transition-shadow"
+                        className="relative group border border-emerald-900/10 bg-[#fdfcf0] rounded-2xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5"
                       >
-                        <div className="relative">
-                          <Image
-                            src={imageSrc}
-                            alt={product.name}
-                            width={300}
-                            height={200}
-                            className="w-full h-48 object-cover"
-                          />
-                          <div className="absolute top-2 right-2 bg-white rounded-full p-1">
-                            <Package className="w-4 h-4 text-emerald-600" />
+                        <div className="flex flex-col h-full">
+                          <div className="relative h-40 sm:h-56 w-full overflow-hidden">
+                            <Dialog>
+                              <DialogTrigger asChild>
+                                <div className="relative h-full w-full cursor-zoom-in group/img">
+                                  <Image
+                                    src={imageSrc}
+                                    alt={product.name}
+                                    fill
+                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                  />
+                                  <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center">
+                                    <ZoomIn className="text-white opacity-0 group-hover/img:opacity-100 transition-opacity w-8 h-8" />
+                                  </div>
+                                </div>
+                              </DialogTrigger>
+                              <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+                                <div className="relative aspect-video w-full h-full max-h-[85vh]">
+                                  <Image
+                                    src={imageSrc}
+                                    alt={product.name}
+                                    fill
+                                    className="object-contain"
+                                    priority
+                                  />
+                                </div>
+                              </DialogContent>
+                            </Dialog>
+                            <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 shadow-lg backdrop-blur-sm pointer-events-none">
+                              {product.category?.name || "Бараа"}
+                            </div>
+                          </div>
+
+                          <div className="p-3 sm:p-5 flex flex-col flex-1">
+                            <div className="mb-2 sm:mb-4">
+                              <h3 className="font-black text-sm sm:text-xl text-[#0F3D2E] leading-tight tracking-tight uppercase line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+                                {product.name}
+                              </h3>
+                            </div>
+
+                            <div className="mt-auto space-y-3 sm:space-y-4">
+                              <div className="h-px bg-[#0F3D2E]/10 w-full" />
+                              <div className="flex flex-col gap-2 sm:gap-3 w-full">
+                                <div className="flex items-baseline">
+                                  <span className="text-base sm:text-2xl font-black text-[#0F3D20] leading-none whitespace-nowrap">
+                                    {product.price?.toLocaleString()}
+                                  </span>
+                                  <span className="text-[#0F3D20] ml-0.5 font-bold text-xs sm:text-base">₮</span>
+                                </div>
+                                <Button
+                                  size="sm"
+                                  className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-[10px] sm:text-sm px-3 sm:px-6 h-9 sm:h-11 rounded-xl shadow-lg transition-all active:scale-95 disabled:grayscale disabled:opacity-50"
+                                  onClick={() => {
+                                    addToCart({
+                                      id: product.id,
+                                      type: "PRODUCT",
+                                      name: product.name,
+                                      seller: "Малчин",
+                                      price: product.price,
+                                      quantity: 1,
+                                      image: imageSrc,
+                                      category: product.category?.name || "Бараа",
+                                    });
+                                    toast({
+                                      title: "Сагсанд нэмэгдлээ",
+                                      description: `${product.name} амжилттай нэмэгдлээ.`,
+                                    });
+                                  }}
+                                >
+                                  Сагсанд нэмэх
+                                </Button>
+                              </div>
+                            </div>
                           </div>
                         </div>
-                        <CardContent className="p-6">
-                          <h3 className="font-bold text-lg mb-2">
-                            {product.name}
-                          </h3>
-                          <p className="text-gray-600 text-sm mb-4 line-clamp-2">
-                            {product.description}
-                          </p>
-                          <div className="mb-4">
-                            <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium">
-                              {product.category?.name || "Ангилал"}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <span className="text-2xl font-bold">
-                                {product.price}₮
-                              </span>
-                              <span className="text-gray-600 ml-1 font-medium">
-                                {product.stock} ширхэг
-                              </span>
-                            </div>
-                            <Button
-                              size="sm"
-                              className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                              onClick={() => {
-                                addToCart({
-                                  id: product.id,
-                                  type: "PRODUCT",
-                                  name: product.name,
-                                  seller: "Малчин",
-                                  price: product.price,
-                                  quantity: 1,
-                                  image: imageSrc,
-                                  category: product.category?.name || "Бараа",
-                                });
-                                toast({
-                                  title: "Сагсанд нэмэгдлээ",
-                                  description: `${product.name} амжилттай нэмэгдлээ.`,
-                                });
-                              }}
-                            >
-                              Сагсанд нэмэх
-                            </Button>
-                          </div>
-                        </CardContent>
                       </Card>
                     );
                   })}

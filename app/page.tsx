@@ -2,7 +2,21 @@
 import { useTranslation } from "react-i18next";
 import Image from "next/image";
 import Link from "next/link";
-import { Search, MapPin, Calendar, Users, Route, Compass, ShieldCheck, Home, Maximize2 } from "lucide-react";
+import {
+  MapPin,
+  Users,
+  Search,
+  ShoppingCart,
+  Calendar,
+  Check,
+  ChevronRight,
+  ChevronLeft,
+  Filter,
+  Package,
+  Home,
+  Star,
+  ZoomIn,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -23,11 +37,11 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination";
-import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogTitle } from "@/components/ui/dialog";
 
 const GET_PRODUCTS = gql`
-  query GetProducts($first: Int) {
-    products(first: $first) {
+  query GetProducts($first: Int, $orderBy: String) {
+    products(first: $first, orderBy: $orderBy) {
       edges {
         node {
           id
@@ -68,14 +82,13 @@ export default function HomePage() {
   const { toast } = useToast();
   const [campPage, setCampPage] = useState(1);
   const [productPage, setProductPage] = useState(1);
-  const [selectedImage, setSelectedImage] = useState<string | null>(null);
   const itemsPerPage = 10;
   const {
     data: productsData,
     loading: productsLoading,
     error: productsError,
   } = useQuery(GET_PRODUCTS, {
-    variables: { first: 50 },
+    variables: { first: 100, orderBy: "createdAt_DESC" },
     fetchPolicy: "cache-first",
     errorPolicy: "all",
   });
@@ -84,7 +97,7 @@ export default function HomePage() {
     loading: yurtsLoading,
     error: yurtsError,
   } = useQuery(GET_YURTS, {
-    variables: { first: 50, orderBy: "createdAt_DESC" },
+    variables: { first: 100, orderBy: "createdAt_DESC" },
     fetchPolicy: "cache-first",
     errorPolicy: "all",
   });
@@ -129,12 +142,12 @@ export default function HomePage() {
                 desc: "Малчин"
               },
               {
-                icon: <Compass className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
+                icon: <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
                 title: "100%",
                 desc: "Бодит"
               },
               {
-                icon: <ShieldCheck className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
+                icon: <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
                 title: "Аюулгүй",
                 desc: "Баталгаат"
               },
@@ -155,7 +168,7 @@ export default function HomePage() {
       <section className="py-6 sm:py-8 md:py-12 lg:py-16">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
-            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-gray-900">
+            <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-gray-900 flex items-center gap-3">
               {t("home.featured_camps")}
             </h2>
             <Link href="/camps" className="w-full sm:w-auto">
@@ -168,72 +181,95 @@ export default function HomePage() {
             </Link>
           </div>
 
-          {/* Featured Camps - Responsive grid */}
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-4 md:gap-5 lg:gap-6 mb-6">
             {yurts
               .slice((campPage - 1) * itemsPerPage, campPage * itemsPerPage)
-              .map((camp: any) => (
-                <Card
-                  key={camp.id}
-                  className="overflow-hidden hover:shadow-lg transition-all duration-200"
-                >
-                  <div className="relative">
-                    <Image
-                      src={getPrimaryImage(camp.images)}
-                      alt={camp.name}
-                      width={300}
-                      height={200}
-                      className="w-full h-36 xs:h-40 sm:h-44 md:h-48 object-cover"
-                    />
-                    <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 bg-emerald-600 text-white px-1.5 sm:px-2 py-0.5 sm:py-1 rounded text-[8px] sm:text-[10px] font-medium">
-                      Онцгой хамтрагч
-                    </div>
-                  </div>
-                  <CardContent className="p-3 sm:p-5">
-                    <div className="flex justify-between items-start mb-1 sm:mb-3">
-                      <h3 className="font-bold text-sm sm:text-xl md:text-2xl text-gray-900 leading-tight truncate">
-                        {camp.name}
-                      </h3>
-                    </div>
-
-                    <div className="grid grid-cols-1 gap-1 sm:gap-2 mb-3 sm:mb-4">
-                      <div className="flex items-center text-gray-600">
-                        <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-emerald-600 flex-shrink-0" />
-                        <span className="text-[10px] sm:text-sm font-medium truncate">
-                          {camp.location}
-                        </span>
-                      </div>
-                      <div className="flex items-center text-gray-600">
-                        <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2 text-emerald-600 flex-shrink-0" />
-                        <span className="text-[10px] sm:text-sm font-medium">
-                          {camp.capacity} {t("camps.guests")}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="pt-2 sm:pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 sm:gap-4">
-                      <div className="flex flex-col">
-                        <span className="hidden sm:block text-xs text-gray-500 font-medium uppercase tracking-wider mb-0.5">
-                          1 хоногийн
-                        </span>
-                        <div className="flex items-baseline">
-                          <span className="text-sm sm:text-2xl font-black text-gray-900">
-                            {camp.pricePerNight?.toLocaleString()}₮
-                          </span>
-                          <span className="sm:hidden text-[8px] text-gray-500 ml-1 font-medium italic">/хоног</span>
+              .map((camp: any) => {
+                const imageSrc = getPrimaryImage(camp.images);
+                return (
+                  <Card
+                    key={camp.id}
+                    className="relative group border border-emerald-900/10 bg-[#fdfcf0] rounded-2xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5"
+                  >
+                    <div className="flex flex-col h-full">
+                      <div className="relative h-40 sm:h-52 w-full overflow-hidden">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <div className="relative h-full w-full cursor-zoom-in group/img">
+                              <Image
+                                src={imageSrc}
+                                alt={camp.name}
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center">
+                                <ZoomIn className="text-white opacity-0 group-hover/img:opacity-100 transition-opacity w-8 h-8" />
+                              </div>
+                            </div>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+                            <div className="relative aspect-video w-full h-full max-h-[85vh]">
+                              <Image
+                                src={imageSrc}
+                                alt={camp.name}
+                                fill
+                                className="object-contain"
+                                priority
+                              />
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                        <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 shadow-lg backdrop-blur-sm pointer-events-none">
+                          {camp.location.split(',')[0]}
                         </div>
                       </div>
-                      <Link href={`/camp/${camp.id}`} className="w-full sm:w-auto">
-                        <Button
-                          className="w-full bg-emerald-600 hover:bg-emerald-700 font-bold text-[10px] sm:text-sm px-2 sm:px-6 h-8 sm:h-10 shadow-sm transition-all active:scale-95"
-                        >
-                          {t("common.book_now")}
-                        </Button>
-                      </Link>
+
+                      <div className="p-3 sm:p-5 flex flex-col flex-1">
+                        <div className="mb-2 sm:mb-4">
+                          <h3 className="font-black text-sm sm:text-lg text-[#0F3D2E] leading-tight tracking-tight uppercase line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+                            {camp.name}
+                          </h3>
+                        </div>
+
+                        <div className="space-y-1 sm:space-y-1.5 mb-4 sm:mb-6 text-[#0F3D2E]/80 font-bold">
+                          <div className="flex items-center">
+                            <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 text-emerald-600 flex-shrink-0" />
+                            <span className="text-[10px] sm:text-sm truncate">
+                              {camp.location}
+                            </span>
+                          </div>
+                          <div className="flex items-center">
+                            <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 text-emerald-600 flex-shrink-0" />
+                            <span className="text-[10px] sm:text-sm">
+                              {camp.capacity} зочин
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="mt-auto space-y-3 sm:space-y-4">
+                          <div className="flex items-baseline gap-1 sm:gap-1.5 flex-wrap">
+                            <span className="text-base sm:text-2xl font-black text-[#0F3D2E] leading-none whitespace-nowrap">
+                              {camp.pricePerNight?.toLocaleString()}
+                            </span>
+                            <span className="text-[#0F3D2E] ml-1 font-bold text-xs sm:text-base">₮</span>
+                            <span className="text-emerald-900/40 text-[8px] sm:text-xs font-bold whitespace-nowrap">
+                              /хоног
+                            </span>
+                          </div>
+                          
+                          <Link href={`/camp/${camp.id}`} className="block">
+                            <Button
+                              className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-[10px] sm:text-sm h-9 sm:h-11 rounded-xl shadow-lg transition-all active:scale-95"
+                            >
+                              Захиалах
+                            </Button>
+                          </Link>
+                        </div>
+                      </div>
                     </div>
-                  </CardContent>
-                </Card>
-              ))}
+                  </Card>
+                );
+              })}
           </div>
 
           {/* Camp Pagination */}
@@ -269,53 +305,6 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Travel Routes Section */}
-      {/* <section className="py-12 md:py-16 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-8 md:mb-12">
-            <h2 className="text-2xl md:text-3xl font-bold font-display text-gray-900 mb-4">
-              {t("home.travel_routes")}
-            </h2>
-            <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto font-medium">
-              {t("home.discover_routes")}
-            </p>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-            <Card className="p-6 md:p-8 text-center">
-              <Route className="w-12 h-12 md:w-16 md:h-16 text-emerald-600 mx-auto mb-4" />
-              <h3 className="text-xl md:text-2xl font-bold font-display mb-4">
-                {t("travel.personalized")}
-              </h3>
-              <p className="text-gray-600 mb-6 font-medium">
-                Таны сонирхол, аяллын хугацаанд тохирсон хувийн маршрут
-                үүсгээрэй.
-              </p>
-              <Link href="/travel-routes">
-                <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
-                  {t("travel.generate_route")}
-                </Button>
-              </Link>
-            </Card>
-
-            <Card className="p-6 md:p-8 text-center">
-              <Compass className="w-12 h-12 md:w-16 md:h-16 text-emerald-600 mx-auto mb-4" />
-              <h3 className="text-xl md:text-2xl font-bold font-display mb-4">
-                Интерактив газрын зураг
-              </h3>
-              <p className="text-gray-600 mb-6 font-medium">
-                Бааз, наадам, үзвэрүүдийг газрын зураг дээрээс судлаарай.
-              </p>
-              <Link href="/map">
-                <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
-                  {t("map.explore_map")}
-                </Button>
-              </Link>
-            </Card>
-          </div>
-        </div>
-      </section> */}
-
       {/* Featured Products */}
       <section className="py-6 sm:py-8 md:py-12 lg:py-16 bg-white">
         <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
@@ -332,7 +321,8 @@ export default function HomePage() {
               </Button>
             </Link>
           </div>
-          <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 lg:gap-8">
+
+          <div className="grid grid-cols-2 lg:grid-cols-3 gap-2 sm:gap-4 md:gap-6 lg:gap-8">
             {productEdges
               .slice((productPage - 1) * itemsPerPage, productPage * itemsPerPage)
               .map((edge: any) => {
@@ -341,60 +331,82 @@ export default function HomePage() {
                 return (
                   <Card
                     key={product.id}
-                    className="overflow-hidden hover:shadow-lg transition-all duration-200"
+                    className="relative group border border-emerald-900/10 bg-[#fdfcf0] rounded-2xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5"
                   >
-                    <div
-                      className="relative cursor-pointer group"
-                      onClick={() => setSelectedImage(imageSrc)}
-                    >
-                      <Image
-                        src={imageSrc}
-                        alt={product.name}
-                        width={200}
-                        height={200}
-                        className="w-full h-36 xs:h-40 sm:h-44 md:h-48 object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center text-white gap-2">
-                        <Maximize2 className="w-5 h-5 sm:w-6 sm:h-6" />
-                        <span className="text-[10px] sm:text-xs font-bold uppercase tracking-wider bg-black/20 px-2 py-1 rounded-full backdrop-blur-sm">
-                          Томруулах
-                        </span>
+                    <div className="flex flex-col h-full">
+                      <div className="relative h-40 sm:h-56 w-full overflow-hidden">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <div className="relative h-full w-full cursor-zoom-in group/img">
+                              <Image
+                                src={imageSrc}
+                                alt={product.name}
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center">
+                                <ZoomIn className="text-white opacity-0 group-hover/img:opacity-100 transition-opacity w-8 h-8" />
+                              </div>
+                            </div>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+                            <div className="relative aspect-video w-full h-full max-h-[85vh]">
+                              <Image
+                                src={imageSrc}
+                                alt={product.name}
+                                fill
+                                className="object-contain"
+                                priority
+                              />
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+                      
+                      <div className="p-3 sm:p-5 flex flex-col flex-1">
+                        <div className="mb-2 sm:mb-4">
+                          <h3 className="font-black text-sm sm:text-xl text-[#0F3D2E] leading-tight tracking-tight uppercase line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+                            {product.name}
+                          </h3>
+                        </div>
+                        
+                        <div className="mt-auto space-y-3 sm:space-y-4">
+                          <div className="h-px bg-[#0F3D2E]/10 w-full" />
+                            <div className="flex flex-col gap-2 sm:gap-3 w-full">
+                              <div className="flex items-baseline">
+                                <span className="text-base sm:text-2xl font-black text-[#0F3D2E] leading-none whitespace-nowrap">
+                                  {product.price?.toLocaleString()}
+                                </span>
+                                <span className="text-[#0F3D2E] ml-0.5 font-bold text-xs sm:text-base">₮</span>
+                              </div>
+                            <Button
+                              size="sm"
+                              className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-[10px] sm:text-sm px-3 sm:px-6 h-9 sm:h-11 rounded-xl shadow-lg transition-all active:scale-95"
+                              onClick={() => {
+                                try {
+                                  addToCart({
+                                    id: product.id,
+                                    name: product.name,
+                                    price: product.price,
+                                    quantity: 1,
+                                    image: imageSrc,
+                                    type: "PRODUCT"
+                                  });
+                                } catch (error) {
+                                  toast({
+                                    title: "Алдаа",
+                                    description: "Сагсанд нэмэхэд алдаа гарлаа",
+                                    variant: "destructive",
+                                  });
+                                }
+                              }}
+                            >
+                              Сагсанд нэмэх
+                            </Button>
+                          </div>
+                        </div>
                       </div>
                     </div>
-                    <CardContent className="p-3 sm:p-4 md:p-6">
-                      <h3 className="font-semibold text-sm xs:text-base md:text-lg mb-2 sm:mb-3 truncate">
-                        {product.name}
-                      </h3>
-                      <div className="flex items-center justify-between">
-                        <span className="text-lg xs:text-xl md:text-2xl font-bold">
-                          {product.price?.toLocaleString()}₮
-                        </span>
-                        <Button
-                          size="sm"
-                          className="bg-emerald-600 hover:bg-emerald-700 font-semibold text-[10px] xs:text-xs sm:text-sm px-2 xs:px-3 h-7 xs:h-8 sm:h-9"
-                          onClick={() => {
-                            try {
-                              addToCart({
-                                id: product.id,
-                                name: product.name,
-                                price: product.price,
-                                quantity: 1,
-                                image: imageSrc,
-                                type: "PRODUCT"
-                              });
-                            } catch (error) {
-                              toast({
-                                title: "Алдаа",
-                                description: "Сагсанд нэмэхэд алдаа гарлаа",
-                                variant: "destructive",
-                              });
-                            }
-                          }}
-                        >
-                          {t("common.add_to_cart")}
-                        </Button>
-                      </div>
-                    </CardContent>
                   </Card>
                 );
               })}
@@ -433,23 +445,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      <Dialog open={!!selectedImage} onOpenChange={(open) => !open && setSelectedImage(null)}>
-        <DialogContent className="max-w-[95vw] md:max-w-[85vw] max-h-[95vh] p-0 overflow-hidden bg-transparent border-none shadow-none flex items-center justify-center">
-          <DialogTitle className="sr-only">Зургийн түүвэр</DialogTitle>
-          {selectedImage && (
-            <div className="relative w-full h-full flex items-center justify-center p-2 sm:p-4">
-              <Image
-                src={selectedImage}
-                alt="Preview"
-                width={1200}
-                height={800}
-                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-                priority
-              />
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
+      <Footer />
     </div>
   );
 }

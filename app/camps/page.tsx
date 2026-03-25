@@ -384,58 +384,74 @@ export default function CampsPage() {
                 }
 
                 return (
-                  <Card key={camp.id} className="overflow-hidden hover:shadow-lg transition-all duration-200">
-                    <div className="relative">
-                      <Image
-                        src={imageSrc}
-                        alt={camp.name}
-                        width={300}
-                        height={200}
-                        className="w-full h-40 xs:h-44 sm:h-48 md:h-52 object-cover"
-                      />
-                      <div className="absolute top-1.5 sm:top-2 right-1.5 sm:right-2 bg-white rounded-full p-1">
-                        <MapPin className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 text-emerald-600" />
-                      </div>
-                    </div>
-                    <CardContent className="p-3 xs:p-4 sm:p-5 md:p-6">
-                      <h3 className="font-bold text-sm xs:text-base md:text-lg mb-1.5 sm:mb-2 truncate">{camp.name}</h3>
-                      <div className="flex items-center justify-between mb-1.5 sm:mb-2 gap-2">
-                        <div className="flex items-center text-gray-600 min-w-0 flex-1">
-                          <MapPin className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                          <span className="text-xs xs:text-sm font-medium truncate">{camp.location}</span>
-                        </div>
-                        <div className="flex items-center text-gray-600 flex-shrink-0">
-                          <Users className="w-3 h-3 xs:w-3.5 xs:h-3.5 sm:w-4 sm:h-4 mr-0.5 sm:mr-1" />
-                          <span className="text-xs xs:text-sm font-medium whitespace-nowrap">
-                            {camp.capacity} зочин
-                          </span>
+                  <Card
+                    key={camp.id}
+                    className="relative group border border-emerald-900/10 bg-[#fdfcf0] rounded-2xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5"
+                  >
+                    <div className="flex flex-col h-full">
+                      <div className="relative h-44 sm:h-52 w-full overflow-hidden">
+                        <Image
+                          src={imageSrc}
+                          alt={camp.name}
+                          fill
+                          className="object-cover transition-transform duration-700 group-hover:scale-110"
+                        />
+                        <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-10 shadow-lg backdrop-blur-sm">
+                          {camp.location.split(',')[0]}
                         </div>
                       </div>
-                      <div className="mb-3 sm:mb-4">
-                        <div className="flex flex-wrap gap-1">
-                          {amenitiesDisplay.length > 0 ? (
-                            amenitiesDisplay.map((amenity: string, index: number) => (
-                              <span key={index} className="text-[10px] xs:text-xs bg-emerald-50 text-emerald-700 px-1.5 xs:px-2 py-0.5 xs:py-1 rounded font-medium">
-                                {amenity.trim()}
-                              </span>
-                            ))
-                          ) : (
-                            <span className="text-[10px] xs:text-xs text-gray-500">Тав тухтай орчин</span>
+
+                      <div className="p-4 sm:p-5 flex flex-col flex-1">
+                        <div className="mb-3 sm:mb-4">
+                          <h3 className="font-black text-base sm:text-xl text-[#0F3D2E] leading-tight tracking-tight uppercase line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+                            {camp.name}
+                          </h3>
+                        </div>
+
+                        <div className="space-y-1.5 mb-5 sm:mb-6 text-[#0F3D2E]/80 font-bold">
+                          <div className="flex items-center">
+                            <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2 text-emerald-600 flex-shrink-0" />
+                            <span className="text-xs sm:text-sm truncate">
+                              {camp.location}
+                            </span>
+                          </div>
+                          <div className="flex items-center">
+                            <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-2 text-emerald-600 flex-shrink-0" />
+                            <span className="text-xs sm:text-sm">
+                              {camp.capacity} зочин
+                            </span>
+                          </div>
+                          {amenitiesDisplay.length > 0 && (
+                            <div className="flex flex-wrap gap-1 mt-2">
+                              {amenitiesDisplay.map((amenity: string, index: number) => (
+                                <span key={index} className="text-[9px] sm:text-[10px] bg-emerald-900/5 text-emerald-800 px-2 py-0.5 rounded-full border border-emerald-900/10">
+                                  {amenity.trim()}
+                                </span>
+                              ))}
+                            </div>
                           )}
                         </div>
-                      </div>
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="min-w-0">
-                          <span className="text-base xs:text-lg sm:text-xl md:text-2xl font-bold">{camp.pricePerNight?.toLocaleString()}₮</span>
-                          <span className="text-gray-600 ml-0.5 sm:ml-1 text-[10px] xs:text-xs sm:text-sm font-medium">хоног</span>
+
+                        <div className="mt-auto space-y-3 sm:space-y-4">
+                          <div className="flex items-baseline gap-1.5">
+                            <span className="text-lg sm:text-2xl font-black text-[#0F3D2E] leading-none">
+                              {camp.pricePerNight?.toLocaleString()}₮
+                            </span>
+                            <span className="text-emerald-900/40 text-[10px] sm:text-xs font-bold">
+                              /хоног
+                            </span>
+                          </div>
+                          
+                          <Link href={`/camp/${camp.id}`} className="block">
+                            <Button
+                              className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-xs sm:text-sm h-10 sm:h-11 rounded-xl shadow-lg transition-all active:scale-95"
+                            >
+                              Захиалах
+                            </Button>
+                          </Link>
                         </div>
-                        <Link href={`/camp/${camp.id}`} className="flex-shrink-0">
-                          <Button size="sm" className="bg-emerald-600 hover:bg-emerald-700 font-semibold text-[10px] xs:text-xs sm:text-sm px-2 xs:px-3 h-7 xs:h-8 sm:h-9">
-                            Дэлгэрэнгүй
-                          </Button>
-                        </Link>
                       </div>
-                    </CardContent>
+                    </div>
                   </Card>
                 )
               })}

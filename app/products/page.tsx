@@ -3,7 +3,8 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import Image from "next/image"
-import { Filter, ShoppingCart, Star, User } from "lucide-react"
+import { ShoppingCart, LayoutGrid, List, Search, ZoomIn, Filter, Star, User } from "lucide-react"
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -186,59 +187,94 @@ export default function ProductsPage() {
                 const imageSrc = getFirstImage(product.images)
                 const inStock = product.stock > 0
                 return (
-                  <Card key={product.id} className="overflow-hidden hover:shadow-lg transition-shadow">
-                    <div className="relative">
-                      <Image
-                        src={imageSrc}
-                        alt={product.name}
-                        width={200}
-                        height={200}
-                        className="w-full h-48 object-cover"
-                      />
-                      {!inStock && (
-                        <div className="absolute inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-                          <span className="text-white font-bold">{t("products.out_of_stock")}</span>
+                  <Card
+                    key={product.id}
+                    className="relative group border border-emerald-900/10 bg-[#fdfcf0] rounded-2xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5"
+                  >
+                    <div className="flex flex-col h-full">
+                      <div className="relative h-40 sm:h-56 w-full overflow-hidden">
+                        <Dialog>
+                          <DialogTrigger asChild>
+                            <div className="relative h-full w-full cursor-zoom-in group">
+                              <Image
+                                src={imageSrc}
+                                alt={product.name}
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
+                                <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
+                              </div>
+                            </div>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+                            <div className="relative aspect-video w-full h-full max-h-[85vh]">
+                              <Image
+                                src={imageSrc}
+                                alt={product.name}
+                                fill
+                                className="object-contain"
+                                priority
+                              />
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                        
+                        {!inStock && (
+                          <div className="absolute inset-0 bg-black/60 backdrop-blur-[2px] flex items-center justify-center z-10 pointer-events-none">
+                            <span className="text-white font-black uppercase tracking-widest text-xs px-3 py-1.5 border-2 border-white/50 rounded-lg">
+                              {t("products.out_of_stock")}
+                            </span>
+                          </div>
+                        )}
+                        <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 shadow-lg backdrop-blur-sm pointer-events-none">
+                          {translateCategory(product.category?.name)}
                         </div>
-                      )}
+                      </div>
+
+                      <div className="p-3 sm:p-5 flex flex-col flex-1">
+                        <div className="mb-2 sm:mb-4">
+                          <h3 className="font-black text-sm sm:text-xl text-[#0F3D2E] leading-tight tracking-tight uppercase line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+                            {product.name}
+                          </h3>
+                        </div>
+
+                        <div className="mt-auto space-y-3 sm:space-y-4">
+                          <div className="h-px bg-[#0F3D2E]/10 w-full" />
+                          <div className="flex flex-col gap-2 sm:gap-3 w-full">
+                            <div className="flex items-baseline">
+                              <span className="text-base sm:text-2xl font-black text-[#0F3D20] leading-none whitespace-nowrap">
+                                {product.price?.toLocaleString()}
+                              </span>
+                              <span className="text-[#0F3D20] ml-0.5 font-bold text-xs sm:text-base">₮</span>
+                            </div>
+                            <Button
+                              size="sm"
+                              className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-[10px] sm:text-sm px-3 sm:px-6 h-9 sm:h-11 rounded-xl shadow-lg transition-all active:scale-95 disabled:grayscale disabled:opacity-50"
+                              disabled={!inStock}
+                              onClick={() => {
+                                addToCart({
+                                  id: product.id,
+                                  type: "PRODUCT",
+                                  name: product.name,
+                                  seller: "Монголын бүтээгдэхүүн",
+                                  price: product.price,
+                                  quantity: 1,
+                                  image: imageSrc,
+                                  category: translateCategory(product.category?.name),
+                                })
+                                toast({
+                                  title: "Амжилттай",
+                                  description: "Сагсанд нэмэгдлээ",
+                                })
+                              }}
+                            >
+                              Сагсанд нэмэх
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
                     </div>
-                    <CardContent className="p-4">
-                      <h3 className="font-bold text-base sm:text-lg mb-2">{product.name}</h3>
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="flex items-center">
-                          <span className="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded font-medium">
-                            {translateCategory(product.category?.name)}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex items-center text-gray-600 mb-3">
-                        <span className="text-sm font-medium">
-                          Нөөц: {product.stock} ширхэг
-                        </span>
-                      </div>
-                      <div className="flex items-center justify-between">
-                        <span className="text-lg sm:text-xl font-bold">{product.price}₮</span>
-                        <Button
-                          size="sm"
-                          className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                          disabled={!inStock}
-                          onClick={() => {
-                            addToCart({
-                              id: product.id,
-                              type: "PRODUCT",
-                              name: product.name,
-                              seller: "Монголын бүтээгдэхүүн",
-                              price: product.price,
-                              quantity: 1,
-                              image: imageSrc,
-                              category: translateCategory(product.category?.name),
-                            })
-                          }}
-                        >
-                          <ShoppingCart className="w-4 h-4 mr-1" />
-                          {inStock ? t("common.add_to_cart") : t("products.out_of_stock")}
-                        </Button>
-                      </div>
-                    </CardContent>
                   </Card>
                 )
               })}
