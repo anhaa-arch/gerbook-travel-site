@@ -5,6 +5,6 @@ import { Header } from "@/components/header";
 
 export function ClientHeader() {
   const pathname = usePathname();
-  if (pathname === "/login" || pathname === "/register") return null;
+  if (pathname === "/login" || pathname === "/register" || pathname === "/forgot-password") return null;
   return <Header />;
 }
