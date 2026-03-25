@@ -225,6 +225,7 @@ export default function RegisterPage() {
 
             <div className="flex bg-gray-50/50 p-1.5 rounded-2xl border border-gray-100 shadow-inner">
               <button
+                type="button"
                 className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
                   activeTab === "customer"
                     ? "bg-white text-[#1b7c53] shadow-md"
@@ -236,6 +237,7 @@ export default function RegisterPage() {
                 <span>Хэрэглэгч</span>
               </button>
               <button
+                type="button"
                 className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
                   activeTab === "herder"
                     ? "bg-white text-[#1b7c53] shadow-md"
@@ -245,6 +247,18 @@ export default function RegisterPage() {
               >
                 <div className="w-4 h-4">🏕️</div>
                 <span>Малчин</span>
+              </button>
+              <button
+                type="button"
+                className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
+                  activeTab === "admin"
+                    ? "bg-white text-[#1b7c53] shadow-md"
+                    : "text-gray-500 hover:text-gray-700"
+                }`}
+                onClick={() => setActiveTab("admin")}
+              >
+                <Lock className="w-4 h-4" />
+                <span>Admin</span>
               </button>
             </div>
 
