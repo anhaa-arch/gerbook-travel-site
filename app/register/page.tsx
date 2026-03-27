@@ -81,7 +81,21 @@ export default function RegisterPage() {
 
   const handleVerifyOtp = async (code: string) => {
     try {
-      await register({ email: pendingEmail, code });
+      let role = "TRAVELER";
+      if (activeTab === "herder") {
+        role = "OWNER";
+      } else if (activeTab === "admin") {
+        role = "ADMIN";
+      }
+
+      const input = {
+        email: formData.identifier,
+        password: formData.password,
+        name: formData.identifier.split("@")[0] || "user",
+        role,
+      };
+
+      await register(input, code);
       toast({
         title: "Бүртгэл амжилттай",
         description: "Таны бүртгэл амжилттай хийгдлээ.",

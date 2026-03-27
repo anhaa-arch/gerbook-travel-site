@@ -23,7 +23,7 @@ interface AuthContextType {
   saveuserData: (user: user) => void
   logout: () => Promise<void>
   logoutAllDevices: () => Promise<void>
-  register: (userData: any) => Promise<void>
+  register: (input: any, code: string) => Promise<void>
   requestRegistrationCode: (input: any) => Promise<{ success: boolean; message: string }>
   verifyRegistration: (email: string, code: string) => Promise<void>
   login: (credentials: { email?: string; password?: string; phone?: string }) => Promise<void>
@@ -220,8 +220,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   `
 
   const REGISTER_MUTATION = gql`
-     mutation Register($input: CreateuserInput!) {
-      register(input: $input) { token user { id name email role hostBio hostExperience hostLanguages } }
+     mutation Register($input: CreateuserInput!, $code: String!) {
+      register(input: $input, code: $code) { 
+        token 
+        user { id name email role hostBio hostExperience hostLanguages } 
+      }
     }
   `
 
@@ -296,8 +299,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }
 
-  const register = async (userData: any) => {
-    const { data } = await client.mutate({ mutation: REGISTER_MUTATION, variables: { input: userData } })
+  const register = async (input: any, code: string) => {
+    const { data } = await client.mutate({ 
+      mutation: REGISTER_MUTATION, 
+      variables: { input, code } 
+    })
     if (data?.register) {
       const { token, user } = data.register
       localStorage.setItem('token', token)
