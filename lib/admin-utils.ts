@@ -123,9 +123,7 @@ export const translateRole = (role: string): string => {
   const translations: Record<string, string> = {
     'TRAVELER': 'Аялагч',
     'HERDER': 'Малчин',
-    'ADMIN': 'Админ',
-    'USER': 'Аялагч',
-    'OWNER': 'Малчин'
+    'ADMIN': 'Админ'
   };
 
   return translations[role?.toUpperCase()] || role;

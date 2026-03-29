@@ -359,6 +359,7 @@ export const CREATE_EVENT = gql`
       id
       title
       location
+      images
       isActive
     }
   }
@@ -370,6 +371,7 @@ export const UPDATE_EVENT = gql`
       id
       title
       location
+      images
       isActive
     }
   }
