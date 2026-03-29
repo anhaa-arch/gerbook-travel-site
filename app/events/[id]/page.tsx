@@ -3,7 +3,7 @@
 import { useQuery, gql } from "@apollo/client";
 import { ArrowLeft, MapPin, Users, CheckCircle2, Share2, Calendar } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
-import Image from "next/image";
+
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -62,12 +62,10 @@ export default function EventDetailPage() {
     <main className="min-h-screen bg-gray-50 pb-20">
       {/* Hero Header */}
       <div className="relative h-[60vh] min-h-[500px] w-full bg-gray-900">
-        <Image
+        <img
           src={primaryImage}
           alt={event.title}
-          fill
-          className="object-cover opacity-60"
-          priority
+          className="absolute inset-0 w-full h-full object-cover opacity-60"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent" />
         
@@ -135,11 +133,10 @@ export default function EventDetailPage() {
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {galleryImages.map((src: string, index: number) => (
                     <div key={index} className="relative aspect-square rounded-2xl overflow-hidden shadow-sm group cursor-pointer border border-gray-100">
-                      <Image
+                      <img
                         src={src}
                         alt={`${event.title} gallery ${index + 1}`}
-                        fill
-                        className="object-cover group-hover:scale-110 transition-transform duration-500"
+                        className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
                     </div>
                   ))}

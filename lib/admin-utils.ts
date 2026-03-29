@@ -215,3 +215,17 @@ export const prepareYurtsForExport = (yurts: any[]) => {
   }));
 };
 
+// Get absolute image URL for filenames or full paths
+export const getImageUrl = (path: string | null | undefined): string => {
+  if (!path) return "/placeholder.svg";
+  
+  // Return as-is if it's already a full URL or a relative asset path
+  if (path.startsWith("http") || path.startsWith("/") || path.startsWith("data:")) {
+    return path;
+  }
+  
+  // Otherwise prefix with the API base URL
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.malchincamp.mn";
+  return `${baseUrl}/uploads/${path}`;
+};
+
