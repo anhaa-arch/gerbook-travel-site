@@ -1028,11 +1028,11 @@ export default function AdminDashboardContent() {
 
     const file = files[0];
 
-    // Accept up to 30MB originals — Canvas will shrink it
-    if (file.size > 30 * 1024 * 1024) {
+    // Accept up to 100MB originals
+    if (file.size > 100 * 1024 * 1024) {
       toast({
         title: "Алдаа",
-        description: "Зурагны хэмжээ 30MB-аас их байна",
+        description: "Зурагны хэмжээ 100MB-аас их байна",
         variant: "destructive" as any,
       });
       event.target.value = "";
@@ -1083,7 +1083,15 @@ export default function AdminDashboardContent() {
         if (uploadedImages.length + i >= 6) break;
         const file = files[i];
         
-        if (file.size > 30 * 1024 * 1024) continue;
+        // Allow up to 100MB
+        if (file.size > 100 * 1024 * 1024) {
+          toast({
+            title: "Анхааруулга",
+            description: "Зургийн хэмжээ 100MB-аас бага байх ёстой",
+            variant: "destructive" as any,
+          });
+          continue;
+        }
         
         const formData = new FormData();
         formData.append("file", file);
