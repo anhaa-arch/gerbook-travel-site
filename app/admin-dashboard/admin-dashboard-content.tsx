@@ -100,6 +100,7 @@ import {
   prepareYurtsForExport,
   calculateNights,
   translateCategory,
+  getImageUrl,
 } from "@/lib/admin-utils";
 import {
   amenitiesOptions,
@@ -1010,6 +1011,20 @@ export default function AdminDashboardContent() {
       reader.readAsDataURL(file);
     });
 
+  // Convert base64 DataURL to File object
+  const dataURLtoFile = (dataurl: string, filename: string) => {
+    const arr = dataurl.split(',');
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while(n--){
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, {type:mime});
+  };
+
   // Image upload functions
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -1029,7 +1044,7 @@ export default function AdminDashboardContent() {
     }
 
     try {
-      toast({ title: "Зураг илгээж байна...", description: "Түр хүлээнэ үү" });
+      toast({ title: "Зураг боловсруулж байна...", description: "Түр хүлээнэ үү" });
       
       const newUrls: string[] = [];
       const backendUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL 
@@ -1050,8 +1065,14 @@ export default function AdminDashboardContent() {
           continue;
         }
         
+        // 1. Compress the image in browser
+        const compressedBase64 = await compressImage(file);
+        // 2. Convert base64 back to File
+        const compressedFile = dataURLtoFile(compressedBase64, `img-${Date.now()}.jpg`);
+
+        // 3. Upload to /api/upload
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", compressedFile);
         
         const response = await fetch(`${backendUrl}/api/upload`, {
           method: "POST",
@@ -2276,7 +2297,7 @@ export default function AdminDashboardContent() {
                                         Борлуулагч
                                       </label>
                                       <p className="text-sm text-gray-600 font-medium">
-                                        {product.seller}
+                                        <img src={getImageUrl(product.images[0])} alt={product.name} className="w-16 h-16 object-cover rounded" />
                                       </p>
                                     </div>
                                     <div>
@@ -2608,7 +2629,7 @@ export default function AdminDashboardContent() {
                     <div className="flex flex-wrap gap-4">
                       {uploadedImages.map((image, index) => (
                         <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
-                          <img src={image} alt={`camp-${index}`} className="w-full h-full object-cover" />
+                          <img src={getImageUrl(image)} alt={`camp-${index}`} className="w-full h-full object-cover" />
                           <button
                             onClick={() => handleRemoveImage(index)}
                             className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
@@ -2923,7 +2944,7 @@ export default function AdminDashboardContent() {
                     <div className="flex flex-wrap gap-4">
                       {uploadedImages.map((image, index) => (
                         <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
-                          <img src={image} alt={`camp-${index}`} className="w-full h-full object-cover" />
+                          <img src={getImageUrl(image)} alt={`camp-${index}`} className="w-full h-full object-cover" />
                           <button
                             onClick={() => handleRemoveImage(index)}
                             className="absolute top-1 right-1 bg-red-500 text-white p-1 rounded-full hover:bg-red-600"
@@ -3573,6 +3594,7 @@ export default function AdminDashboardContent() {
                                   onValueChange={(value) => handleUpdateBookingStatus(booking.id, value)}
                                 >
                                   <SelectTrigger className="h-8 w-[130px] text-xs font-semibold">
+                                    <img src={getImageUrl(booking.yurtImages?.[0])} alt="yurt" className="w-4 h-4 rounded-full mr-1" />
                                     <SelectValue placeholder="Төлөв" />
                                   </SelectTrigger>
                                   <SelectContent>
@@ -3826,7 +3848,7 @@ export default function AdminDashboardContent() {
                               <div className="flex items-center space-x-3 sm:space-x-4">
                                 <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
                                   <img
-                                    src={parsedImages[0] || "/placeholder.svg"}
+                                    src={getImageUrl(parsedImages[0])}
                                     alt={event.title}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
                                   />
@@ -3970,7 +3992,7 @@ export default function AdminDashboardContent() {
                     <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-2 sm:mb-4">
                       {uploadedImages.map((url, index) => (
                         <div key={index} className="relative group aspect-square rounded-xl overflow-hidden border border-gray-200 shadow-sm">
-                          <img src={url} alt={`Upload ${index}`} className="w-full h-full object-cover" />
+                          <img src={getImageUrl(url)} alt={`Upload ${index}`} className="w-full h-full object-cover" />
                           <button
                             onClick={() => {
                               const newImages = [...uploadedImages];

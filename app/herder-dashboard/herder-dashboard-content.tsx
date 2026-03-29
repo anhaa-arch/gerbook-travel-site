@@ -652,6 +652,20 @@ export default function HerderDashboardContent() {
       reader.readAsDataURL(file);
     });
 
+  // Convert base64 DataURL to File object
+  const dataURLtoFile = (dataurl: string, filename: string) => {
+    const arr = dataurl.split(',');
+    const mimeMatch = arr[0].match(/:(.*?);/);
+    const mime = mimeMatch ? mimeMatch[1] : 'image/jpeg';
+    const bstr = atob(arr[1]);
+    let n = bstr.length;
+    const u8arr = new Uint8Array(n);
+    while(n--){
+      u8arr[n] = bstr.charCodeAt(n);
+    }
+    return new File([u8arr], filename, {type:mime});
+  };
+
   // Image upload functions
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -671,7 +685,7 @@ export default function HerderDashboardContent() {
     }
 
     try {
-      toast({ title: "Зураг илгээж байна...", description: "Түр хүлээнэ үү" });
+      toast({ title: "Зураг боловсруулж байна...", description: "Түр хүлээнэ үү" });
       
       const newUrls: string[] = [];
       const backendUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL 
@@ -692,8 +706,14 @@ export default function HerderDashboardContent() {
           continue;
         }
         
+        // 1. Compress the image in browser
+        const compressedBase64 = await compressImage(file);
+        // 2. Convert base64 back to File
+        const compressedFile = dataURLtoFile(compressedBase64, `img-${Date.now()}.jpg`);
+
+        // 3. Upload to /api/upload
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", compressedFile);
         
         const response = await fetch(`${backendUrl}/api/upload`, {
           method: "POST",
