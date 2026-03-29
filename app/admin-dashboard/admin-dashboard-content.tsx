@@ -80,6 +80,10 @@ import {
   REJECT_ORDER,
   DELETE_ORDER,
   DELETE_BOOKING,
+  GET_ALL_EVENTS,
+  CREATE_EVENT,
+  UPDATE_EVENT,
+  DELETE_EVENT,
 } from "./queries";
 import {
   formatDate,
@@ -172,6 +176,21 @@ export default function AdminDashboardContent() {
     ownerId: "",
   });
 
+  const [showAddEvent, setShowAddEvent] = useState(false);
+  const [showEditEvent, setShowEditEvent] = useState(false);
+  const [selectedEvent, setSelectedEvent] = useState<any>(null);
+  const [eventForm, setEventForm] = useState({
+    title: "",
+    category: "Наадам, арга хэмжээ",
+    location: "",
+    groupSize: "",
+    shortDescription: "",
+    fullDescription: "",
+    priceInfo: "",
+    images: [] as string[],
+    isActive: true,
+  });
+
   // Auto-logout after 30 minutes of inactivity
   useIdleLogout({
     timeout: 30 * 60 * 1000, // 30 minutes
@@ -236,6 +255,11 @@ export default function AdminDashboardContent() {
   const [rejectOrder] = useMutation(REJECT_ORDER);
   const [deleteOrder] = useMutation(DELETE_ORDER);
   const [deleteBooking] = useMutation(DELETE_BOOKING);
+  
+  const { data: eventsData, loading: eventsLoading, refetch: refetchEvents } = useQuery(GET_ALL_EVENTS);
+  const [createEvent] = useMutation(CREATE_EVENT);
+  const [updateEvent] = useMutation(UPDATE_EVENT);
+  const [deleteEvent] = useMutation(DELETE_EVENT);
 
   // Transform data for display
   const stats = {
@@ -547,6 +571,60 @@ export default function AdminDashboardContent() {
         description: error.message || "Бааз үүсгэхэд алдаа гарлаа",
         variant: "destructive" as any,
       });
+    }
+  };
+
+  const handleSaveEvent = async () => {
+    try {
+      if (!eventForm.title || !eventForm.location || !eventForm.groupSize || !eventForm.shortDescription || !eventForm.fullDescription) {
+        toast({
+          title: "Алдаа",
+          description: "Бүх талбарыг бөглөнө үү (Нэр, Байршил, Багтаамж, Товч болон Дэлгэрэнгүй тайлбар)",
+          variant: "destructive" as any,
+        });
+        return;
+      }
+      
+      const input = {
+        ...eventForm,
+        images: JSON.stringify(uploadedImages),
+      };
+
+      if (selectedEvent) {
+        await updateEvent({ variables: { id: selectedEvent.id, input } });
+        toast({ title: "Амжилттай", description: "Арга хэмжээ шинэчлэгдлээ" });
+      } else {
+        await createEvent({ variables: { input } });
+        toast({ title: "Амжилттай", description: "Арга хэмжээ үүсгэгдлээ" });
+      }
+
+      await refetchEvents();
+      setShowAddEvent(false);
+      setShowEditEvent(false);
+      setSelectedEvent(null);
+      setUploadedImages([]);
+    } catch (error: any) {
+      toast({
+        title: "Алдаа",
+        description: error.message || "Үйлдэл амжилтгүй",
+        variant: "destructive" as any,
+      });
+    }
+  };
+
+  const handleDeleteEvent = async (id: string) => {
+    if (window.confirm("Энэ арга хэмжээг устгах уу?")) {
+      try {
+        await deleteEvent({ variables: { id } });
+        await refetchEvents();
+        toast({ title: "Амжилттай", description: "Устгагдлаа" });
+      } catch (error: any) {
+        toast({
+          title: "Алдаа",
+          description: error.message || "Устгахад алдаа гарлаа",
+          variant: "destructive" as any,
+        });
+      }
     }
   };
 
@@ -1137,6 +1215,13 @@ export default function AdminDashboardContent() {
               >
                 <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Агуулга</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="events"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
+              >
+                <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>Арга хэмжээ</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -3550,6 +3635,276 @@ export default function AdminDashboardContent() {
                 </CardContent>
               </Card>
             </div>
+          </TabsContent>
+
+          <TabsContent value="events" className="space-y-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+              <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+                <Calendar className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-emerald-600" />
+                Арга хэмжээ, наадам
+              </h2>
+              <Button
+                className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-200 transition-all font-bold rounded-xl px-4 sm:px-6 w-full sm:w-auto"
+                onClick={() => setShowAddEvent(true)}
+              >
+                <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                Шинэ арга хэмжээ
+              </Button>
+            </div>
+
+            <Card className="border-none shadow-xl shadow-gray-200/40 rounded-2xl overflow-hidden bg-white/50 backdrop-blur-xl">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                    <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
+                      <TableHead className="font-bold text-gray-700">Арга хэмжээ</TableHead>
+                      <TableHead className="font-bold text-gray-700">Байршил</TableHead>
+                      <TableHead className="font-bold text-gray-700">Багтаамж</TableHead>
+                      <TableHead className="font-bold text-gray-700 text-center">Төлөв</TableHead>
+                      <TableHead className="font-bold text-gray-700 text-right">Үйлдэл</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {eventsLoading ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">Түр хүлээнэ үү...</TableCell>
+                      </TableRow>
+                    ) : eventsData?.events?.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={5} className="text-center py-8">Арга хэмжээ олдсонгүй</TableCell>
+                      </TableRow>
+                    ) : (
+                      eventsData?.events?.map((event: any) => {
+                        let parsedImages = [];
+                        try {
+                          parsedImages = JSON.parse(event.images || "[]");
+                        } catch (e) {
+                          parsedImages = [];
+                        }
+
+                        return (
+                          <TableRow key={event.id} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">
+                            <TableCell>
+                              <div className="flex items-center space-x-3 sm:space-x-4">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl overflow-hidden bg-gray-100 flex-shrink-0">
+                                  <img
+                                    src={parsedImages[0] || "/placeholder.svg"}
+                                    alt={event.title}
+                                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                                  />
+                                </div>
+                                <div className="flex flex-col">
+                                  <span className="font-bold text-gray-900">{event.title}</span>
+                                  <span className="text-xs text-gray-500 font-medium">{event.category}</span>
+                                </div>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="flex items-center text-gray-600 font-medium text-sm">
+                                <MapPin className="w-3.5 h-3.5 mr-1 text-gray-400" />
+                                {event.location}
+                              </div>
+                            </TableCell>
+                            <TableCell className="text-gray-600 font-medium text-sm">{event.groupSize}</TableCell>
+                            <TableCell className="text-center">
+                              <Badge className={event.isActive ? "bg-emerald-100 text-emerald-800" : "bg-gray-100 text-gray-800"}>
+                                {event.isActive ? "Идэвхтэй" : "Идэвхгүй"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="text-right space-x-2 flex justify-end items-center py-4">
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-emerald-50 hover:text-emerald-600 hover:border-emerald-200 transition-colors rounded-lg"
+                                onClick={() => {
+                                  setSelectedEvent(event);
+                                  setEventForm({
+                                    title: event.title,
+                                    category: event.category,
+                                    location: event.location,
+                                    groupSize: event.groupSize,
+                                    shortDescription: event.shortDescription,
+                                    fullDescription: event.fullDescription,
+                                    priceInfo: event.priceInfo || "",
+                                    images: parsedImages,
+                                    isActive: event.isActive,
+                                  });
+                                  setUploadedImages(parsedImages);
+                                  setShowEditEvent(true);
+                                }}
+                              >
+                                <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              </Button>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-8 w-8 sm:h-9 sm:w-9 p-0 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors rounded-lg"
+                                onClick={() => handleDeleteEvent(event.id)}
+                              >
+                                <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </Card>
+
+            {/* Add/Edit Event Dialog */}
+            <Dialog open={showAddEvent || showEditEvent} onOpenChange={(open) => {
+              if (!open) {
+                setShowAddEvent(false);
+                setShowEditEvent(false);
+                setSelectedEvent(null);
+                setEventForm({
+                  title: "",
+                  category: "Наадам, арга хэмжээ",
+                  location: "",
+                  groupSize: "",
+                  shortDescription: "",
+                  fullDescription: "",
+                  priceInfo: "",
+                  images: [],
+                  isActive: true,
+                });
+                setUploadedImages([]);
+              }
+            }}>
+              <DialogContent className="max-w-2xl bg-white/95 backdrop-blur-xl border-white max-h-[90vh] overflow-y-auto w-[95vw] p-4 sm:p-6 rounded-[2rem]">
+                <DialogHeader className="mb-4 sm:mb-6">
+                  <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 font-display">
+                    {showEditEvent ? "Арга хэмжээ засах" : "Шинэ арга хэмжээ нэмэх"}
+                  </DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 sm:space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 ml-1">Арга хэмжээний нэр</label>
+                      <Input
+                        value={eventForm.title}
+                        onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
+                        className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
+                        placeholder="Жишээ: Морьт Харваа"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 ml-1">Ангилал</label>
+                      <Input
+                        value={eventForm.category}
+                        onChange={(e) => setEventForm({ ...eventForm, category: e.target.value })}
+                        className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 ml-1">Байршил</label>
+                      <Input
+                        value={eventForm.location}
+                        onChange={(e) => setEventForm({ ...eventForm, location: e.target.value })}
+                        className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
+                        placeholder="Жишээ: Улаанбаатар хотоос 45 км-т"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 ml-1">Багтаамж / Хүний тоо</label>
+                      <Input
+                        value={eventForm.groupSize}
+                        onChange={(e) => setEventForm({ ...eventForm, groupSize: e.target.value })}
+                        className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
+                        placeholder="Жишээ: 10-50 хүн"
+                      />
+                    </div>
+                    <div className="col-span-1 sm:col-span-2 space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 ml-1">Үнэ (онцлох)</label>
+                      <Input
+                        value={eventForm.priceInfo}
+                        onChange={(e) => setEventForm({ ...eventForm, priceInfo: e.target.value })}
+                        className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
+                        placeholder="Жишээ: Тохиролцоно эсвэл 50,000₮-с"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 ml-1">Зураг оруулах</label>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 mb-2 sm:mb-4">
+                      {uploadedImages.map((url, index) => (
+                        <div key={index} className="relative group aspect-square rounded-xl overflow-hidden border border-gray-200 shadow-sm">
+                          <img src={url} alt={`Upload ${index}`} className="w-full h-full object-cover" />
+                          <button
+                            onClick={() => {
+                              const newImages = [...uploadedImages];
+                              newImages.splice(index, 1);
+                              setUploadedImages(newImages);
+                            }}
+                            className="absolute top-1 sm:top-2 right-1 sm:right-2 p-1 bg-red-500 text-white rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                          >
+                            <Trash2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                          </button>
+                        </div>
+                      ))}
+                      <div className="aspect-square flex flex-col items-center justify-center border-2 border-dashed border-gray-300 rounded-xl bg-gray-50 cursor-pointer hover:border-emerald-500 hover:bg-emerald-50 transition-all relative">
+                        <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-gray-400 mb-1 sm:mb-2" />
+                        <span className="text-[10px] sm:text-xs text-gray-500 font-semibold px-2 text-center text-balance">
+                          Зураг нэмэх
+                        </span>
+                        <input
+                          type="file"
+                          className="absolute inset-0 opacity-0 cursor-pointer h-full w-full"
+                          accept="image/*"
+                          multiple
+                          onChange={(e) => handleFileUpload(e, "yurt")}
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 ml-1">Товч тайлбар (Карт дээр гарах 2-3 мөр)</label>
+                    <Textarea
+                      value={eventForm.shortDescription}
+                      onChange={(e) => setEventForm({ ...eventForm, shortDescription: e.target.value })}
+                      className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl min-h-[80px]"
+                      placeholder="Жишээ: Team building харваа, хорхог, айраг, түүдэг галын үдэш..."
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 ml-1">Дэлгэрэнгүй тайлбар</label>
+                    <Textarea
+                      value={eventForm.fullDescription}
+                      onChange={(e) => setEventForm({ ...eventForm, fullDescription: e.target.value })}
+                      className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl min-h-[150px]"
+                      placeholder="Дэлгэрэнгүй хөтөлбөр, багтсан үйлчилгээнүүдийн мэдээлэл..."
+                    />
+                  </div>
+
+                  <div className="flex items-center space-x-2 bg-gray-50/50 p-3 rounded-xl border border-gray-100">
+                    <input
+                      type="checkbox"
+                      id="isActive"
+                      checked={eventForm.isActive}
+                      onChange={(e) => setEventForm({ ...eventForm, isActive: e.target.checked })}
+                      className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600 rounded border-gray-300 focus:ring-emerald-500 cursor-pointer"
+                    />
+                    <label htmlFor="isActive" className="text-sm font-semibold text-gray-700 cursor-pointer select-none">
+                      Хуудас дээр харагдах (Идэвхтэй)
+                    </label>
+                  </div>
+
+                  <div className="pt-2 sm:pt-4 border-t border-gray-100">
+                    <Button
+                      className="w-full bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-200 transition-all font-bold rounded-xl py-4 sm:py-6 text-sm sm:text-base"
+                      onClick={handleSaveEvent}
+                    >
+                      {showEditEvent ? "Шинэчлэх" : "Хадгалах"}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </TabsContent>
         </Tabs >
 

@@ -24,6 +24,7 @@ import "../lib/i18n";
 import { gql, useQuery } from "@apollo/client";
 
 import { SearchSection } from "@/components/search/SearchSection";
+import { EventSection } from "@/components/event-section";
 import { getFirstImage, getPrimaryImage } from "@/lib/imageUtils";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/components/ui/use-toast";
@@ -305,6 +306,9 @@ export default function HomePage() {
           )}
         </div>
       </section>
+
+      {/* Events / Experiences Section */}
+      <EventSection />
 
       {/* Featured Products */}
       <section className="py-6 sm:py-8 md:py-12 lg:py-16 bg-white">

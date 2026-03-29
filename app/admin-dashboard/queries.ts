@@ -334,3 +334,49 @@ export const DELETE_BOOKING = gql`
     deleteBooking(id: $id)
   }
 `
+
+export const GET_ALL_EVENTS = gql`
+  query GetAllEvents($activeOnly: Boolean) {
+    events(activeOnly: $activeOnly) {
+      id
+      title
+      category
+      location
+      groupSize
+      shortDescription
+      fullDescription
+      priceInfo
+      images
+      isActive
+      createdAt
+    }
+  }
+`
+
+export const CREATE_EVENT = gql`
+  mutation CreateEvent($input: CreateEventInput!) {
+    createEvent(input: $input) {
+      id
+      title
+      location
+      isActive
+    }
+  }
+`
+
+export const UPDATE_EVENT = gql`
+  mutation UpdateEvent($id: ID!, $input: UpdateEventInput!) {
+    updateEvent(id: $id, input: $input) {
+      id
+      title
+      location
+      isActive
+    }
+  }
+`
+
+export const DELETE_EVENT = gql`
+  mutation DeleteEvent($id: ID!) {
+    deleteEvent(id: $id)
+  }
+`
