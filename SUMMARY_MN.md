@@ -12,7 +12,7 @@
   - JSON массив: `["http://example.com/image.jpg"]`
   - Таслалаар тусгаарласан: `"image1.jpg, image2.jpg"`
   - Base64 зураг: `"data:image/jpeg;base64,..."`
-  - Сервер дээрх файл: `"/uploads/image.jpg"` → `"http://localhost:8000/uploads/image.jpg"`
+  - Сервер дээрх файл: `"/uploads/image.jpg"` → `"https://malchincamp.mn/uploads/image.jpg"`
 - Зураг уншихад алдаа гарвал автоматаар placeholder зураг харуулна
 - Debug горимд консол руу мэдээлэл хэвлэнэ
 

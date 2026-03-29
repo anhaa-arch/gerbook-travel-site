@@ -35,7 +35,7 @@ Database дээр зураг `/placeholder.svg` гэж хадгалагдсан 
 ```sql
 -- Жишээ зургуудтай засах
 UPDATE Yurt 
-SET images = '["http://localhost:8000/uploads/ger-camp-1.jpg"]'
+SET images = '["https://malchincamp.mn/uploads/ger-camp-1.jpg"]'
 WHERE name = 'aaa';
 
 -- Эсвэл JSON array форматаар
@@ -154,13 +154,13 @@ Database дээр дараах форматуудыг дэмжинэ:
 
 ```javascript
 // 1. JSON array (Recommended)
-'["http://localhost:8000/uploads/image1.jpg","http://localhost:8000/uploads/image2.jpg"]'
+'["https://malchincamp.mn/uploads/image1.jpg","https://malchincamp.mn/uploads/image2.jpg"]'
 
 // 2. Simple path
 '/images/yurt/ger-1.jpg'
 
 // 3. Full URL
-'http://localhost:8000/uploads/1234567890-camp.jpg'
+'https://malchincamp.mn/uploads/1234567890-camp.jpg'
 
 // 4. Base64 (for small images)
 'data:image/jpeg;base64,/9j/4AAQSkZJRg...'
@@ -207,7 +207,7 @@ WHERE b.userId = 'user_ID';
 
 -- Sample зураг оруулах
 UPDATE Yurt 
-SET images = '["http://localhost:8000/uploads/sample-ger.jpg"]'
+SET images = '["https://malchincamp.mn/uploads/sample-ger.jpg"]'
 WHERE images = '/placeholder.svg';
 ```
 

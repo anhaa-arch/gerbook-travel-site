@@ -16,7 +16,7 @@
   - JSON arrays: `["http://example.com/image.jpg"]`
   - Comma-separated strings: `"image1.jpg, image2.jpg"`
   - Base64 encoded images: `"data:image/jpeg;base64,..."`
-  - Server upload paths: `/uploads/...` → `http://localhost:8000/uploads/...`
+  - Server upload paths: `/uploads/...` → `https://malchincamp.mn/uploads/...`
   - External URLs: `http://...` or `https://...`
 - Added `onError` handlers on all `<img>` tags to fallback to placeholder
 - Added comprehensive logging for debugging (development mode only)
@@ -139,13 +139,13 @@ return {
 ### Image Processing Flow
 
 ```
-Database: images = '["http://localhost:8000/uploads/image1.jpg"]'
+Database: images = '["https://malchincamp.mn/uploads/image1.jpg"]'
     ↓
 Frontend: getPrimaryImage(images)
     ↓
-Parse JSON: ["http://localhost:8000/uploads/image1.jpg"]
+Parse JSON: ["https://malchincamp.mn/uploads/image1.jpg"]
     ↓
-Extract first: "http://localhost:8000/uploads/image1.jpg"
+Extract first: "https://malchincamp.mn/uploads/image1.jpg"
     ↓
 Validate & Format:
   - If starts with 'uploads/' → Prepend server URL
