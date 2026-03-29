@@ -1156,7 +1156,6 @@ export default function AdminDashboardContent() {
         variant: "destructive" as any,
       });
     }
-    }
 
     event.target.value = "";
   };
