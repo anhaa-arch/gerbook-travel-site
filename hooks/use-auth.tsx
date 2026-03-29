@@ -82,31 +82,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   }, [])
 
-  // Auto-logout after 10 minutes of inactivity
-  useEffect(() => {
-    if (!isAuthenticated) return;
-
-    let timeoutId: NodeJS.Timeout;
-    const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
-
-    const resetTimer = () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      timeoutId = setTimeout(() => {
-        console.log("Logging out due to inactivity");
-        logout();
-      }, INACTIVITY_TIMEOUT);
-    };
-
-    const events = ["mousemove", "mousedown", "keydown", "scroll", "touchstart"];
-    events.forEach(event => window.addEventListener(event, resetTimer));
-
-    resetTimer(); // Initialize timer
-
-    return () => {
-      if (timeoutId) clearTimeout(timeoutId);
-      events.forEach(event => window.removeEventListener(event, resetTimer));
-    };
-  }, [isAuthenticated]);
 
   const redirectUser = (role: string) => {
     // 1. Check for 'redirect' query parameter
@@ -175,6 +150,33 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await client.clearStore() // Clear Apollo cache
     router.push('/login')
   }, [router]);
+
+  // Auto-logout after 10 minutes of inactivity
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const INACTIVITY_TIMEOUT = 10 * 60 * 1000; // 10 minutes
+    let lastActivityTime = Date.now();
+
+    const updateActivity = () => {
+      lastActivityTime = Date.now();
+    };
+
+    const events = ["mousedown", "keydown", "scroll", "touchstart", "mousemove", "click"];
+    events.forEach(event => window.addEventListener(event, updateActivity, { passive: true }));
+
+    const checkInactivityInterval = setInterval(() => {
+      if (Date.now() - lastActivityTime >= INACTIVITY_TIMEOUT) {
+        console.log("Logging out due to inactivity");
+        logout();
+      }
+    }, 30000); // Check every 30 seconds
+
+    return () => {
+      clearInterval(checkInactivityInterval);
+      events.forEach(event => window.removeEventListener(event, updateActivity));
+    };
+  }, [isAuthenticated, logout]);
 
   // GraphQL Operations
   const REQUEST_REGISTRATION_CODE = gql`

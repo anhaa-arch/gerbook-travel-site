@@ -459,6 +459,15 @@ export default function AdminDashboardContent() {
         return;
       }
 
+      if (!input.phone || input.phone.trim() === "") {
+        toast({
+          title: "Алдаа",
+          description: "Гар утасны дугаараа оруулна уу",
+          variant: "destructive" as any,
+        });
+        return;
+      }
+
       await createuser({ variables: { input } });
       await refetchusers();
       await refetchStats();
@@ -487,6 +496,15 @@ export default function AdminDashboardContent() {
 
   const handleEdituser = async (formData: any) => {
     try {
+      if (!formData.phone || formData.phone.trim() === "") {
+        toast({
+          title: "Алдаа",
+          description: "Гар утасны дугаараа оруулна уу",
+          variant: "destructive" as any,
+        });
+        return;
+      }
+
       await updateuser({ variables: { id: editingItem.id, input: formData } });
       await refetchusers();
       toast({

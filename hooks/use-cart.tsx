@@ -191,6 +191,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
   const clearCart = useCallback(() => {
     setCartItems([]);
     setBookingCart([]);
+    localStorage.removeItem("malchin_cart");
+    localStorage.removeItem("bookingCart");
+    localStorage.removeItem("selectedItems");
+    localStorage.removeItem("selectedCategories");
   }, []);
 
   const itemCount = cartItems.reduce((total, item) => total + item.quantity, 0) + bookingCart.length;
