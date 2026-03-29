@@ -1146,8 +1146,14 @@ export default function AdminDashboardContent() {
           continue;
         }
         
+        // 1. Compress the image in browser
+        const compressedBase64 = await compressImage(file);
+        // 2. Convert base64 back to File
+        const compressedFile = dataURLtoFile(compressedBase64, `img-${Date.now()}.jpg`);
+
+        // 3. Upload to /api/upload
         const formData = new FormData();
-        formData.append("file", file);
+        formData.append("file", compressedFile);
         
         const response = await fetch(`${backendUrl}/api/upload`, {
           method: "POST",
