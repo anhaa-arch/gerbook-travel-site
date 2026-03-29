@@ -979,45 +979,66 @@ export default function AdminDashboardContent() {
   };
 
   // Image upload functions
-  const handleFileUpload = (
+  const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
     formType: "yurt" | "product"
   ) => {
     const files = event.target.files;
-    if (files && files.length > 0) {
-      const file = files[0];
+    if (!files || files.length === 0) return;
 
-      // Check file size (max 20MB)
-      if (file.size > 20 * 1024 * 1024) {
-        toast({
-          title: "Алдаа",
-          description: "Зурагны хэмжээ 20MB-аас их байна",
-          variant: "destructive" as any,
-        });
-        return;
-      }
-
-      // Check if we already have 6 images
-      if (uploadedImages.length >= 6) {
-        toast({
-          title: "Алдаа",
-          description: "Дээд тал 6 зураг оруулж болно",
-          variant: "destructive" as any,
-        });
-        return;
-      }
-
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        const result = e.target?.result as string;
-        setUploadedImages((prev) => [...prev, result]);
-        toast({
-          title: "Амжилттай",
-          description: "Зураг амжилттай орууллаа",
-        });
-      };
-      reader.readAsDataURL(file);
+    // Check if we already have 6 images
+    if (uploadedImages.length >= 6) {
+      toast({
+        title: "Алдаа",
+        description: "Дээд тал 6 зураг оруулж болно",
+        variant: "destructive" as any,
+      });
+      return;
     }
+
+    const file = files[0];
+
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast({
+        title: "Алдаа",
+        description: "Зурагны хэмжээ 10MB-аас их байна",
+        variant: "destructive" as any,
+      });
+      return;
+    }
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://api.malchincamp.mn";
+      const response = await fetch(`${apiBase}/api/upload`, {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const err = await response.json().catch(() => ({ error: "Upload failed" }));
+        throw new Error(err.error || "Зураг upload хийхэд алдаа гарлаа");
+      }
+
+      const { url } = await response.json();
+      setUploadedImages((prev) => [...prev, url]);
+      toast({
+        title: "Амжилттай",
+        description: "Зураг амжилттай орууллаа",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Алдаа",
+        description: err.message || "Зураг upload хийхэд алдаа гарлаа",
+        variant: "destructive" as any,
+      });
+    }
+
+    // Reset input so same file can be re-selected
+    event.target.value = "";
   };
 
   const handleImageUrlChange = (url: string, formType: "yurt" | "product") => {
