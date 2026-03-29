@@ -623,6 +623,35 @@ export default function HerderDashboardContent() {
     setShowDeleteDialog(true);
   };
 
+  // Compress image using Canvas API — produces JPEG ~150-250KB regardless of original size
+  const compressImage = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error("Файл унших алдаа гарлаа"));
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onerror = () => reject(new Error("Зураг ачаалах алдаа гарлаа"));
+        img.onload = () => {
+          const MAX = 1200;
+          let { width, height } = img;
+          if (width > MAX || height > MAX) {
+            const ratio = Math.min(MAX / width, MAX / height);
+            width = Math.round(width * ratio);
+            height = Math.round(height * ratio);
+          }
+          const canvas = document.createElement("canvas");
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext("2d");
+          if (!ctx) return reject(new Error("Canvas дэмжигдэхгүй байна"));
+          ctx.drawImage(img, 0, 0, width, height);
+          resolve(canvas.toDataURL("image/jpeg", 0.78));
+        };
+        img.src = e.target?.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+
   // Image upload functions
   const handleFileUpload = async (
     event: React.ChangeEvent<HTMLInputElement>,
@@ -638,51 +667,36 @@ export default function HerderDashboardContent() {
         description: "Дээд тал 6 зураг оруулж болно",
         variant: "destructive" as any,
       });
+      event.target.value = "";
       return;
     }
 
     const file = files[0];
 
-    // Check file size (max 10MB)
-    if (file.size > 10 * 1024 * 1024) {
+    // Accept up to 30MB originals — Canvas will shrink it
+    if (file.size > 30 * 1024 * 1024) {
       toast({
         title: "Алдаа",
-        description: "Зурагны хэмжээ 10MB-аас их байна",
+        description: "Зурагны хэмжээ 30MB-аас их байна",
         variant: "destructive" as any,
       });
+      event.target.value = "";
       return;
     }
 
     try {
-      const formData = new FormData();
-      formData.append("file", file);
-
-      const apiBase = process.env.NEXT_PUBLIC_API_URL || "https://api.malchincamp.mn";
-      const response = await fetch(`${apiBase}/api/upload`, {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({ error: "Upload failed" }));
-        throw new Error(err.error || "Зураг upload хийхэд алдаа гарлаа");
-      }
-
-      const { url } = await response.json();
-      setUploadedImages((prev) => [...prev, url]);
-      toast({
-        title: "Амжилттай",
-        description: "Зураг амжилттай орууллаа",
-      });
+      toast({ title: "Зураг боловсруулж байна...", description: "Түр хүлээнэ үү" });
+      const compressed = await compressImage(file);
+      setUploadedImages((prev) => [...prev, compressed]);
+      toast({ title: "Амжилттай", description: "Зураг амжилттай орууллаа" });
     } catch (err: any) {
       toast({
         title: "Алдаа",
-        description: err.message || "Зураг upload хийхэд алдаа гарлаа",
+        description: err.message || "Зураг боловсруулахад алдаа гарлаа",
         variant: "destructive" as any,
       });
     }
 
-    // Reset input so same file can be re-selected
     event.target.value = "";
   };
 
