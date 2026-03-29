@@ -587,7 +587,7 @@ export default function AdminDashboardContent() {
       
       const input = {
         ...eventForm,
-        images: JSON.stringify(uploadedImages),
+        images: uploadedImages,
       };
 
       if (selectedEvent) {
@@ -3675,12 +3675,7 @@ export default function AdminDashboardContent() {
                       </TableRow>
                     ) : (
                       eventsData?.events?.map((event: any) => {
-                        let parsedImages = [];
-                        try {
-                          parsedImages = JSON.parse(event.images || "[]");
-                        } catch (e) {
-                          parsedImages = [];
-                        }
+                        const parsedImages = event.images || [];
 
                         return (
                           <TableRow key={event.id} className="hover:bg-gray-50/50 transition-colors cursor-pointer group">

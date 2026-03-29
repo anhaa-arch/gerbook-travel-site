@@ -49,13 +49,7 @@ export const EventSection = () => {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {data.events.map((event: any) => {
-             let parsedImages = [];
-             try {
-               parsedImages = JSON.parse(event.images || "[]");
-             } catch (e) {
-               parsedImages = [];
-             }
-
+             const parsedImages = event.images || [];
             return (
               <EventCard
                 key={event.id}

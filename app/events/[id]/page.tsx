@@ -53,12 +53,7 @@ export default function EventDetailPage() {
   }
 
   const event = data.event;
-  let parsedImages = [];
-  try {
-    parsedImages = JSON.parse(event.images || "[]");
-  } catch (e) {
-    parsedImages = [];
-  }
+  const parsedImages = event.images || [];
 
   const primaryImage = parsedImages[0] || "/placeholder.svg";
   const galleryImages = parsedImages.slice(1);
