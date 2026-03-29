@@ -1015,7 +1015,6 @@ export default function AdminDashboardContent() {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    // Check if we already have 6 images
     if (uploadedImages.length >= 6) {
       toast({
         title: "Алдаа",
@@ -1026,28 +1025,58 @@ export default function AdminDashboardContent() {
       return;
     }
 
-    const file = files[0];
-
-    // Accept up to 100MB originals
-    if (file.size > 100 * 1024 * 1024) {
-      toast({
-        title: "Алдаа",
-        description: "Зурагны хэмжээ 100MB-аас их байна",
-        variant: "destructive" as any,
-      });
-      event.target.value = "";
-      return;
-    }
-
     try {
-      toast({ title: "Зураг боловсруулж байна...", description: "Түр хүлээнэ үү" });
-      const compressed = await compressImage(file);
-      setUploadedImages((prev) => [...prev, compressed]);
-      toast({ title: "Амжилттай", description: "Зураг амжилттай орууллаа" });
+      toast({ title: "Зураг илгээж байна...", description: "Түр хүлээнэ үү" });
+      
+      const newUrls: string[] = [];
+      const backendUrl = process.env.NEXT_PUBLIC_GRAPHQL_URL 
+        ? process.env.NEXT_PUBLIC_GRAPHQL_URL.replace('/graphql', '') 
+        : "https://api.malchincamp.mn";
+
+      for (let i = 0; i < files.length; i++) {
+        if (uploadedImages.length + i >= 6) break;
+        const file = files[i];
+        
+        // Allow up to 100MB
+        if (file.size > 100 * 1024 * 1024) {
+          toast({
+            title: "Алдаа",
+            description: `Зурагны хэмжээ 100MB-аас их байна (${(file.size / 1024 / 1024).toFixed(1)}MB)`,
+            variant: "destructive" as any,
+          });
+          continue;
+        }
+        
+        const formData = new FormData();
+        formData.append("file", file);
+        
+        const response = await fetch(`${backendUrl}/api/upload`, {
+          method: "POST",
+          body: formData,
+        });
+        
+        if (!response.ok) throw new Error("Сервертэй холбогдоход алдаа гарлаа");
+        const data = await response.json();
+        
+        if (data.url) {
+          newUrls.push(data.url);
+        } else if (data.error) {
+          throw new Error(data.error);
+        }
+      }
+
+      setUploadedImages((prev) => [...prev, ...newUrls]);
+      toast({ title: "Амжилттай", description: `Нийт ${newUrls.length} зураг амжилттай хадгалагдлаа` });
     } catch (err: any) {
+      let errorMessage = err.message || "Зураг хадгалахад алдаа гарлаа";
+      
+      if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+        errorMessage = "Сервертэй холбогдож чадсангүй (Failed to fetch). Энэ нь ихэвчлэн зургийн хэмжээ хэтэрсэн эсвэл Nginx тохиргооноос болдог. Nginx client_max_body_size-ийг шалгана уу.";
+      }
+
       toast({
         title: "Алдаа",
-        description: err.message || "Зураг боловсруулахад алдаа гарлаа",
+        description: errorMessage,
         variant: "destructive" as any,
       });
     }
@@ -1112,13 +1141,21 @@ export default function AdminDashboardContent() {
       }
 
       setUploadedImages((prev) => [...prev, ...newUrls]);
-      toast({ title: "Амжилттай", description: "Зураг амжилттай хадгалагдлаа" });
+      toast({ title: "Амжилттай", description: `Нийт ${newUrls.length} зураг амжилттай хадгалагдлаа` });
     } catch (err: any) {
+      let errorMessage = err.message || "Зураг хадгалахад алдаа гарлаа";
+      
+      // Specifically handle 'Failed to fetch' which is often Nginx or Network related
+      if (err.name === 'TypeError' && err.message === 'Failed to fetch') {
+        errorMessage = "Сервертэй холбогдож чадсангүй (Failed to fetch). Энэ нь ихэвчлэн зургийн хэмжээ хэтэрсэн эсвэл Nginx тохиргооноос болдог. Nginx client_max_body_size-ийг шалгана уу.";
+      }
+
       toast({
         title: "Алдаа",
-        description: err.message || "Зураг хадгалахад алдаа гарлаа",
+        description: errorMessage,
         variant: "destructive" as any,
       });
+    }
     }
 
     event.target.value = "";
