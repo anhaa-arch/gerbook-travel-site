@@ -2476,7 +2476,7 @@ export default function AdminDashboardContent() {
                         </SelectTrigger>
                         <SelectContent className="max-h-[300px]">
                           {users
-                            .filter((u: any) => u.role === "OWNER" || u.role === "ADMIN")
+                            .filter((u: any) => u.role === "HERDER" || u.role === "ADMIN")
                             .map((u: any) => (
                               <SelectItem key={u.id} value={u.id}>
                                 {u.name} ({u.email})

@@ -83,7 +83,7 @@ export default function RegisterPage() {
     try {
       let role = "TRAVELER";
       if (activeTab === "herder") {
-        role = "OWNER";
+        role = "HERDER";
       } else if (activeTab === "admin") {
         role = "ADMIN";
       }
@@ -114,7 +114,7 @@ export default function RegisterPage() {
   const handleResendOtp = async () => {
     let role = "TRAVELER";
     if (activeTab === "herder") {
-      role = "OWNER";
+      role = "HERDER";
     } else if (activeTab === "admin") {
       role = "ADMIN";
     }
@@ -153,7 +153,7 @@ export default function RegisterPage() {
 
     let role = "TRAVELER";
     if (activeTab === "herder") {
-      role = "OWNER";
+      role = "HERDER";
     } else if (activeTab === "admin") {
       role = "ADMIN";
     } else {
