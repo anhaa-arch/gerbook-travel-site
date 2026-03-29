@@ -466,12 +466,13 @@ export default function AdminDashboardContent() {
       }
 
       const formData = new FormData(form);
+      const phone = formData.get("phone") as string;
       const input = {
         name: formData.get("name") as string,
         email: formData.get("email") as string,
-        phone: formData.get("phone") as string,
+        phone,
         password: formData.get("password") as string,
-        role: (formData.get("role") as string) || "CUSTOMER",
+        role: (formData.get("role") as string) || "TRAVELER",
       };
 
       if (!input.name || !input.email || !input.password) {
@@ -483,10 +484,11 @@ export default function AdminDashboardContent() {
         return;
       }
 
-      if (!input.phone || input.phone.trim() === "") {
+      const phoneRegex = /^\d{8}$/;
+      if (!phone || !phoneRegex.test(phone.trim())) {
         toast({
           title: "Алдаа",
-          description: "Гар утасны дугаараа оруулна уу",
+          description: "Гар утасны дугаар 8 оронтой тоо байх ёстой",
           variant: "destructive" as any,
         });
         return;
@@ -520,10 +522,11 @@ export default function AdminDashboardContent() {
 
   const handleEdituser = async (formData: any) => {
     try {
-      if (!formData.phone || formData.phone.trim() === "") {
+      const phoneRegex = /^\d{8}$/;
+      if (!formData.phone || !phoneRegex.test(formData.phone.trim())) {
         toast({
           title: "Алдаа",
-          description: "Гар утасны дугаараа оруулна уу",
+          description: "Гар утасны дугаар 8 оронтой тоо байх ёстой",
           variant: "destructive" as any,
         });
         return;

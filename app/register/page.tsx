@@ -23,7 +23,7 @@ export default function RegisterPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [activeTab, setActiveTab] = useState("customer");
+  const [activeTab, setActiveTab] = useState("traveler");
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
@@ -86,6 +86,8 @@ export default function RegisterPage() {
         role = "HERDER";
       } else if (activeTab === "admin") {
         role = "ADMIN";
+      } else {
+        role = "TRAVELER";
       }
 
       const input = {
@@ -117,6 +119,8 @@ export default function RegisterPage() {
       role = "HERDER";
     } else if (activeTab === "admin") {
       role = "ADMIN";
+    } else {
+      role = "TRAVELER";
     }
 
     await requestRegistrationCode({
@@ -241,11 +245,11 @@ export default function RegisterPage() {
               <button
                 type="button"
                 className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                  activeTab === "customer"
+                  activeTab === "traveler"
                     ? "bg-white text-[#1b7c53] shadow-md"
                     : "text-gray-500 hover:text-gray-700"
                 }`}
-                onClick={() => setActiveTab("customer")}
+                onClick={() => setActiveTab("traveler")}
               >
                 <User className="w-4 h-4" />
                 <span>Хэрэглэгч</span>
