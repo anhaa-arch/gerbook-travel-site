@@ -2,6 +2,7 @@
 
 import { MapPin, Users, CalendarDays, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { getImageUrl } from "@/lib/admin-utils";
 import Link from "next/link";
 
 interface EventCardProps {
@@ -25,7 +26,7 @@ export const EventCard = ({
   priceInfo,
   images,
 }: EventCardProps) => {
-  const imageUrl = images?.[0] || "/placeholder.svg";
+  const imageUrl = getImageUrl(images?.[0]);
 
   return (
     <div className="group relative bg-white rounded-3xl overflow-hidden shadow-lg shadow-gray-200/50 hover:shadow-2xl hover:shadow-emerald-200/50 transition-all duration-500 flex flex-col h-full border border-gray-100">

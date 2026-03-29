@@ -14,6 +14,7 @@ export function Footer() {
           className="object-cover object-bottom pointer-events-none z-0"
           quality={100}
           priority
+          unoptimized={true}
         />
         
         {/* Subtle bottom light gradient overlay to ensure dark text legibility */}

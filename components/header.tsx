@@ -230,6 +230,7 @@ export function Header() {
           className="w-full xl:max-w-none h-auto object-cover object-bottom"
           priority
           quality={100}
+          unoptimized={true}
         />
       </div>
     </header>

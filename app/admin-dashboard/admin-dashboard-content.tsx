@@ -1082,7 +1082,9 @@ export default function AdminDashboardContent() {
         if (!response.ok) throw new Error("Сервертэй холбогдоход алдаа гарлаа");
         const data = await response.json();
         
-        if (data.url) {
+        if (data.filename) {
+          newUrls.push(data.filename);
+        } else if (data.url) {
           newUrls.push(data.url);
         } else if (data.error) {
           throw new Error(data.error);
@@ -1163,7 +1165,9 @@ export default function AdminDashboardContent() {
         if (!response.ok) throw new Error("Сервертэй холбогдоход алдаа гарлаа");
         const data = await response.json();
         
-        if (data.url) {
+        if (data.filename) {
+          newUrls.push(data.filename);
+        } else if (data.url) {
           newUrls.push(data.url);
         } else if (data.error) {
           throw new Error(data.error);
@@ -1998,7 +2002,7 @@ export default function AdminDashboardContent() {
                       <div className="flex flex-wrap gap-4">
                         {uploadedImages.map((image, index) => (
                           <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
-                            <img src={image} alt={`product-${index}`} className="w-full h-full object-cover" />
+                            <img src={getImageUrl(image)} alt={`product-${index}`} className="w-full h-full object-cover" />
                             <button
                               type="button"
                               onClick={() => handleRemoveImage(index)}
@@ -2135,7 +2139,7 @@ export default function AdminDashboardContent() {
                       <div className="flex flex-wrap gap-4">
                         {uploadedImages.map((image, index) => (
                           <div key={index} className="relative w-24 h-24 rounded-lg overflow-hidden border">
-                            <img src={image} alt={`product-${index}`} className="w-full h-full object-cover" />
+                            <img src={getImageUrl(image)} alt={`product-${index}`} className="w-full h-full object-cover" />
                             <button
                               type="button"
                               onClick={() => handleRemoveImage(index)}
@@ -2303,7 +2307,7 @@ export default function AdminDashboardContent() {
                                         Борлуулагч
                                       </label>
                                       <p className="text-sm text-gray-600 font-medium">
-                                        <img src={getImageUrl(product.images[0])} alt={product.name} className="w-16 h-16 object-cover rounded" />
+                                        {product.seller || "Тодорхойгүй"}
                                       </p>
                                     </div>
                                     <div>
@@ -3600,7 +3604,6 @@ export default function AdminDashboardContent() {
                                   onValueChange={(value) => handleUpdateBookingStatus(booking.id, value)}
                                 >
                                   <SelectTrigger className="h-8 w-[130px] text-xs font-semibold">
-                                    <img src={getImageUrl(booking.yurtImages?.[0])} alt="yurt" className="w-4 h-4 rounded-full mr-1" />
                                     <SelectValue placeholder="Төлөв" />
                                   </SelectTrigger>
                                   <SelectContent>

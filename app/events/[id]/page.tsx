@@ -7,6 +7,8 @@ import { useParams, useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
+import { getImageUrl } from "@/lib/admin-utils";
+
 const GET_EVENT_BY_ID = gql`
   query GetEventById($id: ID!) {
     event(id: $id) {
@@ -55,7 +57,7 @@ export default function EventDetailPage() {
   const event = data.event;
   const parsedImages = event.images || [];
 
-  const primaryImage = parsedImages[0] || "/placeholder.svg";
+  const primaryImage = getImageUrl(parsedImages[0]);
   const galleryImages = parsedImages.slice(1);
 
   return (
@@ -134,7 +136,7 @@ export default function EventDetailPage() {
                   {galleryImages.map((src: string, index: number) => (
                     <div key={index} className="relative aspect-square rounded-2xl overflow-hidden shadow-sm group cursor-pointer border border-gray-100">
                       <img
-                        src={src}
+                        src={getImageUrl(src)}
                         alt={`${event.title} gallery ${index + 1}`}
                         className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                       />
