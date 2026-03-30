@@ -862,12 +862,12 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       alt={campData.host.name}
                       className="w-16 h-16 rounded-full object-cover"
                     />
-                    <div className="flex-1">
+                    <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-3 mb-2">
-                        <h3 className="font-bold text-lg">
+                        <h3 className="font-bold text-lg truncate">
                           {campData.host.name}
                         </h3>
-                        <div className="flex items-center">
+                        <div className="flex items-center flex-shrink-0">
                           <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
                           <span className="text-sm font-semibold">
                             {campData.host.rating}
@@ -875,27 +875,27 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                         </div>
                       </div>
                       <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
-                        <span className="font-medium">
+                        <span className="font-medium whitespace-nowrap">
                           {campData.host.experience} туршлагатай
                         </span>
                         <span className="font-medium">
                           Хэл: {campData.host.languages.join(", ")}
                         </span>
                       </div>
-                      <p className="text-gray-700 text-sm font-medium mb-3">
+                      <p className="text-gray-700 text-sm font-medium mb-3 break-words">
                         {campData.host.description}
                       </p>
                       <div className="flex flex-col gap-2 text-sm">
                         {campData.host.phone && (
                           <div className="flex items-center text-gray-600">
-                            <span className="font-medium">Утас: </span>
+                            <span className="font-medium whitespace-nowrap">Утас: </span>
                             <span className="ml-2">{campData.host.phone}</span>
                           </div>
                         )}
                         {campData.host.email && (
-                          <div className="flex items-center text-gray-600">
-                            <span className="font-medium">Имэйл: </span>
-                            <span className="ml-2">{campData.host.email}</span>
+                          <div className="flex items-start text-gray-600">
+                            <span className="font-medium whitespace-nowrap mt-0.5">Имэйл: </span>
+                            <span className="ml-2 break-all">{campData.host.email}</span>
                           </div>
                         )}
                       </div>

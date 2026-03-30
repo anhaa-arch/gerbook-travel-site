@@ -16,39 +16,62 @@ export function parseImagePaths(images: string | null | undefined): string[] {
     return ["/placeholder.svg"];
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.malchincamp.mn";
+
+  const processImg = (img: string): string | null => {
+    let cleanImg = img.replace(/^\[\[/, '').replace(/\]\]$/, '').replace(/^["']|["']$/g, '').trim();
+    if (!cleanImg) return null;
+    
+    if (cleanImg.startsWith('data:image/') || cleanImg.startsWith('http')) {
+      return cleanImg;
+    }
+    if (cleanImg.startsWith('/')) {
+      if (cleanImg.startsWith('/uploads/')) return `${baseUrl}${cleanImg}`;
+      return cleanImg;
+    }
+    if (cleanImg.startsWith('uploads/')) {
+      return `${baseUrl}/${cleanImg}`;
+    }
+    return `${baseUrl}/uploads/${cleanImg}`;
+  };
+
   try {
-    // Try to parse as JSON first (for new format)
-    const parsed = JSON.parse(images);
+    const parsed = typeof images === 'string' && (images.startsWith('[') || images.startsWith('"')) 
+      ? JSON.parse(images) 
+      : images;
+      
     if (Array.isArray(parsed)) {
       const allImages: string[] = [];
-      parsed.forEach((img: string) => {
-        // Remove extra brackets and quotes from the path
-        const cleanImg = img.replace(/^\[\[/, '').replace(/\]\]$/, '').trim();
-
-        // Only add valid image URLs/paths
-        if (typeof cleanImg === 'string' && cleanImg && (cleanImg.startsWith('http') || cleanImg.startsWith('/') || cleanImg.startsWith('data:image/'))) {
-          // If the cleaned image contains commas, split it further
-          if (cleanImg.includes(',') && !cleanImg.startsWith('data:')) {
-            const splitImages = cleanImg.split(',').map((path: string) => path.trim());
-            allImages.push(...splitImages.filter(p => typeof p === 'string' && p && (p.startsWith('http') || p.startsWith('/') || p.startsWith('data:image/'))));
+      parsed.forEach((img: any) => {
+        if (typeof img === 'string') {
+          if (img.includes(',') && !img.startsWith('data:')) {
+            img.split(',').forEach((pStr: string) => {
+              const processed = processImg(pStr);
+              if (processed) allImages.push(processed);
+            });
           } else {
-            allImages.push(cleanImg);
+            const processed = processImg(img);
+            if (processed) allImages.push(processed);
           }
         }
       });
       return allImages.length > 0 ? allImages : ["/placeholder.svg"];
     }
   } catch (e) {
-    // If JSON parsing fails, treat as comma-separated string (legacy format)
-    const parts = images.split(',').map((img: string) => img.trim());
-    const validParts = parts.filter(p => typeof p === 'string' && p && (p.startsWith('http') || p.startsWith('/') || p.startsWith('data:image/')));
-    return validParts.length > 0 ? validParts : ["/placeholder.svg"];
+    if (DEBUG_MODE) console.error("parseImagePaths parsing error:", e);
   }
 
   // Fallback to comma-separated string
-  const parts = images.split(',').map((img: string) => img.trim());
-  const validParts = parts.filter(p => typeof p === 'string' && p && (p.startsWith('http') || p.startsWith('/') || p.startsWith('data:image/')));
-  return validParts.length > 0 ? validParts : ["/placeholder.svg"];
+  if (typeof images === 'string') {
+    const allImages: string[] = [];
+    images.split(',').forEach(img => {
+      const processed = processImg(img);
+      if (processed) allImages.push(processed);
+    });
+    return allImages.length > 0 ? allImages : ["/placeholder.svg"];
+  }
+
+  return ["/placeholder.svg"];
 }
 
 /**
