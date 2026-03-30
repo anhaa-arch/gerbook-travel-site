@@ -1,6 +1,6 @@
 "use client";
 
-import { ShoppingCart, Menu, X, Globe, User, LogOut, Compass, ShoppingBag } from "lucide-react";
+import { ShoppingCart, Menu, X, Globe, User, LogOut, Compass, ShoppingBag, Calendar } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
@@ -67,6 +67,28 @@ export function Header() {
               </span>
             </Link>
 
+            {/* Desktop Navigation Menu */}
+            <nav className="hidden md:flex items-center space-x-1 lg:space-x-4 bg-gray-50/50 p-1.5 rounded-2xl border border-gray-100 shadow-inner">
+              <Link
+                href="/listings"
+                className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:text-[#1b7c53] hover:bg-white hover:shadow-sm transition-all"
+              >
+                Малчин Кэмп
+              </Link>
+              <Link
+                href="/products"
+                className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:text-[#1b7c53] hover:bg-white hover:shadow-sm transition-all"
+              >
+                Бүтээгдэхүүн
+              </Link>
+              <Link
+                href="/events"
+                className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:text-[#1b7c53] hover:bg-white hover:shadow-sm transition-all"
+              >
+                Арга хэмжээ
+              </Link>
+            </nav>
+
             {/* Right side Actions (Cart & Hamburger) */}
             <div className="flex items-center space-x-3 sm:space-x-4">
               
@@ -123,6 +145,16 @@ export function Header() {
                             <ShoppingBag className="w-5 h-5 text-[#1b7c53]" />
                           </div>
                           <span className="text-sm text-gray-900 font-bold">Бүтээгдэхүүн</span>
+                        </Link>
+                        <Link
+                          href="/events"
+                          className="w-full flex items-center p-3 hover:bg-gray-50 rounded-2xl text-left transition-colors group"
+                          onClick={() => setIsMobileMenuOpen(false)}
+                        >
+                          <div className="w-10 h-10 bg-[#1b7c53]/10 rounded-xl flex items-center justify-center mr-3 group-hover:bg-[#1b7c53]/20 transition-colors">
+                            <Calendar className="w-5 h-5 text-[#1b7c53]" />
+                          </div>
+                          <span className="text-sm text-gray-900 font-bold">Арга хэмжээ</span>
                         </Link>
                       </div>
 

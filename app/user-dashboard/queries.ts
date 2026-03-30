@@ -249,3 +249,23 @@ export const CANCEL_ORDER = gql`
     }
   }
 `
+
+export const GET_user_EVENT_BOOKINGS = gql`
+  query GetuserEventBookings {
+    myEventBookings {
+      id
+      numberOfPeople
+      totalPrice
+      status
+      qpayInvoiceId
+      createdAt
+      event {
+        id
+        title
+        location
+        eventDate
+        images
+      }
+    }
+  }
+`

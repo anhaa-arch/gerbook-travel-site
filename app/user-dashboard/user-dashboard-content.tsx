@@ -57,9 +57,26 @@ import {
   GET_AVAILABLE_PRODUCTS,
   GET_AVAILABLE_TRAVELS,
   GET_SAVED_YURTS,
+  GET_user_EVENT_BOOKINGS,
 } from "./queries";
 
 // Type definitions
+interface EventBooking {
+  id: string;
+  numberOfPeople: number;
+  totalPrice: number;
+  status: string;
+  qpayInvoiceId?: string;
+  createdAt: string;
+  event: {
+    id: string;
+    title: string;
+    location: string;
+    eventDate?: string;
+    images: any;
+  };
+}
+
 interface Booking {
   id: string;
   camp: string;
@@ -70,7 +87,7 @@ interface Booking {
   amount: number;
   status: string;
   image: string;
-  type: "camp" | "travel";
+  type: "camp" | "travel" | "event";
   owner?: {
     id: string;
     name: string;
@@ -173,6 +190,15 @@ const CHECK_QPAY_BOOKING = gql`
   }
 `;
 
+const CHECK_QPAY_EVENT_BOOKING = gql`
+  mutation CheckQPayEventBooking($bookingId: String!) {
+    checkQPayEventPaymentAndConfirm(bookingId: $bookingId) {
+      id
+      status
+    }
+  }
+`;
+
 export default function UserDashboardContent() {
   const { t } = useTranslation();
 
@@ -206,6 +232,7 @@ export default function UserDashboardContent() {
 
   const [checkOrderPayment] = useMutation(CHECK_QPAY_ORDER);
   const [checkBookingPayment] = useMutation(CHECK_QPAY_BOOKING);
+  const [checkEventBookingPayment] = useMutation(CHECK_QPAY_EVENT_BOOKING);
 
   // Redirect if role is not TRAVELER
   const { data: userData } = useQuery(GET_user_STATS, {
@@ -254,6 +281,13 @@ export default function UserDashboardContent() {
     }
   );
 
+  const { data: eventBookingsData, loading: eventBookingsLoading, error: eventBookingsError, refetch: refetchEventBookings } = useQuery(
+    GET_user_EVENT_BOOKINGS,
+    {
+      skip: !user?.id,
+    }
+  );
+
   const { data: yurtsData, loading: yurtsLoading, error: yurtsError } =
     useQuery(GET_AVAILABLE_YURTS);
   const { data: productsData, loading: productsLoading, error: productsError } = useQuery(
@@ -275,6 +309,7 @@ export default function UserDashboardContent() {
     if (bookingsError) console.error("Bookings error:", bookingsError);
     if (ordersError) console.error("Orders error:", ordersError);
     if (travelBookingsError) console.error("Travel bookings error:", travelBookingsError);
+    if (eventBookingsError) console.error("Event bookings error:", eventBookingsError);
   }
 
   // Transform data for display
@@ -302,6 +337,23 @@ export default function UserDashboardContent() {
       if (data?.checkQPayPaymentAndConfirmBooking?.status === "CONFIRMED") {
         toast({ title: "Амжилттай", description: "Таны төлбөр амжилттай, захиалгын төлөв CONFIRMED боллоо.", variant: "default" });
         refetchBookings();
+      } else {
+        toast({ title: "Анхааруулга", description: "Төлбөр төлөгдөөгүй байна.", variant: "destructive" });
+      }
+    } catch (err: any) {
+      toast({ title: "Алдаа", description: err.message || "Төлбөр шалгахад алдаа гарлаа", variant: "destructive" });
+    } finally {
+      setCheckingPayment(null);
+    }
+  };
+
+  const handleCheckEventBookingPayment = async (bookingId: string) => {
+    try {
+      setCheckingPayment(bookingId);
+      const { data } = await checkEventBookingPayment({ variables: { bookingId } });
+      if (data?.checkQPayEventPaymentAndConfirm?.status === "CONFIRMED") {
+        toast({ title: "Амжилттай", description: "Таны төлбөр амжилттай, захиалгын төлөв CONFIRMED боллоо.", variant: "default" });
+        refetchEventBookings();
       } else {
         toast({ title: "Анхааруулга", description: "Төлбөр төлөгдөөгүй байна.", variant: "destructive" });
       }
@@ -447,15 +499,72 @@ export default function UserDashboardContent() {
       };
     }) || [];
 
-  const allBookings = [...bookings, ...travelBookings];
+  const eventBookings: EventBooking[] =
+    eventBookingsData?.myEventBookings?.map((booking: any) => {
+      const event = booking.event || {};
+      const primaryImage = getPrimaryImage(event.images);
+
+      const formatDateLocal = (dateString: string) => {
+        try {
+          if (/^\d+$/.test(dateString)) {
+            const date = new Date(parseInt(dateString));
+            return date.toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' });
+          }
+          const date = new Date(dateString);
+          return !isNaN(date.getTime())
+            ? date.toLocaleDateString('mn-MN', { year: 'numeric', month: '2-digit', day: '2-digit' })
+            : dateString;
+        } catch {
+          return dateString;
+        }
+      };
+
+      return {
+        id: booking.id,
+        numberOfPeople: booking.numberOfPeople,
+        totalPrice: booking.totalPrice,
+        status: booking.status?.toLowerCase() || "pending",
+        qpayInvoiceId: booking.qpayInvoiceId,
+        createdAt: booking.createdAt,
+        event: {
+          id: event.id,
+          title: event.title || "Unknown Event",
+          location: event.location || "Unknown Location",
+          eventDate: formatDateLocal(event.eventDate || ""),
+          images: primaryImage,
+        }
+      };
+    }) || [];
+
+  const allBookings = [
+    ...bookings,
+    ...travelBookings,
+    ...eventBookings.map((eb) => ({
+      id: eb.id,
+      camp: eb.event.title,
+      location: eb.event.location,
+      checkIn: eb.event.eventDate || "N/A",
+      checkOut: "N/A",
+      guests: eb.numberOfPeople,
+      amount: eb.totalPrice,
+      status: eb.status,
+      image: eb.event.images,
+      type: "event" as const,
+      qpayInvoiceId: eb.qpayInvoiceId,
+    })),
+  ];
 
   // Calculate stats from real data
-  const totalBookings = userData?.myBookingsStats?.totalCount || 0;
+  const totalBookings = (userData?.myBookingsStats?.totalCount || 0) + eventBookings.length;
   const totalOrders = userData?.myOrdersStats?.totalCount || 0;
   const totalSpent =
     orders.reduce((sum: number, order: Order) => sum + order.amount, 0) +
     allBookings.reduce(
       (sum: number, booking: Booking) => sum + booking.amount,
+      0
+    ) +
+    eventBookings.reduce(
+      (sum: number, booking: EventBooking) => sum + booking.totalPrice,
       0
     );
 
@@ -465,6 +574,12 @@ export default function UserDashboardContent() {
 
   const monthlyBookings = bookings.filter((booking: Booking) => {
     const bookingDate = new Date(booking.checkIn);
+    return (
+      bookingDate.getMonth() === currentMonth &&
+      bookingDate.getFullYear() === currentYear
+    );
+  }).length + eventBookings.filter((booking: EventBooking) => {
+    const bookingDate = new Date(booking.createdAt);
     return (
       bookingDate.getMonth() === currentMonth &&
       bookingDate.getFullYear() === currentYear
@@ -497,7 +612,16 @@ export default function UserDashboardContent() {
           bookingDate.getFullYear() === currentYear
         );
       })
-      .reduce((sum: number, booking: Booking) => sum + booking.amount, 0);
+      .reduce((sum: number, booking: Booking) => sum + booking.amount, 0) +
+    eventBookings
+      .filter((booking: EventBooking) => {
+        const bookingDate = new Date(booking.createdAt);
+        return (
+          bookingDate.getMonth() === currentMonth &&
+          bookingDate.getFullYear() === currentYear
+        );
+      })
+      .reduce((sum: number, booking: EventBooking) => sum + booking.totalPrice, 0);
 
   // Create favorites from real database data
   const favorites: Favorite[] = savedYurtsData?.savedYurts?.map((saved: any) => {
@@ -1046,6 +1170,106 @@ export default function UserDashboardContent() {
                 </div>
               ) : null}
 
+              {/* Event Bookings */}
+              {eventBookingsLoading ? (
+                <div className="text-center py-8">
+                  <p className="text-gray-500">Арга хэмжээний захиалгуудыг уншиж байна...</p>
+                </div>
+              ) : eventBookings.length > 0 ? (
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">
+                    Арга хэмжээний захиалгууд
+                  </h3>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
+                    {eventBookings.map((booking: EventBooking) => (
+                      <Card key={booking.id} className="overflow-hidden shadow-sm">
+                        <div className="relative aspect-video bg-gray-100 overflow-hidden">
+                          <img
+                            src={booking.event.images || "/placeholder.svg"}
+                            alt={booking.event.title}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).src = "/placeholder.svg";
+                            }}
+                          />
+                          <div className="absolute top-2 right-2">
+                            <Badge
+                              className={`px-2 py-0.5 rounded-full font-bold shadow-sm border-none ${booking.status === "confirmed"
+                                ? "bg-green-500 text-white"
+                                : booking.status === "pending"
+                                  ? "bg-amber-500 text-white"
+                                  : booking.status === "completed"
+                                    ? "bg-blue-500 text-white"
+                                    : "bg-gray-500 text-white"
+                                }`}
+                            >
+                              <span className="text-[10px] uppercase tracking-wider">
+                                {booking.status === "confirmed"
+                                  ? "Баталгаажсан"
+                                  : booking.status === "pending"
+                                    ? "Хүлээгдэж буй"
+                                    : booking.status === "completed"
+                                      ? "Дууссан"
+                                      : booking.status === "cancelled"
+                                        ? "Цуцлагдсан"
+                                        : booking.status}
+                              </span>
+                            </Badge>
+                          </div>
+                        </div>
+                        <CardContent className="p-3 sm:p-4">
+                          <div className="flex items-start justify-between mb-3">
+                            <div className="min-w-0 flex-1">
+                              <h3 className="font-bold text-base sm:text-lg truncate text-gray-900 group-hover:text-emerald-700 transition-colors">
+                                {booking.event.title}
+                              </h3>
+                              <div className="flex items-center text-gray-500 mt-1">
+                                <MapPin className="w-3.5 h-3.5 mr-1 flex-shrink-0 text-emerald-600" />
+                                <span className="text-xs sm:text-sm truncate font-medium">
+                                  {booking.event.location}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                          
+                          <div className="flex items-center text-gray-600 mb-3 sm:mb-4">
+                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+                            <span className="text-xs sm:text-sm font-medium">
+                              {booking.event.eventDate || "Тодорхойгүй"}
+                            </span>
+                          </div>
+
+                          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
+                            <div>
+                              <span className="text-base sm:text-lg md:text-xl font-bold text-emerald-700">
+                                ₮{booking.totalPrice.toLocaleString()}
+                              </span>
+                              <span className="text-gray-500 ml-1 text-xs font-medium">
+                                нийт
+                              </span>
+                            </div>
+                            <div className="flex gap-2">
+                              {booking.status === "pending" && booking.qpayInvoiceId && (
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  className="text-emerald-700 font-bold text-xs border-emerald-200 hover:bg-emerald-50"
+                                  disabled={checkingPayment === booking.id}
+                                  onClick={() => handleCheckEventBookingPayment(booking.id)}
+                                >
+                                  <RefreshCcw className={`w-3 h-3 mr-1 ${checkingPayment === booking.id ? "animate-spin" : ""}`} />
+                                  {checkingPayment === booking.id ? "Шалгаж байна..." : "Төлбөр шалгах"}
+                                </Button>
+                              )}
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+
               {/* Travel Bookings */}
               {travelBookingsLoading ? (
                 <div className="text-center py-8">
@@ -1340,8 +1564,10 @@ export default function UserDashboardContent() {
               {!bookingsLoading &&
                 !ordersLoading &&
                 !travelBookingsLoading &&
+                !eventBookingsLoading &&
                 bookings.length === 0 &&
                 travelBookings.length === 0 &&
+                eventBookings.length === 0 &&
                 orders.length === 0 && (
                   <div className="text-center py-12">
                     <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />

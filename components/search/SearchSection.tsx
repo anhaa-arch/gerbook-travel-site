@@ -165,7 +165,7 @@ export function SearchSection() {
         {/* SEO: Brand-first hero section for "MalchinCamp" Google search */}
         <div className="text-center mb-8 sm:mb-12 mt-4 sm:mt-8">
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#0F3D2E] via-emerald-800 to-[#0F3D2E] tracking-tight leading-tight mb-4 font-display drop-shadow-sm py-1">
-            Малчин Кэмп – Малчны амьдралыг аяллаар мэдэрье
+            ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ.
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-gray-500 max-w-2xl mx-auto font-medium tracking-wide">
             Малчин Кэмп (MalchinCamp) – Монголын гэр бааз, аялал, бүтээгдэхүүний нэгдсэн экосистем.
