@@ -186,12 +186,12 @@ export default function AdminDashboardContent() {
     title: "",
     category: "Наадам, арга хэмжээ",
     location: "",
-    capacity: 10,
+    capacity: "" as string | number,
     groupSize: "",
     shortDescription: "",
     fullDescription: "",
     priceInfo: "",
-    pricePerPerson: 0,
+    pricePerPerson: "" as string | number,
     startDate: "",
     endDate: "",
     images: [] as string[],
@@ -598,6 +598,8 @@ export default function AdminDashboardContent() {
       
       const input = {
         ...eventForm,
+        capacity: typeof eventForm.capacity === 'string' ? parseInt(eventForm.capacity) || 0 : eventForm.capacity,
+        pricePerPerson: typeof eventForm.pricePerPerson === 'string' ? parseFloat(eventForm.pricePerPerson) || 0 : eventForm.pricePerPerson,
         images: uploadedImages,
       };
 
@@ -3969,12 +3971,12 @@ export default function AdminDashboardContent() {
                                     title: event.title,
                                     category: event.category,
                                     location: event.location,
-                                    capacity: event.capacity || 10,
+                                    capacity: event.capacity ?? "",
                                     groupSize: event.groupSize || "",
                                     shortDescription: event.shortDescription,
                                     fullDescription: event.fullDescription,
                                     priceInfo: event.priceInfo || "",
-                                    pricePerPerson: event.pricePerPerson || 0,
+                                    pricePerPerson: event.pricePerPerson ?? "",
                                     startDate: event.startDate ? new Date(event.startDate).toISOString().split('T')[0] : "",
                                     endDate: event.endDate ? new Date(event.endDate).toISOString().split('T')[0] : "",
                                     images: parsedImages,
@@ -4014,12 +4016,12 @@ export default function AdminDashboardContent() {
                   title: "",
                   category: "Наадам, арга хэмжээ",
                   location: "",
-                  capacity: 10,
+                  capacity: "",
                   groupSize: "",
                   shortDescription: "",
                   fullDescription: "",
                   priceInfo: "",
-                  pricePerPerson: 0,
+                  pricePerPerson: "",
                   startDate: "",
                   endDate: "",
                   images: [],
@@ -4068,7 +4070,7 @@ export default function AdminDashboardContent() {
                       <Input
                         type="number"
                         value={eventForm.capacity}
-                        onChange={(e) => setEventForm({ ...eventForm, capacity: parseInt(e.target.value) || 0 })}
+                        onChange={(e) => setEventForm({ ...eventForm, capacity: e.target.value })}
                         className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
                         placeholder="Жишээ: 10"
                       />
@@ -4086,10 +4088,10 @@ export default function AdminDashboardContent() {
                       <div className="space-y-2">
                         <label className="text-sm font-semibold text-gray-700 ml-1">Нэг хүний үнэ (тоо)</label>
                         <Input
-                          type="number"
-                          value={eventForm.pricePerPerson}
-                          onChange={(e) => setEventForm({ ...eventForm, pricePerPerson: parseFloat(e.target.value) || 0 })}
-                          className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
+                        type="number"
+                        value={eventForm.pricePerPerson}
+                        onChange={(e) => setEventForm({ ...eventForm, pricePerPerson: e.target.value })}
+                        className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
                           placeholder="Жишээ: 50000"
                         />
                       </div>
