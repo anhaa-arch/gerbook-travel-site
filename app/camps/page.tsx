@@ -119,11 +119,11 @@ export default function CampsPage() {
   // Province and district data from mnzip.json
   // Only show Архангай province
   const allProvinces = mnzipData.zipcode
-  const arkhangaiProvince = allProvinces.find((p: any) => p.zipcode === "65000")
-  const provinces = arkhangaiProvince ? [arkhangaiProvince] : []
-  const availableDistricts = selectedProvince === "Архангай"
-    ? [{ id: "Цэнхэр", mnname: "Цэнхэр", zipcode: "65080" }]
-    : []
+  const provinces = allProvinces.filter((p: any) => p.zipcode === "65000" || p.zipcode === "62000")
+  
+  // Get available districts for the selected province
+  const currentProvince = provinces.find((p: any) => p.mnname === selectedProvince || p.name === selectedProvince)
+  const availableDistricts = currentProvince?.sub_items || []
 
   // Helper function to check if camp is available during selected dates
   const isCampAvailable = (camp: any, checkIn: string, checkOut: string): boolean => {
@@ -220,8 +220,8 @@ export default function CampsPage() {
   }
 
   const handleClearFilters = () => {
-    setSelectedProvince("Архангай")
-    setSelectedDistrict("Цэнхэр")
+    setSelectedProvince("")
+    setSelectedDistrict("")
     setMinCapacity(0)
     setCheckInDate("")
     setCheckOutDate("")

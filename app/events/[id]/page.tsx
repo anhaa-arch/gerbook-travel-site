@@ -1,7 +1,7 @@
 "use client";
 
 import { useQuery, useMutation, gql } from "@apollo/client";
-import { ArrowLeft, MapPin, Users, CheckCircle2, Share2, Calendar, Plus, Minus, Loader2, QrCode } from "lucide-react";
+import { ArrowLeft, MapPin, Users, CheckCircle2, Share2, Calendar, Plus, Minus, Loader2, QrCode, X } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 
@@ -82,6 +82,7 @@ export default function EventDetailPage() {
   const [currentStep, setCurrentStep] = useState(1); // 1: Info, 2: Payment
   const [bookingId, setBookingId] = useState<string | null>(null);
   const [paymentData, setPaymentData] = useState<any>(null);
+  const [selectedGalleryImage, setSelectedGalleryImage] = useState<string | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_EVENT_BY_ID, {
     variables: { id },
@@ -260,7 +261,11 @@ export default function EventDetailPage() {
                 </h2>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                   {galleryImages.map((src: string, index: number) => (
-                    <div key={index} className="relative aspect-square rounded-2xl overflow-hidden shadow-sm group cursor-pointer border border-gray-100">
+                    <div 
+                      key={index} 
+                      className="relative aspect-square rounded-2xl overflow-hidden shadow-sm group cursor-pointer border border-gray-100"
+                      onClick={() => setSelectedGalleryImage(getImageUrl(src))}
+                    >
                       <img
                         src={getImageUrl(src)}
                         alt={`${event.title} gallery ${index + 1}`}
@@ -271,6 +276,27 @@ export default function EventDetailPage() {
                 </div>
               </section>
             )}
+
+            {/* Lightbox Dialog */}
+            <Dialog open={!!selectedGalleryImage} onOpenChange={(open) => !open && setSelectedGalleryImage(null)}>
+              <DialogContent className="max-w-4xl p-0 overflow-hidden bg-transparent border-none shadow-none flex items-center justify-center">
+                <div className="relative w-full aspect-auto max-h-[90vh]">
+                  {selectedGalleryImage && (
+                    <img 
+                      src={selectedGalleryImage} 
+                      alt="Gallery Full View" 
+                      className="max-w-full max-h-[90vh] object-contain rounded-lg"
+                    />
+                  )}
+                  <Button 
+                    className="absolute top-2 right-2 rounded-full w-8 h-8 p-0 bg-black/50 hover:bg-black/70 text-white"
+                    onClick={() => setSelectedGalleryImage(null)}
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
 
           <div className="lg:col-span-1">

@@ -1231,7 +1231,7 @@ export default function UserDashboardContent() {
                               </div>
                             </div>
                           </div>
-                          
+
                           <div className="flex items-center text-gray-600 mb-3 sm:mb-4">
                             <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
                             <span className="text-xs sm:text-sm font-medium">
@@ -1564,10 +1564,8 @@ export default function UserDashboardContent() {
               {!bookingsLoading &&
                 !ordersLoading &&
                 !travelBookingsLoading &&
-                !eventBookingsLoading &&
                 bookings.length === 0 &&
                 travelBookings.length === 0 &&
-                eventBookings.length === 0 &&
                 orders.length === 0 && (
                   <div className="text-center py-12">
                     <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -2257,7 +2255,7 @@ export default function UserDashboardContent() {
           )}
         </DialogContent>
       </Dialog>
- 
+
       {/* Order Detail Modal */}
       <Dialog open={!!selectedOrder} onOpenChange={() => setSelectedOrder(null)}>
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
