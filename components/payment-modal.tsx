@@ -66,6 +66,29 @@ const CHECK_QPAY_BOOKING = gql`
   }
 `;
 
+const CHECK_QPAY_EVENT_BOOKING = gql`
+  mutation CheckQPayEventBooking($bookingId: String!) {
+    checkQPayEventPaymentAndConfirm(bookingId: $bookingId) {
+      id
+      status
+    }
+  }
+`;
+
+const CREATE_EVENT_BOOKING_PAYMENT = gql`
+  mutation CreateEventBookingPayment($bookingId: ID!) {
+    createEventBookingPayment(bookingId: $bookingId) {
+      invoiceId
+      qrText
+      qrImage
+      urls {
+        name
+        link
+      }
+    }
+  }
+`;
+
 interface PaymentModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -83,7 +106,17 @@ interface PaymentModalProps {
     total: number;
     image?: string;
   };
+  eventDetails?: {
+    title: string;
+    location: string;
+    startDate: string;
+    endDate: string;
+    peopleCount: number;
+    total: number;
+    image?: string;
+  };
   bookingId?: string;
+  eventBookingId?: string;
   orderId?: string;
 }
 
@@ -121,6 +154,8 @@ export function PaymentModal({
   amount,
   bookingDetails,
   bookingId,
+  eventBookingId,
+  eventDetails,
   orderId,
 }: PaymentModalProps) {
   const [selectedMethod, setSelectedMethod] = useState<string | null>("qpay");
@@ -134,10 +169,12 @@ export function PaymentModal({
 
   const [createBookingPayment, { error: qpayBookingMutationError }] = useMutation(CREATE_BOOKING_PAYMENT);
   const [createOrderPayment, { error: qpayOrderMutationError }] = useMutation(CREATE_ORDER_PAYMENT);
+  const [createEventPayment, { error: qpayEventMutationError }] = useMutation(CREATE_EVENT_BOOKING_PAYMENT);
   const [checkBookingPayment, { loading: isCheckingBooking }] = useMutation(CHECK_QPAY_BOOKING);
   const [checkOrderPayment, { loading: isCheckingOrder }] = useMutation(CHECK_QPAY_ORDER);
+  const [checkEventPayment, { loading: isCheckingEvent }] = useMutation(CHECK_QPAY_EVENT_BOOKING);
 
-  const isChecking = isCheckingBooking || isCheckingOrder;
+  const isChecking = isCheckingBooking || isCheckingOrder || isCheckingEvent;
 
   // Log GraphQL errors for debugging
   useEffect(() => {
@@ -202,6 +239,14 @@ export function PaymentModal({
             variables: { orderId: orderId },
           });
           qpayResponseData = data?.createOrderPayment;
+        }
+        // If it's an event booking
+        else if (eventBookingId) {
+          console.log('CreateEventBookingPayment vars:', { bookingId: eventBookingId });
+          const { data } = await createEventPayment({
+            variables: { bookingId: eventBookingId },
+          });
+          qpayResponseData = data?.createEventBookingPayment;
         }
         // Otherwise it's a camp booking payment
         else if (bookingId) {
@@ -357,6 +402,44 @@ export function PaymentModal({
                             ₮{bookingDetails.total.toLocaleString()}
                           </span>
                         </div>
+                      </div>
+                    </div>
+                  </>
+                   ) : eventDetails ? (
+                  <>
+                    {eventDetails.image && (
+                      <img
+                        src={eventDetails.image}
+                        alt={eventDetails.title}
+                        className="w-full h-32 object-cover rounded-lg"
+                      />
+                    )}
+                    <div className="space-y-3">
+                      <div className="flex items-start gap-2">
+                        <ShoppingBag className="w-4 h-4 mt-1 text-gray-500" />
+                        <div>
+                          <p className="font-semibold text-sm">{eventDetails.title}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <MapPin className="w-4 h-4 mt-1 text-gray-500" />
+                        <p className="text-sm text-gray-600">{eventDetails.location}</p>
+                      </div>
+                      <Separator />
+                      <div className="flex items-start gap-2">
+                        <Calendar className="w-4 h-4 mt-1 text-gray-500" />
+                        <div className="text-sm">
+                          <p className="font-medium">Огноо: {eventDetails.startDate} - {eventDetails.endDate}</p>
+                        </div>
+                      </div>
+                      <div className="flex items-start gap-2">
+                        <Users className="w-4 h-4 mt-1 text-gray-500" />
+                        <p className="text-sm">{eventDetails.peopleCount} хүн</p>
+                      </div>
+                      <Separator />
+                      <div className="flex justify-between text-base font-bold">
+                        <span>Нийт дүн</span>
+                        <span className="text-emerald-600">₮{eventDetails.total.toLocaleString()}</span>
                       </div>
                     </div>
                   </>
@@ -579,7 +662,15 @@ export function PaymentModal({
                     <h4 className="font-bold text-lg">QPay-ээр төлөх</h4>
 
                     <div className="bg-white p-4 rounded-xl shadow-sm">
-                      <QRCode value={qpayData.qrText} size={200} />
+                      {qpayData.qrImage ? (
+                        <img 
+                          src={`data:image/png;base64,${qpayData.qrImage}`} 
+                          alt="QPay QR Code" 
+                          className="w-48 h-48 mx-auto"
+                        />
+                      ) : (
+                        <QRCode value={qpayData.qrText} size={200} />
+                      )}
                     </div>
 
                     <p className="text-sm text-gray-600 px-4">
@@ -622,7 +713,7 @@ export function PaymentModal({
               )}
 
               {/* Warning if QPay selected but booking/order not yet created */}
-              {selectedMethod === "qpay" && !bookingId && !orderId && (
+              {selectedMethod === "qpay" && !bookingId && !orderId && !eventBookingId && (
                 <div className="text-sm text-amber-600 bg-amber-50 border border-amber-200 rounded-lg p-3 mt-2">
                   ⚠️ Захиалгын ID үүсгэгдээгүй байна. Хэрэв "Захиалах" товч дарж захиалга үүсгэсний дараа л QPay-ийн нэхэмжлэл гарна.
                 </div>

@@ -12,6 +12,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import Link from "next/link";
 import { useAuth } from "@/hooks/use-auth";
+import { PaymentModal } from "@/components/payment-modal";
 
 import { getImageUrl } from "@/lib/admin-utils";
 
@@ -48,29 +49,6 @@ const CREATE_EVENT_BOOKING = gql`
   }
 `;
 
-const CREATE_EVENT_BOOKING_PAYMENT = gql`
-  mutation CreateEventBookingPayment($bookingId: ID!) {
-    createEventBookingPayment(bookingId: $bookingId) {
-      invoiceId
-      qrText
-      qrImage
-      urls {
-        name
-        link
-      }
-    }
-  }
-`;
-
-const CHECK_PAYMENT = gql`
-  mutation CheckQPayEventPaymentAndConfirm($bookingId: ID!) {
-    checkQPayEventPaymentAndConfirm(bookingId: $bookingId) {
-      id
-      status
-    }
-  }
-`;
-
 export default function EventDetailPage() {
   const { id } = useParams();
   const router = useRouter();
@@ -80,9 +58,8 @@ export default function EventDetailPage() {
   const [bookingModalOpen, setBookingModalOpen] = useState(false);
   const [participantCount, setParticipantCount] = useState(1);
   const [notes, setNotes] = useState("");
-  const [currentStep, setCurrentStep] = useState(1); // 1: Info, 2: Payment
   const [bookingId, setBookingId] = useState<string | null>(null);
-  const [paymentData, setPaymentData] = useState<any>(null);
+  const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
   const [selectedGalleryImage, setSelectedGalleryImage] = useState<string | null>(null);
 
   const { data, loading, error, refetch } = useQuery(GET_EVENT_BY_ID, {
@@ -90,8 +67,6 @@ export default function EventDetailPage() {
   });
 
   const [createBooking, { loading: creatingBooking }] = useMutation(CREATE_EVENT_BOOKING);
-  const [createPayment, { loading: creatingPayment }] = useMutation(CREATE_EVENT_BOOKING_PAYMENT);
-  const [checkPaymentStatus, { loading: checkingPayment }] = useMutation(CHECK_PAYMENT);
 
   const event = data?.event;
 
@@ -106,7 +81,6 @@ export default function EventDetailPage() {
       return;
     }
     setBookingModalOpen(true);
-    setCurrentStep(1);
   };
 
   const handleCreateBooking = async () => {
@@ -124,12 +98,20 @@ export default function EventDetailPage() {
       const bid = bookingResult.createEventBooking.id;
       setBookingId(bid);
 
-      const { data: paymentResult } = await createPayment({
-        variables: { bookingId: bid }
-      });
+      // If price is 0, we don't need to create a QPay payment
+      if (totalPrice <= 0) {
+        toast({
+          title: "Захиалга амжилттай",
+          description: "Энэ арга хэмжээ үнэ төлбөргүй тул таны захиалга бүртгэгдлээ.",
+        });
+        setBookingModalOpen(false);
+        router.push('/user-dashboard?tab=events');
+        return;
+      }
 
-      setPaymentData(paymentResult.createEventBookingPayment);
-      setCurrentStep(2);
+      // Close the booking info modal and open the payment modal
+      setBookingModalOpen(false);
+      setIsPaymentModalOpen(true);
     } catch (err: any) {
       toast({
         title: "Алдаа гарлаа",
@@ -139,35 +121,7 @@ export default function EventDetailPage() {
     }
   };
 
-  const handleCheckPayment = async () => {
-    if (!bookingId) return;
-    try {
-      const { data: checkResult } = await checkPaymentStatus({
-        variables: { bookingId }
-      });
 
-      if (checkResult.checkQPayEventPaymentAndConfirm.status === 'PAID') {
-        toast({
-          title: "Төлбөр баталгаажлаа",
-          description: "Таны захиалга амжилттай баталгаажлаа. Имэйлээ шалгана уу.",
-        });
-        setBookingModalOpen(false);
-        refetch();
-        router.push('/user-dashboard?tab=events');
-      } else {
-        toast({
-          title: "Төлбөр хүлээгдэж байна",
-          description: "Төлбөр хараахан ороогүй байна. Хэдэн хором хүлээгээд дахин оролдоно уу.",
-        });
-      }
-    } catch (err: any) {
-      toast({
-        title: "Алдаа гарлаа",
-        description: err.message,
-        variant: "destructive"
-      });
-    }
-  };
 
   if (loading) {
     return (
@@ -373,120 +327,66 @@ export default function EventDetailPage() {
             </DialogTitle>
           </DialogHeader>
 
-          {currentStep === 1 ? (
-            <div className="p-8 space-y-6">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
-                  <div>
-                    <Label className="text-sm font-bold text-gray-500 uppercase tracking-wider">Хүний тоо</Label>
-                    <p className="text-gray-900 font-medium">Нийт {participantCount} хүн</p>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      onClick={() => setParticipantCount(Math.max(1, participantCount - 1))}
-                      className="rounded-xl h-10 w-10"
-                    >
-                      <Minus className="h-4 w-4" />
-                    </Button>
-                    <span className="text-xl font-bold w-6 text-center">{participantCount}</span>
-                    <Button 
-                      variant="outline" 
-                      size="icon" 
-                      onClick={() => setParticipantCount(Math.min(event.availableSpots, participantCount + 1))}
-                      className="rounded-xl h-10 w-10"
-                    >
-                      <Plus className="h-4 w-4" />
-                    </Button>
-                  </div>
+          <div className="p-8 space-y-6">
+            <div className="space-y-4">
+              <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                <div>
+                  <Label className="text-sm font-bold text-gray-500 uppercase tracking-wider">Хүний тоо</Label>
+                  <p className="text-gray-900 font-medium">Нийт {participantCount} хүн</p>
                 </div>
-
-                <div className="space-y-2">
-                  <Label className="text-sm font-bold text-gray-500 uppercase tracking-wider pl-1">Нэмэлт тэмдэглэл</Label>
-                  <textarea 
-                    value={notes}
-                    onChange={(e) => setNotes(e.target.value)}
-                    placeholder="Жишээ: Хоолны харшилтай, эсвэл тусгай хүсэлт..."
-                    className="w-full min-h-[100px] p-4 rounded-2xl bg-gray-50 border-gray-100 focus:ring-emerald-500 focus:border-emerald-500 resize-none transition-all"
-                  />
+                <div className="flex items-center gap-4">
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => setParticipantCount(Math.max(1, participantCount - 1))}
+                    className="rounded-xl h-10 w-10"
+                  >
+                    <Minus className="h-4 w-4" />
+                  </Button>
+                  <span className="text-xl font-bold w-6 text-center">{participantCount}</span>
+                  <Button 
+                    variant="outline" 
+                    size="icon" 
+                    onClick={() => setParticipantCount(Math.min(event.availableSpots, participantCount + 1))}
+                    className="rounded-xl h-10 w-10"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
                 </div>
               </div>
 
-              <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-100">
-                <div className="flex justify-between items-center mb-2">
-                  <span className="text-emerald-800 font-medium">Захиалгын дүн:</span>
-                  <span className="text-2xl font-black text-emerald-600">
-                    {totalPrice.toLocaleString()} ₮
-                  </span>
-                </div>
-                <p className="text-xs text-emerald-600 font-medium">1 хүн: {personPrice.toLocaleString()} ₮</p>
-              </div>
-
-              <Button 
-                onClick={handleCreateBooking}
-                disabled={creatingBooking || creatingPayment}
-                className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg transition-all"
-              >
-                {(creatingBooking || creatingPayment) ? (
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                ) : null}
-                Төлбөр төлөх рүү шилжих
-              </Button>
-            </div>
-          ) : (
-            <div className="p-8 text-center space-y-6">
-              <div className="inline-flex items-center justify-center p-4 bg-emerald-100 rounded-2xl text-emerald-600 mb-2">
-                <QrCode className="h-10 w-10" />
-              </div>
-              <div>
-                <h3 className="text-xl font-bold text-gray-900">QPay төлбөр</h3>
-                <p className="text-gray-500">Доорх QR кодыг уншуулж төлбөрөө хийнэ үү.</p>
-              </div>
-
-              <div className="bg-white p-4 rounded-3xl border-2 border-dashed border-gray-200 inline-block">
-                {paymentData?.qrText ? (
-                  <div className="p-2">
-                     <img 
-                      src={paymentData.qrImage ? `data:image/png;base64,${paymentData.qrImage}` : `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(paymentData.qrText)}`} 
-                      alt="QPay QR Code" 
-                      className="w-56 h-56 mx-auto"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-56 h-56 flex items-center justify-center">
-                    <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                {paymentData?.urls?.map((url: any, idx: number) => (
-                  <a key={idx} href={url.link} target="_blank" rel="noreferrer" className="flex items-center justify-center p-3 border border-gray-100 rounded-xl hover:bg-gray-50 transition-colors">
-                    <span className="text-xs font-bold text-gray-600 uppercase tracking-tighter">{url.name}</span>
-                  </a>
-                ))}
-              </div>
-
-              <div className="pt-4 border-t border-gray-100">
-                <Button 
-                  onClick={handleCheckPayment}
-                  disabled={checkingPayment}
-                  className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl"
-                >
-                  {checkingPayment ? <Loader2 className="mr-2 h-5 w-5 animate-spin" /> : null}
-                  Төлбөр шалгах
-                </Button>
-                <Button 
-                  variant="ghost" 
-                  onClick={() => setCurrentStep(1)}
-                  className="mt-2 text-gray-500 font-bold"
-                >
-                  Буцах
-                </Button>
+              <div className="space-y-2">
+                <Label className="text-sm font-bold text-gray-500 uppercase tracking-wider pl-1">Нэмэлт тэмдэглэл</Label>
+                <textarea 
+                  value={notes}
+                  onChange={(e) => setNotes(e.target.value)}
+                  placeholder="Жишээ: Хоолны харшилтай, эсвэл тусгай хүсэлт..."
+                  className="w-full min-h-[100px] p-4 rounded-2xl bg-gray-50 border-gray-100 focus:ring-emerald-500 focus:border-emerald-500 resize-none transition-all"
+                />
               </div>
             </div>
-          )}
+
+            <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-100">
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-emerald-800 font-medium">Захиалгын дүн:</span>
+                <span className="text-2xl font-black text-emerald-600">
+                  {totalPrice.toLocaleString()} ₮
+                </span>
+              </div>
+              <p className="text-xs text-emerald-600 font-medium">1 хүн: {personPrice.toLocaleString()} ₮</p>
+            </div>
+
+            <Button 
+              onClick={handleCreateBooking}
+              disabled={creatingBooking}
+              className="w-full h-14 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-2xl shadow-lg transition-all"
+            >
+              {creatingBooking ? (
+                <Loader2 className="mr-2 h-5 w-5 animate-spin" />
+              ) : null}
+              Захиалах
+            </Button>
+          </div>
         </DialogContent>
       </Dialog>
     </main>
