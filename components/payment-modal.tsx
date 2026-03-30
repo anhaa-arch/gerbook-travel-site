@@ -186,7 +186,7 @@ export function PaymentModal({
     }
   }, [qpayBookingMutationError, qpayOrderMutationError]);
 
-  const displayTotal = bookingDetails?.total || amount || 0;
+  const displayTotal = bookingDetails?.total || eventDetails?.total || amount || 0;
 
   const handlePayment = async () => {
     if (!selectedMethod) return;
@@ -222,8 +222,8 @@ export function PaymentModal({
     setIsProcessing(true);
 
     if (selectedMethod === "qpay") {
-      if (!bookingId && !orderId) {
-        console.error('QPay Error: Missing bookingId and orderId — cannot call QPay mutations with empty variables');
+      if (!bookingId && !orderId && !eventBookingId) {
+        console.error('QPay Error: Missing bookingId, orderId, and eventBookingId — cannot call QPay mutations with empty variables');
         alert("Захиалгын ID олдсонгүй. Дахин оролдоно уу.");
         setIsProcessing(false);
         return;
