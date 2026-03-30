@@ -389,6 +389,25 @@ export default function EventDetailPage() {
           </div>
         </DialogContent>
       </Dialog>
+
+      <PaymentModal
+        isOpen={isPaymentModalOpen}
+        onClose={() => setIsPaymentModalOpen(false)}
+        onComplete={() => {
+          setIsPaymentModalOpen(false);
+          router.push('/user-dashboard?tab=events');
+        }}
+        eventBookingId={bookingId || undefined}
+        eventDetails={{
+          title: event.title,
+          location: event.location,
+          startDate: event.startDate,
+          endDate: event.endDate,
+          peopleCount: participantCount,
+          total: totalPrice,
+          image: primaryImage
+        }}
+      />
     </main>
   );
 }
