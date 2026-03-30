@@ -348,10 +348,44 @@ export const GET_ALL_EVENTS = gql`
       priceInfo
       images
       isActive
-      eventDate
-      eventEndDate
+      startDate
+      endDate
+      capacity
       pricePerPerson
       createdAt
+    }
+  }
+`
+
+export const GET_EVENT_BOOKINGS = gql`
+  query GetEventBookings($eventId: ID, $status: EventBookingStatus, $first: Int, $after: String) {
+    eventBookings(eventId: $eventId, status: $status, first: $first, after: $after) {
+      edges {
+        node {
+          id
+          user {
+            name
+            email
+            phone
+          }
+          event {
+            title
+            startDate
+            endDate
+          }
+          numberOfPeople
+          totalPrice
+          status
+          qpayInvoiceId
+          createdAt
+        }
+        cursor
+      }
+      pageInfo {
+        hasNextPage
+        endCursor
+      }
+      totalCount
     }
   }
 `

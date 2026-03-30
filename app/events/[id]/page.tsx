@@ -28,9 +28,9 @@ const GET_EVENT_BY_ID = gql`
       priceInfo
       pricePerPerson
       images
-      maxCapacity
-      eventDate
-      eventEndDate
+      capacity
+      startDate
+      endDate
       bookedCount
       availableSpots
       createdAt
@@ -145,7 +145,7 @@ export default function EventDetailPage() {
         variables: { bookingId }
       });
 
-      if (checkResult.checkQPayEventPaymentAndConfirm.status === 'CONFIRMED') {
+      if (checkResult.checkQPayEventPaymentAndConfirm.status === 'PAID') {
         toast({
           title: "Төлбөр баталгаажлаа",
           description: "Таны захиалга амжилттай баталгаажлаа. Имэйлээ шалгана уу.",
@@ -225,20 +225,22 @@ export default function EventDetailPage() {
           <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black text-white mb-4 sm:mb-6 leading-tight font-display">
             {event.title}
           </h1>
-          
-          <div className="flex flex-wrap items-center gap-4 sm:gap-8 text-gray-200">
+          <div className="flex flex-wrap items-center gap-4 sm:gap-8 text-gray-200 mt-4">
             <div className="flex items-center text-sm sm:text-base font-medium">
               <MapPin className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-emerald-400" />
               {event.location}
             </div>
             <div className="flex items-center text-sm sm:text-base font-medium">
+              <Calendar className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-emerald-400" />
+              {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
+            </div>
+            <div className="flex items-center text-sm sm:text-base font-medium">
               <Users className="w-5 h-5 sm:w-6 sm:h-6 mr-2 text-emerald-400" />
-              Сул суудал: {event.availableSpots} / {event.maxCapacity}
+              Сул суудал: {event.availableSpots} / {event.capacity}
             </div>
           </div>
         </div>
       </div>
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-12">
           <div className="lg:col-span-2 space-y-12">
@@ -329,7 +331,7 @@ export default function EventDetailPage() {
                   <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center mr-3 flex-shrink-0">
                     <Calendar className="w-5 h-5 text-gray-500" />
                   </div>
-                  {event.eventDate ? new Date(event.eventDate).toLocaleDateString() : "Тун удахгүй"}
+                  {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
                 </li>
                 <li className="flex items-center text-gray-700 font-medium">
                   <div className="w-10 h-10 rounded-xl bg-gray-50 flex items-center justify-center mr-3 flex-shrink-0">
@@ -359,9 +361,14 @@ export default function EventDetailPage() {
       <Dialog open={bookingModalOpen} onOpenChange={setBookingModalOpen}>
         <DialogContent className="sm:max-w-[500px] rounded-3xl p-0 overflow-hidden border-none shadow-2xl">
           <DialogHeader className="p-6 bg-emerald-600 text-white">
-            <DialogTitle className="text-2xl font-bold flex items-center">
-              <Calendar className="mr-2 h-6 w-6" />
-              Арга хэмжээний захиалга
+            <DialogTitle className="text-2xl font-bold flex flex-col">
+              <div className="flex items-center">
+                <Calendar className="mr-2 h-6 w-6" />
+                Арга хэмжээний захиалга
+              </div>
+              <span className="text-xs font-normal mt-1 text-emerald-50">
+                {new Date(event.startDate).toLocaleDateString()} - {new Date(event.endDate).toLocaleDateString()}
+              </span>
             </DialogTitle>
           </DialogHeader>
 

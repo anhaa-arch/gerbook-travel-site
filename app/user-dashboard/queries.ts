@@ -263,7 +263,8 @@ export const GET_user_EVENT_BOOKINGS = gql`
         id
         title
         location
-        eventDate
+        startDate
+        endDate
         images
       }
     }

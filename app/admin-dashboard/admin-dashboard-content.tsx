@@ -184,13 +184,13 @@ export default function AdminDashboardContent() {
     title: "",
     category: "Наадам, арга хэмжээ",
     location: "",
-    groupSize: "",
+    capacity: 10,
     shortDescription: "",
     fullDescription: "",
     priceInfo: "",
     pricePerPerson: 0,
-    eventDate: "",
-    eventEndDate: "",
+    startDate: "",
+    endDate: "",
     images: [] as string[],
     isActive: true,
   });
@@ -583,17 +583,18 @@ export default function AdminDashboardContent() {
 
   const handleSaveEvent = async () => {
     try {
-      if (!eventForm.title || !eventForm.location || !eventForm.groupSize || !eventForm.shortDescription || !eventForm.fullDescription) {
+      if (!eventForm.title || !eventForm.location || !eventForm.capacity || !eventForm.shortDescription || !eventForm.fullDescription || !eventForm.startDate || !eventForm.endDate) {
         toast({
           title: "Алдаа",
-          description: "Бүх талбарыг бөглөнө үү (Нэр, Байршил, Багтаамж, Товч болон Дэлгэрэнгүй тайлбар)",
+          description: "Бүх талбарыг бөглөнө үү (Нэр, Байршил, Багтаамж, Товч болон Дэлгэрэнгүй тайлбар, Хугацаа)",
           variant: "destructive" as any,
         });
         return;
       }
       
+      const { groupSize, ...rest } = eventForm; // Remove groupSize if it exists in state
       const input = {
-        ...eventForm,
+        ...rest,
         images: uploadedImages,
       };
 
@@ -1350,7 +1351,7 @@ export default function AdminDashboardContent() {
           className="space-y-6"
         >
           <div className="overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
-            <TabsList className="inline-flex w-auto sm:w-full sm:grid sm:grid-cols-7 p-1 bg-gray-100/80 rounded-xl gap-1">
+            <TabsList className="inline-flex w-auto sm:w-full sm:grid sm:grid-cols-8 p-1 bg-gray-100/80 rounded-xl gap-1">
               <TabsTrigger
                 value="overview"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
@@ -1399,6 +1400,13 @@ export default function AdminDashboardContent() {
               >
                 <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Арга хэмжээ</span>
+              </TabsTrigger>
+              <TabsTrigger
+                value="event-bookings"
+                className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
+              >
+                <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                <span>А.Х Захиалга</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -3814,6 +3822,62 @@ export default function AdminDashboardContent() {
             </div>
           </TabsContent>
 
+          <TabsContent value="event-bookings" className="space-y-6">
+            <div className="flex justify-between items-center mb-6">
+              <h2 className="text-2xl font-bold text-gray-900 flex items-center">
+                <Calendar className="w-5 h-5 mr-3 text-emerald-600" />
+                Арга хэмжээний захиалгууд
+              </h2>
+            </div>
+            
+            <Card className="border-none shadow-xl rounded-2xl overflow-hidden bg-white/50 backdrop-blur-xl">
+              <div className="overflow-x-auto">
+                <Table>
+                  <TableHeader>
+                   <TableRow className="bg-gray-50/50">
+                     <TableHead className="font-bold whitespace-nowrap">Захиалагч</TableHead>
+                     <TableHead className="font-bold whitespace-nowrap">Арга хэмжээ</TableHead>
+                     <TableHead className="font-bold whitespace-nowrap">Хүний тоо</TableHead>
+                     <TableHead className="font-bold whitespace-nowrap">Нийт дүн</TableHead>
+                     <TableHead className="font-bold whitespace-nowrap">Төлөв</TableHead>
+                     <TableHead className="font-bold whitespace-nowrap">Огноо</TableHead>
+                   </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {useQuery(GET_EVENT_BOOKINGS).loading ? (
+                      <TableRow><TableCell colSpan={6} className="text-center py-8">Түр хүлээнэ үү...</TableCell></TableRow>
+                    ) : (useQuery(GET_EVENT_BOOKINGS).data?.eventBookings?.edges || []).map(({ node: booking }: any) => (
+                      <TableRow key={booking.id} className="hover:bg-gray-50/50 transition-colors">
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-bold text-gray-900">{booking.user?.name}</span>
+                            <span className="text-xs text-gray-500">{booking.user?.email || booking.user?.phone}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex flex-col">
+                            <span className="font-medium">{booking.event?.title}</span>
+                            <span className="text-[10px] text-gray-400">
+                              {formatDate(booking.event?.startDate)} - {formatDate(booking.event?.endDate)}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="font-medium">{booking.numberOfPeople} хүн</TableCell>
+                        <TableCell className="font-bold text-emerald-600">{formatCurrency(booking.totalPrice)}</TableCell>
+                        <TableCell>
+                          <Badge className={getStatusBadgeColor(booking.status)}>
+                            {translateStatus(booking.status)}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-xs text-gray-500">{formatDateTime(booking.createdAt)}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </Card>
+          </TabsContent>
+          
           <TabsContent value="events" className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
               <h2 className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
@@ -3881,7 +3945,9 @@ export default function AdminDashboardContent() {
                              <TableCell className="text-gray-900 font-bold text-sm">
                                {event.pricePerPerson ? `${event.pricePerPerson.toLocaleString()} ₮` : (event.priceInfo || "Тохиролцоно")}
                              </TableCell>
-                             <TableCell className="text-gray-600 font-medium text-sm">{event.groupSize}</TableCell>
+                             <TableCell className="text-gray-600 font-medium text-sm">
+                               {event.capacity} хүн
+                             </TableCell>
                             <TableCell className="text-center">
                               <Badge className={event.isActive ? "bg-emerald-100 text-emerald-800" : "bg-gray-100 text-gray-800"}>
                                 {event.isActive ? "Идэвхтэй" : "Идэвхгүй"}
@@ -3903,8 +3969,9 @@ export default function AdminDashboardContent() {
                                     fullDescription: event.fullDescription,
                                     priceInfo: event.priceInfo || "",
                                     pricePerPerson: event.pricePerPerson || 0,
-                                    eventDate: event.eventDate ? new Date(event.eventDate).toISOString().split('T')[0] : "",
-                                    eventEndDate: event.eventEndDate ? new Date(event.eventEndDate).toISOString().split('T')[0] : "",
+                                    capacity: event.capacity || 10,
+                                    startDate: event.startDate ? new Date(event.startDate).toISOString().split('T')[0] : "",
+                                    endDate: event.endDate ? new Date(event.endDate).toISOString().split('T')[0] : "",
                                     images: parsedImages,
                                     isActive: event.isActive,
                                   });
@@ -3942,13 +4009,13 @@ export default function AdminDashboardContent() {
                   title: "",
                   category: "Наадам, арга хэмжээ",
                   location: "",
-                  groupSize: "",
+                  capacity: 10,
                   shortDescription: "",
                   fullDescription: "",
                   priceInfo: "",
                   pricePerPerson: 0,
-                  eventDate: "",
-                  eventEndDate: "",
+                  startDate: "",
+                  endDate: "",
                   images: [],
                   isActive: true,
                 });
@@ -3990,12 +4057,13 @@ export default function AdminDashboardContent() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <label className="text-sm font-semibold text-gray-700 ml-1">Багтаамж / Хүний тоо</label>
+                      <label className="text-sm font-semibold text-gray-700 ml-1">Нийт багтаамж (хүн)</label>
                       <Input
-                        value={eventForm.groupSize}
-                        onChange={(e) => setEventForm({ ...eventForm, groupSize: e.target.value })}
+                        type="number"
+                        value={eventForm.capacity}
+                        onChange={(e) => setEventForm({ ...eventForm, capacity: parseInt(e.target.value) || 0 })}
                         className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
-                        placeholder="Жишээ: 10-50 хүн"
+                        placeholder="Жишээ: 10"
                       />
                     </div>
                     <div className="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -4023,8 +4091,8 @@ export default function AdminDashboardContent() {
                       <label className="text-sm font-semibold text-gray-700 ml-1">Эхлэх огноо</label>
                       <Input
                         type="date"
-                        value={eventForm.eventDate}
-                        onChange={(e) => setEventForm({ ...eventForm, eventDate: e.target.value })}
+                        value={eventForm.startDate}
+                        onChange={(e) => setEventForm({ ...eventForm, startDate: e.target.value })}
                         className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
                       />
                     </div>
@@ -4032,8 +4100,8 @@ export default function AdminDashboardContent() {
                       <label className="text-sm font-semibold text-gray-700 ml-1">Дуусах огноо</label>
                       <Input
                         type="date"
-                        value={eventForm.eventEndDate}
-                        onChange={(e) => setEventForm({ ...eventForm, eventEndDate: e.target.value })}
+                        value={eventForm.endDate}
+                        onChange={(e) => setEventForm({ ...eventForm, endDate: e.target.value })}
                         className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
                       />
                     </div>

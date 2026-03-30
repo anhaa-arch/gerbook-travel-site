@@ -14,7 +14,8 @@ interface EventCardProps {
   shortDescription: string;
   priceInfo: string;
   pricePerPerson?: number;
-  eventDate?: string;
+  startDate?: string;
+  endDate?: string;
   images: string[];
 }
 
@@ -27,7 +28,8 @@ export const EventCard = ({
   shortDescription,
   priceInfo,
   pricePerPerson,
-  eventDate,
+  startDate,
+  endDate,
   images,
 }: EventCardProps) => {
   const imageUrl = getImageUrl(images?.[0]);
@@ -71,7 +73,7 @@ export const EventCard = ({
           </div>
           <div className="flex items-center text-sm font-medium text-gray-600">
             <CalendarDays className="w-4 h-4 mr-2 text-emerald-500 flex-shrink-0" />
-            <span className="truncate">{eventDate ? new Date(eventDate).toLocaleDateString() : "Тун удахгүй"}</span>
+            <span className="truncate">{startDate ? `${new Date(startDate).toLocaleDateString()} - ${endDate ? new Date(endDate).toLocaleDateString() : ''}` : "Тун удахгүй"}</span>
           </div>
           <div className="flex items-center text-sm font-medium text-gray-600">
             <Users className="w-4 h-4 mr-2 text-emerald-500 flex-shrink-0" />

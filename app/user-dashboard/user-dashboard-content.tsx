@@ -72,7 +72,8 @@ interface EventBooking {
     id: string;
     title: string;
     location: string;
-    eventDate?: string;
+    startDate: string;
+    endDate: string;
     images: any;
   };
 }
@@ -351,8 +352,8 @@ export default function UserDashboardContent() {
     try {
       setCheckingPayment(bookingId);
       const { data } = await checkEventBookingPayment({ variables: { bookingId } });
-      if (data?.checkQPayEventPaymentAndConfirm?.status === "CONFIRMED") {
-        toast({ title: "Амжилттай", description: "Таны төлбөр амжилттай, захиалгын төлөв CONFIRMED боллоо.", variant: "default" });
+      if (data?.checkQPayEventPaymentAndConfirm?.status === "PAID") {
+        toast({ title: "Амжилттай", description: "Таны төлбөр амжилттай, захиалгын төлөв PAID боллоо.", variant: "default" });
         refetchEventBookings();
       } else {
         toast({ title: "Анхааруулга", description: "Төлбөр төлөгдөөгүй байна.", variant: "destructive" });
@@ -530,7 +531,8 @@ export default function UserDashboardContent() {
           id: event.id,
           title: event.title || "Unknown Event",
           location: event.location || "Unknown Location",
-          eventDate: formatDateLocal(event.eventDate || ""),
+          startDate: formatDateLocal(event.startDate || ""),
+          endDate: formatDateLocal(event.endDate || ""),
           images: primaryImage,
         }
       };
@@ -543,7 +545,7 @@ export default function UserDashboardContent() {
       id: eb.id,
       camp: eb.event.title,
       location: eb.event.location,
-      checkIn: eb.event.eventDate || "N/A",
+      checkIn: `${eb.event.startDate} - ${eb.event.endDate}`,
       checkOut: "N/A",
       guests: eb.numberOfPeople,
       amount: eb.totalPrice,
@@ -1194,7 +1196,7 @@ export default function UserDashboardContent() {
                           />
                           <div className="absolute top-2 right-2">
                             <Badge
-                              className={`px-2 py-0.5 rounded-full font-bold shadow-sm border-none ${booking.status === "confirmed"
+                              className={`px-2 py-0.5 rounded-full font-bold shadow-sm border-none ${booking.status === "confirmed" || booking.status === "paid" || booking.status === "PAID"
                                 ? "bg-green-500 text-white"
                                 : booking.status === "pending"
                                   ? "bg-amber-500 text-white"
@@ -1204,7 +1206,7 @@ export default function UserDashboardContent() {
                                 }`}
                             >
                               <span className="text-[10px] uppercase tracking-wider">
-                                {booking.status === "confirmed"
+                                {booking.status === "confirmed" || booking.status === "paid" || booking.status === "PAID"
                                   ? "Баталгаажсан"
                                   : booking.status === "pending"
                                     ? "Хүлээгдэж буй"
@@ -1235,7 +1237,7 @@ export default function UserDashboardContent() {
                           <div className="flex items-center text-gray-600 mb-3 sm:mb-4">
                             <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
                             <span className="text-xs sm:text-sm font-medium">
-                              {booking.event.eventDate || "Тодорхойгүй"}
+                              {booking.event.startDate} - {booking.event.endDate}
                             </span>
                           </div>
 
