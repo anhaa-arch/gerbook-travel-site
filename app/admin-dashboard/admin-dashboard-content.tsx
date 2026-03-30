@@ -50,6 +50,7 @@ import {
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -84,6 +85,7 @@ import {
   CREATE_EVENT,
   UPDATE_EVENT,
   DELETE_EVENT,
+  GET_EVENT_BOOKINGS,
 } from "./queries";
 import {
   formatDate,
@@ -185,6 +187,7 @@ export default function AdminDashboardContent() {
     category: "Наадам, арга хэмжээ",
     location: "",
     capacity: 10,
+    groupSize: "",
     shortDescription: "",
     fullDescription: "",
     priceInfo: "",
@@ -261,6 +264,7 @@ export default function AdminDashboardContent() {
   const [deleteBooking] = useMutation(DELETE_BOOKING);
   
   const { data: eventsData, loading: eventsLoading, refetch: refetchEvents } = useQuery(GET_ALL_EVENTS);
+  const { data: eventBookingsData, loading: eventBookingsLoading } = useQuery(GET_EVENT_BOOKINGS);
   const [createEvent] = useMutation(CREATE_EVENT);
   const [updateEvent] = useMutation(UPDATE_EVENT);
   const [deleteEvent] = useMutation(DELETE_EVENT);
@@ -592,9 +596,11 @@ export default function AdminDashboardContent() {
         return;
       }
       
-      const { groupSize, ...rest } = eventForm; // Remove groupSize if it exists in state
+      const { groupSize: _, startDate, endDate, ...rest } = eventForm;
       const input = {
         ...rest,
+        eventDate: startDate,
+        eventEndDate: endDate,
         images: uploadedImages,
       };
 
@@ -1853,6 +1859,7 @@ export default function AdminDashboardContent() {
                                   </Button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-md">
+                                  <DialogDescription className="sr-only">Захиалгын төлөв шинэчлэх</DialogDescription>
                                   <DialogHeader>
                                     <DialogTitle className="font-bold">
                                       Хэрэглэгчийн дэлгэрэнгүй
@@ -2299,6 +2306,7 @@ export default function AdminDashboardContent() {
                                   </Button>
                                 </DialogTrigger>
                                 <DialogContent className="max-w-md">
+                                  <DialogDescription className="sr-only">Захиалгын төлөв шинэчлэх</DialogDescription>
                                   <DialogHeader>
                                     <DialogTitle className="font-bold">
                                       Бүтээгдэхүүний дэлгэрэнгүй
@@ -3844,9 +3852,9 @@ export default function AdminDashboardContent() {
                    </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {useQuery(GET_EVENT_BOOKINGS).loading ? (
+                    {eventBookingsLoading ? (
                       <TableRow><TableCell colSpan={6} className="text-center py-8">Түр хүлээнэ үү...</TableCell></TableRow>
-                    ) : (useQuery(GET_EVENT_BOOKINGS).data?.eventBookings?.edges || []).map(({ node: booking }: any) => (
+                    ) : (eventBookingsData?.eventBookings?.edges || []).map(({ node: booking }: any) => (
                       <TableRow key={booking.id} className="hover:bg-gray-50/50 transition-colors">
                         <TableCell>
                           <div className="flex flex-col">
@@ -3964,7 +3972,8 @@ export default function AdminDashboardContent() {
                                     title: event.title,
                                     category: event.category,
                                     location: event.location,
-                                    groupSize: event.groupSize,
+                                    capacity: event.capacity || 10,
+                                    groupSize: event.groupSize || "",
                                     shortDescription: event.shortDescription,
                                     fullDescription: event.fullDescription,
                                     priceInfo: event.priceInfo || "",
@@ -4023,6 +4032,7 @@ export default function AdminDashboardContent() {
               }
             }}>
               <DialogContent className="max-w-2xl bg-white/95 backdrop-blur-xl border-white max-h-[90vh] overflow-y-auto w-[95vw] p-4 sm:p-6 rounded-[2rem]">
+                <DialogDescription className="sr-only">Арга хэмжээний дэлгэрэнгүй</DialogDescription>
                 <DialogHeader className="mb-4 sm:mb-6">
                   <DialogTitle className="text-xl sm:text-2xl font-bold text-gray-900 font-display">
                     {showEditEvent ? "Арга хэмжээ засах" : "Шинэ арга хэмжээ нэмэх"}
@@ -4191,6 +4201,7 @@ export default function AdminDashboardContent() {
         {/* Delete Confirmation Dialog */}
         < Dialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog} >
           <DialogContent className="max-w-md">
+            <DialogDescription className="sr-only">Устгахыг баталгаажуулах</DialogDescription>
             <DialogHeader>
               <DialogTitle className="font-bold">Устгахыг баталгаажуулах</DialogTitle>
             </DialogHeader>
