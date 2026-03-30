@@ -398,8 +398,8 @@ export const CREATE_EVENT = gql`
       location
       images
       isActive
-      eventDate
-      eventEndDate
+      startDate
+      endDate
       pricePerPerson
     }
   }
@@ -413,8 +413,8 @@ export const UPDATE_EVENT = gql`
       location
       images
       isActive
-      eventDate
-      eventEndDate
+      startDate
+      endDate
       pricePerPerson
     }
   }

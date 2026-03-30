@@ -596,11 +596,8 @@ export default function AdminDashboardContent() {
         return;
       }
       
-      const { groupSize: _, startDate, endDate, ...rest } = eventForm;
       const input = {
-        ...rest,
-        eventDate: startDate,
-        eventEndDate: endDate,
+        ...eventForm,
         images: uploadedImages,
       };
 
