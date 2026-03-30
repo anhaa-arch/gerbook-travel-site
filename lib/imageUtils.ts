@@ -71,91 +71,63 @@ export function getPrimaryImage(images: string | null | undefined): string {
     return "/placeholder.svg";
   }
 
+  const baseUrl = process.env.NEXT_PUBLIC_API_URL || "https://api.malchincamp.mn";
+
   try {
     // Try to parse as JSON first
-    const parsed = JSON.parse(images);
+    const parsed = typeof images === 'string' && (images.startsWith('[') || images.startsWith('"')) 
+      ? JSON.parse(images) 
+      : images;
 
+    let firstImg = "";
     if (Array.isArray(parsed) && parsed.length > 0) {
-      // Get the first image and clean it
-      let firstImg = parsed[0];
+      firstImg = parsed[0];
+    } else if (typeof parsed === 'string') {
+      firstImg = parsed;
+    }
 
-      if (typeof firstImg === 'string') {
-        // Remove extra brackets, quotes, and whitespace
-        firstImg = firstImg.replace(/^\[\[/, '').replace(/\]\]$/, '').replace(/^["']|["']$/g, '').trim();
+    if (firstImg) {
+      // Clean up the image string
+      let cleanImg = firstImg.toString()
+        .replace(/^\[\[/, '')
+        .replace(/\]\]$/, '')
+        .replace(/^["']|["']$/g, '')
+        .trim();
 
-        // Check if it's a complete data URL
-        if (firstImg.startsWith('data:image/')) {
-          return firstImg;
-        }
+      if (!cleanImg) return "/placeholder.svg";
 
-        // If it's a server upload path, ensure it starts with the correct base URL
-        if (firstImg.startsWith('uploads/') || firstImg.startsWith('/uploads/')) {
-          const cleanPath = firstImg.startsWith('/') ? firstImg : '/' + firstImg;
-          return `http://localhost:8000${cleanPath}`;
-        }
-
-        // If it's already a full URL, return it
-        if (firstImg.startsWith('http://') || firstImg.startsWith('https://')) {
-          return firstImg;
-        }
-
-        // If it's a relative path starting with /, return it as is
-        if (firstImg.startsWith('/')) {
-          return firstImg;
-        }
-
-        // If we have some value but it doesn't match known patterns, try to use it anyway
-        if (firstImg.length > 0) {
-          if (DEBUG_MODE) console.warn("getPrimaryImage: unexpected image format:", firstImg);
-          return firstImg;
-        }
+      // If it's a complete data URL or full HTTP URL, return as is
+      if (cleanImg.startsWith('data:image/') || cleanImg.startsWith('http')) {
+        return cleanImg;
       }
+
+      // If it already starts with / (absolute path)
+      if (cleanImg.startsWith('/')) {
+        // If it starts with /uploads/ it's likely a server file
+        if (cleanImg.startsWith('/uploads/')) {
+          return `${baseUrl}${cleanImg}`;
+        }
+        return cleanImg;
+      }
+
+      // If it starts with uploads/ (relative to base)
+      if (cleanImg.startsWith('uploads/')) {
+        return `${baseUrl}/${cleanImg}`;
+      }
+
+      // Default case: assume it's a filename that needs to be prefixed with /uploads/
+      return `${baseUrl}/uploads/${cleanImg}`;
     }
   } catch (e) {
-    // If it's just "/placeholder.svg" or a simple string, return it
-    if (typeof images === 'string') {
-      const cleanImg = images.trim();
+    if (DEBUG_MODE) console.error("getPrimaryImage parsing error:", e);
+  }
 
-      // Check if it's a complete data URL
-      if (cleanImg.startsWith('data:image/')) {
-        return cleanImg;
-      }
-
-      // Handle server upload paths
-      if (cleanImg.startsWith('uploads/') || cleanImg.startsWith('/uploads/')) {
-        const cleanPath = cleanImg.startsWith('/') ? cleanImg : '/' + cleanImg;
-        return `http://localhost:8000${cleanPath}`;
-      }
-
-      // If it's a placeholder or full URL, return as is
-      if (cleanImg.startsWith('/') || cleanImg.startsWith('http')) {
-        return cleanImg;
-      }
-
-      // Try comma-separated if it contains commas
-      if (cleanImg.includes(',')) {
-        const parts = cleanImg.split(',').map(p => p.trim());
-        if (parts.length > 0) {
-          let firstPart = parts[0].replace(/^["']|["']$/g, '').trim();
-
-          if (firstPart && typeof firstPart === 'string') {
-            if (firstPart.startsWith('data:image/')) {
-              return firstPart;
-            }
-
-            if (firstPart.startsWith('uploads/') || firstPart.startsWith('/uploads/')) {
-              const cleanPath = firstPart.startsWith('/') ? firstPart : '/' + firstPart;
-              return `http://localhost:8000${cleanPath}`;
-            }
-
-            if (firstPart.startsWith('http') || firstPart.startsWith('/')) {
-              return firstPart;
-            }
-          }
-        }
-      }
-    }
+  // Fallback for simple string format
+  if (typeof images === 'string' && images.length > 0) {
+     const cleanImg = images.replace(/^["']|["']$/g, '').trim();
+     if (cleanImg.startsWith('/') || cleanImg.startsWith('http')) return cleanImg;
+     return `${baseUrl}/uploads/${cleanImg}`;
   }
 
   return "/placeholder.svg";
-}
+}

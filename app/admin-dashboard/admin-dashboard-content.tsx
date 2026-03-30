@@ -1347,7 +1347,7 @@ export default function AdminDashboardContent() {
           className="space-y-6"
         >
           <div className="overflow-x-auto pb-1 -mx-4 px-4 sm:mx-0 sm:px-0 no-scrollbar">
-            <TabsList className="inline-flex w-auto sm:w-full sm:grid sm:grid-cols-6 p-1 bg-gray-100/80 rounded-xl gap-1">
+            <TabsList className="inline-flex w-auto sm:w-full sm:grid sm:grid-cols-7 p-1 bg-gray-100/80 rounded-xl gap-1">
               <TabsTrigger
                 value="overview"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"

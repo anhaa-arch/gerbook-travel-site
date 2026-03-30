@@ -67,27 +67,9 @@ export function Header() {
               </span>
             </Link>
 
-            {/* Desktop Navigation Menu */}
-            <nav className="hidden md:flex items-center space-x-1 lg:space-x-4 bg-gray-50/50 p-1.5 rounded-2xl border border-gray-100 shadow-inner">
-              <Link
-                href="/listings"
-                className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:text-[#1b7c53] hover:bg-white hover:shadow-sm transition-all"
-              >
-                Малчин Кэмп
-              </Link>
-              <Link
-                href="/products"
-                className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:text-[#1b7c53] hover:bg-white hover:shadow-sm transition-all"
-              >
-                Бүтээгдэхүүн
-              </Link>
-              <Link
-                href="/events"
-                className="px-4 py-2.5 rounded-xl text-sm font-bold text-gray-600 hover:text-[#1b7c53] hover:bg-white hover:shadow-sm transition-all"
-              >
-                Арга хэмжээ
-              </Link>
-            </nav>
+            {/* Desktop Navigation Menu - Removed as requested */}
+            <div className="hidden md:block w-4 lg:w-8" />
+
 
             {/* Right side Actions (Cart & Hamburger) */}
             <div className="flex items-center space-x-3 sm:space-x-4">
