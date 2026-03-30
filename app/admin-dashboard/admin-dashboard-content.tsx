@@ -86,6 +86,7 @@ import {
   UPDATE_EVENT,
   DELETE_EVENT,
   GET_EVENT_BOOKINGS,
+  DELETE_EVENT_BOOKING,
 } from "./queries";
 import {
   formatDate,
@@ -264,10 +265,11 @@ export default function AdminDashboardContent() {
   const [deleteBooking] = useMutation(DELETE_BOOKING);
   
   const { data: eventsData, loading: eventsLoading, refetch: refetchEvents } = useQuery(GET_ALL_EVENTS);
-  const { data: eventBookingsData, loading: eventBookingsLoading } = useQuery(GET_EVENT_BOOKINGS);
+  const { data: eventBookingsData, loading: eventBookingsLoading, refetch: refetchEventBookings } = useQuery(GET_EVENT_BOOKINGS);
   const [createEvent] = useMutation(CREATE_EVENT);
   const [updateEvent] = useMutation(UPDATE_EVENT);
   const [deleteEvent] = useMutation(DELETE_EVENT);
+  const [deleteEventBooking] = useMutation(DELETE_EVENT_BOOKING);
 
   // Transform data for display
   const stats = {
@@ -438,6 +440,9 @@ export default function AdminDashboardContent() {
       } else if (selectedItem.type === "booking" || selectedItem.type === "camp") {
         mutation = deleteBooking;
         refetchFunction = refetchBookings;
+      } else if (selectedItem.type === "event-booking") {
+        mutation = deleteEventBooking;
+        refetchFunction = refetchEventBookings;
       }
 
       if (mutation && refetchFunction) {
@@ -3848,6 +3853,7 @@ export default function AdminDashboardContent() {
                      <TableHead className="font-bold whitespace-nowrap">Нийт дүн</TableHead>
                      <TableHead className="font-bold whitespace-nowrap">Төлөв</TableHead>
                      <TableHead className="font-bold whitespace-nowrap">Огноо</TableHead>
+                     <TableHead className="font-bold whitespace-nowrap text-right">Үйлдэл</TableHead>
                    </TableRow>
                   </TableHeader>
                   <TableBody>
@@ -3877,6 +3883,16 @@ export default function AdminDashboardContent() {
                           </Badge>
                         </TableCell>
                         <TableCell className="text-xs text-gray-500">{formatDateTime(booking.createdAt)}</TableCell>
+                        <TableCell className="text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 w-8 p-0 hover:bg-red-50 hover:text-red-600 hover:border-red-200 transition-colors rounded-lg"
+                            onClick={() => handleDelete({ ...booking, type: "event-booking" })}
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))}
                   </TableBody>

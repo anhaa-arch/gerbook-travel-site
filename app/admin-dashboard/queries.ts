@@ -425,3 +425,11 @@ export const DELETE_EVENT = gql`
     deleteEvent(id: $id)
   }
 `
+
+export const DELETE_EVENT_BOOKING = gql`
+  mutation DeleteEventBooking($id: ID!) {
+     deleteEventBooking(id: $id)
+  }
+`
+
+
