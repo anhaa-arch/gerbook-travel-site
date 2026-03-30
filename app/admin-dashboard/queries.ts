@@ -432,4 +432,24 @@ export const DELETE_EVENT_BOOKING = gql`
   }
 `
 
+export const UPDATE_EVENT_BOOKING_STATUS = gql`
+  mutation UpdateEventBookingStatus($id: ID!, $status: EventBookingStatus!) {
+    updateEventBookingStatus(id: $id, status: $status) {
+      id
+      status
+    }
+  }
+`
+
+export const CHECK_QPAY_EVENT_PAYMENT = gql`
+  mutation CheckQPayEventPaymentAndConfirm($bookingId: ID!) {
+    checkQPayEventPaymentAndConfirm(bookingId: $bookingId) {
+      id
+      status
+    }
+  }
+`
+
+
+
 

@@ -87,6 +87,8 @@ import {
   DELETE_EVENT,
   GET_EVENT_BOOKINGS,
   DELETE_EVENT_BOOKING,
+  UPDATE_EVENT_BOOKING_STATUS,
+  CHECK_QPAY_EVENT_PAYMENT,
 } from "./queries";
 import {
   formatDate,
@@ -270,6 +272,8 @@ export default function AdminDashboardContent() {
   const [updateEvent] = useMutation(UPDATE_EVENT);
   const [deleteEvent] = useMutation(DELETE_EVENT);
   const [deleteEventBooking] = useMutation(DELETE_EVENT_BOOKING);
+  const [updateEventBookingStatus] = useMutation(UPDATE_EVENT_BOOKING_STATUS);
+  const [checkEventPayment] = useMutation(CHECK_QPAY_EVENT_PAYMENT);
 
   // Transform data for display
   const stats = {
@@ -3878,9 +3882,55 @@ export default function AdminDashboardContent() {
                         <TableCell className="font-medium">{booking.numberOfPeople} хүн</TableCell>
                         <TableCell className="font-bold text-emerald-600">{formatCurrency(booking.totalPrice)}</TableCell>
                         <TableCell>
-                          <Badge className={getStatusBadgeColor(booking.status)}>
-                            {translateStatus(booking.status)}
-                          </Badge>
+                          <Select
+                            value={booking.status}
+                            onValueChange={async (value) => {
+                              try {
+                                await updateEventBookingStatus({
+                                  variables: { id: booking.id, status: value },
+                                });
+                                await refetchEventBookings();
+                                toast({ title: "Амжилттай", description: "Төлөв шинэчлэгдлээ" });
+                              } catch (err: any) {
+                                toast({ title: "Алдаа", description: err.message, variant: "destructive" as any });
+                              }
+                            }}
+                          >
+                            <SelectTrigger className="h-8 w-[130px] text-xs font-semibold">
+                              <SelectValue placeholder="Төлөв" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="PENDING" className="text-xs font-medium">Хүлээгдэж буй</SelectItem>
+                              <SelectItem value="PAID" className="text-xs font-medium text-emerald-600">Төлөгдсөн</SelectItem>
+                              <SelectItem value="CONFIRMED" className="text-xs font-medium text-blue-600">Батлагдсан</SelectItem>
+                              <SelectItem value="CANCELLED" className="text-xs font-medium text-red-600">Цуцлагдсан</SelectItem>
+                              <SelectItem value="COMPLETED" className="text-xs font-medium text-gray-600">Дууссан</SelectItem>
+                            </SelectContent>
+                          </Select>
+                          
+                          {booking.status === "PENDING" && (
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className="h-6 px-2 mt-1 text-[10px] text-emerald-600 hover:bg-emerald-50 font-bold w-full justify-start"
+                              onClick={async () => {
+                                try {
+                                  toast({ title: "Шалгаж байна...", description: "Түр хүлээнэ үү" });
+                                  const result = await checkEventPayment({ variables: { bookingId: booking.id } });
+                                  if (result.data?.checkQPayEventPaymentAndConfirm?.status === 'PAID') {
+                                    toast({ title: "Амжилттай", description: "Төлбөр баталгаажлаа" });
+                                  } else {
+                                    toast({ title: "Мэдээлэл", description: "Төлбөр хараахан төлөгдөөгүй байна" });
+                                  }
+                                  await refetchEventBookings();
+                                } catch (err: any) {
+                                  toast({ title: "Алдаа", description: err.message, variant: "destructive" as any });
+                                }
+                              }}
+                            >
+                              <Clock className="w-3 h-3 mr-1" /> Төлбөр шалгах
+                            </Button>
+                          )}
                         </TableCell>
                         <TableCell className="text-xs text-gray-500">{formatDateTime(booking.createdAt)}</TableCell>
                         <TableCell className="text-right">
