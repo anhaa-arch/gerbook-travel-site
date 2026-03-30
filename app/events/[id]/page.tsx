@@ -53,6 +53,7 @@ const CREATE_EVENT_BOOKING_PAYMENT = gql`
     createEventBookingPayment(bookingId: $bookingId) {
       invoiceId
       qrText
+      qrImage
       urls {
         name
         link
@@ -447,7 +448,7 @@ export default function EventDetailPage() {
                 {paymentData?.qrText ? (
                   <div className="p-2">
                      <img 
-                      src={`https://chart.googleapis.com/chart?cht=qr&chs=300x300&chl=${encodeURIComponent(paymentData.qrText)}`} 
+                      src={paymentData.qrImage ? `data:image/png;base64,${paymentData.qrImage}` : `https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${encodeURIComponent(paymentData.qrText)}`} 
                       alt="QPay QR Code" 
                       className="w-56 h-56 mx-auto"
                     />
