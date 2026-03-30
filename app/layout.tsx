@@ -1,3 +1,4 @@
+// SEO: Brand optimization for "MalchinCamp" search
 import type React from "react";
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
@@ -23,11 +24,67 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
+// SEO: Brand-first metadata for Google brand search "MalchinCamp"
 export const metadata: Metadata = {
-  title: "ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
-  description: "ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
-  keywords: "Mongolia, ger camps, travel, nomadic culture, adventure tourism",
-  generator: "v0.dev",
+  // Brand-first title with both Latin and Cyrillic brand names
+  title: {
+    default: "MalchinCamp – Малчин Кэмп | Гэр бааз, аялал, бүтээгдэхүүн",
+    template: "%s | MalchinCamp – Малчин Кэмп",
+  },
+  description:
+    "MalchinCamp.mn – Монголын гэр бааз, аялал, морьт харваа, соёлын наадам, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ. Малчин Кэмп – Тасалж болохгүй талын соёл.",
+  keywords:
+    "MalchinCamp, Малчин Кэмп, malchincamp.mn, гэр бааз, ger camp, Mongolia travel, Монгол аялал, нүүдэлчин соёл, морьт харваа, малчдын бүтээгдэхүүн, nomadic culture, adventure tourism, Архангай, Цэнхэр",
+  // Canonical URL
+  metadataBase: new URL("https://www.malchincamp.mn"),
+  alternates: {
+    canonical: "/",
+  },
+  // Open Graph tags for social media and Google
+  openGraph: {
+    title: "MalchinCamp – Гэр бааз, аялал, бүтээгдэхүүн",
+    description:
+      "MalchinCamp.mn – Монголын гэр бааз, аялал, морьт харваа, соёлын наадам, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
+    url: "https://www.malchincamp.mn",
+    siteName: "MalchinCamp",
+    type: "website",
+    locale: "mn_MN",
+    images: [
+      {
+        url: "/header-bg.png",
+        width: 1200,
+        height: 630,
+        alt: "MalchinCamp – Малчин Кэмп | Монголын гэр бааз",
+      },
+    ],
+  },
+  // Twitter Card
+  twitter: {
+    card: "summary_large_image",
+    title: "MalchinCamp – Малчин Кэмп | Гэр бааз, аялал",
+    description:
+      "MalchinCamp.mn – Монголын гэр бааз, аялал, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
+    images: ["/header-bg.png"],
+  },
+  // Robots
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  // Verification (placeholder — replace with actual codes from Search Console)
+  // verification: {
+  //   google: "YOUR_GOOGLE_VERIFICATION_CODE",
+  // },
+  other: {
+    "format-detection": "telephone=no",
+  },
 };
 
 const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string;
@@ -39,7 +96,7 @@ export default function RootLayout({
 }) {
   return (
     <html
-      lang="en"
+      lang="mn"
       className={montserrat.variable}
       suppressHydrationWarning={true}
     >

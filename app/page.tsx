@@ -121,6 +121,42 @@ export default function HomePage() {
   // Camps are derived from GraphQL
 
   return (
+    <>
+      {/* SEO: JSON-LD Structured Data for brand recognition */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Organization",
+            name: "MalchinCamp",
+            alternateName: "Малчин Кэмп",
+            url: "https://www.malchincamp.mn",
+            logo: "https://www.malchincamp.mn/header-bg.png",
+            description:
+              "MalchinCamp.mn – Монголын гэр бааз, аялал, морьт харваа, соёлын наадам, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
+            sameAs: [],
+          }),
+        }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "WebSite",
+            name: "MalchinCamp",
+            alternateName: "Малчин Кэмп",
+            url: "https://www.malchincamp.mn",
+            potentialAction: {
+              "@type": "SearchAction",
+              target:
+                "https://www.malchincamp.mn/listings?query={search_term_string}",
+              "query-input": "required name=search_term_string",
+            },
+          }),
+        }}
+      />
     <div className="h-full bg-white">
       <div className="max-w-6xl 2xl:max-w-7xl 3xl:max-w-[1800px] 4k:max-w-[2400px] mx-auto">
         <div className="bg-white py-4 sm:py-6 md:py-8">
@@ -453,5 +489,6 @@ export default function HomePage() {
 
 
     </div>
+    </>
   );
 }

@@ -1,0 +1,15 @@
+# SEO: robots.txt for MalchinCamp brand crawling
+User-agent: *
+Allow: /
+
+# Disallow admin and auth pages from indexing
+Disallow: /admin-dashboard/
+Disallow: /herder-dashboard/
+Disallow: /user-dashboard/
+Disallow: /login
+Disallow: /register
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /verify-email
+
+Sitemap: https://www.malchincamp.mn/sitemap.xml
