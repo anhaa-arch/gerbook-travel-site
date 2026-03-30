@@ -188,6 +188,9 @@ export default function AdminDashboardContent() {
     shortDescription: "",
     fullDescription: "",
     priceInfo: "",
+    pricePerPerson: 0,
+    eventDate: "",
+    eventEndDate: "",
     images: [] as string[],
     isActive: true,
   });
@@ -3832,7 +3835,8 @@ export default function AdminDashboardContent() {
                   <TableHeader>
                     <TableRow className="bg-gray-50/50 hover:bg-gray-50/50">
                       <TableHead className="font-bold text-gray-700">Арга хэмжээ</TableHead>
-                      <TableHead className="font-bold text-gray-700">Байршил</TableHead>
+                      <TableHead className="font-bold text-gray-700">Огноо</TableHead>
+                      <TableHead className="font-bold text-gray-700">Үнэ</TableHead>
                       <TableHead className="font-bold text-gray-700">Багтаамж</TableHead>
                       <TableHead className="font-bold text-gray-700 text-center">Төлөв</TableHead>
                       <TableHead className="font-bold text-gray-700 text-right">Үйлдэл</TableHead>
@@ -3868,13 +3872,16 @@ export default function AdminDashboardContent() {
                                 </div>
                               </div>
                             </TableCell>
-                            <TableCell>
-                              <div className="flex items-center text-gray-600 font-medium text-sm">
-                                <MapPin className="w-3.5 h-3.5 mr-1 text-gray-400" />
-                                {event.location}
-                              </div>
-                            </TableCell>
-                            <TableCell className="text-gray-600 font-medium text-sm">{event.groupSize}</TableCell>
+                             <TableCell>
+                               <div className="flex flex-col text-sm font-medium text-gray-600">
+                                 <span>{event.eventDate ? new Date(event.eventDate).toLocaleDateString() : "Тун удахгүй"}</span>
+                                 <span className="text-[10px] text-gray-400">{event.location}</span>
+                               </div>
+                             </TableCell>
+                             <TableCell className="text-gray-900 font-bold text-sm">
+                               {event.pricePerPerson ? `${event.pricePerPerson.toLocaleString()} ₮` : (event.priceInfo || "Тохиролцоно")}
+                             </TableCell>
+                             <TableCell className="text-gray-600 font-medium text-sm">{event.groupSize}</TableCell>
                             <TableCell className="text-center">
                               <Badge className={event.isActive ? "bg-emerald-100 text-emerald-800" : "bg-gray-100 text-gray-800"}>
                                 {event.isActive ? "Идэвхтэй" : "Идэвхгүй"}
@@ -3895,6 +3902,9 @@ export default function AdminDashboardContent() {
                                     shortDescription: event.shortDescription,
                                     fullDescription: event.fullDescription,
                                     priceInfo: event.priceInfo || "",
+                                    pricePerPerson: event.pricePerPerson || 0,
+                                    eventDate: event.eventDate ? new Date(event.eventDate).toISOString().split('T')[0] : "",
+                                    eventEndDate: event.eventEndDate ? new Date(event.eventEndDate).toISOString().split('T')[0] : "",
                                     images: parsedImages,
                                     isActive: event.isActive,
                                   });
@@ -3936,6 +3946,9 @@ export default function AdminDashboardContent() {
                   shortDescription: "",
                   fullDescription: "",
                   priceInfo: "",
+                  pricePerPerson: 0,
+                  eventDate: "",
+                  eventEndDate: "",
                   images: [],
                   isActive: true,
                 });
@@ -3985,13 +3998,43 @@ export default function AdminDashboardContent() {
                         placeholder="Жишээ: 10-50 хүн"
                       />
                     </div>
-                    <div className="col-span-1 sm:col-span-2 space-y-2">
-                      <label className="text-sm font-semibold text-gray-700 ml-1">Үнэ (онцлох)</label>
+                    <div className="col-span-1 sm:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700 ml-1">Үнэ (онцлох тайлбар)</label>
+                        <Input
+                          value={eventForm.priceInfo}
+                          onChange={(e) => setEventForm({ ...eventForm, priceInfo: e.target.value })}
+                          className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
+                          placeholder="Жишээ: Тохиролцоно эсвэл 50,000₮-с"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <label className="text-sm font-semibold text-gray-700 ml-1">Нэг хүний үнэ (тоо)</label>
+                        <Input
+                          type="number"
+                          value={eventForm.pricePerPerson}
+                          onChange={(e) => setEventForm({ ...eventForm, pricePerPerson: parseFloat(e.target.value) || 0 })}
+                          className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
+                          placeholder="Жишээ: 50000"
+                        />
+                      </div>
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 ml-1">Эхлэх огноо</label>
                       <Input
-                        value={eventForm.priceInfo}
-                        onChange={(e) => setEventForm({ ...eventForm, priceInfo: e.target.value })}
+                        type="date"
+                        value={eventForm.eventDate}
+                        onChange={(e) => setEventForm({ ...eventForm, eventDate: e.target.value })}
                         className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
-                        placeholder="Жишээ: Тохиролцоно эсвэл 50,000₮-с"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-semibold text-gray-700 ml-1">Дуусах огноо</label>
+                      <Input
+                        type="date"
+                        value={eventForm.eventEndDate}
+                        onChange={(e) => setEventForm({ ...eventForm, eventEndDate: e.target.value })}
+                        className="bg-gray-50/50 border-gray-200 focus:border-emerald-500 rounded-xl"
                       />
                     </div>
                   </div>

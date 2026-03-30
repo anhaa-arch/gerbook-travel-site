@@ -13,6 +13,8 @@ interface EventCardProps {
   groupSize: string;
   shortDescription: string;
   priceInfo: string;
+  pricePerPerson?: number;
+  eventDate?: string;
   images: string[];
 }
 
@@ -24,6 +26,8 @@ export const EventCard = ({
   groupSize,
   shortDescription,
   priceInfo,
+  pricePerPerson,
+  eventDate,
   images,
 }: EventCardProps) => {
   const imageUrl = getImageUrl(images?.[0]);
@@ -66,14 +70,16 @@ export const EventCard = ({
             <span className="truncate">{location}</span>
           </div>
           <div className="flex items-center text-sm font-medium text-gray-600">
+            <CalendarDays className="w-4 h-4 mr-2 text-emerald-500 flex-shrink-0" />
+            <span className="truncate">{eventDate ? new Date(eventDate).toLocaleDateString() : "Тун удахгүй"}</span>
+          </div>
+          <div className="flex items-center text-sm font-medium text-gray-600">
             <Users className="w-4 h-4 mr-2 text-emerald-500 flex-shrink-0" />
             <span className="truncate">{groupSize}</span>
           </div>
-          {priceInfo && (
-            <div className="flex items-center text-sm font-bold text-emerald-700 col-span-2 mt-1 bg-emerald-50 w-full p-2.5 rounded-xl justify-center">
-              {priceInfo}
-            </div>
-          )}
+          <div className="flex items-center text-sm font-bold text-emerald-700 col-span-2 mt-1 bg-emerald-50 w-full p-2.5 rounded-xl justify-center">
+            {pricePerPerson ? `${pricePerPerson.toLocaleString()} ₮` : priceInfo}
+          </div>
         </div>
 
         {/* Action Button */}

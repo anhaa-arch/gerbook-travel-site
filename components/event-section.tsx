@@ -14,6 +14,8 @@ const GET_ACTIVE_EVENTS = gql`
       groupSize
       shortDescription
       priceInfo
+      pricePerPerson
+      eventDate
       images
     }
   }
@@ -60,6 +62,8 @@ export const EventSection = () => {
                 groupSize={event.groupSize}
                 shortDescription={event.shortDescription}
                 priceInfo={event.priceInfo}
+                pricePerPerson={event.pricePerPerson}
+                eventDate={event.eventDate}
                 images={parsedImages}
               />
             );

@@ -149,6 +149,9 @@ export function CartProvider({ children }: { children: ReactNode }) {
           <div>
             <p className="font-bold text-emerald-900">{item.name}</p>
             <p className="text-xs text-emerald-700 font-medium">{item.price.toLocaleString()}₮ × {item.quantity}</p>
+            <a href="/cart" className="inline-block mt-2 text-xs font-bold bg-emerald-600 text-white px-3 py-1.5 rounded-lg hover:bg-emerald-700 transition-colors">
+              Сагс руу очих
+            </a>
           </div>
         </div>
       ),

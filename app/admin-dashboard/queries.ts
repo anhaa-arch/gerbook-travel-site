@@ -348,6 +348,9 @@ export const GET_ALL_EVENTS = gql`
       priceInfo
       images
       isActive
+      eventDate
+      eventEndDate
+      pricePerPerson
       createdAt
     }
   }
@@ -361,6 +364,9 @@ export const CREATE_EVENT = gql`
       location
       images
       isActive
+      eventDate
+      eventEndDate
+      pricePerPerson
     }
   }
 `
@@ -373,6 +379,9 @@ export const UPDATE_EVENT = gql`
       location
       images
       isActive
+      eventDate
+      eventEndDate
+      pricePerPerson
     }
   }
 `

@@ -191,7 +191,10 @@ export default function EventDetailPage() {
   const parsedImages = event.images || [];
   const primaryImage = getImageUrl(parsedImages[0]);
   const galleryImages = parsedImages.slice(1);
-  const totalPrice = participantCount * (event.pricePerPerson || 0);
+  
+  const numericPriceInfo = event.priceInfo ? parseInt(String(event.priceInfo).replace(/[^\\d]/g, ''), 10) : 0;
+  const personPrice = event.pricePerPerson || (isNaN(numericPriceInfo) ? 0 : numericPriceInfo) || 0;
+  const totalPrice = participantCount * personPrice;
 
   return (
     <main className="min-h-screen bg-gray-50 pb-20">
@@ -308,11 +311,11 @@ export default function EventDetailPage() {
               <div className="border-b border-gray-100 pb-6 mb-6">
                 <div className="flex items-baseline gap-2 mb-2">
                   <span className="text-3xl sm:text-4xl font-black text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-emerald-500">
-                    {event.pricePerPerson ? `${event.pricePerPerson.toLocaleString()} ₮` : (event.priceInfo || "Тохиролцоно")}
+                    {personPrice > 0 ? `${personPrice.toLocaleString()} ₮` : (event.priceInfo || "Тохиролцоно")}
                   </span>
-                  {event.pricePerPerson && <span className="text-gray-500 font-medium">/ хүн</span>}
+                  {personPrice > 0 && <span className="text-gray-500 font-medium">/ хүн</span>}
                 </div>
-                {event.pricePerPerson && <p className="text-sm font-medium text-emerald-600/80">Олон хүний захиалгад хөнгөлөлттэй</p>}
+                {personPrice > 0 && <p className="text-sm font-medium text-emerald-600/80">Олон хүний захиалгад хөнгөлөлттэй</p>}
               </div>
 
               <ul className="space-y-4 mb-8">
@@ -409,7 +412,7 @@ export default function EventDetailPage() {
                     {totalPrice.toLocaleString()} ₮
                   </span>
                 </div>
-                <p className="text-xs text-emerald-600 font-medium">1 хүн: {event.pricePerPerson?.toLocaleString()} ₮</p>
+                <p className="text-xs text-emerald-600 font-medium">1 хүн: {personPrice.toLocaleString()} ₮</p>
               </div>
 
               <Button 

@@ -909,40 +909,6 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             {/* Comments Section */}
             <CommentSection yurtId={campId} />
 
-            {/* Location & Transportation */}
-            <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Байршил ба Хүрэх арга
-              </h2>
-              <Card>
-                <CardContent className="p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                      <h3 className="font-bold text-gray-900 mb-3">
-                        Ойролцоох үзвэр газрууд
-                      </h3>
-                      <div className="space-y-2">
-                        {campData.location_details.nearbyAttractions.map(
-                          (attraction: any, index: number) => (
-                            <div
-                              key={index}
-                              className="flex justify-between text-sm"
-                            >
-                              <span className="text-gray-700 font-medium">
-                                {attraction.name}
-                              </span>
-                              <span className="text-gray-600 font-medium tracking-tight">
-                                {attraction.distance}
-                              </span>
-                            </div>
-                          )
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
 
             {/* Policies */}
             <div>
