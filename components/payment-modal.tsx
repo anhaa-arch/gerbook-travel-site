@@ -222,9 +222,10 @@ export function PaymentModal({
     setIsProcessing(true);
 
     if (selectedMethod === "qpay") {
+      console.log('PaymentModal ID tracking:', { bookingId, orderId, eventBookingId });
       if (!bookingId && !orderId && !eventBookingId) {
         console.error('QPay Error: Missing bookingId, orderId, and eventBookingId — cannot call QPay mutations with empty variables');
-        alert("Захиалгын ID олдсонгүй. Дахин оролдоно уу.");
+        alert("Захиалгын дугаар (ID) олдсонгүй. Захиалга үүсгэж чадсан эсэхээ шалгаад дахин оролдоно уу.");
         setIsProcessing(false);
         return;
       }
@@ -292,6 +293,14 @@ export function PaymentModal({
       } else if (bookingId) {
         const { data } = await checkBookingPayment({ variables: { bookingId } });
         if (data?.checkQPayPaymentAndConfirmBooking?.status === "CONFIRMED") {
+          alert("Төлбөр амжилттай төлөгдлөө!");
+          onComplete("qpay");
+        } else {
+          alert("Төлбөр хараахан төлөгдөөгүй байна.");
+        }
+      } else if (eventBookingId) {
+        const { data } = await checkEventPayment({ variables: { bookingId: eventBookingId } });
+        if (data?.checkQPayEventPaymentAndConfirm?.status === "PAID" || data?.checkQPayEventPaymentAndConfirm?.status === "CONFIRMED") {
           alert("Төлбөр амжилттай төлөгдлөө!");
           onComplete("qpay");
         } else {
@@ -429,7 +438,7 @@ export function PaymentModal({
                       <div className="flex items-start gap-2">
                         <Calendar className="w-4 h-4 mt-1 text-gray-500" />
                         <div className="text-sm">
-                          <p className="font-medium">Огноо: {eventDetails.startDate} - {eventDetails.endDate}</p>
+                          <p className="font-medium">Огноо: {formatDate(eventDetails.startDate)} - {formatDate(eventDetails.endDate)}</p>
                         </div>
                       </div>
                       <div className="flex items-start gap-2">
