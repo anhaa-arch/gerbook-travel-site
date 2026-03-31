@@ -61,6 +61,7 @@ const GET_YURT = gql`
       capacity
       amenities
       images
+      isFeatured
       ownerId
       owner {
         id
@@ -699,6 +700,14 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
                     <span className="font-medium text-xs sm:text-sm truncate">{campData.location}</span>
                   </div>
+                  {camp.isFeatured && (
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-md">
+                        <Star className="w-3.5 h-3.5 fill-white" />
+                        Онцгой хамтрагч
+                      </div>
+                    </div>
+                  )}
                   <div className="flex items-center gap-3 sm:gap-4">
                     <div className="flex items-center">
                       <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400 mr-1" />

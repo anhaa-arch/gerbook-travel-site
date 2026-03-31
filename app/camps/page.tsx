@@ -37,6 +37,7 @@ const GET_YURTS = gql`
           capacity
           images
           amenities
+          isFeatured
           bookings {
             id
             startDate
@@ -208,6 +209,11 @@ export default function CampsPage() {
     }
 
     return true
+  }).sort((a: any, b: any) => {
+    // Prioritize featured camps
+    if (a.isFeatured && !b.isFeatured) return -1;
+    if (!a.isFeatured && b.isFeatured) return 1;
+    return 0;
   })
 
   const handleProvinceChange = (provinceName: string) => {
@@ -396,6 +402,12 @@ export default function CampsPage() {
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-110"
                         />
+                        {camp.isFeatured && (
+                          <div className="absolute top-2 left-2 bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-10 shadow-lg backdrop-blur-sm flex items-center gap-1">
+                            <Star className="w-3 h-3 fill-white" />
+                            Онцгой хамтрагч
+                          </div>
+                        )}
                         <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-10 shadow-lg backdrop-blur-sm">
                           {camp.location.split(',')[0]}
                         </div>

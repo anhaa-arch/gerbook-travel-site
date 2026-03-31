@@ -67,6 +67,7 @@ const GET_YURTS = gql`
           pricePerNight
           capacity
           images
+          isFeatured
         }
       }
       totalCount
@@ -257,6 +258,12 @@ export default function HomePage() {
                             </div>
                           </DialogContent>
                         </Dialog>
+                        {camp.isFeatured && (
+                          <div className="absolute top-2 left-2 bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 shadow-lg backdrop-blur-sm pointer-events-none flex items-center gap-1">
+                            <Star className="w-3 h-3 fill-white" />
+                            Онцгой хамтрагч
+                          </div>
+                        )}
                         <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 shadow-lg backdrop-blur-sm pointer-events-none">
                           {camp.location.split(',')[0]}
                         </div>
