@@ -180,6 +180,7 @@ export default function AdminDashboardContent() {
     smokingPolicy: "no_smoking",
     cancellationPolicy: "free_48h",
     ownerId: "",
+    isFeatured: false,
   });
 
   const [showAddEvent, setShowAddEvent] = useState(false);
@@ -789,6 +790,7 @@ export default function AdminDashboardContent() {
         }),
         images: JSON.stringify(optimizedImages),
         ownerId: campForm.ownerId || undefined,
+        isFeatured: campForm.isFeatured || false,
       };
 
       await createYurt({ variables: { input } });
@@ -821,6 +823,7 @@ export default function AdminDashboardContent() {
         smokingPolicy: "no_smoking",
         cancellationPolicy: "free_48h",
         ownerId: "",
+        isFeatured: false,
       });
       setUploadedImages([]);
     } catch (error: any) {
@@ -876,6 +879,7 @@ export default function AdminDashboardContent() {
         }),
         images: JSON.stringify(optimizedImages),
         ownerId: campForm.ownerId || undefined,
+        isFeatured: campForm.isFeatured || false,
       };
 
       await updateYurt({ variables: { id: editingItem.id, input } });
@@ -909,6 +913,7 @@ export default function AdminDashboardContent() {
         smokingPolicy: "no_smoking",
         cancellationPolicy: "free_48h",
         ownerId: "",
+        isFeatured: false,
       });
       setUploadedImages([]);
     } catch (error: any) {
@@ -1290,6 +1295,7 @@ export default function AdminDashboardContent() {
       smokingPolicy: parsedAmenities.policies?.smoking || "no_smoking",
       cancellationPolicy: parsedAmenities.policies?.cancellation || "free_48h",
       ownerId: yurt.ownerId || "",
+      isFeatured: yurt.isFeatured || false,
     });
 
     setShowEditYurt(true);
@@ -2420,6 +2426,7 @@ export default function AdminDashboardContent() {
                     smokingPolicy: "no_smoking",
                     cancellationPolicy: "free_48h",
                     ownerId: "",
+                    isFeatured: false,
                   });
                   setShowAddCamp(true);
                 }}
@@ -2524,6 +2531,19 @@ export default function AdminDashboardContent() {
                         onChange={(e) => setCampForm({ ...campForm, capacity: e.target.value })}
                         placeholder="0"
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">Онцлох бааз (Featured)</label>
+                      <div className="flex items-center space-x-2 pt-2">
+                        <Checkbox
+                          id="form-isFeatured"
+                          checked={campForm.isFeatured}
+                          onCheckedChange={(checked) => setCampForm({ ...campForm, isFeatured: !!checked })}
+                        />
+                        <label htmlFor="form-isFeatured" className="text-sm font-medium leading-none cursor-pointer text-gray-600">
+                          Тийм (нүүр хуудсанд эхэнд харагдана)
+                        </label>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-gray-700">Байрлах төрөл</label>
@@ -2839,6 +2859,19 @@ export default function AdminDashboardContent() {
                         onChange={(e) => setCampForm({ ...campForm, capacity: e.target.value })}
                         placeholder="0"
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-bold text-gray-700">Онцлох бааз (Featured)</label>
+                      <div className="flex items-center space-x-2 pt-2">
+                        <Checkbox
+                          id="form-isFeatured"
+                          checked={campForm.isFeatured}
+                          onCheckedChange={(checked) => setCampForm({ ...campForm, isFeatured: !!checked })}
+                        />
+                        <label htmlFor="form-isFeatured" className="text-sm font-medium leading-none cursor-pointer text-gray-600">
+                          Тийм (нүүр хуудсанд эхэнд харагдана)
+                        </label>
+                      </div>
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-bold text-gray-700">Байрлах төрөл</label>

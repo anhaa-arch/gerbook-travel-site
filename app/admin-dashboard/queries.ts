@@ -51,6 +51,7 @@ export const GET_ALL_YURTS = gql`
           images
           description
           ownerId
+          isFeatured
           owner {
             id
             name
@@ -204,6 +205,7 @@ export const CREATE_YURT = gql`
       amenities
       images
       ownerId
+      isFeatured
     }
   }
 `
@@ -220,6 +222,7 @@ export const UPDATE_YURT = gql`
       amenities
       images
       ownerId
+      isFeatured
     }
   }
 `
