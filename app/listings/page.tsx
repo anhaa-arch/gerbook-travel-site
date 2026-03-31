@@ -456,7 +456,7 @@ export default function ListingsPage() {
                                     </span>
                                     <span className="text-[#0F3D20] ml-1 font-bold text-sm sm:text-base">₮</span>
                                   </div>
-                                  <Link href={`/camp/${camp.id}`} className="w-full lg:w-auto xl:w-full 2xl:w-auto">
+                                  <Link href={`/camp/${camp.id}${checkIn && checkOut ? `?checkIn=${checkIn.toISOString().split('T')[0]}&checkOut=${checkOut.toISOString().split('T')[0]}` : ''}${searchParams.get('guests') ? (checkIn && checkOut ? '&' : '?') + `guests=${searchParams.get('guests')}` : ''}`} className="w-full lg:w-auto xl:w-full 2xl:w-auto">
                                     <Button
                                       size="sm"
                                       className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-xs sm:text-sm px-4 sm:px-6 h-10 rounded-xl shadow-lg transition-all active:scale-95"

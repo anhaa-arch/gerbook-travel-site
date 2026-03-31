@@ -37,7 +37,7 @@ import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
 import Link from "next/link";
 import "../../../lib/i18n";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
@@ -100,6 +100,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const { addToCart } = useCart();
   const { isSaved: checkIsSaved, toggleSave } = useSaved();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const resolvedParams = use(params);
   const campId = resolvedParams.id;
 
@@ -112,6 +113,27 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     fetchPolicy: "cache-and-network", // Always fetch fresh data
     nextFetchPolicy: "cache-first",
   });
+
+  // Use state for checkIn, checkOut, and guests
+  const [checkIn, setCheckIn] = useState("");
+  const [checkOut, setCheckOut] = useState("");
+  const [guests, setGuests] = useState(2);
+
+  // Auto-prefill from URL search params
+  useEffect(() => {
+    const checkInParam = searchParams.get("checkIn");
+    const checkOutParam = searchParams.get("checkOut");
+    const guestsParam = searchParams.get("guests");
+
+    if (checkInParam) setCheckIn(checkInParam);
+    if (checkOutParam) setCheckOut(checkOutParam);
+    if (guestsParam) {
+      const g = parseInt(guestsParam);
+      if (!isNaN(g)) setGuests(g);
+    }
+    
+    console.log('✅ Prefilled from search params:', { checkInParam, checkOutParam, guestsParam });
+  }, [searchParams]);
 
   const [createBooking, { loading: bookingLoading, error: bookingError }] =
     useMutation(CREATE_BOOKING, {
@@ -182,9 +204,6 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const camp = data?.yurt;
 
   const [selectedImage, setSelectedImage] = useState(0);
-  const [checkIn, setCheckIn] = useState("");
-  const [checkOut, setCheckOut] = useState("");
-  const [guests, setGuests] = useState(2);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [currentBookingId, setCurrentBookingId] = useState<string | null>(null);
@@ -249,14 +268,13 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         start.setUTCHours(0, 0, 0, 0);
         end.setUTCHours(0, 0, 0, 0);
 
-        // Add all dates in the booking range (including start AND end for strict blocking)
-        // User requirement: Booked 9-15 -> Available before 8, after 16.
-        // This implies 9 and 15 are BOTH blocked for start/end.
+        // User requirement: Booked 4/1-4/3 means nights 1-2. Available to check-out on 4/3.
+        // Back-to-back bookings allowed (Strict logic: current < end)
         const current = new Date(start);
-        while (current <= end) {
+        while (current < end) {
           const dateToDisable = new Date(current);
           disabledDates.push(dateToDisable);
-          console.log(`  🚫 Disabling: ${dateToDisable.toISOString().split('T')[0]}`);
+          console.log(`  🚫 Disabling night: ${dateToDisable.toISOString().split('T')[0]}`);
           current.setDate(current.getDate() + 1);
         }
       } catch (error) {
@@ -557,12 +575,11 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         bookingEnd = new Date(booking.endDate);
       }
 
-      // Backend overlap logic (exact same as checkYurtAvailability)
-      // Strict logic: ExistingStart <= ReqEnd AND ExistingEnd >= ReqStart
-      // This prevents any overlap, including touching boundaries (no same-day turnover)
+      // Strict logic: ExistingStart < ReqEnd AND ExistingEnd > ReqStart
+      // Availability: prevent overlapping bookings
       const overlap = (
-        bookingStart <= checkOutDate &&
-        bookingEnd >= checkInDate
+        bookingStart < checkOutDate &&
+        bookingEnd > checkInDate
       );
 
       if (overlap) {
@@ -933,14 +950,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                           {campData.policies.checkOut}
                         </span>
                       </div>
-                      <div className="flex justify-between items-start gap-4">
-                        <span className="text-gray-600 font-medium text-sm sm:text-base">
-                          Хүүхэд:
-                        </span>
-                        <span className="font-semibold text-sm sm:text-base text-right">
-                          {campData.policies.children}
-                        </span>
-                      </div>
+
                       <div className="flex justify-between items-start gap-4">
                         <span className="text-gray-600 font-medium text-sm sm:text-base">Тэжээвэр амьтан:</span>
                         <span className="font-semibold text-sm sm:text-base text-right">

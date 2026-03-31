@@ -100,17 +100,44 @@ export function DatePickerModal({
     const checkDate = new Date(date);
     checkDate.setHours(0, 0, 0, 0);
 
-    // Disable past dates
+    // 1. Disable past dates
     if (checkDate < today) return true;
 
-    // Disable booked dates
+    // 2. Disable booked dates (base blocking)
     const isBooked = disabledDates.some((disabledDate) => {
       const d2 = new Date(disabledDate);
       d2.setHours(0, 0, 0, 0);
       return checkDate.getTime() === d2.getTime();
     });
+    if (isBooked) return true;
 
-    return isBooked;
+    // 3. Range restriction: If check-in is selected, disable any date AFTER the first booked date
+    // so the user cannot select a range that overlaps an existing booking.
+    if (dateRange?.from && !dateRange.to) {
+      const checkIn = new Date(dateRange.from);
+      checkIn.setHours(0, 0, 0, 0);
+
+      // Find the earliest booked date that is after check-in
+      const nextBooking = disabledDates
+        .map(d => {
+          const dt = new Date(d);
+          dt.setHours(0, 0, 0, 0);
+          return dt;
+        })
+        .filter(d => d.getTime() > checkIn.getTime())
+        .sort((a, b) => a.getTime() - b.getTime())[0];
+
+      if (nextBooking) {
+        // Any date after (strictly) the first night of the next booking should be disabled
+        // Wait, if nextBooking is 4/5, then 4/5 is the first night.
+        // User can select 4/5 as checkout (1 night stay 4/4 - 4/5).
+        // But they cannot select 4/6.
+        // So any date > nextBooking is disabled.
+        if (checkDate > nextBooking) return true;
+      }
+    }
+
+    return false;
   };
 
   return (

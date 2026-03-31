@@ -442,7 +442,8 @@ export default function CampsPage() {
                             </span>
                           </div>
                           
-                          <Link href={`/camp/${camp.id}`} className="block">
+                          {/* Create URL with search params to pass to camp details */}
+                          <Link href={`/camp/${camp.id}${checkInDate && checkOutDate ? `?checkIn=${checkInDate}&checkOut=${checkOutDate}${minCapacity ? `&guests=${minCapacity}` : ''}` : ''}`} className="block">
                             <Button
                               className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-xs sm:text-sm h-10 sm:h-11 rounded-xl shadow-lg transition-all active:scale-95"
                             >
