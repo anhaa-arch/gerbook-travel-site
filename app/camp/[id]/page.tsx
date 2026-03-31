@@ -701,8 +701,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     <span className="font-medium text-xs sm:text-sm truncate">{campData.location}</span>
                   </div>
                   {camp.isFeatured && (
-                    <div className="flex items-center gap-2 mb-3">
-                      <div className="inline-flex items-center gap-1 bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider shadow-md">
+                    <div className="flex items-center gap-2 mb-4">
+                      <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl backdrop-blur-md border border-white/30 ring-1 ring-black/5">
                         <Star className="w-3.5 h-3.5 fill-white" />
                         Онцгой хамтрагч
                       </div>

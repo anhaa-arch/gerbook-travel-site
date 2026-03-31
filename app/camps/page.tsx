@@ -402,14 +402,16 @@ export default function CampsPage() {
                           fill
                           className="object-cover transition-transform duration-700 group-hover:scale-110"
                         />
-                        {camp.isFeatured && (
-                          <div className="absolute top-2 left-2 bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-10 shadow-lg backdrop-blur-sm flex items-center gap-1">
-                            <Star className="w-3 h-3 fill-white" />
-                            Онцгой хамтрагч
+                        <div className="absolute top-2 left-2 right-2 flex flex-col gap-1.5 items-start sm:flex-row sm:justify-between sm:items-center z-10 pointer-events-none">
+                          {camp.isFeatured && (
+                            <div className="bg-gradient-to-r from-amber-400/90 to-yellow-600/90 text-white px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl backdrop-blur-md border border-white/30 flex items-center gap-1 ring-1 ring-black/5">
+                              <Star className="w-2.5 h-2.5 fill-white" />
+                              Онцгой хамтрагч
+                            </div>
+                          )}
+                          <div className="bg-emerald-900/60 text-white px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl backdrop-blur-md border border-white/20 ml-auto sm:ml-0 ring-1 ring-black/5">
+                            {camp.location.split(',')[0]}
                           </div>
-                        )}
-                        <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-10 shadow-lg backdrop-blur-sm">
-                          {camp.location.split(',')[0]}
                         </div>
                       </div>
 
