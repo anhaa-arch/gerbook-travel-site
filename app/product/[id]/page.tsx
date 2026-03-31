@@ -27,6 +27,8 @@ import "../../../lib/i18n"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 import { useCart } from "@/hooks/use-cart"
+import { useAuth } from "@/hooks/use-auth"
+import { useSaved } from "@/hooks/use-saved"
 import { translateCategory } from "@/lib/admin-utils"
 
 const GET_PRODUCT = gql`
@@ -54,9 +56,13 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { t } = useTranslation()
   const { toast } = useToast()
   const { addToCart } = useCart()
+  const { user, isAuthenticated } = useAuth()
+  const { isSaved: checkIsSaved, toggleSave } = useSaved()
   const router = useRouter()
   const resolvedParams = use(params)
   const productId = resolvedParams.id
+
+  const isSaved = checkIsSaved(productId, "product")
 
   const { data, loading, error } = useQuery(GET_PRODUCT, {
     variables: { id: productId },
@@ -131,6 +137,48 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
     router.push("/cart")
   }
 
+  const handleSaveProduct = () => {
+    if (!isAuthenticated || !user) {
+      toast({
+        title: "Нэвтрэх шаардлагатай",
+        description: "Бүтээгдэхүүн хадгалахын тулд нэвтрэх шаардлагатай.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    toggleSave({
+      id: product.id,
+      type: "product",
+      data: {
+        name: product.name,
+        price: product.price,
+        image: images[0],
+      }
+    })
+
+    toast({
+      title: isSaved ? "Хадгалсан бүтээгдэхүүн" : "Амжилттай хадгалагдлаа",
+      description: isSaved ? "Жагсаалтаас хасагдлаа." : "Хадгалсан жагсаалтад нэмэгдлээ.",
+    })
+  }
+
+  const handleShareProduct = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: product.name,
+        text: product.description,
+        url: window.location.href,
+      }).catch((error) => console.log('Error sharing:', error))
+    } else {
+      navigator.clipboard.writeText(window.location.href)
+      toast({
+        title: "Холбоос хуулагдлаа",
+        description: "Бүтээгдэхүүний холбоос амжилттай хуулагдлаа.",
+      })
+    }
+  }
+
   return (
     <div className="min-h-screen bg-[#fdfcf0]/30 font-sans selection:bg-emerald-200">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16">
@@ -143,13 +191,20 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             </Button>
           </Link>
           <div className="flex gap-2">
-             <Button variant="outline" size="icon" className="rounded-full border-gray-200">
-                <Heart className="w-4 h-4" />
+             <Button 
+               variant="outline" 
+               size="icon" 
+               className={`rounded-full border-gray-200 transition-all ${isSaved ? "bg-red-50 border-red-200 text-red-500" : "bg-white"}`}
+               onClick={handleSaveProduct}
+             >
+                <Heart className={`w-4 h-4 ${isSaved ? "fill-current" : ""}`} />
              </Button>
-             <Button variant="outline" size="icon" className="rounded-full border-gray-200" onClick={() => {
-                navigator.clipboard.writeText(window.location.href);
-                toast({ title: "Холбоос хуулагдлаа" });
-             }}>
+             <Button 
+               variant="outline" 
+               size="icon" 
+               className="rounded-full border-gray-200 bg-white" 
+               onClick={handleShareProduct}
+             >
                 <Share2 className="w-4 h-4" />
              </Button>
           </div>
@@ -185,19 +240,18 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             </div>
             
             {images.length > 1 && (
-              <div className="grid grid-cols-4 sm:grid-cols-5 gap-4 px-2">
+              <div className="flex flex-wrap gap-3 sm:gap-4 justify-start">
                 {images.map((img: string, idx: number) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedImage(idx)}
-                    className={`relative aspect-square rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
+                    className={`relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
                       selectedImage === idx 
                         ? "border-emerald-700 ring-4 ring-emerald-700/10 scale-105" 
-                        : "border-transparent hover:border-emerald-700/30 hover:scale-105"
+                        : "border-transparent hover:border-emerald-700/30 hover:scale-105 opacity-60 hover:opacity-100"
                     }`}
                   >
                     <img src={img} alt={product.name} className="w-full h-full object-cover" />
-                    {selectedImage !== idx && <div className="absolute inset-0 bg-white/40 hover:bg-transparent transition-colors" />}
                   </button>
                 ))}
               </div>
@@ -275,7 +329,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   </div>
                 </div>
                 <div className="text-right">
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0F3D2E]/50 mb-3">Хамгийн ихдээ</h4>
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0F3D2E]/50 mb-3">Найдвартай</h4>
                     <span className={`text-xl font-black ${product.stock < 10 ? "text-red-500" : "text-[#0F3D2E]"}`}>
                         {product.stock} <span className="text-xs">ширхэг</span>
                     </span>
@@ -313,11 +367,6 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 <div className="text-center group cursor-default">
                     <Shield className="w-6 h-6 text-emerald-800 mx-auto mb-2 transition-transform group-hover:-translate-y-1" />
                     <span className="block text-[10px] font-black uppercase tracking-tighter text-[#0F3D2E]">Найдвартай</span>
-                </div>
-                <Separator orientation="vertical" className="h-10 bg-[#0F3D2E]/10" />
-                <div className="text-center group cursor-default">
-                    <RotateCcw className="w-6 h-6 text-emerald-800 mx-auto mb-2 transition-transform group-hover:-translate-y-1" />
-                    <span className="block text-[10px] font-black uppercase tracking-tighter text-[#0F3D2E]">Буцаалт 7 хоног</span>
                 </div>
               </div>
             </div>
