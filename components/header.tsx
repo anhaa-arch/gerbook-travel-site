@@ -54,17 +54,16 @@ export function Header() {
           <div className="flex items-center justify-between">
             
             {/* Logo Section */}
-            <Link href="/" className="flex items-center space-x-3 sm:space-x-4 group active:scale-95 transition-transform">
-              {/* The Green Square with white circle and inner green circle */}
-              <div className="w-10 h-10 sm:w-12 sm:h-12 bg-[#1b7c53] rounded-xl sm:rounded-2xl flex items-center justify-center p-1.5 shadow-sm group-hover:bg-[#156040] transition-colors">
-                <div className="w-full h-full bg-white rounded-lg sm:rounded-xl flex items-center justify-center">
-                  <div className="w-3.5 h-3.5 sm:w-4 sm:h-4 bg-[#1b7c53] rounded-full"></div>
-                </div>
+            <Link href="/" className="flex items-center group active:scale-95 transition-transform">
+              <div className="relative h-8 w-32 sm:h-10 sm:w-40">
+                <Image
+                  src="/logo.png"
+                  alt="Malchin Logo"
+                  fill
+                  className="object-contain object-left"
+                  priority
+                />
               </div>
-              {/* Dark Blue/Black text */}
-              <span className="text-xl sm:text-2xl font-black text-[#0f172a] tracking-tight group-hover:text-[#1b7c53] transition-colors">
-                MALCHIN
-              </span>
             </Link>
 
             {/* Desktop Navigation Menu - Removed as requested */}

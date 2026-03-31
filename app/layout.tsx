@@ -28,13 +28,13 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   // Brand-first title with both Latin and Cyrillic brand names
   title: {
-    default: "MalchinCamp – Малчин Кэмп | Гэр бааз, аялал, бүтээгдэхүүн",
-    template: "%s | MalchinCamp – Малчин Кэмп",
+    default: "Малчин Кэмп – Тасалж болохгүй талын соёл | Гэр бааз, аялал, бүтээгдэхүүн",
+    template: "%s | Малчин Кэмп – Тасалж болохгүй талын соёл",
   },
   description:
-    "MalchinCamp.mn – Монголын гэр бааз, аялал, морьт харваа, соёлын наадам, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ. Малчин Кэмп – Тасалж болохгүй талын соёл.",
+    "Малчин Кэмп – Тасалж болохгүй талын соёл. Монголын гэр бааз, аялал, морьт харваа, соёлын наадам, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
   keywords:
-    "MalchinCamp, Малчин Кэмп, malchincamp.mn, гэр бааз, ger camp, Mongolia travel, Монгол аялал, нүүдэлчин соёл, морьт харваа, малчдын бүтээгдэхүүн, nomadic culture, adventure tourism, Архангай, Цэнхэр",
+    "Малчин Кэмп, MalchinCamp, Тасалж болохгүй талын соёл, malchincamp.mn, гэр бааз, ger camp, Mongolia travel, Монгол аялал, нүүдэлчин соёл, морьт харваа, малчдын бүтээгдэхүүн, nomadic culture, adventure tourism, Архангай, Цэнхэр",
   // Canonical URL
   metadataBase: new URL("https://www.malchincamp.mn"),
   alternates: {
@@ -42,9 +42,9 @@ export const metadata: Metadata = {
   },
   // Open Graph tags for social media and Google
   openGraph: {
-    title: "MalchinCamp – Гэр бааз, аялал, бүтээгдэхүүн",
+    title: "Малчин Кэмп – Тасалж болохгүй талын соёл",
     description:
-      "MalchinCamp.mn – Монголын гэр бааз, аялал, морьт харваа, соёлын наадам, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
+      "Малчин Кэмп – Тасалж болохгүй талын соёл. Монголын гэр бааз, аялал, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
     url: "https://www.malchincamp.mn",
     siteName: "MalchinCamp",
     type: "website",
@@ -61,9 +61,9 @@ export const metadata: Metadata = {
   // Twitter Card
   twitter: {
     card: "summary_large_image",
-    title: "MalchinCamp – Малчин Кэмп | Гэр бааз, аялал",
+    title: "Малчин Кэмп – Тасалж болохгүй талын соёл",
     description:
-      "MalchinCamp.mn – Монголын гэр бааз, аялал, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
+      "Малчин Кэмп – Тасалж болохгүй талын соёл. Монголын гэр бааз, аялал, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
     images: ["/header-bg.png"],
   },
   // Robots
