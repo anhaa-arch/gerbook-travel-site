@@ -3,6 +3,7 @@
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
 import Image from "next/image"
+import Link from "next/link"
 import { ShoppingCart, LayoutGrid, List, Search, ZoomIn, Filter, Star, User } from "lucide-react"
 import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
@@ -195,17 +196,15 @@ export default function ProductsPage() {
                       <div className="relative h-40 sm:h-56 w-full overflow-hidden">
                         <Dialog>
                           <DialogTrigger asChild>
-                            <div className="relative h-full w-full cursor-zoom-in group">
+                            <Link href={`/product/${product.id}`} className="relative h-full w-full block group">
                               <Image
                                 src={imageSrc}
                                 alt={product.name}
                                 fill
                                 className="object-cover transition-transform duration-700 group-hover:scale-110"
                               />
-                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center">
-                                <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
-                              </div>
-                            </div>
+                              <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors" />
+                            </Link>
                           </DialogTrigger>
                           <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
                             <div className="relative aspect-video w-full h-full max-h-[85vh]">
@@ -234,9 +233,11 @@ export default function ProductsPage() {
 
                       <div className="p-3 sm:p-5 flex flex-col flex-1">
                         <div className="mb-2 sm:mb-4">
-                          <h3 className="font-black text-sm sm:text-xl text-[#0F3D2E] leading-tight tracking-tight uppercase line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
-                            {product.name}
-                          </h3>
+                          <Link href={`/product/${product.id}`}>
+                            <h3 className="font-black text-sm sm:text-xl text-[#0F3D2E] leading-tight tracking-tight uppercase line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem] hover:text-emerald-700 transition-colors">
+                              {product.name}
+                            </h3>
+                          </Link>
                         </div>
 
                         <div className="mt-auto space-y-3 sm:space-y-4">
