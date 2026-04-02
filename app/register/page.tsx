@@ -57,12 +57,12 @@ export default function RegisterPage() {
         });
 
         toast({
-          title: "Amjillttai nevterlee",
-          description: "Google-eer amjillttai nevterlee.",
+          title: "Амжилттай нэвтэрлээ",
+          description: "Google-ээр амжилттай нэвтэрлээ.",
         });
       } catch (err: any) {
         toast({
-          title: "Google nevtrelt amjilltgui",
+          title: "Google нэвтрэлт амжилтгүй",
           description: err.message,
           variant: "destructive",
         });
@@ -72,8 +72,8 @@ export default function RegisterPage() {
     },
     onError: () => {
       toast({
-        title: "Google nevtrelt amjilltgui",
-        description: "Google-eer nevtrehed aldaa garlaa.",
+        title: "Google нэвтрэлт амжилтгүй",
+        description: "Google-ээр нэвтрэхэд алдаа гарлаа.",
         variant: "destructive",
       });
     },
