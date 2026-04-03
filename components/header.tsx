@@ -50,14 +50,14 @@ export function Header() {
       
       {/* Top White Navbar Area */}
       <div className="w-full bg-white relative z-10 pt-4 sm:pt-6 pb-2">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="w-full px-4 sm:px-6 lg:px-10">
           <div className="flex items-center justify-between">
             
             {/* Logo Section */}
             <Link href="/" className="flex items-center group active:scale-95 transition-transform">
-              <div className="relative h-8 w-32 sm:h-10 sm:w-40">
+              <div className="relative h-24 w-64 sm:h-[10rem] sm:w-[28rem]">
                 <Image
-                  src="/logo.png"
+                  src="/header.png"
                   alt="Malchin Logo"
                   fill
                   className="object-contain object-left"
