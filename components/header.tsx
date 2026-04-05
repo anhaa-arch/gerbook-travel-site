@@ -115,7 +115,7 @@ export function Header() {
                           <div className="w-10 h-10 bg-[#1b7c53]/10 rounded-xl flex items-center justify-center mr-3 group-hover:bg-[#1b7c53]/20 transition-colors">
                             <Compass className="w-5 h-5 text-[#1b7c53]" />
                           </div>
-                          <span className="text-sm text-gray-900 font-bold">Малчин Кэмп</span>
+                          <span className="text-sm text-gray-900 font-bold">MalchinCamp</span>
                         </Link>
                         <Link
                           href="/products"

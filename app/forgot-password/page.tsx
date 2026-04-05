@@ -3,6 +3,7 @@
 import type React from "react";
 import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -46,16 +47,17 @@ export default function ForgotPasswordPage() {
           <div className="text-center">
             <Link
               href="/"
-              className="inline-flex items-center space-x-3 mb-8 group transition-transform active:scale-95"
+              className="inline-flex items-center space-x-3 mb-6 group transition-transform active:scale-95"
             >
-              <div className="w-10 h-10 bg-[#1b7c53] rounded-xl flex items-center justify-center shadow-lg shadow-[#1b7c53]/20">
-                <div className="w-6 h-6 bg-white rounded-lg flex items-center justify-center">
-                  <div className="w-3 h-3 bg-[#1b7c53] rounded-full"></div>
-                </div>
+              <div className="relative h-20 w-56">
+                <Image
+                  src="/header.png"
+                  alt="MalchinCamp Logo"
+                  fill
+                  className="object-contain"
+                  priority
+                />
               </div>
-              <span className="text-2xl font-black text-gray-900 tracking-tight">
-                MALCHIN
-              </span>
             </Link>
 
             <div className="flex justify-center mb-10">
@@ -134,7 +136,7 @@ export default function ForgotPasswordPage() {
           </div>
 
           <div className="text-center text-xs text-gray-400 mt-12">
-            Developed by Malchin Camp
+            Developed by MalchinCamp
           </div>
         </div>
       </div>

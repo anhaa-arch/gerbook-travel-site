@@ -674,10 +674,10 @@ export default function HerderDashboardContent() {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    if (uploadedImages.length >= 6) {
+    if (uploadedImages.length >= 10) {
       toast({
         title: "Алдаа",
-        description: "Дээд тал 6 зураг оруулж болно",
+        description: "Дээд тал 10 зураг оруулж болно",
         variant: "destructive" as any,
       });
       event.target.value = "";
@@ -693,7 +693,7 @@ export default function HerderDashboardContent() {
         : "https://api.malchincamp.mn";
 
       for (let i = 0; i < files.length; i++) {
-        if (uploadedImages.length + i >= 6) break;
+        if (uploadedImages.length + i >= 10) break;
         const file = files[i];
         
         // Allow up to 100MB
@@ -752,11 +752,11 @@ export default function HerderDashboardContent() {
   const handleImageUrlChange = (url: string, formType: "yurt" | "product") => {
     if (!url.trim()) return;
 
-    // Check if we already have 6 images
-    if (uploadedImages.length >= 6) {
+    // Check if we already have 10 images
+    if (uploadedImages.length >= 10) {
       toast({
         title: "Алдаа",
-        description: "Дээд тал 6 зураг оруулж болно",
+        description: "Дээд тал 10 зураг оруулж болно",
         variant: "destructive" as any,
       });
       return;

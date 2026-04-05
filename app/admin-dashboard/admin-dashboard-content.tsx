@@ -765,8 +765,8 @@ export default function AdminDashboardContent() {
         ? `${campForm.province}, ${campForm.district}`
         : campForm.province;
 
-      // Optimize images - limit to 6
-      const optimizedImages = uploadedImages.slice(0, 6);
+      // Optimize images - limit to 10
+      const optimizedImages = uploadedImages.slice(0, 10);
 
       const input = {
         name: campForm.name,
@@ -854,8 +854,8 @@ export default function AdminDashboardContent() {
         ? `${campForm.province}, ${campForm.district}`
         : campForm.province;
 
-      // Optimize images - limit to 6
-      const optimizedImages = uploadedImages.slice(0, 6);
+      // Optimize images - limit to 10
+      const optimizedImages = uploadedImages.slice(0, 10);
 
       const input = {
         name: campForm.name,
@@ -1056,10 +1056,10 @@ export default function AdminDashboardContent() {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    if (uploadedImages.length >= 6) {
+    if (uploadedImages.length >= 10) {
       toast({
         title: "Алдаа",
-        description: "Дээд тал 6 зураг оруулж болно",
+        description: "Дээд тал 10 зураг оруулж болно",
         variant: "destructive" as any,
       });
       event.target.value = "";
@@ -1075,7 +1075,7 @@ export default function AdminDashboardContent() {
         : "https://api.malchincamp.mn";
 
       for (let i = 0; i < files.length; i++) {
-        if (uploadedImages.length + i >= 6) break;
+        if (uploadedImages.length + i >= 10) break;
         const file = files[i];
         
         // Allow up to 100MB
@@ -1139,10 +1139,10 @@ export default function AdminDashboardContent() {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    if (uploadedImages.length >= 6) {
+    if (uploadedImages.length >= 10) {
       toast({
         title: "Алдаа",
-        description: "Дээд тал 6 зураг оруулж болно",
+        description: "Дээд тал 10 зураг оруулж болно",
         variant: "destructive" as any,
       });
       event.target.value = "";
@@ -1158,7 +1158,7 @@ export default function AdminDashboardContent() {
         : "https://api.malchincamp.mn";
 
       for (let i = 0; i < files.length; i++) {
-        if (uploadedImages.length + i >= 6) break;
+        if (uploadedImages.length + i >= 10) break;
         const file = files[i];
         
         // Allow up to 100MB
@@ -1220,11 +1220,11 @@ export default function AdminDashboardContent() {
   const handleImageUrlChange = (url: string, formType: "yurt" | "product") => {
     if (!url.trim()) return;
 
-    // Check if we already have 6 images
-    if (uploadedImages.length >= 6) {
+    // Check if we already have 10 images
+    if (uploadedImages.length >= 10) {
       toast({
         title: "Алдаа",
-        description: "Дээд тал 6 зураг оруулж болно",
+        description: "Дээд тал 10 зураг оруулж болно",
         variant: "destructive" as any,
       });
       return;

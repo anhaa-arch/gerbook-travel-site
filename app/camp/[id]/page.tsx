@@ -667,9 +667,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="grid grid-cols-3 xs:grid-cols-4 gap-1.5 sm:gap-2">
+              <div className="grid grid-cols-5 xs:grid-cols-5 sm:grid-cols-5 gap-1.5 sm:gap-2">
                 {campData.images
-                  .slice(0, 4)
                   .map((image: string, index: number) => (
                     <button
                       key={index}
