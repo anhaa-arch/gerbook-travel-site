@@ -195,7 +195,7 @@ export default function RegisterPage() {
                 <div className="relative h-20 w-56">
                   <Image
                     src="/header.png"
-                    alt="MalchinCamp Logo"
+                    alt="Logo"
                     fill
                     className="object-contain"
                     priority
@@ -415,9 +415,7 @@ export default function RegisterPage() {
               </span>
             </div>
 
-            <div className="text-center text-xs text-gray-400 mt-6">
-              Developed by MalchinCamp
-            </div>
+
           </div>
         </div>
 

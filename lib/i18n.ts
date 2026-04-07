@@ -247,13 +247,13 @@ const resources = {
           address: "Address",
         },
       },
-      footer: {
+        footer: {
         support: "Support",
         help_center: "Help Center",
         contact_us: "Contact Us",
         language: "Language",
         current: "Current: {{lang}}",
-        copyright: "&copy; 2025 Malchin Camp. All rights reserved.",
+        copyright: "&copy; 2025 MalchinCamp. All rights reserved.",
       },
       error: {
         not_found: "Page not found.",
@@ -663,7 +663,7 @@ const resources = {
         contact_us: "Холбоо барих",
         language: "Хэл",
         current: "Одоогийн: {{lang}}",
-        copyright: "&copy; 2025 Malchin Camp. Бүх эрх хуулиар хамгаалагдсан.",
+        copyright: "&copy; 2025 МалчинКэмп. Бүх эрх хуулиар хамгаалагдсан.",
       },
       error: {
         not_found: "Хуудас олдсонгүй.",

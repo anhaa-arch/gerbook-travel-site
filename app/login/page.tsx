@@ -119,7 +119,7 @@ export default function LoginPage() {
               <div className="relative h-20 w-56">
                 <Image
                   src="/header.png"
-                  alt="MalchinCamp Logo"
+                  alt="Logo"
                   fill
                   className="object-contain"
                   priority
@@ -264,9 +264,7 @@ export default function LoginPage() {
             </span>
           </div>
 
-          <div className="text-center text-xs text-gray-400 mt-8">
-            Developed by MalchinCamp
-          </div>
+
         </div>
       </div>
 

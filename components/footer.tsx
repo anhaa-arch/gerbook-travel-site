@@ -33,9 +33,9 @@ export function Footer() {
             {/* Dot separator visible only on breakpoints larger than sm */}
             <span className="hidden sm:block opacity-40 select-none">|</span>
             
-            <a href="mailto:support@malchincamp.com" className="flex items-center gap-2.5 hover:text-emerald-700 transition-colors">
+            <a href="mailto:support@malchincamp.mn" className="flex items-center gap-2.5 hover:text-emerald-700 transition-colors">
               <Mail className="w-5 h-5 opacity-90" />
-              <span>support@malchincamp.com</span>
+              <span>support@malchincamp.mn</span>
             </a>
           </div>
 
@@ -76,7 +76,7 @@ export function Footer() {
           {/* Copyright and URL */}
           <div className="flex flex-col items-center justify-center space-y-1.5 text-center">
             <p className="text-xs sm:text-sm text-[#0F3D2E]/80 font-medium tracking-wide">
-              © {new Date().getFullYear()} Malchin Camp. Бүх эрх хуулиар хамгаалагдсан.
+              © {new Date().getFullYear()} MalchinCamp. Бүх эрх хуулиар хамгаалагдсан.
             </p>
             <a 
               href="https://malchincamp.mn" 

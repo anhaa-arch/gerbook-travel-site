@@ -47,12 +47,12 @@ export function Header() {
 
   return (
     <header className="w-full flex flex-col bg-transparent shadow-[0_4px_20px_-15px_rgba(0,0,0,0.1)] relative z-50">
-      
+
       {/* Top White Navbar Area */}
       <div className="w-full bg-white relative z-10 pt-4 sm:pt-6 pb-2">
         <div className="w-full px-4 sm:px-6 lg:px-10">
           <div className="flex items-center justify-between">
-            
+
             {/* Logo Section */}
             <Link href="/" className="flex items-center group active:scale-95 transition-transform">
               <div className="relative h-24 w-64 sm:h-[10rem] sm:w-[28rem]">
@@ -72,10 +72,10 @@ export function Header() {
 
             {/* Right side Actions (Cart & Hamburger) */}
             <div className="flex items-center space-x-3 sm:space-x-4">
-              
+
               {/* Cart Button */}
-              <Link 
-                href="/cart" 
+              <Link
+                href="/cart"
                 className="relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 hover:bg-gray-50 rounded-xl sm:rounded-2xl transition-colors active:scale-95"
                 aria-label="Сагс"
               >

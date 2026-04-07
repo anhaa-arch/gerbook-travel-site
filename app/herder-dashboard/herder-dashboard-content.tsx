@@ -1231,7 +1231,7 @@ export default function HerderDashboardContent() {
 
                       <div className="pt-2">
                         <label className="block text-sm font-semibold text-gray-700 mb-2">
-                          Зураг оруулах ({uploadedImages.length}/6)
+                          Зураг оруулах ({uploadedImages.length}/10)
                         </label>
 
                         <div className="flex space-x-2 mb-3">
@@ -1269,7 +1269,7 @@ export default function HerderDashboardContent() {
                               variant="outline"
                               onClick={() => fileInputRef.current?.click()}
                               className="w-full border-dashed"
-                              disabled={uploadedImages.length >= 6}
+                              disabled={uploadedImages.length >= 10}
                             >
                               <Upload className="w-4 h-4 mr-2" /> Сонгох
                             </Button>
@@ -1291,7 +1291,7 @@ export default function HerderDashboardContent() {
                                   input.value = "";
                                 }
                               }}
-                              disabled={uploadedImages.length >= 6}
+                              disabled={uploadedImages.length >= 10}
                             >
                               Нэмэх
                             </Button>
@@ -1867,7 +1867,7 @@ export default function HerderDashboardContent() {
                   </div>
                   <div>
                     <label className="block text-sm font-semibold text-gray-700 mb-2">
-                      Зураг оруулах ({uploadedImages.length}/6)
+                      Зураг оруулах ({uploadedImages.length}/10)
                     </label>
 
                     {/* Image Upload Mode Toggle */}
@@ -1914,10 +1914,10 @@ export default function HerderDashboardContent() {
                           variant="outline"
                           onClick={() => fileInputRef.current?.click()}
                           className="w-full"
-                          disabled={uploadedImages.length >= 6}
+                          disabled={uploadedImages.length >= 10}
                         >
                           <Upload className="w-4 h-4 mr-2" />
-                          Зураг сонгох ({uploadedImages.length}/6)
+                          Зураг сонгох ({uploadedImages.length}/10)
                         </Button>
                       </div>
                     )}
@@ -1945,7 +1945,7 @@ export default function HerderDashboardContent() {
                                 input.value = "";
                               }
                             }}
-                            disabled={uploadedImages.length >= 6}
+                            disabled={uploadedImages.length >= 10}
                           >
                             Нэмэх
                           </Button>
