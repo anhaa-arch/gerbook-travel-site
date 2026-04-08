@@ -219,7 +219,7 @@ export function Header() {
                             className="flex items-center justify-center p-3 w-full bg-[#1b7c53] hover:bg-[#156040] text-white rounded-2xl text-sm font-bold shadow-lg shadow-[#1b7c53]/20 transition-all active:scale-95"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            Бүртгүүлэх
+                            Бүртгүүлэх (Traveler)
                           </Link>
                         </div>
                       )}

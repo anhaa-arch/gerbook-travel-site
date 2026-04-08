@@ -24,7 +24,6 @@ export default function RegisterPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [activeTab, setActiveTab] = useState("traveler");
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const [showOtpModal, setShowOtpModal] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
@@ -82,14 +81,7 @@ export default function RegisterPage() {
 
   const handleVerifyOtp = async (code: string) => {
     try {
-      let role = "TRAVELER";
-      if (activeTab === "herder") {
-        role = "HERDER";
-      } else if (activeTab === "admin") {
-        role = "ADMIN";
-      } else {
-        role = "TRAVELER";
-      }
+      const role = "TRAVELER";
 
       const input = {
         email: formData.identifier,
@@ -115,14 +107,7 @@ export default function RegisterPage() {
   };
 
   const handleResendOtp = async () => {
-    let role = "TRAVELER";
-    if (activeTab === "herder") {
-      role = "HERDER";
-    } else if (activeTab === "admin") {
-      role = "ADMIN";
-    } else {
-      role = "TRAVELER";
-    }
+    const role = "TRAVELER";
 
     await requestRegistrationCode({
       email: formData.identifier,
@@ -156,14 +141,7 @@ export default function RegisterPage() {
     setPendingEmail(formData.identifier);
     setShowOtpModal(true);
 
-    let role = "TRAVELER";
-    if (activeTab === "herder") {
-      role = "HERDER";
-    } else if (activeTab === "admin") {
-      role = "ADMIN";
-    } else {
-      role = "TRAVELER";
-    }
+    const role = "TRAVELER";
 
     const input = {
       email: formData.identifier,
@@ -243,43 +221,12 @@ export default function RegisterPage() {
               <p className="text-gray-500 font-medium">Шинэ бүртгэл үүсгэх</p>
             </div>
 
-            <div className="flex bg-gray-50/50 p-1.5 rounded-2xl border border-gray-100 shadow-inner">
-              <button
-                type="button"
-                className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                  activeTab === "traveler"
-                    ? "bg-white text-[#1b7c53] shadow-md"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-                onClick={() => setActiveTab("traveler")}
-              >
-                <User className="w-4 h-4" />
-                <span>Хэрэглэгч</span>
-              </button>
-              <button
-                type="button"
-                className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                  activeTab === "herder"
-                    ? "bg-white text-[#1b7c53] shadow-md"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-                onClick={() => setActiveTab("herder")}
-              >
-                <div className="w-4 h-4">🏕️</div>
-                <span>Малчин</span>
-              </button>
-              <button
-                type="button"
-                className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-xl text-sm font-bold transition-all ${
-                  activeTab === "admin"
-                    ? "bg-white text-[#1b7c53] shadow-md"
-                    : "text-gray-500 hover:text-gray-700"
-                }`}
-                onClick={() => setActiveTab("admin")}
-              >
-                <Lock className="w-4 h-4" />
-                <span>Admin</span>
-              </button>
+            <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 text-center">
+              <p className="text-[#1b7c53] text-xs font-bold leading-relaxed">
+                Энэ хуудсаар зөвхөн traveler хэрэглэгчид бүртгүүлнэ. 
+                <br />
+                Herder, Admin эрхтэй хэрэглэгчийг админ үүсгэнэ.
+              </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">

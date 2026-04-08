@@ -259,7 +259,7 @@ export default function LoginPage() {
             <span className="text-sm text-gray-600">
               Танд бүртгэл байхгүй бол{" "}
               <Link href="/register" className="text-[#1b7c53] font-bold hover:underline">
-                Бүртгүүлэх
+                Бүртгүүлэх (Traveler)
               </Link>
             </span>
           </div>
