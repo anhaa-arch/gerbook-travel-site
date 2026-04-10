@@ -173,22 +173,22 @@ export default function HomePage() {
               {
                 icon: <Users className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
                 title: "2,000+",
-                desc: "Идэвхтэй"
+                desc: t("landing.stats.activeUsers", "Идэвхтэй")
               },
               {
                 icon: <Home className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
                 title: "100+",
-                desc: "Малчин"
+                desc: t("landing.stats.herders", "Малчин")
               },
               {
                 icon: <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
                 title: "100%",
-                desc: "Бодит"
+                desc: t("landing.stats.verified", "Бодит")
               },
               {
                 icon: <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
-                title: "Аюулгүй",
-                desc: "Баталгаат"
+                title: t("common.safe", "Аюулгүй"),
+                desc: t("landing.stats.secure", "Баталгаат")
               },
             ].map((stat, i) => (
               <div key={i} className="flex flex-col items-center text-center space-y-1 px-1">
@@ -262,7 +262,7 @@ export default function HomePage() {
                           {camp.isFeatured && (
                             <div className="bg-gradient-to-r from-amber-400/90 to-yellow-600/90 text-white px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl backdrop-blur-md border border-white/30 flex items-center gap-1 ring-1 ring-black/5">
                               <Star className="w-2.5 h-2.5 fill-white" />
-                              Онцгой хамтрагч
+                              {t("camp.partner")}
                             </div>
                           )}
                           <div className="bg-emerald-900/60 text-white px-2.5 py-1 rounded-full text-[9px] font-black uppercase tracking-widest shadow-xl backdrop-blur-md border border-white/20 ml-auto sm:ml-0 ring-1 ring-black/5">
@@ -288,7 +288,7 @@ export default function HomePage() {
                           <div className="flex items-center">
                             <Users className="w-3 h-3 sm:w-4 sm:h-4 mr-1.5 sm:mr-2 text-emerald-600 flex-shrink-0" />
                             <span className="text-[10px] sm:text-sm">
-                              {camp.capacity} зочин
+                              {camp.capacity} {t("common.guests", "зочин")}
                             </span>
                           </div>
                         </div>

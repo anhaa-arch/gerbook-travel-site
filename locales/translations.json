@@ -1,0 +1,375 @@
+{
+  "common": {
+    "search": {
+      "mn": "Хайх",
+      "en": "Search",
+      "ko": "검색"
+    },
+    "details": {
+      "mn": "Дэлгэрэнгүй",
+      "en": "View Details",
+      "ko": "상세보기"
+    },
+    "save": {
+      "mn": "Хадгалах",
+      "en": "Save",
+      "ko": "저장하기"
+    },
+    "cancel": {
+      "mn": "Цуцлах",
+      "en": "Cancel",
+      "ko": "취소하기"
+    },
+    "close": {
+      "mn": "Хаах",
+      "en": "Close",
+      "ko": "닫기"
+    },
+    "back": {
+      "mn": "Буцах",
+      "en": "Go Back",
+      "ko": "뒤로가기"
+    },
+    "loading": {
+      "mn": "Уншиж байна...",
+      "en": "Loading...",
+      "ko": "로딩 중..."
+    },
+    "error": {
+      "mn": "Алдаа гарлаа. Дахин оролдоно уу.",
+      "en": "An error occurred. Please try again.",
+      "ko": "오류가 발생했습니다. 다시 시도해 주세요."
+    },
+    "no_data": {
+      "mn": "Мэдээлэл олдсонгүй.",
+      "en": "No results found.",
+      "ko": "검색 결과가 없습니다."
+    },
+    "book_now": {
+      "mn": "Захиалах",
+      "en": "Book Now",
+      "ko": "예약하기"
+    },
+    "reserve_now": {
+      "mn": "Одоо захиалах",
+      "en": "Reserve Now",
+      "ko": "지금 예약하기"
+    },
+    "add_to_cart": {
+      "mn": "Сагсанд нэмэх",
+      "en": "Add to Cart",
+      "ko": "장바구니 담기"
+    },
+    "per_night": {
+      "mn": "шөнө",
+      "en": "night",
+      "ko": "박"
+    },
+    "currency": {
+      "mn": "₮",
+      "en": "$",
+      "ko": "₩"
+    }
+  },
+  "nav": {
+    "home": {
+      "mn": "Нүүр",
+      "en": "Home",
+      "ko": "홈"
+    },
+    "camps": {
+      "mn": "Гэр бааз",
+      "en": "Ger Camps",
+      "ko": "게르 캠프"
+    },
+    "products": {
+      "mn": "Бүтээгдэхүүн",
+      "en": "Shop",
+      "ko": "쇼핑몰"
+    },
+    "travel_routes": {
+      "mn": "Маршрут",
+      "en": "Travel Routes",
+      "ko": "여행 루트"
+    },
+    "explore_mongolia": {
+      "mn": "Аялал",
+      "en": "Explore",
+      "ko": "여행 둘러보기"
+    },
+    "login": {
+      "mn": "Нэвтрэх",
+      "en": "Sign In",
+      "ko": "로그인"
+    },
+    "register": {
+      "mn": "Бүртгүүлэх",
+      "en": "Sign Up",
+      "ko": "회원가입"
+    },
+    "logout": {
+      "mn": "Гарах",
+      "en": "Log Out",
+      "ko": "로그아웃"
+    }
+  },
+  "auth": {
+    "login": {
+      "title": {
+        "mn": "Нэвтрэх",
+        "en": "Welcome Back",
+        "ko": "다시 오신 것을 환영합니다"
+      },
+      "subtitle": {
+        "mn": "Малчин Кэмп платформд тавтай морилно уу",
+        "en": "Access your MalchinCamp account",
+        "ko": "말친캠프 계정에 로그인하세요"
+      },
+      "emailLabel": {
+        "mn": "Имэйл хаяг",
+        "en": "Email Address",
+        "ko": "이메일 주소"
+      },
+      "passwordLabel": {
+        "mn": "Нууц үг",
+        "en": "Password",
+        "ko": "비밀번호"
+      },
+      "forgotPassword": {
+        "mn": "Нууц үг мартсан?",
+        "en": "Forgot Password?",
+        "ko": "비밀번호를 잊으셨나요?"
+      },
+      "submit": {
+        "mn": "Нэвтрэх",
+        "en": "Sign In",
+        "ko": "로그인"
+      },
+      "noAccount": {
+        "mn": "Бүртгэлгүй юу?",
+        "en": "Don't have an account?",
+        "ko": "계정이 없으신가요?"
+      }
+    },
+    "register": {
+      "title": {
+        "mn": "Бүртгүүлэх",
+        "en": "Create an Account",
+        "ko": "회원가입"
+      },
+      "nameLabel": {
+        "mn": "Нэр",
+        "en": "Full Name",
+        "ko": "이름"
+      },
+      "submit": {
+        "mn": "Бүртгэл үүсгэх",
+        "en": "Create Account",
+        "ko": "계정 생성"
+      }
+    }
+  },
+  "landing": {
+    "hero": {
+      "title": {
+        "mn": "ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
+        "en": "THE UNBROKEN TRADITION OF THE STEPPE",
+        "ko": "끊어지지 않는 초원의 문화"
+      },
+      "subtitle": {
+        "mn": "Монголын гэр бааз, аялал, бүтээгдэхүүний нэгдсэн экосистем",
+        "en": "Mongolia's premier ecosystem for ger camps, tours, and nomadic products",
+        "ko": "몽골 게르 캠프, 투어, 현지 생산 제품을 위한 통합 에코시스템"
+      },
+      "cta": {
+        "mn": "Аялалаа эхлэх",
+        "en": "Start Your Adventure",
+        "ko": "여행 시작하기"
+      }
+    },
+    "stats": {
+      "activeUsers": {
+        "mn": "Идэвхтэй аялагч",
+        "en": "Active Travelers",
+        "ko": "활성 여행자"
+      },
+      "herders": {
+        "mn": "Хамтрагч малчин",
+        "en": "Partner Herders",
+        "ko": "파트너 유목민"
+      },
+      "verified": {
+        "mn": "Бодит мэдээлэл",
+        "en": "Verified Listings",
+        "ko": "검증된 정보"
+      },
+      "secure": {
+        "mn": "Баталгаат захиалга",
+        "en": "Secure Booking",
+        "ko": "안전 예약"
+      }
+    },
+    "features": {
+      "authentic": {
+        "mn": "Жинхэнэ туршлага",
+        "en": "Authentic Experience",
+        "ko": "진정성 있는 경험"
+      },
+      "authentic_desc": {
+        "mn": "Малчин ахуй, уламжлалт хэв маягийг дэргэдээс нь мэдрэх боломж",
+        "en": "Immerse yourself in authentic nomadic life and traditions",
+        "ko": "유목민의 삶과 전통을 가까이서 체험할 수 있는 기회"
+      }
+    }
+  },
+  "search": {
+    "province": {
+      "mn": "Аймаг",
+      "en": "Province",
+      "ko": "도 (Province)"
+    },
+    "district": {
+      "mn": "Сум",
+      "en": "District",
+      "ko": "군/솜 (District)"
+    },
+    "dates": {
+      "mn": "Хэзээ",
+      "en": "When",
+      "ko": "여행 일정"
+    },
+    "guests": {
+      "mn": "Зочид",
+      "en": "Guests",
+      "ko": "인원"
+    },
+    "select_province": {
+      "mn": "Аймаг сонгох",
+      "en": "Select Province",
+      "ko": "도 선택"
+    },
+    "select_district": {
+      "mn": "Сум сонгох",
+      "en": "Select District",
+      "ko": "군/솜 선택"
+    },
+    "select_dates": {
+      "mn": "Огноо сонгох",
+      "en": "Select Dates",
+      "ko": "날짜 선택"
+    }
+  },
+  "camp": {
+    "featured_camps": {
+      "mn": "Онцлох гэр баазууд",
+      "en": "Recommended Ger Camps",
+      "ko": "추천 게르 캠프"
+    },
+    "capacity": {
+      "mn": "{{count}} зочин",
+      "en": "{{count}} Guests",
+      "ko": "{{count}}명 수용"
+    },
+    "price_per_night": {
+      "mn": "₮ / шөнө",
+      "en": "$ / night",
+      "ko": "₩ / 1박"
+    },
+    "partner": {
+      "mn": "Онцгой хамтрагч",
+      "en": "Elite Partner",
+      "ko": "특별 파트너"
+    }
+  },
+  "dashboard": {
+    "title": {
+      "mn": "Хяналтын самбар",
+      "en": "Dashboard",
+      "ko": "대시보드"
+    },
+    "overview": {
+      "mn": "Тойм",
+      "en": "Overview",
+      "ko": "개요"
+    },
+    "stats": {
+      "total_bookings": {
+        "mn": "Нийт захиалга",
+        "en": "Total Bookings",
+        "ko": "총 예약 수"
+      },
+      "earnings": {
+        "mn": "Нийт орлого",
+        "en": "Total Earnings",
+        "ko": "총 수익"
+      }
+    }
+  },
+  "booking": {
+    "steps": {
+      "select_dates": {
+        "mn": "Огноо сонгох",
+        "en": "Select Dates",
+        "ko": "날짜 선택"
+      },
+      "confirmation": {
+        "mn": "Баталгаажуулах",
+        "en": "Confirmation",
+        "ko": "예약 확인"
+      }
+    },
+    "success": {
+      "mn": "Захиалга амжилттай!",
+      "en": "Booking Successful!",
+      "ko": "예약이 성공적으로 완료되었습니다!"
+    }
+  },
+  "pricing": {
+    "title": {
+      "mn": "Үнийн санал",
+      "en": "Pricing Plan",
+      "ko": "요금 안내"
+    },
+    "service_fee": {
+      "mn": "Үйлчилгээний хураамж",
+      "en": "Service Fee",
+      "ko": "서비스 수수료"
+    }
+  },
+  "faq": {
+    "title": {
+      "mn": "Түгээмэл асуулт хариулт",
+      "en": "Frequently Asked Questions",
+      "ko": "자주 묻는 질문"
+    },
+    "booking_info": {
+      "mn": "Захиалга хэрхэн хийх вэ?",
+      "en": "How do I make a booking?",
+      "ko": "예약은 어떻게 하나요?"
+    }
+  },
+  "product": {
+    "title": {
+      "mn": "Малчдын бүтээгдэхүүн",
+      "en": "Nomadic Essentials",
+      "ko": "유목민 특산품"
+    },
+    "add_to_cart_success": {
+      "mn": "Сагсанд амжилттай нэмэгдлээ",
+      "en": "Added to cart successfully",
+      "ko": "장바구니에 성공적으로 담겼습니다"
+    }
+  },
+  "travel": {
+    "routes": {
+      "mn": "Аяллын маршрутууд",
+      "en": "Travel Itineraries",
+      "ko": "추천 여행 코스"
+    },
+    "planning": {
+      "mn": "Аялал төлөвлөлт",
+      "en": "Trip Planner",
+      "ko": "여정 플래너"
+    }
+  }
+}

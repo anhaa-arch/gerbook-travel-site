@@ -1,5 +1,6 @@
 import i18n from "i18next"
 import { initReactI18next } from "react-i18next"
+import translations from "../locales/translations.json"
 
 // Translation resources
 const resources = {
@@ -824,6 +825,43 @@ const resources = {
     },
   },
 }
+
+// Ensure Korean is available in resources
+;(resources as any).ko = { translation: {} }
+
+function mergeNewTranslations() {
+  const t: any = translations;
+  const langs = ['mn', 'en', 'ko'];
+  
+  for (const namespace in t) {
+    for (const key in t[namespace]) {
+      langs.forEach(lang => {
+        let r = (resources as any)[lang].translation;
+        if (!r[namespace]) r[namespace] = {};
+        
+        // Deep copy nested structures
+        if (typeof t[namespace][key] === 'object' && !t[namespace][key]['mn'] && Object.keys(t[namespace][key]).length > 0) {
+            if (!r[namespace][key]) r[namespace][key] = {};
+            // Simplified: Assuming nest depth is maximum 1 for now like auth.login.title
+            for (const subKey in t[namespace][key]) {
+               let value = t[namespace][key][subKey][lang] || t[namespace][key][subKey]['mn'] || t[namespace][key][subKey]['en'];
+               r[namespace][key][subKey] = value;
+            }
+        } else {
+            let value = t[namespace][key][lang];
+            // Fallbacks
+            if (!value && lang === 'ko') value = t[namespace][key]['mn'];
+            if (!value) value = t[namespace][key]['en'];
+            
+            if (value) {
+                r[namespace][key] = value;
+            }
+        }
+      });
+    }
+  }
+}
+mergeNewTranslations();
 
 // Initialize i18n
 i18n.use(initReactI18next).init({

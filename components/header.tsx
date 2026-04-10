@@ -6,6 +6,7 @@ import Image from "next/image";
 import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 
 const LANGUAGES = [
@@ -15,11 +16,17 @@ const LANGUAGES = [
 ];
 
 export function Header() {
+  const { t, i18n } = useTranslation();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
   const { user, isAuthenticated, logout } = useAuth();
   const { itemCount } = useCart();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
+
+  const handleLanguageChange = (langCode: string) => {
+    i18n.changeLanguage(langCode);
+    setIsMobileMenuOpen(false);
+  };
 
   useEffect(() => {
     setIsMounted(true);
@@ -125,7 +132,7 @@ export function Header() {
                           <div className="w-10 h-10 bg-[#1b7c53]/10 rounded-xl flex items-center justify-center mr-3 group-hover:bg-[#1b7c53]/20 transition-colors">
                             <ShoppingBag className="w-5 h-5 text-[#1b7c53]" />
                           </div>
-                          <span className="text-sm text-gray-900 font-bold">Бүтээгдэхүүн</span>
+                          <span className="text-sm text-gray-900 font-bold">{t("nav.products", "Бүтээгдэхүүн")}</span>
                         </Link>
                         <Link
                           href="/events"
@@ -144,7 +151,7 @@ export function Header() {
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-2 text-[10px] text-[#1b7c53] font-black uppercase tracking-widest">
                             <Globe className="w-3.5 h-3.5" />
-                            <span>Хэл сонгох</span>
+                            <span>{t("footer.language", "Хэл сонгох")}</span>
                           </div>
                           <div className="h-1 w-8 bg-[#1b7c53]/20 rounded-full"></div>
                         </div>
@@ -152,11 +159,11 @@ export function Header() {
                           {LANGUAGES.map((lang, index) => (
                             <button
                               key={index}
-                              className="flex items-center space-x-2.5 p-2 bg-white rounded-2xl border border-gray-100 shadow-sm active:scale-95 transition-all hover:border-[#1b7c53]/30 hover:bg-[#1b7c53]/5 group"
-                              onClick={() => setIsMobileMenuOpen(false)}
+                              className={`flex items-center space-x-2.5 p-2 rounded-2xl border transition-all group ${i18n.language === lang.code ? 'bg-[#1b7c53]/10 border-[#1b7c53]/30' : 'bg-white border-gray-100 hover:border-[#1b7c53]/30 hover:bg-[#1b7c53]/5'}`}
+                              onClick={() => handleLanguageChange(lang.code)}
                             >
                               <span className="text-lg sm:text-xl group-hover:scale-110 transition-transform">{lang.flag}</span>
-                              <span className="text-[11px] sm:text-xs font-bold text-gray-700 group-hover:text-[#1b7c53] transition-colors">{lang.name}</span>
+                              <span className={`text-[11px] sm:text-xs font-bold transition-colors ${i18n.language === lang.code ? 'text-[#1b7c53]' : 'text-gray-700 group-hover:text-[#1b7c53]'}`}>{lang.name}</span>
                             </button>
                           ))}
                         </div>
@@ -189,7 +196,9 @@ export function Header() {
                               className="w-full flex items-center justify-center p-3 bg-gray-900 hover:bg-black text-white rounded-2xl transition-all text-sm font-bold"
                               onClick={() => setIsMobileMenuOpen(false)}
                             >
-                              Хянах самбар
+                              {user?.role === "ADMIN" ? t("nav.admin_dashboard", "Админ самбар") : 
+                               user?.role === "HERDER" ? t("nav.herder_dashboard", "Малчны самбар") : 
+                               t("nav.user_dashboard", "Хэрэглэгчийн самбар")}
                             </Link>
 
                             <button
@@ -200,7 +209,7 @@ export function Header() {
                               }}
                             >
                               <LogOut className="w-4 h-4 mr-2" />
-                              Гарах
+                              {t("nav.logout", "Гарах")}
                             </button>
                           </div>
                         </div>
@@ -211,7 +220,7 @@ export function Header() {
                             className="flex items-center justify-center p-3 w-full bg-white border-2 border-gray-100 hover:border-gray-200 rounded-2xl text-sm font-bold text-gray-900 transition-colors"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            Нэвтрэх
+                            {t("nav.login", "Нэвтрэх")}
                           </Link>
 
                           <Link
@@ -219,7 +228,7 @@ export function Header() {
                             className="flex items-center justify-center p-3 w-full bg-[#1b7c53] hover:bg-[#156040] text-white rounded-2xl text-sm font-bold shadow-lg shadow-[#1b7c53]/20 transition-all active:scale-95"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            Бүртгүүлэх (Traveler)
+                            {t("nav.register", "Бүртгүүлэх")}
                           </Link>
                         </div>
                       )}
