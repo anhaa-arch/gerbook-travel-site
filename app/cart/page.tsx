@@ -20,6 +20,7 @@ import { useState } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { gql, useMutation } from "@apollo/client";
 import { PaymentModal } from "@/components/payment-modal";
+import { useTranslation } from "react-i18next";
 
 // Mutation for creating a product order
 const CREATE_ORDER = gql`
@@ -47,6 +48,7 @@ export default function CartPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
   const [isProcessing, setIsProcessing] = useState(false);
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
@@ -76,8 +78,8 @@ export default function CartPage() {
       if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
         toast({
-          title: "Мэдээлэл дутуу байна",
-          description: "Хүргэлтийн мэдээллийг гүйцэд бөглөнө үү.",
+          title: t("common.error", "Алдаа"),
+          description: t("cart.shippingIncomplete", "Хүргэлтийн мэдээллийг гүйцэд бөглөнө үү."),
           variant: "destructive",
         });
         return;
@@ -136,8 +138,8 @@ export default function CartPage() {
     } catch (error) {
       console.error("Checkout error:", error);
       toast({
-        title: "Алдаа",
-        description: "Захиалга үүсгэхэд алдаа гарлаа. Дахин оролдоно уу.",
+        title: t("common.error", "Алдаа"),
+        description: t("cart.checkoutError", "Захиалга үүсгэхэд алдаа гарлаа. Дахин оролдоно уу."),
         variant: "destructive",
       });
     } finally {
@@ -149,8 +151,8 @@ export default function CartPage() {
     setShowPaymentModal(false);
 
     toast({
-      title: "Амжилттай",
-      description: "Таны захиалга бүртгэгдлээ. Бид удахгүй холбогдох болно.",
+      title: t("cart.paymentSuccessTitle", "Амжилттай"),
+      description: t("cart.paymentSuccessDesc", "Таны захиалга бүртгэгдлээ. Бид удахгүй холбогдох болно."),
     });
 
     // Clear relevant local storage
@@ -171,13 +173,13 @@ export default function CartPage() {
         <div className="w-20 h-20 bg-white rounded-3xl flex items-center justify-center shadow-sm mb-6">
           <ShoppingBag className="w-10 h-10 text-gray-300" />
         </div>
-        <h1 className="text-2xl font-black text-gray-900 mb-2">Таны сагс хоосон байна</h1>
+        <h1 className="text-2xl font-black text-gray-900 mb-2">{t("cart.empty", "Таны сагс хоосон байна")}</h1>
         <p className="text-gray-500 mb-8 max-w-xs text-center font-medium">
-          Та манай бүтээгдэхүүн болон амралтын баазуудаас сонголтоо хийн сагсандаа нэмээрэй.
+          {t("cart.emptyDesc", "Та манай бүтээгдэхүүн болон амралтын баазуудаас сонголтоо хийн сагсандаа нэмээрэй.")}
         </p>
         <Link href="/listings">
           <Button className="bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl px-8 h-12 font-black shadow-lg shadow-emerald-100 transition-all active:scale-95">
-            Худалдан авалт хийх
+            {t("cart.shopNow", "Худалдан авалт хийх")}
           </Button>
         </Link>
       </div>
@@ -188,12 +190,12 @@ export default function CartPage() {
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="max-w-7xl mx-auto px-4 py-8 sm:px-6 lg:px-8">
         <div className="flex items-center space-x-2 text-gray-400 mb-8">
-          <Link href="/" className="hover:text-emerald-600 transition-colors text-xs font-black uppercase tracking-widest">Нүүр</Link>
+          <Link href="/" className="hover:text-emerald-600 transition-colors text-xs font-black uppercase tracking-widest">{t("nav.home", "Нүүр")}</Link>
           <ChevronRight className="w-4 h-4" />
-          <span className="text-gray-900 text-xs font-black uppercase tracking-widest">Сагс</span>
+          <span className="text-gray-900 text-xs font-black uppercase tracking-widest">{t("cart.title", "Миний сагс")}</span>
         </div>
 
-        <h1 className="text-3xl sm:text-4xl font-black text-gray-900 mb-10 tracking-tight">Миний сагс</h1>
+        <h1 className="text-3xl sm:text-4xl font-black text-gray-900 mb-10 tracking-tight">{t("cart.title", "Миний сагс")}</h1>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
           {/* Items List */}
@@ -202,7 +204,7 @@ export default function CartPage() {
             {cartItems.length > 0 && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between px-2">
-                  <h2 className="text-sm font-black uppercase tracking-widest text-gray-400">Бүтээгдэхүүн ({cartItems.length})</h2>
+                  <h2 className="text-sm font-black uppercase tracking-widest text-gray-400">{t("product.title", "Бүтээгдэхүүнүүд")} ({cartItems.length})</h2>
                 </div>
                 {cartItems.map((item) => (
                   <Card key={item.id} className="border-none shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-3xl overflow-hidden bg-white group transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
@@ -226,8 +228,8 @@ export default function CartPage() {
                             </button>
                           </div>
                           <div className="flex items-center space-x-3 mt-2 text-xs font-bold text-gray-500">
-                            <span className="bg-gray-100 px-2 py-1 rounded-md">Бараа</span>
-                            <span className="text-emerald-600">Нөөцөд байгаа</span>
+                            <span className="bg-gray-100 px-2 py-1 rounded-md">{t("cart.itemLabel", "Бараа")}</span>
+                            <span className="text-emerald-600">{t("cart.inStock", "Нөөцөд байгаа")}</span>
                           </div>
                           <div className="flex items-center justify-between mt-4 sm:mt-6">
                             <div className="flex items-center border border-gray-100 rounded-xl p-1 bg-gray-50">
@@ -262,7 +264,7 @@ export default function CartPage() {
             {bookingCart.length > 0 && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between px-2 pt-4">
-                  <h2 className="text-sm font-black uppercase tracking-widest text-gray-400">Амралт бааз ({bookingCart.length})</h2>
+                  <h2 className="text-sm font-black uppercase tracking-widest text-gray-400">{t("nav.camps", "Гэр бааз")} ({bookingCart.length})</h2>
                 </div>
                 {bookingCart.map((item) => (
                   <Card key={item.id} className="border-none shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-3xl overflow-hidden bg-white group transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
@@ -287,7 +289,7 @@ export default function CartPage() {
                           </div>
                           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 mb-4">
                             <div className="flex items-center text-xs font-bold text-gray-500">
-                              <span className="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md mr-2 uppercase tracking-tighter">Байрлах</span>
+                              <span className="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md mr-2 uppercase tracking-tighter">{t("cart.stayLabel", "Байрлах")}</span>
                               <span>{item.startDate} - {item.endDate}</span>
                             </div>
                           </div>
@@ -307,7 +309,7 @@ export default function CartPage() {
 
             <Link href="/listings?tab=products" className="inline-flex items-center text-sm font-black text-emerald-600 hover:text-emerald-700 transition-colors px-2">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              ДАХИН СОНГОЛТ ХИЙХ
+              {t("cart.continueShopping", "ДАХИН СОНГОЛТ ХИЙХ")}
             </Link>
           </div>
 
@@ -315,31 +317,31 @@ export default function CartPage() {
           <div className="lg:col-span-4 sticky top-24">
             <Card className="border-none shadow-[0_4px_30px_rgba(0,0,0,0.05)] rounded-[2.5rem] bg-white overflow-hidden">
               <CardContent className="p-8">
-                <h2 className="text-xl font-black text-gray-900 mb-8 border-b border-gray-50 pb-6">Захиалгын дүн</h2>
+                <h2 className="text-xl font-black text-gray-900 mb-8 border-b border-gray-50 pb-6">{t("cart.orderSummary", "Захиалгын дүн")}</h2>
 
                 <div className="space-y-4 mb-8">
                   <div className="flex justify-between text-sm font-bold text-gray-500">
-                    <span>Нийт бараа</span>
+                    <span>{t("cart.totalItems", "Нийт бараа")}</span>
                     <span className="text-gray-900">₮{totalPrice.toLocaleString()}</span>
                   </div>
                   <div className="flex justify-between text-sm font-bold text-gray-500">
-                    <span>Хүргэлт</span>
-                    <span className="text-emerald-600">Үнэгүй</span>
+                    <span>{t("cart.shippingFee", "Хүргэлт")}</span>
+                    <span className="text-emerald-600">{t("cart.free", "Үнэгүй")}</span>
                   </div>
                   <div className="h-px bg-gray-50 my-6"></div>
                   <div className="flex justify-between items-end">
-                    <span className="text-base font-black text-gray-900 uppercase tracking-widest">Нийт дүн</span>
+                    <span className="text-base font-black text-gray-900 uppercase tracking-widest">{t("cart.total", "Нийт дүн")}</span>
                     <span className="text-3xl font-black text-gray-900 tracking-tighter">₮{totalPrice.toLocaleString()}</span>
                   </div>
                 </div>
 
                 {cartItems.length > 0 && (
                   <div className="space-y-4 mb-8 bg-gray-50/50 p-4 rounded-2xl border border-gray-100">
-                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-4">Хүргэлтийн мэдээлэл</h3>
+                    <h3 className="text-sm font-black text-gray-900 uppercase tracking-widest mb-4">{t("cart.shippingInfo", "Хүргэлтийн мэдээлэл")}</h3>
                     <div>
                       <input 
                         className={`w-full px-4 py-3 rounded-xl border ${formErrors.name ? 'border-red-500' : 'border-gray-200'} text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500`}
-                        placeholder="Хүлээн авах хүний нэр"
+                        placeholder={t("cart.receiverName", "Хүлээн авах хүний нэр")}
                         value={receiverName}
                         onChange={e => setReceiverName(e.target.value)}
                       />
@@ -349,7 +351,7 @@ export default function CartPage() {
                       <input 
                         type="tel"
                         className={`w-full px-4 py-3 rounded-xl border ${formErrors.phone ? 'border-red-500' : 'border-gray-200'} text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500`}
-                        placeholder="Утасны дугаар (8 оронтой)"
+                        placeholder={t("cart.receiverPhone", "Утасны дугаар (8 оронтой)")}
                         value={receiverPhone}
                         onChange={e => setReceiverPhone(e.target.value.replace(/\D/g, '').slice(0, 8))}
                         maxLength={8}
@@ -359,7 +361,7 @@ export default function CartPage() {
                     <div>
                       <textarea 
                         className={`w-full px-4 py-3 rounded-xl border ${formErrors.address ? 'border-red-500' : 'border-gray-200'} text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 resize-none`}
-                        placeholder="Хүргэлтийн хаяг (Дэлгэрэнгүй)"
+                        placeholder={t("cart.receiverAddr", "Хүргэлтийн хаяг (Дэлгэрэнгүй)")}
                         rows={2}
                         value={shippingAddress}
                         onChange={e => setShippingAddress(e.target.value)}
@@ -372,11 +374,11 @@ export default function CartPage() {
                 <div className="space-y-4 mb-8">
                   <div className="flex items-center space-x-3 text-[11px] text-gray-400 font-bold uppercase">
                     <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                    <span>Баталгаат төлбөр тооцоо</span>
+                    <span>{t("cart.securePayment", "Баталгаат төлбөр тооцоо")}</span>
                   </div>
                   <div className="flex items-center space-x-3 text-[11px] text-gray-400 font-bold uppercase">
                     <Truck className="w-4 h-4 text-emerald-500" />
-                    <span>Шуурхай хүргэлтийн үйлчилгээ</span>
+                    <span>{t("cart.expressDelivery", "Шуурхай хүргэлтийн үйлчилгээ")}</span>
                   </div>
                 </div>
 
@@ -385,11 +387,11 @@ export default function CartPage() {
                   disabled={isProcessing}
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl h-14 font-black text-lg transition-all active:scale-95 shadow-xl shadow-emerald-100 disabled:opacity-50"
                 >
-                  {isProcessing ? "Уншиж байна..." : "Захиалах"}
+                  {isProcessing ? t("common.loading", "Уншиж байна...") : t("cart.checkout", "Захиалах")}
                 </Button>
 
                 <p className="text-[10px] text-gray-400 text-center mt-6 font-bold uppercase leading-relaxed px-4">
-                  Төлбөр төлөх товчийг дарснаар та манай үйлчилгээний нөхцлийг зөвшөөрч буйгаа баталгаажуулна.
+                  {t("cart.termsNotice", "Төлбөр төлөх товчийг дарснаар та манай үйлчилгээний нөхцлийг зөвшөөрч буйгаа баталгаажуулна.")}
                 </p>
               </CardContent>
             </Card>

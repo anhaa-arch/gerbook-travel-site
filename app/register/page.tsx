@@ -14,6 +14,7 @@ import OtpModal from "@/components/otp-modal";
 import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useTranslation } from "react-i18next";
 
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
@@ -31,6 +32,7 @@ export default function RegisterPage() {
   const { requestRegistrationCode, register, googleSignIn } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { id, value, type, checked } = e.target;
@@ -57,12 +59,11 @@ export default function RegisterPage() {
         });
 
         toast({
-          title: "Амжилттай нэвтэрлээ",
-          description: "Google-ээр амжилттай нэвтэрлээ.",
+          title: t("auth.login.messages.success", "Амжилттай нэвтэрлээ"),
         });
       } catch (err: any) {
         toast({
-          title: "Google нэвтрэлт амжилтгүй",
+          title: t("auth.login.messages.googleError", "Google нэвтрэлт амжилтгүй"),
           description: err.message,
           variant: "destructive",
         });
@@ -72,8 +73,7 @@ export default function RegisterPage() {
     },
     onError: () => {
       toast({
-        title: "Google нэвтрэлт амжилтгүй",
-        description: "Google-ээр нэвтрэхэд алдаа гарлаа.",
+        title: t("auth.login.messages.googleError", "Google нэвтрэлт амжилтгүй"),
         variant: "destructive",
       });
     },
@@ -92,14 +92,13 @@ export default function RegisterPage() {
 
       await register(input, code);
       toast({
-        title: "Бүртгэл амжилттай",
-        description: "Таны бүртгэл амжилттай хийгдлээ.",
+        title: t("auth.register.messages.success", "Амжилттай бүртгүүллээ")
       });
       router.push("/");
     } catch (err: any) {
       toast({
-        title: "Алдаа",
-        description: err.message || "Баталгаажуулах код буруу байна",
+        title: t("common.error", "Алдаа"),
+        description: err.message || t("common.error"),
         variant: "destructive",
       });
       throw err;
@@ -122,8 +121,8 @@ export default function RegisterPage() {
 
     if (formData.password !== formData.confirmPassword) {
       toast({
-        title: "Алдаа",
-        description: "Нууц үгүүд таарахгүй байна",
+        title: t("common.error", "Алдаа"),
+        description: t("auth.register.messages.errorPassword", "Нууц үгүүд таарахгүй байна"),
         variant: "destructive",
       });
       return;
@@ -131,8 +130,8 @@ export default function RegisterPage() {
 
     if (!formData.acceptTerms) {
       toast({
-        title: "Алдаа",
-        description: "Та үйлчилгээний нөхцөлийг зөвшөөрөх ёстой",
+        title: t("common.error", "Алдаа"),
+        description: t("auth.register.messages.errorEmpty", "Мэдээллээ бүрэн оруулна уу"),
         variant: "destructive",
       });
       return;
@@ -217,22 +216,19 @@ export default function RegisterPage() {
                 </div>
               </div>
 
-              <h2 className="text-3xl font-black text-gray-900 mb-2">Бүртгүүлэх</h2>
-              <p className="text-gray-500 font-medium">Шинэ бүртгэл үүсгэх</p>
+              <h2 className="text-3xl font-black text-gray-900 mb-2">{t("auth.register.title", "Бүртгүүлэх")}</h2>
             </div>
 
             <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 text-center">
               <p className="text-[#1b7c53] text-xs font-bold leading-relaxed">
-                Энэ хуудсаар зөвхөн traveler хэрэглэгчид бүртгүүлнэ. 
-                <br />
-                Herder, Admin эрхтэй хэрэглэгчийг админ үүсгэнэ.
+                {t("auth.register.roleTraveler", "Аялагч (Traveler)")} 
               </p>
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="space-y-1.5">
                 <Label htmlFor="identifier" className="text-gray-700 font-semibold text-sm ml-1">
-                  Имэйл хаяг
+                  {t("auth.register.emailLabel", "Имэйл хаяг")}
                 </Label>
                 <div className="relative">
                   <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -241,7 +237,7 @@ export default function RegisterPage() {
                     type="email"
                     value={formData.identifier}
                     onChange={handleInputChange}
-                    placeholder="example@mail.com"
+                    placeholder={t("auth.register.emailPlaceholder", "Имэйлээ оруулна уу")}
                     required
                     className="pl-11 bg-gray-50/50 border-gray-200 rounded-2xl h-12 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                   />
@@ -250,7 +246,7 @@ export default function RegisterPage() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="password" className="text-gray-700 font-semibold text-sm ml-1">
-                  Нууц үг
+                  {t("auth.register.passwordLabel", "Нууц үг")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -275,7 +271,7 @@ export default function RegisterPage() {
 
               <div className="space-y-1.5">
                 <Label htmlFor="confirmPassword" className="text-gray-700 font-semibold text-sm ml-1">
-                  Нууц үг давтах
+                  {t("auth.register.passwordLabel", "Нууц үг")}
                 </Label>
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -308,15 +304,12 @@ export default function RegisterPage() {
                   className="mt-1 border-gray-300 data-[state=checked]:bg-[#1b7c53] data-[state=checked]:border-[#1b7c53]"
                 />
                 <Label htmlFor="acceptTerms" className="text-xs text-gray-500 leading-relaxed cursor-pointer">
-                  Би{" "}
                   <Link href="/terms" className="text-[#1b7c53] font-bold hover:underline">
-                    Үйлчилгээний нөхцөл
+                    {t("infoPages.terms.title", "Үйлчилгээний нөхцөл")}
                   </Link>{" "}
-                  болон{" "}
                   <Link href="/privacy" className="text-[#1b7c53] font-bold hover:underline">
-                    Нууцлалын бодлогыг
-                  </Link>{" "}
-                  зөвшөөрч байна.
+                    {t("infoPages.privacy.title", "Нууцлалын бодлого")}
+                  </Link>
                 </Label>
               </div>
 
@@ -325,7 +318,7 @@ export default function RegisterPage() {
                 className="w-full bg-[#1b7c53] hover:bg-[#156040] text-white py-6 rounded-2xl font-bold shadow-lg shadow-[#1b7c53]/20 transition-all active:scale-[0.98] mt-6"
                 disabled={loading}
               >
-                {loading ? "Түр хүлээнэ үү..." : "Бүртгүүлэх"}
+                {loading ? t("auth.register.loading", "Түр хүлээнэ үү...") : t("auth.register.submit", "Бүртгүүлэх")}
               </Button>
             </form>
 
@@ -334,7 +327,7 @@ export default function RegisterPage() {
                 <div className="w-full border-t border-gray-100" />
               </div>
               <div className="relative flex justify-center text-xs uppercase tracking-widest text-gray-400">
-                <span className="px-3 bg-white">Эсвэл Google-ийг ашиглах</span>
+                <span className="px-3 bg-white">{t("common.or", "Эсвэл")}</span>
               </div>
             </div>
 
@@ -350,14 +343,14 @@ export default function RegisterPage() {
                 <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
                 <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
               </svg>
-              <span>Google-ээр нэвтрэх</span>
+              <span>{t("auth.register.googleAuth", "Google-ээр бүртгүүлэх")}</span>
             </Button>
 
             <div className="text-center">
               <span className="text-sm text-gray-500">
-                Танд бүртгэл байгаа бол{" "}
+                {t("auth.register.hasAccount", "Бүртгэлтэй юу?")}{" "}
                 <Link href="/login" className="text-[#1b7c53] font-bold hover:underline">
-                  Нэвтрэх
+                  {t("auth.register.loginLink", "Нэвтрэх")}
                 </Link>
               </span>
             </div>
@@ -369,28 +362,28 @@ export default function RegisterPage() {
         {/* Sidebar for larger screens */}
         <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-green-600 to-green-800 items-center justify-center p-8">
           <div className="text-center text-white max-w-md">
-            <h2 className="text-4xl font-black mb-6 drop-shadow-md uppercase">Тасалж болохгүй талын соёл</h2>
+            <h2 className="text-4xl font-black mb-6 drop-shadow-md uppercase">{t("sidebarQuotes.mainTitle", "Тасалж болохгүй талын соёл")}</h2>
             <p className="text-xl mb-10 opacity-90 font-bold tracking-wide uppercase">
-              Нүүдэлчин ахуй соёл Монголын баялаг
+              {t("sidebarQuotes.subTitle", "Нүүдэлчин ахуй соёл Монголын баялаг")}
             </p>
             <div className="space-y-6">
               <div className="flex items-center justify-center space-x-4 group">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="text-2xl">🏕️</span>
                 </div>
-                <span className="text-xl font-bold">Гэр амралт</span>
+                <span className="text-xl font-bold">{t("sidebarQuotes.feature1", "Гэр амралт")}</span>
               </div>
               <div className="flex items-center justify-center space-x-4 group">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="text-2xl">🌄</span>
                 </div>
-                <span className="text-xl font-bold">Байгалийн сайхан</span>
+                <span className="text-xl font-bold">{t("sidebarQuotes.feature2", "Байгалийн сайхан")}</span>
               </div>
               <div className="flex items-center justify-center space-x-4 group">
                 <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                   <span className="text-2xl">🐎</span>
                 </div>
-                <span className="text-xl font-bold">Малчны амьдрал</span>
+                <span className="text-xl font-bold">{t("sidebarQuotes.feature3", "Малчны амьдрал")}</span>
               </div>
             </div>
           </div>

@@ -1355,11 +1355,11 @@ export default function AdminDashboardContent() {
         </div>
         <div className="mb-4 sm:mb-6 md:mb-8">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 font-display">
-            {t("admin.title", "Админ самбар")}
+            {t("dashboard.admin.title", "Админ самбар")}
           </h1>
           <p className="text-gray-600 text-xs sm:text-sm md:text-base font-medium mt-1">
             {t(
-              "admin.subtitle",
+              "dashboard.admin.subtitle",
               "Платформоо удирдаж, бүх үйл ажиллагааг хянаарай"
             )}
           </p>
@@ -1377,56 +1377,56 @@ export default function AdminDashboardContent() {
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <BarChart3 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>Тойм</span>
+                <span>{t("dashboard.admin.tabs.overview", "Тойм")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="users"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>Хэрэглэгчид</span>
+                <span>{t("dashboard.admin.tabs.users", "Хэрэглэгчид")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="camps"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <Home className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>Баазууд</span>
+                <span>{t("dashboard.admin.tabs.camps", "Баазууд")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="products"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>Бараа</span>
+                <span>{t("dashboard.admin.tabs.products", "Бараа")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="orders"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>Захиалга</span>
+                <span>{t("dashboard.admin.tabs.orders", "Захиалга")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="content"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <Edit className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>Агуулга</span>
+                <span>{t("dashboard.admin.tabs.content", "Агуулга")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="events"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>Арга хэмжээ</span>
+                <span>{t("dashboard.admin.tabs.events", "Арга хэмжээ")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="event-bookings"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[80px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <ShoppingBag className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>А.Х Захиалга</span>
+                <span>{t("dashboard.admin.tabs.eventBookings", "А.Х Захиалга")}</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -1437,7 +1437,7 @@ export default function AdminDashboardContent() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xs sm:text-sm font-semibold">
-                    {t("admin.stats.total_users")}
+                    {t("dashboard.admin.stats.total_users", "Нийт хэрэглэгч")}
                   </CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -1446,7 +1446,7 @@ export default function AdminDashboardContent() {
                     {stats.totalusers}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
-                    {t("admin.stats.from_last_month", { count: 12 })}
+                    {t("dashboard.admin.stats.from_last_month", "Сүүлийн сараас +{{count}}", { count: 12 })}
                   </p>
                 </CardContent>
               </Card>
@@ -1454,7 +1454,7 @@ export default function AdminDashboardContent() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xs sm:text-sm font-semibold">
-                    {t("admin.stats.total_camps")}
+                    {t("dashboard.admin.stats.total_camps", "Нийт бааз")}
                   </CardTitle>
                   <Home className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -1463,7 +1463,7 @@ export default function AdminDashboardContent() {
                     {stats.totalCamps}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
-                    {t("admin.stats.from_last_month", { count: 5 })}
+                    {t("dashboard.admin.stats.from_last_month", "Сүүлийн сараас +{{count}}", { count: 5 })}
                   </p>
                 </CardContent>
               </Card>
@@ -1471,7 +1471,7 @@ export default function AdminDashboardContent() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xs sm:text-sm font-semibold">
-                    {t("admin.stats.total_products")}
+                    {t("dashboard.admin.stats.total_products", "Нийт бараа")}
                   </CardTitle>
                   <Package className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -1480,7 +1480,7 @@ export default function AdminDashboardContent() {
                     {stats.totalProducts}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
-                    {t("admin.stats.from_last_month", { count: 8 })}
+                    {t("dashboard.admin.stats.from_last_month", "Сүүлийн сараас +{{count}}", { count: 8 })}
                   </p>
                 </CardContent>
               </Card>
@@ -1488,7 +1488,7 @@ export default function AdminDashboardContent() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xs sm:text-sm font-semibold">
-                    {t("admin.stats.total_orders")}
+                    {t("dashboard.admin.stats.total_orders", "Нийт захиалга")}
                   </CardTitle>
                   <ShoppingBag className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -1497,7 +1497,7 @@ export default function AdminDashboardContent() {
                     {stats.totalOrders}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
-                    {t("admin.stats.from_last_month", { count: 15 })}
+                    {t("dashboard.admin.stats.from_last_month", "Сүүлийн сараас +{{count}}", { count: 15 })}
                   </p>
                 </CardContent>
               </Card>
@@ -1507,7 +1507,7 @@ export default function AdminDashboardContent() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg sm:text-xl font-bold">
-                    {t("admin.orders.title")}
+                    {t("dashboard.admin.orders.title", "Сүүлийн захиалгууд")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -1549,41 +1549,41 @@ export default function AdminDashboardContent() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg sm:text-xl font-bold">
-                    {t("admin.stats.activity")}
+                    {t("dashboard.admin.stats.activity", "Үйл ажиллагаа")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-sm sm:text-base font-medium">
-                        {t("admin.stats.new_users")}
+                        {t("dashboard.admin.stats.new_users", "Шинэ хэрэглэгч")}
                       </span>
                       <span className="font-bold text-sm sm:text-base">
-                        {t("admin.stats.today", { count: todayusers })}
+                        {t("dashboard.admin.stats.today", "Өнөөдөр {{count}}", { count: todayusers })}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm sm:text-base font-medium">
-                        {t("admin.stats.new_camps")}
+                        {t("dashboard.admin.stats.new_camps", "Шинэ бааз")}
                       </span>
                       <span className="font-bold text-sm sm:text-base">
-                        {t("admin.stats.today", { count: todayCamps })}
+                        {t("dashboard.admin.stats.today", "Өнөөдөр {{count}}", { count: todayCamps })}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm sm:text-base font-medium">
-                        {t("admin.stats.new_products")}
+                        {t("dashboard.admin.stats.new_products", "Шинэ бараа")}
                       </span>
                       <span className="font-bold text-sm sm:text-base">
-                        {t("admin.stats.today", { count: todayProducts })}
+                        {t("dashboard.admin.stats.today", "Өнөөдөр {{count}}", { count: todayProducts })}
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <span className="text-sm sm:text-base font-medium">
-                        {t("admin.stats.completed_bookings")}
+                        {t("dashboard.admin.stats.completed_bookings", "Баталгаажсан захиалга")}
                       </span>
                       <span className="font-bold text-sm sm:text-base">
-                        {t("admin.stats.today", { count: todayBookings })}
+                        {t("dashboard.admin.stats.today", "Өнөөдөр {{count}}", { count: todayBookings })}
                       </span>
                     </div>
                   </div>

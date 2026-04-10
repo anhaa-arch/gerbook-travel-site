@@ -14,6 +14,7 @@ import { useRouter } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { gql, useMutation } from "@apollo/client";
 import { useGoogleLogin } from "@react-oauth/google";
+import { useTranslation } from "react-i18next";
 
 const LOGIN_MUTATION = gql`
   mutation Login($email: String!, $password: String!) {
@@ -38,6 +39,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const { login, googleSignIn } = useAuth();
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleGoogleLogin = useGoogleLogin({
     onSuccess: async (tokenResponse) => {
@@ -56,12 +58,11 @@ export default function LoginPage() {
         });
 
         toast({
-          title: "Амжилттай нэвтэрлээ",
-          description: "Google-ээр амжилттай нэвтэрлээ.",
+          title: t("auth.login.messages.success", "Амжилттай нэвтэрлээ"),
         });
       } catch (err: any) {
         toast({
-          title: "Google нэвтрэлт амжилтгүй",
+          title: t("auth.login.messages.googleError", "Google нэвтрэлт амжилтгүй"),
           description: err.message,
           variant: "destructive",
         });
@@ -71,8 +72,7 @@ export default function LoginPage() {
     },
     onError: () => {
       toast({
-        title: "Google нэвтрэлт амжилтгүй",
-        description: "Google-ээр нэвтрэхэд алдаа гарлаа.",
+        title: t("auth.login.messages.googleError", "Google нэвтрэлт амжилтгүй"),
         variant: "destructive",
       });
     },
@@ -84,8 +84,8 @@ export default function LoginPage() {
 
     if (!identifier || !password) {
       toast({
-        title: "Алдаа",
-        description: "Мэдээллээ бүрэн оруулна уу",
+        title: t("common.error", "Алдаа"),
+        description: t("auth.login.messages.errorEmpty", "Мэдээллээ бүрэн оруулна уу"),
         variant: "destructive",
       });
       return;
@@ -94,11 +94,11 @@ export default function LoginPage() {
     setLoading(true);
     try {
       await login({ email: identifier, password });
-      toast({ title: "Амжилттай нэвтэрлээ" });
+      toast({ title: t("auth.login.messages.success", "Амжилттай нэвтэрлээ") });
     } catch (err: any) {
       toast({
-        title: "Нэвтрэх амжилтгүй",
-        description: err?.message || "Нэвтрэх мэдээлэл буруу байна",
+        title: t("common.error", "Алдаа"),
+        description: err?.message || t("common.error"),
         variant: "destructive",
       });
     } finally {
@@ -163,20 +163,20 @@ export default function LoginPage() {
               </div>
             </div>
 
-            <h2 className="text-3xl font-black text-gray-900 mb-2">Нэвтрэх</h2>
+            <h2 className="text-3xl font-black text-gray-900 mb-2">{t("auth.login.title", "Нэвтрэх")}</h2>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <Label htmlFor="identifier" className="text-gray-700">
-                Нэвтрэх нэр
+                {t("auth.login.identifierLabel", "Нэвтрэх нэр")}
               </Label>
               <Input
                 id="identifier"
                 type="text"
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
-                placeholder="Утасны дугаар эсвэл Имэйлээ оруулна уу"
+                placeholder={t("auth.login.identifierPlaceholder", "Утасны дугаар эсвэл Имэйлээ оруулна уу")}
                 required
                 className="mt-2 bg-gray-50/50 border-gray-200 rounded-2xl h-12 focus:ring-emerald-500 focus:border-emerald-500"
               />
@@ -184,7 +184,7 @@ export default function LoginPage() {
 
             <div>
               <Label htmlFor="password" className="text-gray-700">
-                Нууц үг
+                {t("auth.login.passwordLabel", "Нууц үг")}
               </Label>
               <div className="relative">
                 <Input
@@ -192,7 +192,7 @@ export default function LoginPage() {
                   type={showPassword ? "text" : "password"}
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  placeholder="Нууц үгээ оруулна уу."
+                  placeholder={t("auth.login.passwordPlaceholder", "Нууц үгээ оруулна уу.")}
                   required
                   className="mt-2 bg-gray-50/50 border-gray-200 pr-10 rounded-2xl h-12 focus:ring-emerald-500 focus:border-emerald-500"
                 />
@@ -214,11 +214,11 @@ export default function LoginPage() {
                   onCheckedChange={(checked) => setRememberMe(checked === true)}
                 />
                 <Label htmlFor="remember" className="text-sm text-gray-600">
-                  Намайг санах
+                  {t("auth.login.rememberMe", "Намайг санах")}
                 </Label>
               </div>
               <Link href="/forgot-password" className="text-sm text-[#1b7c53] hover:underline">
-                Нууц үгээ мартсан уу?
+                {t("auth.login.forgotPasswordLink", "Нууц үгээ мартсан уу?")}
               </Link>
             </div>
 
@@ -227,7 +227,7 @@ export default function LoginPage() {
               className="w-full bg-[#1b7c53] hover:bg-[#156040] text-white py-6 rounded-2xl font-bold shadow-lg shadow-[#1b7c53]/20 transition-all active:scale-[0.98] mt-4"
               disabled={loading}
             >
-              {loading ? "Түр хүлээнэ үү..." : "Нэвтрэх"}
+              {loading ? t("auth.login.loading", "Түр хүлээнэ үү...") : t("auth.login.submit", "Нэвтрэх")}
             </Button>
           </form>
 
@@ -236,7 +236,7 @@ export default function LoginPage() {
               <div className="w-full border-t border-gray-200" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-white text-gray-500 text-xs uppercase tracking-widest">Эсвэл</span>
+              <span className="px-2 bg-white text-gray-500 text-xs uppercase tracking-widest">{t("common.or", "Эсвэл")}</span>
             </div>
           </div>
 
@@ -252,14 +252,14 @@ export default function LoginPage() {
               <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
               <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
             </svg>
-            <span>Google-ээр нэвтрэх</span>
+            <span>{t("auth.login.googleAuth", "Google-ээр нэвтрэх")}</span>
           </Button>
 
           <div className="text-center">
             <span className="text-sm text-gray-600">
-              Танд бүртгэл байхгүй бол{" "}
+              {t("auth.login.noAccount", "Танд бүртгэл байхгүй бол")}{" "}
               <Link href="/register" className="text-[#1b7c53] font-bold hover:underline">
-                Бүртгүүлэх (Traveler)
+                {t("auth.login.registerLink", "Бүртгүүлэх (Traveler)")}
               </Link>
             </span>
           </div>
@@ -271,28 +271,28 @@ export default function LoginPage() {
       {/* Right side - Sidebar */}
       <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-green-600 to-green-800 items-center justify-center p-8">
         <div className="text-center text-white max-w-md">
-          <h2 className="text-4xl font-black mb-6 drop-shadow-md uppercase">Тасалж болохгүй талын соёл</h2>
+          <h2 className="text-4xl font-black mb-6 drop-shadow-md uppercase">{t("sidebarQuotes.mainTitle", "Тасалж болохгүй талын соёл")}</h2>
           <p className="text-xl mb-10 opacity-90 font-bold tracking-wide uppercase">
-            Нүүдэлчин ахуй соёл Монголын баялаг
+            {t("sidebarQuotes.subTitle", "Нүүдэлчин ахуй соёл Монголын баялаг")}
           </p>
           <div className="space-y-6">
             <div className="flex items-center justify-center space-x-4 group">
               <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <span className="text-2xl">🏕️</span>
               </div>
-              <span className="text-xl font-bold">Гэр амралт</span>
+              <span className="text-xl font-bold">{t("sidebarQuotes.feature1", "Гэр амралт")}</span>
             </div>
             <div className="flex items-center justify-center space-x-4 group">
               <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <span className="text-2xl">🌄</span>
               </div>
-              <span className="text-xl font-bold">Байгалийн сайхан</span>
+              <span className="text-xl font-bold">{t("sidebarQuotes.feature2", "Байгалийн сайхан")}</span>
             </div>
             <div className="flex items-center justify-center space-x-4 group">
               <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <span className="text-2xl">🐎</span>
               </div>
-              <span className="text-xl font-bold">Малчны амьдрал</span>
+              <span className="text-xl font-bold">{t("sidebarQuotes.feature3", "Малчны амьдрал")}</span>
             </div>
           </div>
         </div>

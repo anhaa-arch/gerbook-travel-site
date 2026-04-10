@@ -886,10 +886,10 @@ export default function HerderDashboardContent() {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-8">
         <div className="mb-4 sm:mb-6 md:mb-8">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 font-display">
-            Малчны самбар
+            {t("dashboard.herder.title", "Малчны самбар")}
           </h1>
           <p className="text-gray-600 text-xs sm:text-sm md:text-base font-medium mt-1">
-            Өөрийн бүтээгдэхүүн, бааз, захиалгаа удирдаарай
+            {t("dashboard.herder.subtitle", "Өөрийн бүтээгдэхүүн, бааз, захиалгаа удирдаарай")}
           </p>
         </div>
 
@@ -914,31 +914,31 @@ export default function HerderDashboardContent() {
                 value="overview"
                 className="text-xs sm:text-sm font-medium"
               >
-                Тойм
+                {t("dashboard.herder.tabs.overview", "Тойм")}
               </TabsTrigger>
               <TabsTrigger
                 value="products"
                 className="text-xs sm:text-sm font-medium"
               >
-                Бүтээгдэхүүнүүд
+                {t("dashboard.herder.tabs.products", "Бүтээгдэхүүнүүд")}
               </TabsTrigger>
               <TabsTrigger
                 value="camps"
                 className="text-xs sm:text-sm font-medium"
               >
-                Миний гэр
+                {t("dashboard.herder.tabs.camps", "Миний гэр")}
               </TabsTrigger>
               <TabsTrigger
                 value="orders"
                 className="text-xs sm:text-sm font-medium"
               >
-                Захиалгууд
+                {t("dashboard.herder.tabs.orders", "Захиалгууд")}
               </TabsTrigger>
               <TabsTrigger
                 value="profile"
                 className="text-xs sm:text-sm font-medium"
               >
-                Профайл
+                {t("dashboard.herder.tabs.profile", "Профайл")}
               </TabsTrigger>
             </TabsList>
           </div>
@@ -949,7 +949,7 @@ export default function HerderDashboardContent() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xs sm:text-sm font-semibold">
-                    Нийт бүтээгдэхүүн
+                    {t("dashboard.herder.stats.total_products", "Нийт бүтээгдэхүүн")}
                   </CardTitle>
                   <Package className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -958,7 +958,7 @@ export default function HerderDashboardContent() {
                     {herder.totalProducts}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
-                    +{todayProducts} өнөөдөр
+                    {t("dashboard.herder.stats.today_plus", "+{{count}} өнөөдөр", { count: todayProducts })}
                   </p>
                 </CardContent>
               </Card>
@@ -966,7 +966,7 @@ export default function HerderDashboardContent() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xs sm:text-sm font-semibold">
-                    Идэвхтэй баазууд
+                    {t("dashboard.herder.stats.active_camps", "Идэвхтэй баазууд")}
                   </CardTitle>
                   <Home className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -975,7 +975,7 @@ export default function HerderDashboardContent() {
                     {herder.totalCamps}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
-                    +{todayCamps} өнөөдөр
+                    {t("dashboard.herder.stats.today_plus", "+{{count}} өнөөдөр", { count: todayCamps })}
                   </p>
                 </CardContent>
               </Card>
@@ -983,7 +983,7 @@ export default function HerderDashboardContent() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xs sm:text-sm font-semibold">
-                    Нийт орлого
+                    {t("dashboard.herder.stats.total_revenue", "Нийт орлого")}
                   </CardTitle>
                   <TrendingUp className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -992,7 +992,7 @@ export default function HerderDashboardContent() {
                     ₮{herder.totalRevenue.toLocaleString()}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
-                    +15% өнгөрсөн сараас
+                    {t("dashboard.herder.stats.from_last_month_percent", "+{{percent}}% өнгөрсөн сараас", { percent: 15 })}
                   </p>
                 </CardContent>
               </Card>
@@ -1000,7 +1000,7 @@ export default function HerderDashboardContent() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                   <CardTitle className="text-xs sm:text-sm font-semibold">
-                    Дундаж үнэлгээ
+                    {t("dashboard.herder.stats.average_rating", "Дундаж үнэлгээ")}
                   </CardTitle>
                   <Star className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
@@ -1009,7 +1009,7 @@ export default function HerderDashboardContent() {
                     {herder.rating}
                   </div>
                   <p className="text-xs text-muted-foreground font-medium">
-                    89 үнэлгээнд үндэслэв
+                    {t("dashboard.herder.stats.based_on_reviews", "{{count}} үнэлгээнд үндэслэв", { count: 89 })}
                   </p>
                 </CardContent>
               </Card>
@@ -1019,7 +1019,7 @@ export default function HerderDashboardContent() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg sm:text-xl font-bold">
-                    Сүүлийн захиалгууд
+                    {t("dashboard.herder.orders.title", "Сүүлийн захиалгууд")} 
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -1061,7 +1061,7 @@ export default function HerderDashboardContent() {
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg sm:text-xl font-bold">
-                    Сүүлийн захиалгууд
+                    {t("dashboard.herder.orders.title", "Сүүлийн захиалгууд")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent>
@@ -1106,14 +1106,14 @@ export default function HerderDashboardContent() {
           <TabsContent value="products" className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl sm:text-2xl font-bold">
-                Миний бүтээгдэхүүн
+                {t("dashboard.herder.products.title", "Миний бүтээгдэхүүн")}
               </h2>
               <Button
                 className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold"
                 onClick={() => setShowAddProduct(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Шинэ бүтээгдэхүүн нэмэх
+                {t("dashboard.herder.products.add", "Шинэ бүтээгдэхүүн нэмэх")}
               </Button>
             </div>
 
@@ -1431,14 +1431,14 @@ export default function HerderDashboardContent() {
           <TabsContent value="camps" className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl sm:text-2xl font-bold">
-                Миний гэр баазууд
+                {t("dashboard.herder.camps.title", "Миний гэр баазууд")}
               </h2>
               <Button
                 className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold"
                 onClick={() => setShowAddCamp(true)}
               >
                 <Plus className="w-4 h-4 mr-2" />
-                Шинэ бааз нэмэх
+                {t("dashboard.herder.camps.add", "Шинэ бааз нэмэх")}
               </Button>
             </div>
 

@@ -11,12 +11,14 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { ChevronDown, Mail, ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [isLanguageOpen, setIsLanguageOpen] = useState(false);
   const { toast } = useToast();
+  const { t } = useTranslation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -25,13 +27,13 @@ export default function ForgotPasswordPage() {
     try {
       // Logic for sending reset link would go here
       toast({
-        title: "Имэйл илгээлээ",
-        description: "Нууц үг сэргээх зааврыг таны имэйл рүү илгээлээ.",
+        title: t("auth.forgotPassword.messages.successTitle", "Имэйл илгээлээ"),
+        description: t("auth.forgotPassword.messages.success", "Нууц үг сэргээх зааврыг таны имэйл рүү илгээлээ."),
       });
     } catch (err: any) {
       toast({
-        title: "Алдаа гарлаа",
-        description: err.message || "Имэйл илгээхэд алдаа гарлаа.",
+        title: t("common.error", "Алдаа гарлаа"),
+        description: err.message || t("auth.forgotPassword.messages.error", "Имэйл илгээхэд алдаа гарлаа."),
         variant: "destructive",
       });
     } finally {
@@ -96,14 +98,14 @@ export default function ForgotPasswordPage() {
               </div>
             </div>
 
-            <h2 className="text-3xl font-black text-gray-900 mb-2">Нууц үг сэргээх</h2>
-            <p className="text-gray-500 font-medium">Бүртгэлтэй имэйл хаягаа оруулна уу</p>
+            <h2 className="text-3xl font-black text-gray-900 mb-2">{t("auth.forgotPassword.title", "Нууц үг сэргээх")}</h2>
+            <p className="text-gray-500 font-medium">{t("auth.forgotPassword.desc", "Бүртгэлтэй имэйл хаягаа оруулна уу")}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6 mt-8">
             <div className="space-y-1.5">
               <Label htmlFor="email" className="text-gray-700 font-semibold text-sm ml-1">
-                Имэйл хаяг
+                {t("auth.forgotPassword.emailLabel", "Имэйл хаяг")}
               </Label>
               <div className="relative">
                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
@@ -112,7 +114,7 @@ export default function ForgotPasswordPage() {
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="example@mail.com"
+                  placeholder={t("auth.forgotPassword.emailPlaceholder", "example@mail.com")}
                   required
                   className="pl-11 bg-gray-50/50 border-gray-200 rounded-2xl h-12 focus:ring-emerald-500 focus:border-emerald-500 transition-all"
                 />
@@ -124,14 +126,14 @@ export default function ForgotPasswordPage() {
               className="w-full bg-[#1b7c53] hover:bg-[#156040] text-white py-6 rounded-2xl font-bold shadow-lg shadow-[#1b7c53]/20 transition-all active:scale-[0.98]"
               disabled={loading}
             >
-              {loading ? "Түр хүлээнэ үү..." : "Илгээх"}
+              {loading ? t("auth.forgotPassword.loading", "Түр хүлээнэ үү...") : t("auth.forgotPassword.submit", "Илгээх")}
             </Button>
           </form>
 
           <div className="text-center mt-8">
             <Link href="/login" className="inline-flex items-center text-sm font-bold text-[#1b7c53] hover:underline">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Буцах
+              {t("common.back", "Буцах")}
             </Link>
           </div>
 
@@ -142,28 +144,28 @@ export default function ForgotPasswordPage() {
       {/* Right side - Sidebar */}
       <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-green-600 to-green-800 items-center justify-center p-8">
         <div className="text-center text-white max-w-md">
-          <h2 className="text-4xl font-black mb-6 drop-shadow-md uppercase">Тасалж болохгүй талын соёл</h2>
+          <h2 className="text-4xl font-black mb-6 drop-shadow-md uppercase">{t("sidebarQuotes.mainTitle", "Тасалж болохгүй талын соёл")}</h2>
           <p className="text-xl mb-10 opacity-90 font-bold tracking-wide uppercase">
-            Нүүдэлчин ахуй соёл Монголын баялаг
+            {t("sidebarQuotes.subTitle", "Нүүдэлчин ахуй соёл Монголын баялаг")}
           </p>
           <div className="space-y-6">
             <div className="flex items-center justify-center space-x-4 group">
               <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <span className="text-2xl">🏕️</span>
               </div>
-              <span className="text-xl font-bold">Гэр амралт</span>
+              <span className="text-xl font-bold">{t("sidebarQuotes.feature1", "Гэр амралт")}</span>
             </div>
             <div className="flex items-center justify-center space-x-4 group">
               <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <span className="text-2xl">🌄</span>
               </div>
-              <span className="text-xl font-bold">Байгалийн сайхан</span>
+              <span className="text-xl font-bold">{t("sidebarQuotes.feature2", "Байгалийн сайхан")}</span>
             </div>
             <div className="flex items-center justify-center space-x-4 group">
               <div className="w-12 h-12 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform">
                 <span className="text-2xl">🐎</span>
               </div>
-              <span className="text-xl font-bold">Малчны амьдрал</span>
+              <span className="text-xl font-bold">{t("sidebarQuotes.feature3", "Малчны амьдрал")}</span>
             </div>
           </div>
         </div>
