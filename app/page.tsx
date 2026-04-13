@@ -399,7 +399,7 @@ export default function HomePage() {
           <div className="max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[2000px] 4k:max-w-[2800px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-gray-900 flex items-center gap-3">
-                {getSiteText("home.featured_camps", "Онцлох гэр баазууд")}
+                {useTranslatedValue("home.featured_camps", "Онцлох гэр баазууд")}
               </h2>
               <Link href="/camps" className="w-full sm:w-auto">
                 <Button
