@@ -27,8 +27,10 @@ import "../../../lib/i18n"
 import { useRouter } from "next/navigation"
 import { useToast } from "@/components/ui/use-toast"
 import { useCart } from "@/hooks/use-cart"
-import { useAuth } from "@/hooks/use-auth"
 import { useSaved } from "@/hooks/use-saved"
+import { useTranslatedValue, useTranslatedPrice } from "@/hooks/use-translation"
+import { getLocalizedField } from "@/lib/localization"
+import { useAuth } from "@/hooks/use-auth"
 import { translateCategory } from "@/lib/admin-utils"
 
 const GET_PRODUCT = gql`
@@ -36,7 +38,11 @@ const GET_PRODUCT = gql`
     product(id: $id) {
       id
       name
+      name_en
+      name_ko
       description
+      description_en
+      description_ko
       price
       stock
       images
@@ -53,7 +59,7 @@ interface ProductDetailPageProps {
 }
 
 export default function ProductDetailPage({ params }: ProductDetailPageProps) {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
   const { toast } = useToast()
   const { addToCart } = useCart()
   const { user, isAuthenticated } = useAuth()
@@ -74,6 +80,21 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
   const [selectedImage, setSelectedImage] = useState(0)
 
   const product = data?.product
+  const currentLang = i18n.language
+  const translatedName = product ? getLocalizedField(product, "name", currentLang) : ""
+  const translatedDesc = product ? getLocalizedField(product, "description", currentLang) : ""
+  const translatedPrice = useTranslatedPrice(`prod[${productId}].price`, product?.price || 0, "MNT")
+  
+  const loadingLabel = useTranslatedValue("common.loading", "Ачаалж байна...")
+  const notFoundLabel = useTranslatedValue("products.not_found", "Бүтээгдэхүүн олдсонгүй")
+  const notFoundDesc = useTranslatedValue("products.not_found_desc", "Уучлаарай, таны хайсан бүтээгдэхүүн олдсонгүй эсвэл устгагдсан байна.")
+  const backBtnLabel = useTranslatedValue("products.back_to_list", "Бүх бүтээгдэхүүн рүү буцах")
+  const addToCartLabel = useTranslatedValue("products.add_to_cart", "Сагсанд нэмэх")
+  const buyNowLabel = useTranslatedValue("products.buy_now", "Шууд худалдан авах")
+  const outOfStockLabel = useTranslatedValue("products.out_of_stock", "Дууссан")
+  const quantityLabel = useTranslatedValue("common.quantity", "Тоо ширхэг")
+  const successLabel = useTranslatedValue("common.success", "Амжилттай")
+  const pieceLabel = useTranslatedValue("common.piece", "ширхэг")
 
   // Always at 0 initially when data loads
   useEffect(() => {
@@ -87,7 +108,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-          <p className="text-gray-500 font-bold">Бүтээгдэхүүнийг уншиж байна...</p>
+          <p className="text-gray-500 font-bold">{loadingLabel}</p>
         </div>
       </div>
     )
@@ -98,12 +119,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
         <Card className="max-w-md w-full p-8 text-center rounded-3xl shadow-xl border-emerald-900/10">
           <Package className="w-16 h-16 text-gray-200 mx-auto mb-4" />
-          <h1 className="text-2xl font-black text-gray-900 mb-2 uppercase">Бүтээгдэхүүн олдсонгүй</h1>
-          <p className="text-gray-500 font-bold mb-8">Уучлаарай, таны хайсан бүтээгдэхүүн олдсонгүй эсвэл устгагдсан байна.</p>
+          <h1 className="text-2xl font-black text-gray-900 mb-2 uppercase">{notFoundLabel}</h1>
+          <p className="text-gray-500 font-bold mb-8">{notFoundDesc}</p>
           <Link href="/products" className="w-full">
             <Button className="w-full bg-emerald-900 hover:bg-black text-white font-black h-12 rounded-2xl">
               <ArrowLeft className="w-4 h-4 mr-2" />
-              Бүх бүтээгдэхүүн рүү буцах
+              {backBtnLabel}
             </Button>
           </Link>
         </Card>
@@ -123,12 +144,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
       price: product.price,
       quantity: quantity,
       image: images[0] || "/placeholder.svg",
-      category: translateCategory(product.category?.name),
+      category: product.category?.name || "Бараа",
       stock: product.stock
     })
     toast({
-      title: "Амжилттай",
-      description: `${product.name} сагсанд ${quantity} ширхэг нэмэгдлээ`,
+      title: successLabel,
+      description: `${translatedName} ${useTranslatedValue("common.added_to_cart", "сагсанд")} ${quantity} ${pieceLabel} ${useTranslatedValue("common.added_suffix", "нэмэгдлээ")}`,
     })
   }
 
@@ -187,7 +208,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
           <Link href="/products">
             <Button variant="ghost" className="text-gray-500 hover:text-emerald-900 font-bold gap-2">
               <ArrowLeft className="w-4 h-4" />
-              Бүх бүтээгдэхүүн
+              {useTranslatedValue("products.all_products", "Бүх бүтээгдэхүүн")}
             </Button>
           </Link>
           <div className="flex gap-2">
@@ -216,24 +237,24 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             <div className="relative aspect-square sm:aspect-[4/3] md:aspect-square bg-white rounded-[2.5rem] overflow-hidden border border-emerald-900/5 shadow-2xl shadow-emerald-900/5 group">
               <img
                 src={images[selectedImage] || "/placeholder.svg"}
-                alt={product.name}
+                alt={translatedName}
                 className="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110"
               />
               {!inStock && (
                 <div className="absolute inset-0 bg-black/60 backdrop-blur-md flex items-center justify-center z-10">
                   <div className="text-center transform -rotate-12 border-4 border-white px-8 py-3 rounded-2xl">
-                    <span className="text-white font-black uppercase tracking-[0.2em] text-2xl sm:text-3xl">Дууссан</span>
+                    <span className="text-white font-black uppercase tracking-[0.2em] text-2xl sm:text-3xl">{outOfStockLabel}</span>
                   </div>
                 </div>
               )}
               {/* Image Badges */}
               <div className="absolute top-6 left-6 flex flex-col gap-2">
                 <span className="bg-white/90 backdrop-blur-md text-emerald-900 px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ring-1 ring-black/5">
-                  {translateCategory(product.category?.name)}
+                  {useTranslatedValue(`cat.${product.category?.name}`, product.category?.name || "Бараа")}
                 </span>
                 {product.stock > 0 && product.stock < 5 && (
                   <span className="bg-red-500 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-sm ring-2 ring-white/20 animate-pulse">
-                    Цөөн үлдсэн
+                    {useTranslatedValue("products.low_stock", "Цөөн үлдсэн")}
                   </span>
                 )}
               </div>
@@ -269,23 +290,22 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   <Star className="w-4 h-4 fill-current" />
                   <Star className="w-4 h-4 fill-current" />
                 </div>
-                <span className="text-gray-400 text-[10px] font-black uppercase tracking-widest">4.9 • 100+ Захиалга</span>
+                <span className="text-gray-400 text-[10px] font-black uppercase tracking-widest">4.9 • 100+ {useTranslatedValue("products.orders", "Захиалга")}</span>
               </div>
 
               <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-[#0F3D2E] mb-6 tracking-tighter leading-[0.9] uppercase break-words">
-                {product.name}
+                {translatedName}
               </h1>
               
               <div className="flex items-baseline gap-2 mb-10 pb-10 border-b border-[#0F3D2E]/10">
-                <span className="text-5xl font-black text-[#0F3D2E] tracking-tighter">{product.price.toLocaleString()}</span>
-                <span className="text-xl font-black text-[#0F3D2E]/40 uppercase tracking-tighter">₮</span>
+                <span className="text-5xl font-black text-[#0F3D2E] tracking-tighter">{translatedPrice}</span>
               </div>
 
               <div className="space-y-8 mb-12">
                 <div>
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0F3D2E]/50 mb-4">Бүтээгдэхүүний тайлбар</h4>
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0F3D2E]/50 mb-4">{useTranslatedValue("products.description", "Бүтээгдэхүүний тайлбар")}</h4>
                   <p className="text-gray-600 font-bold text-base sm:text-lg leading-relaxed max-w-xl">
-                    {product.description}
+                    {translatedDesc}
                   </p>
                 </div>
 
@@ -293,13 +313,13 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                 <div className="grid grid-cols-2 gap-4">
                     <div className="p-4 rounded-2xl bg-white border border-[#0F3D2E]/5 shadow-sm">
                         <Check className="w-5 h-5 text-emerald-600 mb-2" />
-                        <h5 className="text-xs font-black uppercase tracking-wider text-[#0F3D2E]">100% Байгалийн</h5>
-                        <p className="text-[10px] text-gray-400 font-medium mt-1">Цэвэр монгол бүтээгдэхүүн</p>
+                        <h5 className="text-xs font-black uppercase tracking-wider text-[#0F3D2E]">{useTranslatedValue("products.features.natural", "100% Байгалийн")}</h5>
+                        <p className="text-[10px] text-gray-400 font-medium mt-1">{useTranslatedValue("products.features.natural_desc", "Цэвэр монгол бүтээгдэхүүн")}</p>
                     </div>
                     <div className="p-4 rounded-2xl bg-white border border-[#0F3D2E]/5 shadow-sm">
                         <Shield className="w-5 h-5 text-emerald-600 mb-2" />
-                        <h5 className="text-xs font-black uppercase tracking-wider text-[#0F3D2E]">Чанартай</h5>
-                        <p className="text-[10px] text-gray-400 font-medium mt-1">Малчдын гараар бүтсэн</p>
+                        <h5 className="text-xs font-black uppercase tracking-wider text-[#0F3D2E]">{useTranslatedValue("products.features.quality", "Чанартай")}</h5>
+                        <p className="text-[10px] text-gray-400 font-medium mt-1">{useTranslatedValue("products.features.quality_desc", "Малчдын гараар бүтсэн")}</p>
                     </div>
                 </div>
               </div>
@@ -309,7 +329,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
             <div className="w-full mt-auto pt-8 border-t-2 border-[#0F3D2E]/5 space-y-8">
               <div className="flex items-center justify-between">
                 <div>
-                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0F3D2E]/50 mb-3">Тоо ширхэг</h4>
+                  <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0F3D2E]/50 mb-3">{quantityLabel}</h4>
                   <div className="flex items-center border-2 border-[#0F3D2E] rounded-2xl bg-white p-1 overflow-hidden shadow-lg shadow-[#0F3D2E]/5">
                     <button
                       onClick={() => setQuantity(q => Math.max(1, q - 1))}
@@ -329,9 +349,9 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   </div>
                 </div>
                 <div className="text-right">
-                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0F3D2E]/50 mb-3">Найдвартай</h4>
+                    <h4 className="text-[10px] font-black uppercase tracking-[0.2em] text-[#0F3D2E]/50 mb-3">{useTranslatedValue("products.stock_status", "Найдвартай")}</h4>
                     <span className={`text-xl font-black ${product.stock < 10 ? "text-red-500" : "text-[#0F3D2E]"}`}>
-                        {product.stock} <span className="text-xs">ширхэг</span>
+                        {product.stock} <span className="text-xs">{pieceLabel}</span>
                     </span>
                 </div>
               </div>
@@ -345,7 +365,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   onClick={handleAddToCart}
                 >
                   <ShoppingCart className="w-5 h-5 mr-3" />
-                  Сагсанд нэмэх
+                  {addToCartLabel}
                 </Button>
                 <Button
                   size="lg"
@@ -353,7 +373,7 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
                   disabled={!inStock}
                   onClick={handleBuyNow}
                 >
-                  Шууд худалдан авах
+                  {buyNowLabel}
                 </Button>
               </div>
 
@@ -361,12 +381,12 @@ export default function ProductDetailPage({ params }: ProductDetailPageProps) {
               <div className="bg-white/60 p-6 rounded-3xl border border-[#0F3D2E]/5 flex items-center justify-around">
                 <div className="text-center group cursor-default">
                     <Truck className="w-6 h-6 text-emerald-800 mx-auto mb-2 transition-transform group-hover:-translate-y-1" />
-                    <span className="block text-[10px] font-black uppercase tracking-tighter text-[#0F3D2E]">Хурдан хүргэлт</span>
+                    <span className="block text-[10px] font-black uppercase tracking-tighter text-[#0F3D2E]">{useTranslatedValue("products.fast_delivery", "Хурдан хүргэлт")}</span>
                 </div>
                 <Separator orientation="vertical" className="h-10 bg-[#0F3D2E]/10" />
                 <div className="text-center group cursor-default">
                     <Shield className="w-6 h-6 text-emerald-800 mx-auto mb-2 transition-transform group-hover:-translate-y-1" />
-                    <span className="block text-[10px] font-black uppercase tracking-tighter text-[#0F3D2E]">Найдвартай</span>
+                    <span className="block text-[10px] font-black uppercase tracking-tighter text-[#0F3D2E]">{useTranslatedValue("products.safe_shipping", "Найдвартай")}</span>
                 </div>
               </div>
             </div>

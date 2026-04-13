@@ -21,6 +21,9 @@ import { useToast } from "@/components/ui/use-toast";
 import { gql, useMutation } from "@apollo/client";
 import { PaymentModal } from "@/components/payment-modal";
 import { useTranslation } from "react-i18next";
+import { useTranslatedValue, useTranslatedPrice } from "@/hooks/use-translation";
+import { getLocalizedField } from "@/lib/localization";
+import "../../lib/i18n";
 
 // Mutation for creating a product order
 const CREATE_ORDER = gql`
@@ -48,8 +51,15 @@ export default function CartPage() {
   const { isAuthenticated } = useAuth();
   const router = useRouter();
   const { toast } = useToast();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const [isProcessing, setIsProcessing] = useState(false);
+  const currentLang = i18n.language;
+
+  const totalFormatted = useTranslatedPrice("cart.total", totalPrice, "MNT");
+  const checkoutLabel = useTranslatedValue("cart.checkout", "Захиалах");
+  const loadingLabel = useTranslatedValue("common.loading", "Уншиж байна...");
+  const errorLabel = useTranslatedValue("common.error", "Алдаа");
+  const successLabel = useTranslatedValue("cart.paymentSuccessTitle", "Амжилттай");
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderId, setOrderId] = useState<string | undefined>(undefined);
@@ -71,9 +81,9 @@ export default function CartPage() {
 
     if (cartItems.length > 0) {
       const errors: any = {};
-      if (!receiverName.trim()) errors.name = "Хүлээн авах хүний нэр шаардлагатай";
-      if (!receiverPhone.trim()) errors.phone = "Утасны дугаар шаардлагатай";
-      if (!shippingAddress.trim()) errors.address = "Хүргэлтийн хаяг шаардлагатай";
+      if (!receiverName.trim()) errors.name = useTranslatedValue("cart.errors.name_required", "Хүлээн авах хүний нэр шаардлагатай");
+      if (!receiverPhone.trim()) errors.phone = useTranslatedValue("cart.errors.phone_required", "Утасны дугаар шаардлагатай");
+      if (!shippingAddress.trim()) errors.address = useTranslatedValue("cart.errors.address_required", "Хүргэлтийн хаяг шаардлагатай");
       
       if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
@@ -206,57 +216,62 @@ export default function CartPage() {
                 <div className="flex items-center justify-between px-2">
                   <h2 className="text-sm font-black uppercase tracking-widest text-gray-400">{t("product.title", "Бүтээгдэхүүнүүд")} ({cartItems.length})</h2>
                 </div>
-                {cartItems.map((item) => (
-                  <Card key={item.id} className="border-none shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-3xl overflow-hidden bg-white group transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
-                    <CardContent className="p-4 sm:p-6">
-                      <div className="flex items-center space-x-4 sm:space-x-6">
-                        <div className="w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0 bg-gray-50 rounded-2xl overflow-hidden relative">
-                          <img
-                            src={item.image || "/placeholder.svg"}
-                            alt={item.name}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-start">
-                            <h3 className="text-base sm:text-lg font-black text-gray-900 truncate pr-4">{item.name}</h3>
-                            <button
-                              onClick={() => removeFromCart(item.id)}
-                              className="text-gray-300 hover:text-red-500 transition-colors p-1"
-                            >
-                              <Trash2 className="w-5 h-5" />
-                            </button>
+                {cartItems.map((item) => {
+                  const itemPrice = useTranslatedPrice(`cart[${item.id}].price`, item.price, "MNT");
+                  const itemTotal = useTranslatedPrice(`cart[${item.id}].total`, item.price * item.quantity, "MNT");
+                  
+                  return (
+                    <Card key={item.id} className="border-none shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-3xl overflow-hidden bg-white group transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
+                      <CardContent className="p-4 sm:p-6">
+                        <div className="flex items-center space-x-4 sm:space-x-6">
+                          <div className="w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0 bg-gray-50 rounded-2xl overflow-hidden relative">
+                            <img
+                              src={item.image || "/placeholder.svg"}
+                              alt={item.name}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
                           </div>
-                          <div className="flex items-center space-x-3 mt-2 text-xs font-bold text-gray-500">
-                            <span className="bg-gray-100 px-2 py-1 rounded-md">{t("cart.itemLabel", "Бараа")}</span>
-                            <span className="text-emerald-600">{t("cart.inStock", "Нөөцөд байгаа")}</span>
-                          </div>
-                          <div className="flex items-center justify-between mt-4 sm:mt-6">
-                            <div className="flex items-center border border-gray-100 rounded-xl p-1 bg-gray-50">
+                          <div className="flex-1 min-w-0">
+                            <div className="flex justify-between items-start">
+                              <h3 className="text-base sm:text-lg font-black text-gray-900 truncate pr-4">{item.name}</h3>
                               <button
-                                onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                                className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600"
+                                onClick={() => removeFromCart(item.id)}
+                                className="text-gray-300 hover:text-red-500 transition-colors p-1"
                               >
-                                <Minus className="w-4 h-4" />
-                              </button>
-                              <span className="w-10 text-center text-sm font-black text-gray-900">{item.quantity}</span>
-                              <button
-                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600"
-                              >
-                                <Plus className="w-4 h-4" />
+                                <Trash2 className="w-5 h-5" />
                               </button>
                             </div>
-                            <div className="text-right">
-                              <p className="text-lg sm:text-xl font-black text-gray-900">₮{(item.price * item.quantity).toLocaleString()}</p>
-                              <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">₮{item.price.toLocaleString()} / нэгж</p>
+                            <div className="flex items-center space-x-3 mt-2 text-xs font-bold text-gray-500">
+                              <span className="bg-gray-100 px-2 py-1 rounded-md">{t("cart.itemLabel", "Бараа")}</span>
+                              <span className="text-emerald-600">{t("cart.inStock", "Нөөцөд байгаа")}</span>
+                            </div>
+                            <div className="flex items-center justify-between mt-4 sm:mt-6">
+                              <div className="flex items-center border border-gray-100 rounded-xl p-1 bg-gray-50">
+                                <button
+                                  onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                                  className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600"
+                                >
+                                  <Minus className="w-4 h-4" />
+                                </button>
+                                <span className="w-10 text-center text-sm font-black text-gray-900">{item.quantity}</span>
+                                <button
+                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                  className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600"
+                                >
+                                  <Plus className="w-4 h-4" />
+                                </button>
+                              </div>
+                              <div className="text-right">
+                                <p className="text-lg sm:text-xl font-black text-gray-900">{itemTotal}</p>
+                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{itemPrice} / {useTranslatedValue("common.unit", "нэгж")}</p>
+                              </div>
                             </div>
                           </div>
                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
               </div>
             )}
 
@@ -279,7 +294,7 @@ export default function CartPage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex justify-between items-start">
-                            <h3 className="text-base sm:text-lg font-black text-gray-900 truncate pr-4">{item.name}</h3>
+                            <h3 className="text-base sm:text-lg font-black text-gray-900 pr-4">{item.name}</h3>
                             <button
                               onClick={() => removeFromBookingCart(item.id)}
                               className="text-gray-300 hover:text-red-500 transition-colors p-1"
@@ -294,9 +309,9 @@ export default function CartPage() {
                             </div>
                           </div>
                           <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">Нийт үнэ</p>
+                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t("common.total_price", "Нийт үнэ")}</p>
                             <div className="text-right">
-                              <p className="text-lg sm:text-xl font-black text-gray-900">₮{item.totalPrice.toLocaleString()}</p>
+                              <p className="text-lg sm:text-xl font-black text-gray-900">{useTranslatedPrice(`book[${item.id}].total`, item.totalPrice, "MNT")}</p>
                             </div>
                           </div>
                         </div>
@@ -322,7 +337,7 @@ export default function CartPage() {
                 <div className="space-y-4 mb-8">
                   <div className="flex justify-between text-sm font-bold text-gray-500">
                     <span>{t("cart.totalItems", "Нийт бараа")}</span>
-                    <span className="text-gray-900">₮{totalPrice.toLocaleString()}</span>
+                    <span className="text-gray-900">{totalFormatted}</span>
                   </div>
                   <div className="flex justify-between text-sm font-bold text-gray-500">
                     <span>{t("cart.shippingFee", "Хүргэлт")}</span>
@@ -331,7 +346,7 @@ export default function CartPage() {
                   <div className="h-px bg-gray-50 my-6"></div>
                   <div className="flex justify-between items-end">
                     <span className="text-base font-black text-gray-900 uppercase tracking-widest">{t("cart.total", "Нийт дүн")}</span>
-                    <span className="text-3xl font-black text-gray-900 tracking-tighter">₮{totalPrice.toLocaleString()}</span>
+                    <span className="text-3xl font-black text-gray-900 tracking-tighter">{totalFormatted}</span>
                   </div>
                 </div>
 
@@ -387,7 +402,7 @@ export default function CartPage() {
                   disabled={isProcessing}
                   className="w-full bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl h-14 font-black text-lg transition-all active:scale-95 shadow-xl shadow-emerald-100 disabled:opacity-50"
                 >
-                  {isProcessing ? t("common.loading", "Уншиж байна...") : t("cart.checkout", "Захиалах")}
+                  {isProcessing ? loadingLabel : checkoutLabel}
                 </Button>
 
                 <p className="text-[10px] text-gray-400 text-center mt-6 font-bold uppercase leading-relaxed px-4">

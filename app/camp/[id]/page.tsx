@@ -195,9 +195,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const translatedDesc = data?.yurt ? getLocalizedField(data.yurt, "description", currentLang) : "";
   const translatedHostBio = data?.yurt?.owner ? getLocalizedField(data.yurt.owner, "hostBio", currentLang) || "Монголын уламжлалт зочломтгой байдлыг санал болгож байна." : "Монголын уламжлалт зочломтгой байдлыг санал болгож байна.";
   
-  const partnerLabel = useTranslatedValue("camp.partner_label", "Онцгой хамтрагч");
-  const reviewsLabel = useTranslatedValue("common.reviews", "сэтгэгдэл");
-  const savedLabel = useTranslatedValue("common.saved", "Хадгалсан");
+  const translatedPrice = useTranslatedPrice(`camp[${campId}].price`, data?.yurt?.pricePerNight || 0, "MNT");
   const saveLabel = useTranslatedValue("common.save", "Хадгалах");
   const shareLabel = useTranslatedValue("common.share", "Хуваалцах");
   const amenitiesTitle = useTranslatedValue("camp.amenities_label", "Тав тухтай байдал");
@@ -216,6 +214,17 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const facilitiesLabel = useTranslatedValue("common.facilities", "Тохижилт");
   const commonPhoneLabel = useTranslatedValue("common.phone", "Утас");
   const commonEmailLabel = useTranslatedValue("common.email", "Имэйл");
+  
+  const backLabel = useTranslatedValue("common.back_to_camps", "Back to Camps");
+  const partnerLabel = useTranslatedValue("camp.partner_label", "Official Partner");
+  const reviewsLabel = useTranslatedValue("common.reviews", "reviews");
+  const savedLabel = useTranslatedValue("common.saved", "Saved");
+  const nightLabel = useTranslatedValue("common.night", "night");
+  const checkInLabel = useTranslatedValue("common.check_in", "Check-in");
+  const checkOutLabel = useTranslatedValue("common.check_out", "Check-out");
+  const guestsLabel = guestsUnit;
+  const totalLabel = useTranslatedValue("common.total", "Total");
+  const bookLabel = useTranslatedValue("camp.book_now", "Book Now");
 
   const [createBooking, { loading: bookingLoading, error: bookingError }] =
     useMutation(CREATE_BOOKING, {
@@ -250,8 +259,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         localStorage.setItem("userBookings", JSON.stringify(userBookings));
 
         toast({
-          title: "✅ Захиалга амжилттай",
-          description: "Төлбөр хийхэд бэлэн боллоо.",
+          title: useTranslatedValue("booking.success", "✅ Захиалга амжилттай"),
+          description: useTranslatedValue("booking.payment_ready", "Төлбөр хийхэд бэлэн боллоо."),
         });
 
         // Store the booking ID and open payment modal
@@ -261,22 +270,22 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       onError: (error) => {
         console.error('❌ Booking error:', error);
 
-        let errorMessage = "Захиалга үүсгэхэд алдаа гарлаа.";
+        let errorMessage = useTranslatedValue("booking.error_generic", "Захиалга үүсгэхэд алдаа гарлаа.");
 
         if (error.message.includes("not available")) {
-          errorMessage = "Таны сонгосон огноо захиалагдсан байна. Өөр огноо сонгоно уу.";
+          errorMessage = useTranslatedValue("booking.error_dates_taken", "Таны сонгосон огноо захиалагдсан байна. Өөр огноо сонгоно уу.");
         } else if (error.message.includes("End date must be after start date")) {
-          errorMessage = "Гарах өдөр ирэх өдрөөс хойш байх ёстой.";
+          errorMessage = useTranslatedValue("booking.error_invalid_dates", "Гарах өдөр ирэх өдрөөс хойш байх ёстой.");
         } else if (error.message.includes("Not authorized")) {
-          errorMessage = "Та захиалга хийх эрхгүй байна.";
+          errorMessage = useTranslatedValue("booking.error_not_authorized", "Та захиалга хийх эрхгүй байна.");
         } else if (error.message.includes("Yurt not found")) {
-          errorMessage = "Camp олдсонгүй. Дахин оролдоно уу.";
+          errorMessage = useTranslatedValue("booking.error_not_found", "Camp олдсонгүй. Дахин оролдоно уу.");
         } else {
           errorMessage = error.message || errorMessage;
         }
 
         toast({
-          title: "❌ Захиалга амжилтгүй",
+          title: useTranslatedValue("booking.error_title", "❌ Захиалга амжилтгүй"),
           description: errorMessage,
           variant: "destructive",
         });
@@ -378,8 +387,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const handleSaveCamp = () => {
     if (!isAuthenticated || !user) {
       toast({
-        title: "Нэвтрэх шаардлагатай",
-        description: "Амралт хадгалахын тулд нэвтрэх шаардлагатай.",
+        title: useTranslatedValue("common.login_required", "Нэвтрэх шаардлагатай"),
+        description: useTranslatedValue("camp.save_login_desc", "Амралт хадгалахын тулд нэвтрэх шаардлагатай."),
         variant: "destructive",
       });
       return;
@@ -400,8 +409,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     });
 
     toast({
-      title: isSaved ? "Хадгалсан амралт" : "Амжилттай хадгалагдлаа",
-      description: isSaved ? "Амралт хадгалсан жагсаалтаас хасагдлаа." : "Амралт хадгалсан жагсаалтад нэмэгдлээ.",
+      title: isSaved ? useTranslatedValue("camp.unsaved_title", "Хадгалсан амралт") : useTranslatedValue("camp.saved_title", "Амжилттай хадгалагдлаа"),
+      description: isSaved ? useTranslatedValue("camp.unsaved_desc", "Амралт хадгалсан жагсаалтаас хасагдлаа.") : useTranslatedValue("camp.saved_desc", "Амралт хадгалсан жагсаалтад нэмэгдлээ."),
     });
   };
 
@@ -411,7 +420,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">Баазын мэдээллийг уншиж байна...</p>
+            <p className="text-gray-600 font-medium">{useTranslatedValue("camp.loading_info", "Баазын мэдээллийг уншиж байна...")}</p>
           </div>
         </div>
       </div>
@@ -424,13 +433,13 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Баазын мэдээллийг уншихад алдаа гарлаа
+              {useTranslatedValue("camp.error_title", "Баазын мэдээллийг уншихад алдаа гарлаа")}
             </h1>
             <p className="text-gray-600 mb-8 font-medium">{error.message}</p>
             <Link href="/camps">
               <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Camps
+                {useTranslatedValue("common.back_to_camps", "Back to Camps")}
               </Button>
             </Link>
           </div>
@@ -445,15 +454,15 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              Camp Not Found
+              {useTranslatedValue("camp.not_found", "Camp Not Found")}
             </h1>
             <p className="text-gray-600 mb-8 font-medium">
-              The camp you're looking for doesn't exist.
+              {useTranslatedValue("camp.not_found_desc", "The camp you're looking for doesn't exist.")}
             </p>
             <Link href="/camps">
               <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                Back to Camps
+                {useTranslatedValue("common.back_to_camps", "Back to Camps")}
               </Button>
             </Link>
           </div>
@@ -509,13 +518,15 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   // Transform backend data to match frontend expectations
   const campData = {
     id: camp.id,
-    name: translatedName,
-    location: translatedLocation,
+    name: translatedName || camp.name,
+    location: translatedLocation || camp.location,
+    description: translatedDesc || camp.description,
     price: camp.pricePerNight,
+    formattedPrice: translatedPrice,
+    capacity: camp.capacity,
     rating: 4.5, // Default rating since not in backend
     reviewCount: 0, // Default since not in backend
     images: parseImagePaths(camp.images).length > 0 ? parseImagePaths(camp.images) : [getPrimaryImage(camp.images)],
-    description: translatedDesc,
     longDescription: translatedDesc,
     amenities: parsedAmenities.items.map((amenity: string) => ({
       icon: Wifi, // Default icon
@@ -731,7 +742,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
               className="p-0 h-auto font-medium text-gray-600 hover:text-gray-900 text-xs sm:text-sm"
             >
               <ArrowLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
-              Буцах
+              {backLabel}
             </Button>
           </Link>
         </div>
@@ -1032,17 +1043,17 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                 <CardHeader className="p-3 xs:p-4 sm:p-5 lg:p-6">
                   <CardTitle className="flex items-center justify-between">
                     <span className="text-lg xs:text-xl lg:text-2xl font-bold">
-                      ₮{campData.price.toLocaleString()}
+                      {translatedPrice}
                     </span>
                     <span className="text-xs sm:text-sm text-gray-600 font-medium">
-                      шөнө
+                      {nightLabel}
                     </span>
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-3 xs:p-4 sm:p-5 lg:p-6 space-y-3 sm:space-y-4">
                   <div className="col-span-2">
                     <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
-                      Хугацаа сонгох
+                      {useTranslatedValue("common.select_period", "Хугацаа сонгох")}
                     </label>
                     <div
                       className="flex items-center justify-between border rounded-md px-3 py-2 cursor-pointer hover:border-emerald-600 transition-all font-medium bg-gray-50/50"
@@ -1052,17 +1063,17 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                         <Calendar className="w-4 h-4 mr-2 text-emerald-600 flex-shrink-0" />
                         <div className="flex items-center gap-1.5 overflow-hidden">
                           <span className={`text-xs sm:text-sm truncate ${checkIn ? "text-gray-900 font-bold" : "text-gray-400"}`}>
-                            {checkIn ? new Date(checkIn).toLocaleDateString('mn-MN') : "Ирэх"}
+                            {checkIn ? new Date(checkIn).toLocaleDateString(currentLang === 'mn' ? 'mn-MN' : 'en-US') : checkInLabel}
                           </span>
                           <ArrowRight className="w-3 h-3 text-gray-400 flex-shrink-0" />
                           <span className={`text-xs sm:text-sm truncate ${checkOut ? "text-gray-900 font-bold" : "text-gray-400"}`}>
-                            {checkOut ? new Date(checkOut).toLocaleDateString('mn-MN') : "Гарах"}
+                            {checkOut ? new Date(checkOut).toLocaleDateString(currentLang === 'mn' ? 'mn-MN' : 'en-US') : checkOutLabel}
                           </span>
                         </div>
                       </div>
                       {checkIn && checkOut && (
                         <div className="ml-2 bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded text-[10px] font-bold">
-                          {Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))} шөнө
+                          {Math.ceil((new Date(checkOut).getTime() - new Date(checkIn).getTime()) / (1000 * 60 * 60 * 24))} {nightLabel}
                         </div>
                       )}
                     </div>
@@ -1070,7 +1081,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
                   <div>
                     <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
-                      Зочдын тоо
+                      {useTranslatedValue("common.number_of_guests", "Зочдын тоо")}
                     </label>
                     <div className="flex items-center space-x-2 sm:space-x-3">
                       <Button
@@ -1082,7 +1093,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       >
                         -
                       </Button>
-                      <span className="font-semibold text-sm sm:text-base min-w-[60px] xs:min-w-[70px] text-center">{guests} хүн</span>
+                      <span className="font-semibold text-sm sm:text-base min-w-[60px] xs:min-w-[70px] text-center">{guests} {guestsLabel}</span>
                       <Button
                         variant="outline"
                         size="sm"
@@ -1093,34 +1104,29 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                         +
                       </Button>
                     </div>
-                    {guests >= (camp.capacity || 6) && (
-                      <p className="text-[10px] xs:text-xs text-orange-600 mt-1 font-medium">
-                        ⚠️ Багтаамж: {camp.capacity} хүн
-                      </p>
-                    )}
                   </div>
 
                   {checkIn && checkOut && (
                     <div className="space-y-2 pt-4 border-t">
                       <div className="flex justify-between text-sm">
                         <span className="font-medium">
-                          ₮{campData.price.toLocaleString()} ×{" "}
+                          {translatedPrice} ×{" "}
                           {Math.ceil(
                             (new Date(checkOut).getTime() -
                               new Date(checkIn).getTime()) /
                             (1000 * 60 * 60 * 24)
                           )}{" "}
-                          шөнө
+                          {nightLabel}
                         </span>
                         <span className="font-semibold">
-                          ₮{calculateTotal().toLocaleString()}
+                          {useTranslatedPrice(`camp[${campId}].total`, calculateTotal(), "MNT")}
                         </span>
                       </div>
                       <Separator />
                       <div className="flex justify-between font-bold">
-                        <span>Нийт</span>
+                        <span>{totalLabel}</span>
                         <span>
-                          ₮{calculateTotal().toLocaleString()}
+                          {useTranslatedPrice(`camp[${campId}].total_final`, calculateTotal(), "MNT")}
                         </span>
                       </div>
                     </div>
@@ -1141,10 +1147,10 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       {bookingLoading ? (
                         <div className="flex items-center gap-2">
                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          Уншиж байна...
+                          {useTranslatedValue("common.loading", "Уншиж байна...")}
                         </div>
                       ) : (
-                        !checkIn || !checkOut ? "Амрах өдрөө сонгох" : "Шууд захиалах"
+                        !checkIn || !checkOut ? useTranslatedValue("camp.select_dates", "Амрах өдрөө сонгох") : bookLabel
                       )}
                     </Button>
                   </div>

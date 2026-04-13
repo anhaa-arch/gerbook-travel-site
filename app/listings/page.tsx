@@ -26,6 +26,8 @@ import { amenitiesOptions } from "@/data/camp-options";
 import "../../lib/i18n";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/components/ui/use-toast";
+import { getLocalizedField } from "@/lib/localization";
+import { useTranslatedValue, useTranslatedPrice } from "@/hooks/use-translation";
 import {
   Pagination,
   PaginationContent,
@@ -43,11 +45,17 @@ const GET_YURTS = gql`
         node {
           id
           name
+          name_en
+          name_ko
           location
+          location_en
+          location_ko
           pricePerNight
           capacity
           images
           amenities
+          amenities_en
+          amenities_ko
         }
       }
       totalCount
@@ -66,7 +74,11 @@ const GET_PRODUCTS = gql`
         node {
           id
           name
+          name_en
+          name_ko
           description
+          description_en
+          description_ko
           price
           stock
           images
@@ -84,6 +96,192 @@ const GET_PRODUCTS = gql`
     }
   }
 `;
+
+const CampListingCard = ({ camp, checkIn, checkOut, searchParams }: any) => {
+  const { i18n } = useTranslation();
+  const currentLang = i18n.language;
+  
+  const imageSrc = getFirstImage(camp.images);
+  const translatedName = getLocalizedField(camp, "name", currentLang);
+  const translatedLocation = getLocalizedField(camp, "location", currentLang);
+  const translatedPrice = useTranslatedPrice(`camp[${camp.id}].price`, camp.pricePerNight || 0, "MNT");
+  
+  const guestsLabel = useTranslatedValue("common.guests", "зочин");
+  const bookLabel = useTranslatedValue("common.book_now", "Захиалах");
+
+  return (
+    <Card
+      key={camp.id}
+      className="relative group border border-emerald-900/10 bg-[#fdfcf0] rounded-2xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5"
+    >
+      <div className="flex flex-col h-full">
+        <div className="relative h-48 w-full overflow-hidden">
+          <Dialog>
+            <DialogTrigger asChild>
+              <div className="relative h-full w-full cursor-zoom-in group/img">
+                <Image
+                  src={imageSrc}
+                  alt={translatedName}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center">
+                  <ZoomIn className="text-white opacity-0 group-hover/img:opacity-100 transition-opacity w-8 h-8" />
+                </div>
+              </div>
+            </DialogTrigger>
+            <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+              <div className="relative aspect-video w-full h-full max-h-[85vh]">
+                <Image
+                  src={imageSrc}
+                  alt={translatedName}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+          <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 shadow-lg backdrop-blur-sm pointer-events-none">
+            {translatedLocation.split(',')[0]}
+          </div>
+        </div>
+
+        <div className="p-4 sm:p-5 flex flex-col flex-1">
+          <div className="mb-3 sm:mb-4">
+            <h3 className="font-black text-base sm:text-lg text-[#0F3D2E] leading-tight tracking-tight uppercase line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+              {translatedName}
+            </h3>
+          </div>
+
+          <div className="space-y-1.5 mb-5 sm:mb-6 text-[#0F3D2E]/80 font-bold">
+            <div className="flex items-center text-xs sm:text-sm">
+              <MapPin className="w-3.5 h-3.5 mr-2 text-emerald-600 flex-shrink-0" />
+              <span className="truncate">{translatedLocation}</span>
+            </div>
+            <div className="flex items-center text-xs sm:text-sm">
+              <Users className="w-3.5 h-3.5 mr-2 text-emerald-600 flex-shrink-0" />
+              <span>{camp.capacity} {guestsLabel}</span>
+            </div>
+          </div>
+
+          <div className="mt-auto space-y-3 sm:space-y-4">
+            <div className="h-px bg-[#0F3D2E]/10 w-full" />
+            <div className="flex flex-col lg:flex-row xl:flex-col 2xl:flex-row lg:items-center xl:items-stretch 2xl:items-center justify-between gap-3 sm:gap-4 w-full">
+              <div className="flex items-baseline min-w-0">
+                <span className="text-xl sm:text-2xl font-black text-[#0F3D20] leading-none whitespace-nowrap">
+                  {translatedPrice}
+                </span>
+              </div>
+              <Link href={`/camp/${camp.id}${checkIn && checkOut ? `?checkIn=${checkIn.toISOString().split('T')[0]}&checkOut=${checkOut.toISOString().split('T')[0]}` : ''}${searchParams.get('guests') ? (checkIn && checkOut ? '&' : '?') + `guests=${searchParams.get('guests')}` : ''}`} className="w-full lg:w-auto xl:w-full 2xl:w-auto">
+                <Button
+                  size="sm"
+                  className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-xs sm:text-sm px-4 sm:px-6 h-10 rounded-xl shadow-lg transition-all active:scale-95"
+                >
+                  {bookLabel}
+                </Button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+const ProductListingCard = ({ product, addToCart, toast }: any) => {
+  const { i18n } = useTranslation();
+  const currentLang = i18n.language;
+  
+  const imageSrc = getFirstImage(product.images);
+  const translatedName = getLocalizedField(product, "name", currentLang);
+  const translatedPrice = useTranslatedPrice(`prod[${product.id}].price`, product.price || 0, "MNT");
+  const addToCartLabel = useTranslatedValue("common.add_to_cart", "Сагсанд нэмэх");
+  const addedLabel = useTranslatedValue("common.added_to_cart", "Сагсанд нэмэгдлээ");
+
+  return (
+    <Card
+      key={product.id}
+      className="relative group border border-emerald-900/10 bg-[#fdfcf0] rounded-2xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5"
+    >
+      <div className="flex flex-col h-full">
+        <div className="relative h-40 sm:h-56 w-full overflow-hidden">
+          <Dialog>
+            <DialogTrigger asChild>
+              <div className="relative h-full w-full cursor-zoom-in group/img">
+                <Image
+                  src={imageSrc}
+                  alt={translatedName}
+                  fill
+                  className="object-cover transition-transform duration-700 group-hover:scale-110"
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center">
+                  <ZoomIn className="text-white opacity-0 group-hover/img:opacity-100 transition-opacity w-8 h-8" />
+                </div>
+              </div>
+            </DialogTrigger>
+            <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+              <div className="relative aspect-video w-full h-full max-h-[85vh]">
+                <Image
+                  src={imageSrc}
+                  alt={translatedName}
+                  fill
+                  className="object-contain"
+                  priority
+                />
+              </div>
+            </DialogContent>
+          </Dialog>
+          <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 shadow-lg backdrop-blur-sm pointer-events-none">
+            {useTranslatedValue(`cat.${product.category?.name}`, product.category?.name || "Бараа")}
+          </div>
+        </div>
+
+        <div className="p-3 sm:p-5 flex flex-col flex-1">
+          <div className="mb-2 sm:mb-4">
+            <h3 className="font-black text-sm sm:text-xl text-[#0F3D2E] leading-tight tracking-tight uppercase line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+              {translatedName}
+            </h3>
+          </div>
+
+          <div className="mt-auto space-y-3 sm:space-y-4">
+            <div className="h-px bg-[#0F3D2E]/10 w-full" />
+            <div className="flex flex-col gap-2 sm:gap-3 w-full">
+              <div className="flex items-baseline">
+                <span className="text-base sm:text-2xl font-black text-[#0F3D20] leading-none whitespace-nowrap">
+                  {translatedPrice}
+                </span>
+              </div>
+              <Button
+                size="sm"
+                className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-[10px] sm:text-sm px-3 sm:px-6 h-9 sm:h-11 rounded-xl shadow-lg transition-all active:scale-95 disabled:grayscale disabled:opacity-50"
+                onClick={() => {
+                  addToCart({
+                    id: product.id,
+                    type: "PRODUCT",
+                    name: product.name,
+                    seller: "Монгол",
+                    price: product.price,
+                    quantity: 1,
+                    image: imageSrc,
+                    category: product.category?.name || "Бараа",
+                    stock: product.stock
+                  });
+                  toast({
+                    title: addedLabel,
+                    description: `${translatedName} ${addedLabel}`,
+                  });
+                }}
+              >
+                {addToCartLabel}
+              </Button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
 
 export default function ListingsPage() {
   const { t, i18n } = useTranslation();
@@ -242,21 +440,21 @@ export default function ListingsPage() {
       <section className="bg-white border-b border-gray-200 py-8">
         <div className="max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[2000px] 4k:max-w-[2800px] mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-6 font-display">
-            Бүх жагсаалт
+            {useTranslatedValue("listings.title", "Бүх жагсаалт")}
           </h1>
 
           {/* Filters */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Аймаг сонгох
+                {useTranslatedValue("listings.select_province", "Аймаг сонгох")}
               </label>
               <Select
                 value={selectedProvince}
                 onValueChange={handleProvinceChange}
               >
                 <SelectTrigger className="bg-white border-gray-200">
-                  <SelectValue placeholder="Аймаг сонгох" />
+                  <SelectValue placeholder={useTranslatedValue("listings.select_province", "Аймаг сонгох")} />
                 </SelectTrigger>
                 <SelectContent>
                   {provinces.map((province) => (
@@ -270,7 +468,7 @@ export default function ListingsPage() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Сум сонгох
+                {useTranslatedValue("listings.select_district", "Сум сонгох")}
               </label>
               <Select
                 value={selectedDistrict}
@@ -278,7 +476,7 @@ export default function ListingsPage() {
                 disabled={!selectedProvince}
               >
                 <SelectTrigger className="bg-white border-gray-200">
-                  <SelectValue placeholder="Сум сонгох" />
+                  <SelectValue placeholder={useTranslatedValue("listings.select_district", "Сум сонгох")} />
                 </SelectTrigger>
                 <SelectContent>
                   {availableDistricts.map((district) => (
@@ -292,7 +490,7 @@ export default function ListingsPage() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                Огноо
+                {useTranslatedValue("common.date", "Огноо")}
               </label>
               <Button
                 variant="outline"
@@ -302,10 +500,10 @@ export default function ListingsPage() {
                 <Calendar className="mr-2 h-4 w-4 text-emerald-500" />
                 {checkIn && checkOut ? (
                   <span className="text-gray-900 font-medium">
-                    {checkIn.toLocaleDateString('mn-MN', { month: 'numeric', day: 'numeric' })} - {checkOut.toLocaleDateString('mn-MN', { month: 'numeric', day: 'numeric' })}
+                    {checkIn.toLocaleDateString(i18n.language === 'mn' ? 'mn-MN' : 'en-US', { month: 'numeric', day: 'numeric' })} - {checkOut.toLocaleDateString(i18n.language === 'mn' ? 'mn-MN' : 'en-US', { month: 'numeric', day: 'numeric' })}
                   </span>
                 ) : (
-                  <span className="text-gray-400">Огноо сонгох</span>
+                  <span className="text-gray-400">{useTranslatedValue("common.select_dates", "Огноо сонгох")}</span>
                 )}
               </Button>
             </div>
@@ -316,7 +514,7 @@ export default function ListingsPage() {
                 onClick={handleSearch}
               >
                 <Filter className="w-4 h-4 mr-2" />
-                Шүүх
+                {useTranslatedValue("common.filter", "Шүүх")}
               </Button>
             </div>
           </div>
@@ -334,11 +532,11 @@ export default function ListingsPage() {
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="camps" className="flex items-center gap-2">
                 <Home className="w-4 h-4" />
-                Амралт баазууд
+                {useTranslatedValue("listings.camps_tab", "Амралт баазууд")}
               </TabsTrigger>
               <TabsTrigger value="products" className="flex items-center gap-2">
                 <Package className="w-4 h-4" />
-                Бүтээгдэхүүн
+                {useTranslatedValue("listings.products_tab", "Бүтээгдэхүүн")}
               </TabsTrigger>
             </TabsList>
 
@@ -347,7 +545,7 @@ export default function ListingsPage() {
               <div className="mb-6">
 
                 <p className="text-gray-600 font-medium">
-                  {filteredCamps.length} бааз олдлоо
+                  {filteredCamps.length} {useTranslatedValue("listings.camps_found", "бааз олдлоо")}
                   {selectedProvince && (
                     <span className="ml-2 text-emerald-600">
                       "{selectedProvince}"
@@ -359,7 +557,7 @@ export default function ListingsPage() {
                     </span>
                   )}
                   {selectedProvince || selectedDistrict ? (
-                    <span className="ml-2 text-gray-500">- хайлтын үр дүн</span>
+                    <span className="ml-2 text-gray-500">- {useTranslatedValue("common.search_results", "хайлтын үр дүн")}</span>
                   ) : null}
                 </p>
               </div>
@@ -369,110 +567,17 @@ export default function ListingsPage() {
                 {filteredCamps.length > 0 ? (
                   filteredCamps
                     .slice((campPage - 1) * itemsPerPage, campPage * itemsPerPage)
-                    .map((camp: any) => {
-                      const imageSrc = getFirstImage(camp.images);
-
-                      // Parse amenities JSON
-                      let amenitiesList: string[] = [];
-                      try {
-                        if (camp.amenities) {
-                          const parsed = typeof camp.amenities === 'string' ? JSON.parse(camp.amenities) : camp.amenities;
-                          const items = parsed.items || [];
-                          // Map to Mongolian labels
-                          amenitiesList = items
-                            .map((value: string) => {
-                              const option = amenitiesOptions.find(a => a.value === value);
-                              return option ? option.label : value;
-                            })
-                            .filter(Boolean);
-                        }
-                      } catch (e) {
-                        // Fallback to old format (comma-separated)
-                        amenitiesList = camp.amenities ? camp.amenities.split(",") : [];
-                      }
-
-                      return (
-                        <Card
-                          key={camp.id}
-                          className="relative group border border-emerald-900/10 bg-[#fdfcf0] rounded-2xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5"
-                        >
-                          <div className="flex flex-col h-full">
-                            <div className="relative h-48 w-full overflow-hidden">
-                              <Dialog>
-                                <DialogTrigger asChild>
-                                  <div className="relative h-full w-full cursor-zoom-in group/img">
-                                    <Image
-                                      src={imageSrc}
-                                      alt={camp.name}
-                                      fill
-                                      className="object-cover transition-transform duration-700 group-hover:scale-110"
-                                    />
-                                    <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center">
-                                      <ZoomIn className="text-white opacity-0 group-hover/img:opacity-100 transition-opacity w-8 h-8" />
-                                    </div>
-                                  </div>
-                                </DialogTrigger>
-                                <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
-                                  <div className="relative aspect-video w-full h-full max-h-[85vh]">
-                                    <Image
-                                      src={imageSrc}
-                                      alt={camp.name}
-                                      fill
-                                      className="object-contain"
-                                      priority
-                                    />
-                                  </div>
-                                </DialogContent>
-                              </Dialog>
-                              <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 shadow-lg backdrop-blur-sm pointer-events-none">
-                                {camp.location.split(',')[0]}
-                              </div>
-                            </div>
-
-                            <div className="p-4 sm:p-5 flex flex-col flex-1">
-                              <div className="mb-3 sm:mb-4">
-                                <h3 className="font-black text-base sm:text-lg text-[#0F3D2E] leading-tight tracking-tight uppercase line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
-                                  {camp.name}
-                                </h3>
-                              </div>
-
-                              <div className="space-y-1.5 mb-5 sm:mb-6 text-[#0F3D2E]/80 font-bold">
-                                <div className="flex items-center text-xs sm:text-sm">
-                                  <MapPin className="w-3.5 h-3.5 mr-2 text-emerald-600 flex-shrink-0" />
-                                  <span className="truncate">{camp.location}</span>
-                                </div>
-                                <div className="flex items-center text-xs sm:text-sm">
-                                  <Users className="w-3.5 h-3.5 mr-2 text-emerald-600 flex-shrink-0" />
-                                  <span>{camp.capacity} зочин</span>
-                                </div>
-                              </div>
-
-                              <div className="mt-auto space-y-3 sm:space-y-4">
-                                <div className="h-px bg-[#0F3D2E]/10 w-full" />
-                                <div className="flex flex-col lg:flex-row xl:flex-col 2xl:flex-row lg:items-center xl:items-stretch 2xl:items-center justify-between gap-3 sm:gap-4 w-full">
-                                  <div className="flex items-baseline min-w-0">
-                                    <span className="text-xl sm:text-2xl font-black text-[#0F3D20] leading-none whitespace-nowrap">
-                                      {camp.pricePerNight?.toLocaleString()}
-                                    </span>
-                                    <span className="text-[#0F3D20] ml-1 font-bold text-sm sm:text-base">₮</span>
-                                  </div>
-                                  <Link href={`/camp/${camp.id}${checkIn && checkOut ? `?checkIn=${checkIn.toISOString().split('T')[0]}&checkOut=${checkOut.toISOString().split('T')[0]}` : ''}${searchParams.get('guests') ? (checkIn && checkOut ? '&' : '?') + `guests=${searchParams.get('guests')}` : ''}`} className="w-full lg:w-auto xl:w-full 2xl:w-auto">
-                                    <Button
-                                      size="sm"
-                                      className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-xs sm:text-sm px-4 sm:px-6 h-10 rounded-xl shadow-lg transition-all active:scale-95"
-                                    >
-                                      Захиалах
-                                    </Button>
-                                  </Link>
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        </Card>
-                      );
-                    })
+                    .map((camp: any) => (
+                      <CampListingCard 
+                        key={camp.id} 
+                        camp={camp} 
+                        checkIn={checkIn} 
+                        checkOut={checkOut} 
+                        searchParams={searchParams} 
+                      />
+                    ))
                 ) : (
-                  <p className="text-gray-500 text-center py-10">Амралт бааз олдсонгүй.</p>
+                  <p className="text-gray-500 text-center py-10">{useTranslatedValue("listings.no_camps", "Амралт бааз олдсонгүй.")}</p>
                 )}
               </div>
 
@@ -512,7 +617,7 @@ export default function ListingsPage() {
             <TabsContent value="products" className="space-y-6">
               <div className="mb-6">
                 <p className="text-gray-600 font-medium">
-                  {products.length} бүтээгдэхүүн олдлоо
+                  {products.length} {useTranslatedValue("listings.products_found", "бүтээгдэхүүн олдлоо")}
                 </p>
               </div>
 
@@ -520,92 +625,14 @@ export default function ListingsPage() {
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 3xl:grid-cols-4 4k:grid-cols-5 gap-8">
                 {products
                   .slice((productPage - 1) * itemsPerPage, productPage * itemsPerPage)
-                  .map((product: any) => {
-                    const imageSrc = getFirstImage(product.images);
-                    return (
-                      <Card
-                        key={product.id}
-                        className="relative group border border-emerald-900/10 bg-[#fdfcf0] rounded-2xl overflow-hidden shadow-md transition-all duration-300 hover:shadow-2xl hover:-translate-y-1.5"
-                      >
-                        <div className="flex flex-col h-full">
-                          <div className="relative h-40 sm:h-56 w-full overflow-hidden">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <div className="relative h-full w-full cursor-zoom-in group/img">
-                                  <Image
-                                    src={imageSrc}
-                                    alt={product.name}
-                                    fill
-                                    className="object-cover transition-transform duration-700 group-hover:scale-110"
-                                  />
-                                  <div className="absolute inset-0 bg-black/0 group-hover/img:bg-black/20 transition-colors flex items-center justify-center">
-                                    <ZoomIn className="text-white opacity-0 group-hover/img:opacity-100 transition-opacity w-8 h-8" />
-                                  </div>
-                                </div>
-                              </DialogTrigger>
-                              <DialogContent className="max-w-[95vw] sm:max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
-                                <div className="relative aspect-video w-full h-full max-h-[85vh]">
-                                  <Image
-                                    src={imageSrc}
-                                    alt={product.name}
-                                    fill
-                                    className="object-contain"
-                                    priority
-                                  />
-                                </div>
-                              </DialogContent>
-                            </Dialog>
-                            <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 shadow-lg backdrop-blur-sm pointer-events-none">
-                              {product.category?.name || "Бараа"}
-                            </div>
-                          </div>
-
-                          <div className="p-3 sm:p-5 flex flex-col flex-1">
-                            <div className="mb-2 sm:mb-4">
-                              <h3 className="font-black text-sm sm:text-xl text-[#0F3D2E] leading-tight tracking-tight uppercase line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
-                                {product.name}
-                              </h3>
-                            </div>
-
-                            <div className="mt-auto space-y-3 sm:space-y-4">
-                              <div className="h-px bg-[#0F3D2E]/10 w-full" />
-                              <div className="flex flex-col gap-2 sm:gap-3 w-full">
-                                <div className="flex items-baseline">
-                                  <span className="text-base sm:text-2xl font-black text-[#0F3D20] leading-none whitespace-nowrap">
-                                    {product.price?.toLocaleString()}
-                                  </span>
-                                  <span className="text-[#0F3D20] ml-0.5 font-bold text-xs sm:text-base">₮</span>
-                                </div>
-                                <Button
-                                  size="sm"
-                                  className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-[10px] sm:text-sm px-3 sm:px-6 h-9 sm:h-11 rounded-xl shadow-lg transition-all active:scale-95 disabled:grayscale disabled:opacity-50"
-                                  onClick={() => {
-                                    addToCart({
-                                      id: product.id,
-                                      type: "PRODUCT",
-                                      name: product.name,
-                                      seller: "Малчин",
-                                      price: product.price,
-                                      quantity: 1,
-                                      image: imageSrc,
-                                      category: product.category?.name || "Бараа",
-                                      stock: product.stock
-                                    });
-                                    toast({
-                                      title: "Сагсанд нэмэгдлээ",
-                                      description: `${product.name} амжилттай нэмэгдлээ.`,
-                                    });
-                                  }}
-                                >
-                                  Сагсанд нэмэх
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </Card>
-                    );
-                  })}
+                  .map((product: any) => (
+                    <ProductListingCard 
+                      key={product.id} 
+                      product={product} 
+                      addToCart={addToCart} 
+                      toast={toast} 
+                    />
+                  ))}
               </div>
 
               {/* Product Pagination */}

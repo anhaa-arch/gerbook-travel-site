@@ -21,6 +21,9 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { gql, useMutation } from "@apollo/client";
 import QRCode from "react-qr-code";
+import { useTranslation } from "react-i18next";
+import { useTranslatedValue, useTranslatedPrice } from "@/hooks/use-translation";
+import "../lib/i18n";
 
 const CREATE_BOOKING_PAYMENT = gql`
   mutation CreateBookingPayment($bookingId: String!) {
@@ -158,6 +161,9 @@ export function PaymentModal({
   eventDetails,
   orderId,
 }: PaymentModalProps) {
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language;
+
   const [selectedMethod, setSelectedMethod] = useState<string | null>("qpay");
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
   const [phoneNumber, setPhoneNumber] = useState("");
@@ -176,17 +182,13 @@ export function PaymentModal({
 
   const isChecking = isCheckingBooking || isCheckingOrder || isCheckingEvent;
 
-  // Log GraphQL errors for debugging
-  useEffect(() => {
-    if (qpayBookingMutationError) {
-      console.error('CreateBookingPayment GraphQL error:', qpayBookingMutationError.graphQLErrors, qpayBookingMutationError.networkError);
-    }
-    if (qpayOrderMutationError) {
-      console.error('CreateOrderPayment GraphQL error:', qpayOrderMutationError.graphQLErrors, qpayOrderMutationError.networkError);
-    }
-  }, [qpayBookingMutationError, qpayOrderMutationError]);
-
   const displayTotal = bookingDetails?.total || eventDetails?.total || amount || 0;
+  const formattedTotal = useTranslatedPrice("payment.total", displayTotal, "MNT");
+  
+  const payLabel = useTranslatedValue("payment.pay", "Төлөх");
+  const checkingLabel = useTranslatedValue("payment.checking", "Шалгаж байна...");
+  const processingLabel = useTranslatedValue("payment.processing", "Боловсруулж байна...");
+  const qpayLabel = useTranslatedValue("payment.qpay_guide", "QPay-ээр төлөх");
 
   const handlePayment = async () => {
     if (!selectedMethod) return;
@@ -301,10 +303,10 @@ export function PaymentModal({
       } else if (eventBookingId) {
         const { data } = await checkEventPayment({ variables: { bookingId: eventBookingId } });
         if (data?.checkQPayEventPaymentAndConfirm?.status === "PAID" || data?.checkQPayEventPaymentAndConfirm?.status === "CONFIRMED") {
-          alert("Төлбөр амжилттай төлөгдлөө!");
+          alert(useTranslatedValue("payment.success", "Төлбөр амжилттай төлөгдлөө!"));
           onComplete("qpay");
         } else {
-          alert("Төлбөр хараахан төлөгдөөгүй байна.");
+          alert(useTranslatedValue("payment.not_paid", "Төлбөр хараахан төлөгдөөгүй байна."));
         }
       }
     } catch (err: any) {
@@ -331,10 +333,10 @@ export function PaymentModal({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl md:text-2xl font-bold">
-            Төлбөр төлөх
+            {useTranslatedValue("payment.title", "Төлбөр төлөх")}
           </DialogTitle>
           <DialogDescription className="text-sm text-gray-500">
-            Төлбөрөө QPay болон банкны апп-аар төлнө үү.
+            {useTranslatedValue("payment.description", "Төлбөрөө QPay болон банкны апп-аар төлнө үү.")}
           </DialogDescription>
         </DialogHeader>
 
@@ -406,9 +408,9 @@ export function PaymentModal({
                         </div>
                         <Separator />
                         <div className="flex justify-between text-base font-bold">
-                          <span>Нийт дүн</span>
+                          <span>{useTranslatedValue("payment.total_amount", "Нийт дүн")}</span>
                           <span className="text-emerald-600">
-                            ₮{bookingDetails.total.toLocaleString()}
+                            {formattedTotal}
                           </span>
                         </div>
                       </div>
@@ -457,8 +459,8 @@ export function PaymentModal({
                     <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-lg">
                       <ShoppingBag className="w-6 h-6 text-emerald-600" />
                       <div>
-                        <p className="text-xs text-gray-500 font-bold uppercase">Сагсны нийт</p>
-                        <p className="text-lg font-black text-emerald-700">₮{displayTotal.toLocaleString()}</p>
+                        <p className="text-xs text-gray-500 font-bold uppercase">{useTranslatedValue("payment.cart_total", "Сагсны нийт")}</p>
+                        <p className="text-lg font-black text-emerald-700">{formattedTotal}</p>
                       </div>
                     </div>
                   </div>
@@ -738,10 +740,10 @@ export function PaymentModal({
                   {isProcessing ? (
                     <span className="flex items-center gap-2">
                       <span className="animate-spin text-xl">⏳</span>
-                      Боловсруулж байна...
+                      {processingLabel}
                     </span>
                   ) : (
-                    <span>Төлөх ₮{displayTotal.toLocaleString()}</span>
+                    <span>{payLabel} {formattedTotal}</span>
                   )}
                 </Button>
 

@@ -26,10 +26,18 @@ export const GET_user_BOOKINGS = gql`
           yurt {
             id
             name
+            name_en
+            name_ko
             location
+            location_en
+            location_ko
             images
             description
+            description_en
+            description_ko
             amenities
+            amenities_en
+            amenities_ko
             owner {
               id
               name
@@ -60,6 +68,8 @@ export const GET_user_ORDERS = gql`
             product {
               id
               name
+              name_en
+              name_ko
               images
             }
             quantity
@@ -84,7 +94,11 @@ export const GET_user_TRAVEL_BOOKINGS = gql`
           travel {
             id
             name
+            name_en
+            name_ko
             location
+            location_en
+            location_ko
             images
           }
           startDate
@@ -105,11 +119,19 @@ export const GET_AVAILABLE_YURTS = gql`
         node {
           id
           name
+          name_en
+          name_ko
           description
+          description_en
+          description_ko
           location
+          location_en
+          location_ko
           pricePerNight
           capacity
           amenities
+          amenities_en
+          amenities_ko
           images
         }
       }
@@ -124,7 +146,11 @@ export const GET_AVAILABLE_PRODUCTS = gql`
         node {
           id
           name
+          name_en
+          name_ko
           description
+          description_en
+          description_ko
           price
           stock
           images
@@ -145,7 +171,11 @@ export const GET_SAVED_YURTS = gql`
       yurt {
         id
         name
+        name_en
+        name_ko
         location
+        location_en
+        location_ko
         pricePerNight
         images
       }
@@ -161,10 +191,16 @@ export const GET_AVAILABLE_TRAVELS = gql`
         node {
           id
           name
+          name_en
+          name_ko
           description
+          description_en
+          description_ko
           duration
           basePrice
           location
+          location_en
+          location_ko
           images
         }
       }
@@ -262,7 +298,11 @@ export const GET_user_EVENT_BOOKINGS = gql`
       event {
         id
         title
+        title_en
+        title_ko
         location
+        location_en
+        location_ko
         startDate
         endDate
         images
