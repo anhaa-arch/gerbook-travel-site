@@ -4,6 +4,7 @@ import { use, useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { parseImagePaths, getPrimaryImage } from "@/lib/imageUtils";
+import { getLocalizedField } from "@/lib/localization";
 import {
   amenitiesOptions,
   activitiesOptions,
@@ -55,11 +56,19 @@ const GET_YURT = gql`
     yurt(id: $id) {
       id
       name
+      name_en
+      name_ko
       description
+      description_en
+      description_ko
       location
+      location_en
+      location_ko
       pricePerNight
       capacity
       amenities
+      amenities_en
+      amenities_ko
       images
       isFeatured
       ownerId
@@ -95,7 +104,8 @@ interface CampDetailPageProps {
 }
 
 export default function CampDetailPage({ params }: CampDetailPageProps) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const currentLang = i18n.language;
   const { toast } = useToast();
   const { user, isAuthenticated } = useAuth();
   const { addToCart } = useCart();
@@ -427,15 +437,15 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   // Transform backend data to match frontend expectations
   const campData = {
     id: camp.id,
-    name: camp.name,
-    location: camp.location,
+    name: getLocalizedField(camp, "name", currentLang),
+    location: getLocalizedField(camp, "location", currentLang),
     price: camp.pricePerNight,
     rating: 4.5, // Default rating since not in backend
     reviewCount: 0, // Default since not in backend
     images: parseImagePaths(camp.images).length > 0 ? parseImagePaths(camp.images) : [getPrimaryImage(camp.images)],
-    description: camp.description,
-    longDescription: camp.description, // Use description as long description
-    amenities: parsedAmenities.items.map((amenity: string) => ({
+    description: getLocalizedField(camp, "description", currentLang),
+    longDescription: getLocalizedField(camp, "description", currentLang),
+    amenities: parseAmenitiesJSON(getLocalizedField(camp, "amenities", currentLang)).items.map((amenity: string) => ({
       icon: Wifi, // Default icon
       name: getLabel(amenity, amenitiesOptions),
       available: true,
