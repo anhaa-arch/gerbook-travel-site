@@ -43,6 +43,46 @@ import { useToast } from "@/components/ui/use-toast";
 import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 import { useSaved } from "@/hooks/use-saved";
+import { useTranslatedValue, useTranslatedPrice } from "@/hooks/use-translation";
+
+// Rules of Hooks: Extracting sub-components to handle translations in lists
+const AmenityItem = ({ label, icon: Icon, available }: any) => {
+  return (
+    <div className="flex items-center space-x-2">
+      <Icon className={`w-4 h-4 flex-shrink-0 ${available ? "text-emerald-600" : "text-gray-400"}`} />
+      <span className={`text-xs xs:text-sm font-medium leading-tight ${available ? "text-gray-900" : "text-gray-400 line-through"}`}>
+        {label}
+      </span>
+    </div>
+  );
+};
+
+const ActivityItem = ({ label }: any) => {
+  return (
+    <div className="flex items-center space-x-3 p-3 bg-white rounded-lg border">
+      <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
+      <span className="text-gray-700 font-medium">{label}</span>
+    </div>
+  );
+};
+
+const FacilityItem = ({ label }: any) => {
+  return (
+    <div className="flex items-center gap-2 px-3 py-1.5 bg-gray-50 rounded-full border border-gray-100">
+      <div className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+      <span className="text-xs font-medium text-gray-700">{label}</span>
+    </div>
+  );
+};
+
+const PolicyRow = ({ label, value }: any) => {
+  return (
+    <div className="flex justify-between items-start gap-4">
+      <span className="text-gray-600 font-medium text-sm sm:text-base">{label}:</span>
+      <span className="font-semibold text-sm sm:text-base text-right">{value}</span>
+    </div>
+  );
+};
 import {
   CREATE_BOOKING,
   GET_user_BOOKINGS,
@@ -77,6 +117,8 @@ const GET_YURT = gql`
         name
         role
         hostBio
+        hostBio_en
+        hostBio_ko
         hostExperience
         hostLanguages
       }
@@ -145,6 +187,30 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     
     console.log('✅ Prefilled from search params:', { checkInParam, checkOutParam, guestsParam });
   }, [searchParams]);
+
+  // MOVE HOOKS TO TOP TO COMPLY WITH RULES OF HOOKS
+  // Fetch DB translated values first if available
+  const translatedName = data?.yurt ? getLocalizedField(data.yurt, "name", currentLang) : "";
+  const translatedLocation = data?.yurt ? getLocalizedField(data.yurt, "location", currentLang) : "";
+  const translatedDesc = data?.yurt ? getLocalizedField(data.yurt, "description", currentLang) : "";
+  const translatedHostBio = data?.yurt?.owner ? getLocalizedField(data.yurt.owner, "hostBio", currentLang) || "Монголын уламжлалт зочломтгой байдлыг санал болгож байна." : "Монголын уламжлалт зочломтгой байдлыг санал болгож байна.";
+  
+  const partnerLabel = useTranslatedValue("camp.partner_label", "Онцгой хамтрагч");
+  const reviewsLabel = useTranslatedValue("common.reviews", "сэтгэгдэл");
+  const savedLabel = useTranslatedValue("common.saved", "Хадгалсан");
+  const saveLabel = useTranslatedValue("common.save", "Хадгалах");
+  const shareLabel = useTranslatedValue("common.share", "Хуваалцах");
+  const amenitiesTitle = useTranslatedValue("camp.amenities_label", "Тав тухтай байдал");
+  const activitiesTitle = useTranslatedValue("camp.activities_label", "Үйл ажиллагаа ба туршлага");
+  const accommodationTitle = useTranslatedValue("camp.accommodation_label", "Байршуулалт");
+  const hostLabel = useTranslatedValue("camp.host_label", "Эзэнтэй танилцах");
+  const rulesLabel = useTranslatedValue("camp.rules_label", "Дүрэм журам");
+  const phoneLabel = useTranslatedValue("common.phone", "Утас");
+  const emailLabel = useTranslatedValue("common.email", "Имэйл");
+  const contactBtnLabel = useTranslatedValue("host.contact_button", "Эзэнтэй холбогдох");
+  const guestsUnit = useTranslatedValue("common.guests_unit", "хүн");
+  const experienceSuffix = useTranslatedValue("host.experience_suffix", "туршлагатай");
+  const languagesLabel = useTranslatedValue("host.languages_label", "Хэл");
 
   const [createBooking, { loading: bookingLoading, error: bookingError }] =
     useMutation(CREATE_BOOKING, {
@@ -424,7 +490,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     }
   };
 
-  const parsedAmenities = parseAmenitiesJSON(camp.amenities || "");
+  const localizedAmenitiesStr = data?.yurt ? getLocalizedField(data.yurt, "amenities", currentLang) : "";
+  const parsedAmenities = parseAmenitiesJSON(localizedAmenitiesStr || camp.amenities || "");
 
   console.log("🏕️ Parsed amenities:", parsedAmenities);
 
@@ -437,29 +504,32 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   // Transform backend data to match frontend expectations
   const campData = {
     id: camp.id,
-    name: getLocalizedField(camp, "name", currentLang),
-    location: getLocalizedField(camp, "location", currentLang),
+    name: translatedName,
+    location: translatedLocation,
     price: camp.pricePerNight,
     rating: 4.5, // Default rating since not in backend
     reviewCount: 0, // Default since not in backend
     images: parseImagePaths(camp.images).length > 0 ? parseImagePaths(camp.images) : [getPrimaryImage(camp.images)],
-    description: getLocalizedField(camp, "description", currentLang),
-    longDescription: getLocalizedField(camp, "description", currentLang),
-    amenities: parseAmenitiesJSON(getLocalizedField(camp, "amenities", currentLang)).items.map((amenity: string) => ({
+    description: translatedDesc,
+    longDescription: translatedDesc,
+    amenities: parsedAmenities.items.map((amenity: string) => ({
       icon: Wifi, // Default icon
-      name: getLabel(amenity, amenitiesOptions),
+      id: amenity,
+      name: currentLang === "mn" ? getLabel(amenity, amenitiesOptions) : amenity,
       available: true,
     })),
-    activities: parsedAmenities.activities.map((activity: string) =>
-      getLabel(activity, activitiesOptions)
-    ),
+    activities: parsedAmenities.activities.map((activity: string) => ({
+      id: activity,
+      name: currentLang === "mn" ? getLabel(activity, activitiesOptions) : activity,
+    })),
     accommodation: {
-      type: getLabel(parsedAmenities.accommodationType, accommodationTypes) || "Уламжлалт гэр",
-      capacity: `${camp.capacity} хүн`,
+      type: currentLang === "mn" ? (getLabel(parsedAmenities.accommodationType, accommodationTypes) || "Уламжлалт гэр") : (parsedAmenities.accommodationType || "Traditional Yurt"),
+      capacity: `${camp.capacity} ${guestsUnit}`,
       totalGers: 1,
-      facilities: parsedAmenities.facilities.map((facility: string) =>
-        getLabel(facility, facilitiesOptions)
-      ),
+      facilities: parsedAmenities.facilities.map((facility: string) => ({
+        id: facility,
+        name: currentLang === "mn" ? getLabel(facility, facilitiesOptions) : facility,
+      })),
     },
     host: {
       name: camp.owner?.name || "Эзэн",
@@ -467,7 +537,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       experience: camp.owner?.hostExperience || "5+ жил",
       languages: camp.owner?.hostLanguages ? camp.owner.hostLanguages.split(',').map((l: string) => l.trim()) : ["Монгол", "Англи"],
       rating: 4.5,
-      description: camp.owner?.hostBio || "Монголын уламжлалт зочломтгой байдлыг санал болгож байна.",
+      description: translatedHostBio,
       email: camp.ownerEmail || "",
       phone: camp.ownerPhone || "",
       id: camp.owner?.id || "",
@@ -476,22 +546,18 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     policies: {
       checkIn: parsedAmenities.policies?.checkIn || "14:00",
       checkOut: parsedAmenities.policies?.checkOut || "11:00",
-      cancellation: getLabel(
-        parsedAmenities.policies?.cancellation || "free_48h",
-        policiesOptions.cancellationPolicy
-      ),
-      children: getLabel(
-        parsedAmenities.policies?.children || "all_ages",
-        policiesOptions.childrenPolicy
-      ),
-      pets: getLabel(
-        parsedAmenities.policies?.pets || "not_allowed",
-        policiesOptions.petsPolicy
-      ),
-      smoking: getLabel(
-        parsedAmenities.policies?.smoking || "no_smoking",
-        policiesOptions.smokingPolicy
-      ),
+      cancellation: currentLang === "mn" 
+        ? getLabel(parsedAmenities.policies?.cancellation || "free_48h", policiesOptions.cancellationPolicy)
+        : (parsedAmenities.policies?.cancellation || "Free cancellation"),
+      children: currentLang === "mn"
+        ? getLabel(parsedAmenities.policies?.children || "all_ages", policiesOptions.childrenPolicy)
+        : (parsedAmenities.policies?.children || "All ages welcome"),
+      petsValue: currentLang === "mn"
+        ? getLabel(parsedAmenities.policies?.pets || "not_allowed", policiesOptions.petsPolicy)
+        : (parsedAmenities.policies?.pets || "Not allowed"),
+      smokingValue: currentLang === "mn"
+        ? getLabel(parsedAmenities.policies?.smoking || "no_smoking", policiesOptions.smokingPolicy)
+        : (parsedAmenities.policies?.smoking || "No smoking"),
     },
     location_details: {
       nearbyAttractions: [],
@@ -713,7 +779,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     <div className="flex items-center gap-2 mb-4">
                       <div className="inline-flex items-center gap-1.5 bg-gradient-to-r from-amber-400 to-yellow-600 text-white px-4 py-1.5 rounded-full text-[10px] font-black uppercase tracking-widest shadow-xl backdrop-blur-md border border-white/30 ring-1 ring-black/5">
                         <Star className="w-3.5 h-3.5 fill-white" />
-                        Онцгой хамтрагч
+                        {partnerLabel}
                       </div>
                     </div>
                   )}
@@ -722,7 +788,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-yellow-400 text-yellow-400 mr-1" />
                       <span className="font-semibold text-xs sm:text-sm">{campData.rating}</span>
                       <span className="text-gray-600 ml-1 font-medium text-xs sm:text-sm">
-                        ({campData.reviewCount} сэтгэгдэл)
+                        ({campData.reviewCount} {reviewsLabel})
                       </span>
                     </div>
                   </div>
@@ -742,7 +808,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       className={`w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2 transition-colors ${isSaved ? "fill-red-500 text-red-500" : "text-gray-400"
                         }`}
                     />
-                    <span className="hidden xs:inline">{isSaved ? "Хадгалсан" : "Хадгалах"}</span>
+                      <span className="hidden xs:inline">{isSaved ? savedLabel : saveLabel}</span>
                   </Button>
                   <Button
                     variant="outline"
@@ -764,8 +830,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       }
                     }}
                   >
-                    <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    <span className="hidden xs:inline">Хуваалцах</span>
+                    <Share2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 mr-1.5 sm:mr-2" />
+                    <span className="hidden xs:inline">{shareLabel}</span>
                   </Button>
                 </div>
               </div>
@@ -778,24 +844,11 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             {/* Amenities */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Тав тухтай байдал
+                {amenitiesTitle}
               </h2>
               <div className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-3 md:grid-cols-4 gap-y-3 gap-x-2">
                 {campData.amenities.map((amenity: any, index: number) => (
-                  <div key={index} className="flex items-center space-x-2">
-                    <amenity.icon
-                      className={`w-4 h-4 flex-shrink-0 ${amenity.available ? "text-emerald-600" : "text-gray-400"
-                        }`}
-                    />
-                    <span
-                      className={`text-xs xs:text-sm font-medium leading-tight ${amenity.available
-                        ? "text-gray-900"
-                        : "text-gray-400 line-through"
-                        }`}
-                    >
-                      {amenity.name}
-                    </span>
-                  </div>
+                  <AmenityItem key={index} id={amenity.id} label={amenity.name} icon={amenity.icon} available={amenity.available} />
                 ))}
               </div>
             </div>
@@ -803,19 +856,11 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             {/* Activities */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Үйл ажиллагаа ба туршлага
+                {activitiesTitle}
               </h2>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                {campData.activities.map((activity: string, index: number) => (
-                  <div
-                    key={index}
-                    className="flex items-center space-x-3 p-3 bg-white rounded-lg border"
-                  >
-                    <div className="w-2 h-2 bg-emerald-500 rounded-full"></div>
-                    <span className="text-gray-700 font-medium">
-                      {activity}
-                    </span>
-                  </div>
+                {campData.activities.map((activity: any, index: number) => (
+                  <ActivityItem key={index} id={activity.id} label={activity.name} />
                 ))}
               </div>
             </div>
@@ -823,7 +868,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             {/* Accommodation Details - Redesigned for Mobile */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Байршуулалт
+                {accommodationTitle}
               </h2>
               <Card className="overflow-hidden border-emerald-100 shadow-sm">
                 <CardContent className="p-4 sm:p-5 md:p-6">
@@ -841,19 +886,31 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
                       <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
                         <div className="flex flex-col bg-gray-50/80 p-3 rounded-lg border border-gray-100">
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-1">Багтаамж</span>
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-1">{useTranslatedValue("common.capacity", "Багтаамж")}</span>
                           <span className="text-base font-bold text-emerald-700">
                             {campData.accommodation.capacity}
                           </span>
                         </div>
                         <div className="flex flex-col bg-gray-50/80 p-3 rounded-lg border border-gray-100">
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-1">Нийт гэр</span>
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-1">{useTranslatedValue("common.total_gers", "Нийт гэр")}</span>
                           <span className="text-base font-bold text-emerald-700">
                             {campData.accommodation.totalGers} ш
                           </span>
                         </div>
                       </div>
                     </div>
+
+                    {/* Facilities if any */}
+                    {campData.accommodation.facilities?.length > 0 && (
+                      <div className="pt-4 border-t border-gray-100">
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-3 block">{useTranslatedValue("common.facilities", "Тохижилт")}</span>
+                        <div className="flex flex-wrap gap-2">
+                          {campData.accommodation.facilities.map((facility: any, idx: number) => (
+                            <FacilityItem key={idx} id={facility.id} label={facility.name} />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -862,7 +919,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             {/* Host Information */}
             <div>
               <h2 className="text-xl font-bold text-gray-900 mb-4">
-                Эзэнтэй танилцах
+                {hostLabel}
               </h2>
               <Card>
                 <CardContent className="p-6">
@@ -886,10 +943,10 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       </div>
                       <div className="flex flex-wrap gap-4 text-sm text-gray-600 mb-3">
                         <span className="font-medium whitespace-nowrap">
-                          {campData.host.experience} туршлагатай
+                          {campData.host.experience} {experienceSuffix}
                         </span>
                         <span className="font-medium">
-                          Хэл: {campData.host.languages.join(", ")}
+                          {languagesLabel}: {campData.host.languages.join(", ")}
                         </span>
                       </div>
                       <p className="text-gray-700 text-sm font-medium mb-3 break-words">
@@ -898,13 +955,13 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       <div className="flex flex-col gap-2 text-sm">
                         {campData.host.phone && (
                           <div className="flex items-center text-gray-600">
-                            <span className="font-medium whitespace-nowrap">Утас: </span>
+                            <span className="font-medium whitespace-nowrap">{useTranslatedValue("common.phone", "Утас")}: </span>
                             <span className="ml-2">{campData.host.phone}</span>
                           </div>
                         )}
                         {campData.host.email && (
                           <div className="flex items-start text-gray-600">
-                            <span className="font-medium whitespace-nowrap mt-0.5">Имэйл: </span>
+                            <span className="font-medium whitespace-nowrap mt-0.5">{useTranslatedValue("common.email", "Имэйл")}: </span>
                             <span className="ml-2 break-all">{campData.host.email}</span>
                           </div>
                         )}
@@ -933,7 +990,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                         }}
                       >
                         <MessageCircle className="w-4 h-4 mr-2" />
-                        Эзэнтэй холбогдох
+                        {contactBtnLabel}
                       </Button>
                     </div>
                   </div>
@@ -945,44 +1002,16 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             <CommentSection yurtId={campId} />
 
 
-            {/* Policies */}
             <div>
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Дүрэм журам</h2>
+              <h2 className="text-xl font-bold text-gray-900 mb-4">{rulesLabel}</h2>
               <Card>
                 <CardContent className="p-4 sm:p-6">
                   <div className="grid grid-cols-1 gap-4">
                     <div className="space-y-3">
-                      <div className="flex justify-between items-start gap-4">
-                        <span className="text-gray-600 font-medium text-sm sm:text-base">
-                          Байрлах цаг
-                        </span>
-                        <span className="font-semibold text-sm sm:text-base text-right">
-                          {campData.policies.checkIn}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-start gap-4">
-                        <span className="text-gray-600 font-medium text-sm sm:text-base">
-                          Гарах цаг:
-                        </span>
-                        <span className="font-semibold text-sm sm:text-base text-right">
-                          {campData.policies.checkOut}
-                        </span>
-                      </div>
-
-                      <div className="flex justify-between items-start gap-4">
-                        <span className="text-gray-600 font-medium text-sm sm:text-base">Тэжээвэр амьтан:</span>
-                        <span className="font-semibold text-sm sm:text-base text-right">
-                          {campData.policies.pets}
-                        </span>
-                      </div>
-                      <div className="flex justify-between items-start gap-4">
-                        <span className="text-gray-600 font-medium text-sm sm:text-base">
-                          Тамхи татах:
-                        </span>
-                        <span className="font-semibold text-sm sm:text-base text-right">
-                          {campData.policies.smoking}
-                        </span>
-                      </div>
+                      <PolicyRow id="check_in" label="Байрлах цаг" value={campData.policies.checkIn} />
+                      <PolicyRow id="check_out" label="Гарах цаг" value={campData.policies.checkOut} />
+                      <PolicyRow id="pets" label="Тэжээвэр амьтан" value={campData.policies.petsValue} />
+                      <PolicyRow id="smoking" label="Тамхи татах" value={campData.policies.smokingValue} />
                     </div>
                   </div>
                   

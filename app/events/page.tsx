@@ -12,10 +12,16 @@ const GET_ALL_EVENTS = gql`
     events(activeOnly: $activeOnly) {
       id
       title
+      title_en
+      title_ko
       category
       location
+      location_en
+      location_ko
       groupSize
       shortDescription
+      shortDescription_en
+      shortDescription_ko
       priceInfo
       pricePerPerson
       startDate
@@ -103,25 +109,15 @@ export default function EventsPage() {
           {events.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 sm:gap-10">
               {events.map((event: any) => {
-                const parsedImages = event.images || [];
                 return (
                   <EventCard
                     key={event.id}
-                    id={event.id}
-                    title={event.title}
-                    category={event.category}
-                    location={event.location}
-                    groupSize={event.groupSize}
-                    shortDescription={event.shortDescription}
-                    priceInfo={event.priceInfo}
-                    pricePerPerson={event.pricePerPerson}
-                    startDate={event.startDate}
-                    endDate={event.endDate}
-                    images={parsedImages}
+                    event={event}
                   />
                 );
               })}
             </div>
+
           ) : (
             <div className="text-center py-32 bg-white rounded-[3rem] border border-gray-100 shadow-sm">
               <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">

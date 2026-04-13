@@ -1,5 +1,8 @@
+"use client";
+
 import { Phone, Mail, Facebook, Instagram } from "lucide-react";
 import Image from "next/image";
+import { useTranslatedValue } from "@/hooks/use-translation";
 
 export function Footer() {
   return (
@@ -19,7 +22,7 @@ export function Footer() {
         
         {/* Subtle bottom light gradient overlay to ensure dark text legibility */}
         <div className="absolute inset-0 bg-gradient-to-t from-white/60 via-white/10 to-transparent z-0 pointer-events-none"></div>
-
+ 
         {/* Content Container */}
         <div className="relative z-10 max-w-4xl mx-auto px-6 flex flex-col items-center justify-center space-y-6 sm:space-y-8 mt-auto pt-32">
           
@@ -38,7 +41,7 @@ export function Footer() {
               <span>support@malchincamp.mn</span>
             </a>
           </div>
-
+ 
           {/* Row 2: Social Media Icons */}
           <div className="flex items-center justify-center gap-6 sm:gap-8">
             <a
@@ -69,14 +72,14 @@ export function Footer() {
               </div>
             </a>
           </div>
-
+ 
           {/* Divider Line */}
           <div className="w-full max-w-[200px] sm:max-w-xs border-t border-[#0F3D2E]/20 rounded-full my-2"></div>
-
+ 
           {/* Copyright and URL */}
           <div className="flex flex-col items-center justify-center space-y-1.5 text-center">
             <p className="text-xs sm:text-sm text-[#0F3D2E]/80 font-medium tracking-wide">
-              © {new Date().getFullYear()} MalchinCamp. Бүх эрх хуулиар хамгаалагдсан.
+              © {new Date().getFullYear()} MalchinCamp. {useTranslatedValue("footer.copyright", "Бүх эрх хуулиар хамгаалагдсан.")}
             </p>
             <a 
               href="https://malchincamp.mn" 

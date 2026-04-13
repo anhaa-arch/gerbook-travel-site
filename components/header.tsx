@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/use-auth";
 import { useCart } from "@/hooks/use-cart";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
+import { AiLanguageSelector } from "@/components/ai-language-selector";
 
 const LANGUAGES = [
   { flag: "🇲🇳", name: "Монгол", code: "mn" },
@@ -79,6 +80,11 @@ export function Header() {
 
             {/* Right side Actions (Cart & Hamburger) */}
             <div className="flex items-center space-x-3 sm:space-x-4">
+
+              {/* AI Language & Currency Selector */}
+              <div className="hidden sm:block">
+                <AiLanguageSelector />
+              </div>
 
               {/* Cart Button */}
               <Link

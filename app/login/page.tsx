@@ -271,7 +271,7 @@ export default function LoginPage() {
       {/* Right side - Sidebar */}
       <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-green-600 to-green-800 items-center justify-center p-8">
         <div className="text-center text-white max-w-md">
-          <h2 className="text-4xl font-black mb-6 drop-shadow-md uppercase">{t("sidebarQuotes.mainTitle", "Тасалж болохгүй талын соёл")}</h2>
+          <h2 className="text-4xl font-black mb-6 drop-shadow-md uppercase">{t("sidebarQuotes.mainTitle", "Тасалж болохгүй  ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ")}</h2>
           <p className="text-xl mb-10 opacity-90 font-bold tracking-wide uppercase">
             {t("sidebarQuotes.subTitle", "Нүүдэлчин ахуй соёл Монголын баялаг")}
           </p>

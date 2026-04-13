@@ -221,7 +221,7 @@ export default function RegisterPage() {
 
             <div className="bg-emerald-50/50 p-4 rounded-2xl border border-emerald-100 text-center">
               <p className="text-[#1b7c53] text-xs font-bold leading-relaxed">
-                {t("auth.register.roleTraveler", "Аялагч (Traveler)")} 
+                {t("auth.register.roleTraveler", "Аялагч (Traveler)")}
               </p>
             </div>
 
@@ -362,7 +362,7 @@ export default function RegisterPage() {
         {/* Sidebar for larger screens */}
         <div className="hidden lg:flex lg:flex-1 bg-gradient-to-br from-green-600 to-green-800 items-center justify-center p-8">
           <div className="text-center text-white max-w-md">
-            <h2 className="text-4xl font-black mb-6 drop-shadow-md uppercase">{t("sidebarQuotes.mainTitle", "Тасалж болохгүй талын соёл")}</h2>
+            <h2 className="text-4xl font-black mb-6 drop-shadow-md uppercase">{t("sidebarQuotes.mainTitle", "Тасалж болохгүй  ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ")}</h2>
             <p className="text-xl mb-10 opacity-90 font-bold tracking-wide uppercase">
               {t("sidebarQuotes.subTitle", "Нүүдэлчин ахуй соёл Монголын баялаг")}
             </p>

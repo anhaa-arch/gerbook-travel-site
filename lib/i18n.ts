@@ -32,6 +32,7 @@ export const ensureTranslation = () => {
   if (typeof document !== "undefined") {
     document.documentElement.lang = i18n.language;
   }
+  return i18n.language;
 };
 
 export default i18n

@@ -3,16 +3,23 @@
 import { useQuery, gql } from "@apollo/client";
 import { useTranslation } from "react-i18next";
 import { EventCard } from "./event-card";
+import { useTranslatedValue } from "@/hooks/use-translation";
 
 const GET_ACTIVE_EVENTS = gql`
   query GetActiveEvents {
     events(activeOnly: true) {
       id
       title
+      title_en
+      title_ko
       category
       location
+      location_en
+      location_ko
       groupSize
       shortDescription
+      shortDescription_en
+      shortDescription_ko
       priceInfo
       pricePerPerson
       startDate
@@ -22,8 +29,37 @@ const GET_ACTIVE_EVENTS = gql`
   }
 `;
 
+const GET_SITE_TEXTS = gql`
+  query GetSiteTexts {
+    siteTexts {
+      key
+      value_mn
+      value_en
+      value_ko
+    }
+  }
+`;
+
 export const EventSection = () => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  
+  const { data: siteTextsData } = useQuery(GET_SITE_TEXTS, { fetchPolicy: "cache-first" });
+
+  const getSiteText = (key: string, defaultValue: string) => {
+    if (!siteTextsData?.siteTexts) return defaultValue;
+    const item = siteTextsData.siteTexts.find((st: any) => st.key === key);
+    if (!item) return defaultValue;
+    // Assuming getLocalizedField is available or we can just write simple fallback
+    if (i18n.language === "en" && item.value_en) return item.value_en;
+    if (i18n.language === "ko" && item.value_ko) return item.value_ko;
+    return item.value_mn || defaultValue;
+  };
+
+  const tagLabel = getSiteText("events.tag_label", "Онцгой Хөтөлбөрүүд");
+  const titleMain = getSiteText("events.title_main", "Наадам");
+  const titleAccent = getSiteText("events.title_accent", "Арга Хэмжээ");
+  const description = getSiteText("events.description", "Соёлын наадам, багийн эв нэгдлийг нэмэх тусгай хөтөлбөрүүдийг нэг дороос.");
+
   const { data, loading, error } = useQuery(GET_ACTIVE_EVENTS);
 
   // If no events exist, don't show the section at all
@@ -40,33 +76,22 @@ export const EventSection = () => {
       <div className="container mx-auto px-4 relative z-10">
         <div className="text-center mb-16 space-y-4">
           <span className="text-emerald-600 font-bold tracking-wider text-sm sm:text-base uppercase bg-emerald-100/50 px-4 py-1.5 rounded-full inline-block backdrop-blur-sm">
-            {t("events.tag", "Онцгой Хөтөлбөрүүд")}
+            {tagLabel}
           </span>
           <h2 className="text-4xl sm:text-5xl lg:text-6xl font-black text-gray-900 font-display">
-            Наадам, <span className="text-emerald-600">Арга Хэмжээ</span>
+            {titleMain}, <span className="text-emerald-600">{titleAccent}</span>
           </h2>
           <p className="text-gray-600 max-w-2xl mx-auto text-lg sm:text-xl font-medium pt-2">
-            Соёлын наадам, багийн эв нэгдлийг нэмэх тусгай хөтөлбөрүүдийг нэг дороос.
+            {description}
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
           {data.events.map((event: any) => {
-             const parsedImages = event.images || [];
             return (
               <EventCard
                 key={event.id}
-                id={event.id}
-                title={event.title}
-                category={event.category}
-                location={event.location}
-                groupSize={event.groupSize}
-                shortDescription={event.shortDescription}
-                priceInfo={event.priceInfo}
-                pricePerPerson={event.pricePerPerson}
-                startDate={event.startDate}
-                endDate={event.endDate}
-                images={parsedImages}
+                event={event}
               />
             );
           })}
