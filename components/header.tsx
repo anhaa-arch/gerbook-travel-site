@@ -156,35 +156,6 @@ export function Header() {
                         </Link>
                       </div>
 
-                      {/* Language Switcher */}
-                      <div className="bg-[#1b7c53]/5 rounded-3xl p-4 sm:p-5 border border-[#1b7c53]/10">
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2 text-[10px] text-[#1b7c53] font-black uppercase tracking-widest">
-                            <Globe className="w-3.5 h-3.5" />
-                            <span>AI LANGUAGE & CURRENCY</span>
-                          </div>
-                          <div className="h-1 w-8 bg-[#1b7c53]/20 rounded-full"></div>
-                        </div>
-                        <div className="space-y-2">
-                          {OPTIONS.map((opt, index) => (
-                            <button
-                              key={index}
-                              className={`flex items-center justify-between w-full p-3 rounded-2xl border transition-all group ${currentLocale === opt.locale ? 'bg-[#1b7c53]/10 border-[#1b7c53]/30' : 'bg-white border-gray-100 hover:border-[#1b7c53]/30 hover:bg-[#1b7c53]/5'}`}
-                              onClick={() => handleSelect(opt.locale, opt.currency)}
-                              disabled={isTranslating}
-                            >
-                              <div className="flex items-center space-x-3">
-                                <span className="text-xl sm:text-2xl group-hover:scale-110 transition-transform">{opt.flag}</span>
-                                <div className="flex flex-col text-left">
-                                  <span className={`text-xs font-black transition-colors ${currentLocale === opt.locale ? 'text-[#1b7c53]' : 'text-gray-900 group-hover:text-[#1b7c53]'}`}>
-                                    {opt.label.split(' / ')[0]} <span className="font-medium text-gray-500 ml-1">{opt.name} / {opt.currency}</span>
-                                  </span>
-                                </div>
-                              </div>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
 
                       <div className="h-px bg-gray-100 mx-3"></div>
 
