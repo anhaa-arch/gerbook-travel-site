@@ -19,8 +19,9 @@ export async function POST(req: Request) {
   try {
     const { fromLocale, toLocale, toCurrency, snapshot } = await req.json();
 
+    const apiKey = process.env.OPENAI_API_KEY || "";
     const openai = new OpenAI({
-      apiKey: process.env.OPENAI_API_KEY || "",
+      apiKey: apiKey,
     });
 
     if (!snapshot || !snapshot.texts || !snapshot.prices) {
@@ -34,7 +35,7 @@ export async function POST(req: Request) {
       const symbol = CURRENCY_SYMBOLS[toCurrency] || toCurrency;
       
       let formatted = `${symbol}${amount.toLocaleString()}`;
-      if (toCurrency === "USD") formatted = `$${amount}`;
+      if (toCurrency === "USD") formatted = `$${amount.toLocaleString()}`;
       
       return {
         id: p.id,
@@ -47,8 +48,13 @@ export async function POST(req: Request) {
     // 2. Handle Text Translation (OpenAI)
     let translatedTexts = [];
     
-    if (toLocale !== fromLocale) {
-      const systemPrompt = `You are a high-end cultural travel expert for "GerBook Travel" (malchincamp.mn). 
+    // Only proceed if target locale is different AND we have an API key
+    if (toLocale !== fromLocale && toLocale !== "mn") {
+      if (!apiKey) {
+        console.warn("OPENAI_API_KEY is missing. Skipping text translation.");
+        translatedTexts = snapshot.texts;
+      } else {
+        const systemPrompt = `You are a high-end cultural travel expert for "GerBook Travel" (malchincamp.mn). 
 Your goal is to translate Mongolian tourism content into ${toLocale} with a professional, evocative, and luxurious tone.
 
 CRITICAL INSTRUCTIONS:
@@ -58,20 +64,21 @@ CRITICAL INSTRUCTIONS:
 4. Completeness: Translate every single item in the provided list. Do not skip any.
 5. Names: If an ID looks like a person's name (e.g., host.name), transliterate it naturally into the target script (e.g., Hangul for Korean).`;
 
-      const userPrompt = JSON.stringify(snapshot.texts);
+        const userPrompt = JSON.stringify(snapshot.texts);
 
-      const response = await openai.chat.completions.create({
-        model: "gpt-4o-mini",
-        messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: `Translate this text array for our travel website. Target language: ${toLocale}. JSON format: { "texts": [...] }. Input: ${userPrompt}` },
-        ],
-        temperature: 0.2, // Lower temperature for more consistent JSON and terminology
-        response_format: { type: "json_object" },
-      });
+        const response = await openai.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            { role: "system", content: systemPrompt },
+            { role: "user", content: `Translate this text array for our travel website. Target language: ${toLocale}. JSON format: { "texts": [...] }. Input: ${userPrompt}` },
+          ],
+          temperature: 0.2,
+          response_format: { type: "json_object" },
+        });
 
-      const result = JSON.parse(response.choices[0].message.content || "{}");
-      translatedTexts = result.texts || [];
+        const result = JSON.parse(response.choices[0].message.content || "{}");
+        translatedTexts = result.texts || [];
+      }
     } else {
       translatedTexts = snapshot.texts;
     }
@@ -82,6 +89,11 @@ CRITICAL INSTRUCTIONS:
     });
   } catch (error: any) {
     console.error("Translation API Error:", error);
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    return NextResponse.json({ 
+      error: error.message,
+      // Fallback data if translation fails
+      texts: [], 
+      prices: [] 
+    }, { status: 500 });
   }
 }
