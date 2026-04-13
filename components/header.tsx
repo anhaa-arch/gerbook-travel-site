@@ -9,11 +9,12 @@ import { useCart } from "@/hooks/use-cart";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/components/ui/button";
 import { AiLanguageSelector } from "@/components/ai-language-selector";
+import { useAiTranslationContext } from "@/components/providers/translation-context";
 
-const LANGUAGES = [
-  { flag: "🇲🇳", name: "Монгол", code: "mn" },
-  { flag: "🇬🇧", name: "English", code: "en" },
-  { flag: "🇰🇷", name: "한국어", code: "ko" },
+const OPTIONS = [
+  { label: "MN / MNT", name: "Монгол", locale: "mn", currency: "MNT", flag: "🇲🇳" },
+  { label: "GB / USD", name: "English", locale: "en", currency: "USD", flag: "🇬🇧" },
+  { label: "KR / KRW", name: "한국어", locale: "ko", currency: "KRW", flag: "🇰🇷" },
 ];
 
 export function Header() {
@@ -24,8 +25,11 @@ export function Header() {
   const { itemCount } = useCart();
   const mobileMenuRef = useRef<HTMLDivElement>(null);
 
-  const handleLanguageChange = (langCode: string) => {
-    i18n.changeLanguage(langCode);
+  const { currentLocale, setLocaleAndCurrency, isTranslating } = useAiTranslationContext();
+
+  const handleSelect = (locale: string, currency: string) => {
+    i18n.changeLanguage(locale);
+    setLocaleAndCurrency(locale, currency);
     setIsMobileMenuOpen(false);
   };
 
@@ -157,19 +161,26 @@ export function Header() {
                         <div className="flex items-center justify-between mb-4">
                           <div className="flex items-center gap-2 text-[10px] text-[#1b7c53] font-black uppercase tracking-widest">
                             <Globe className="w-3.5 h-3.5" />
-                            <span>{t("footer.language", "Хэл сонгох")}</span>
+                            <span>AI LANGUAGE & CURRENCY</span>
                           </div>
                           <div className="h-1 w-8 bg-[#1b7c53]/20 rounded-full"></div>
                         </div>
-                        <div className="grid grid-cols-2 gap-2.5">
-                          {LANGUAGES.map((lang, index) => (
+                        <div className="space-y-2">
+                          {OPTIONS.map((opt, index) => (
                             <button
                               key={index}
-                              className={`flex items-center space-x-2.5 p-2 rounded-2xl border transition-all group ${i18n.language === lang.code ? 'bg-[#1b7c53]/10 border-[#1b7c53]/30' : 'bg-white border-gray-100 hover:border-[#1b7c53]/30 hover:bg-[#1b7c53]/5'}`}
-                              onClick={() => handleLanguageChange(lang.code)}
+                              className={`flex items-center justify-between w-full p-3 rounded-2xl border transition-all group ${currentLocale === opt.locale ? 'bg-[#1b7c53]/10 border-[#1b7c53]/30' : 'bg-white border-gray-100 hover:border-[#1b7c53]/30 hover:bg-[#1b7c53]/5'}`}
+                              onClick={() => handleSelect(opt.locale, opt.currency)}
+                              disabled={isTranslating}
                             >
-                              <span className="text-lg sm:text-xl group-hover:scale-110 transition-transform">{lang.flag}</span>
-                              <span className={`text-[11px] sm:text-xs font-bold transition-colors ${i18n.language === lang.code ? 'text-[#1b7c53]' : 'text-gray-700 group-hover:text-[#1b7c53]'}`}>{lang.name}</span>
+                              <div className="flex items-center space-x-3">
+                                <span className="text-xl sm:text-2xl group-hover:scale-110 transition-transform">{opt.flag}</span>
+                                <div className="flex flex-col text-left">
+                                  <span className={`text-xs font-black transition-colors ${currentLocale === opt.locale ? 'text-[#1b7c53]' : 'text-gray-900 group-hover:text-[#1b7c53]'}`}>
+                                    {opt.label.split(' / ')[0]} <span className="font-medium text-gray-500 ml-1">{opt.name} / {opt.currency}</span>
+                                  </span>
+                                </div>
+                              </div>
                             </button>
                           ))}
                         </div>

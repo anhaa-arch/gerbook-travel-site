@@ -37,7 +37,8 @@ export function SearchSection() {
     if (!siteTextsData?.siteTexts) return defaultValue;
     const item = siteTextsData.siteTexts.find((st: any) => st.key === key);
     if (!item) return defaultValue;
-    return getLocalizedField(item, "value", i18n.language);
+    const localized = getLocalizedField(item, "value", i18n.language);
+    return localized && localized.trim() !== "" ? localized : defaultValue;
   };
 
   const router = useRouter();

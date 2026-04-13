@@ -8,17 +8,22 @@
 export function getLocalizedField(item: any, field: string, locale: string): string {
   if (!item) return "";
 
-  // If locale is mn, use default field
-  if (locale === "mn") {
-    return item[field] || "";
-  }
-
-  // Check for localized field (e.g. name_en)
+  // 1. Try specifically for the requested locale
   const localizedKey = `${field}_${locale}`;
-  if (item[localizedKey] && item[localizedKey].trim() !== "") {
+  if (item[localizedKey] && item[localizedKey]?.trim() !== "") {
     return item[localizedKey];
   }
 
-  // Fallback to default field (mn)
-  return item[field] || "";
+  // 2. Try the base field (standard for many models like Yurt.name)
+  if (item[field] && item[field]?.trim() !== "") {
+    return item[field];
+  }
+
+  // 3. Try the _mn suffix (standard for SiteText.value_mn)
+  const mnKey = `${field}_mn`;
+  if (item[mnKey] && item[mnKey]?.trim() !== "") {
+    return item[mnKey];
+  }
+
+  return "";
 }
