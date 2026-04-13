@@ -98,6 +98,21 @@ export default function EventDetailPage() {
   const totalLabel = useTranslatedValue("common.total", "Нийт");
   const notesLabel = useTranslatedValue("common.notes", "Нэмэлт тэмдэглэл");
   const loadingLabel = useTranslatedValue("common.loading", "Ачаалж байна...");
+  
+  // New consolidated hooks to avoid runtime violations
+  const notFoundLabel = useTranslatedValue("events.not_found", "Арга хэмжээ олдсонгүй");
+  const notFoundDescLabel = useTranslatedValue("events.not_found_desc", "Уучлаарай, таны хайсан арга хэмжээ олдсонгүй эсвэл устгагдсан байна.");
+  const backToHomeLabel = useTranslatedValue("common.back_to_home", "Нүүр хуудас руу буцах");
+  const groupDiscountLabel = useTranslatedValue("events.group_discount", "Олон хүний захиалгад хөнгөлөлттэй");
+  const prepaymentNoticeLabel = useTranslatedValue("events.prepayment_notice", "Захиалга баталгаажуулахын тулд төлбөрөө урьдчилан төлнө үү");
+  const bookingTitleLabel = useTranslatedValue("events.booking_title", "Арга хэмжээний захиалга");
+  const notesPlaceholderLabel = useTranslatedValue("events.notes_placeholder", "Жишээ: Хоолны харшилтай, эсвэл тусгай хүсэлт...");
+  const totalPriceLabelCurrent = useTranslatedValue("common.total_price", "Захиалгын дүн");
+  
+  // Dynamic ones - these must be called even if event is not yet loaded
+  const eventCategoryLabel = useTranslatedValue(`cat.${event?.category || "other"}`, event?.category || "");
+  const eventPriceInfoLabel = useTranslatedValue(`price_info.${event?.priceInfo || "negotiable"}`, event?.priceInfo || "Тохиролцоно");
+
 
   const numericPriceInfo = event?.priceInfo ? parseInt(String(event.priceInfo).replace(/[^\d]/g, ''), 10) : 0;
   const personPrice = event?.pricePerPerson || (isNaN(numericPriceInfo) ? 0 : numericPriceInfo) || 0;
@@ -173,10 +188,10 @@ export default function EventDetailPage() {
   if (error || !event) {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 text-center px-4">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">{useTranslatedValue("events.not_found", "Арга хэмжээ олдсонгүй")}</h2>
-        <p className="text-gray-600 mb-6">{useTranslatedValue("events.not_found_desc", "Уучлаарай, таны хайсан арга хэмжээ олдсонгүй эсвэл устгагдсан байна.")}</p>
+        <h2 className="text-2xl font-bold text-gray-900 mb-2">{notFoundLabel}</h2>
+        <p className="text-gray-600 mb-6">{notFoundDescLabel}</p>
         <Button onClick={() => router.push("/")} className="bg-emerald-600 hover:bg-emerald-700">
-          {useTranslatedValue("common.back_to_home", "Нүүр хуудас руу буцах")}
+          {backToHomeLabel}
         </Button>
       </div>
     );
@@ -210,7 +225,7 @@ export default function EventDetailPage() {
 
         <div className="absolute bottom-0 w-full p-4 sm:p-6 lg:p-12 z-10 max-w-7xl mx-auto right-0 left-0">
           <span className="inline-block px-4 py-1.5 rounded-full bg-emerald-500 text-white text-xs sm:text-sm font-bold uppercase tracking-wider mb-4 sm:mb-6">
-            {useTranslatedValue(`cat.${event.category}`, event.category)}
+            {eventCategoryLabel}
           </span>
           <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black text-white mb-4 sm:mb-6 leading-tight font-display">
             {translatedTitle}
@@ -303,11 +318,11 @@ export default function EventDetailPage() {
               <div className="border-b border-gray-100 pb-6 mb-6">
                 <div className="flex items-baseline gap-2 mb-2">
                   <span className="text-3xl sm:text-4xl font-black text-gray-900 bg-clip-text text-transparent bg-gradient-to-r from-emerald-700 to-emerald-500">
-                    {event.pricePerPerson > 0 ? personPriceFormatted : (useTranslatedValue(`price_info.${event.priceInfo}`, event.priceInfo || "Тохиролцоно"))}
+                    {event.pricePerPerson > 0 ? personPriceFormatted : eventPriceInfoLabel}
                   </span>
                   {event.pricePerPerson > 0 && <span className="text-gray-500 font-medium">{personPriceLabel}</span>}
                 </div>
-                {event.pricePerPerson > 0 && <p className="text-sm font-medium text-emerald-600/80">{useTranslatedValue("events.group_discount", "Олон хүний захиалгад хөнгөлөлттэй")}</p>}
+                {event.pricePerPerson > 0 && <p className="text-sm font-medium text-emerald-600/80">{groupDiscountLabel}</p>}
               </div>
 
               <ul className="space-y-4 mb-8">
@@ -340,7 +355,7 @@ export default function EventDetailPage() {
               </Button>
               
               <p className="text-xs text-center text-gray-500 font-medium px-4">
-                {useTranslatedValue("events.prepayment_notice", "Захиалга баталгаажуулахын тулд төлбөрөө урьдчилан төлнө үү")}
+                {prepaymentNoticeLabel}
               </p>
             </div>
           </div>
@@ -354,7 +369,7 @@ export default function EventDetailPage() {
             <DialogTitle className="text-2xl font-bold flex flex-col">
               <div className="flex items-center">
                 <Calendar className="mr-2 h-6 w-6" />
-                {useTranslatedValue("events.booking_title", "Арга хэмжээний захиалга")}
+                {bookingTitleLabel}
               </div>
               <span className="text-xs font-normal mt-1 text-emerald-50">
                 {new Date(event.startDate).toLocaleDateString(currentLang === 'mn' ? 'mn-MN' : 'en-US')} - {new Date(event.endDate).toLocaleDateString(currentLang === 'mn' ? 'mn-MN' : 'en-US')}
@@ -395,7 +410,7 @@ export default function EventDetailPage() {
                 <textarea 
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
-                  placeholder={useTranslatedValue("events.notes_placeholder", "Жишээ: Хоолны харшилтай, эсвэл тусгай хүсэлт...")}
+                  placeholder={notesPlaceholderLabel}
                   className="w-full min-h-[100px] p-4 rounded-2xl bg-gray-50 border-gray-100 focus:ring-emerald-500 focus:border-emerald-500 resize-none transition-all"
                 />
               </div>
@@ -403,7 +418,7 @@ export default function EventDetailPage() {
 
             <div className="p-6 bg-emerald-50 rounded-2xl border border-emerald-100">
               <div className="flex justify-between items-center mb-2">
-                <span className="text-emerald-800 font-medium">{useTranslatedValue("common.total_price", "Захиалгын дүн")}:</span>
+                <span className="text-emerald-800 font-medium">{totalPriceLabelCurrent}:</span>
                 <span className="text-2xl font-black text-emerald-600">
                   {totalPriceFormatted}
                 </span>

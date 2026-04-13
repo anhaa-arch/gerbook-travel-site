@@ -226,6 +226,29 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const totalLabel = useTranslatedValue("common.total", "Total");
   const bookLabel = useTranslatedValue("camp.book_now", "Book Now");
 
+  // Additional consolidated hooks for camp page
+  const loadingInfoLabel = useTranslatedValue("camp.loading_info", "Баазын мэдээллийг уншиж байна...");
+  const errorTitleLabel = useTranslatedValue("camp.error_title", "Баазын мэдээллийг уншихад алдаа гарлаа");
+  const campNotFoundLabel = useTranslatedValue("camp.not_found", "Camp Not Found");
+  const campNotFoundDescLabel = useTranslatedValue("camp.not_found_desc", "The camp you're looking for doesn't exist.");
+  const loginRequiredLabel = useTranslatedValue("common.login_required", "Нэвтрэх шаардлагатай");
+  const saveLoginDescLabel = useTranslatedValue("camp.save_login_desc", "Амралт хадгалахын тулд нэвтрэх шаардлагатай.");
+  const unsavedTitleLabel = useTranslatedValue("camp.unsaved_title", "Хадгалсан амралт");
+  const savedTitleLabel = useTranslatedValue("camp.saved_title", "Амжилттай хадгалагдлаа");
+  const unsavedDescLabel = useTranslatedValue("camp.unsaved_desc", "Амралт хадгаалсан жагсаалтаас хасагдлаа.");
+  const savedDescLabel = useTranslatedValue("camp.saved_desc", "Амралт хадгаалсан жагсаалтад нэмэгдлээ.");
+  
+  // Booking status / messages hooks
+  const bookingSuccessLabel = useTranslatedValue("booking.success", "✅ Захиалга амжилттай");
+  const bookingPaymentReadyLabel = useTranslatedValue("booking.payment_ready", "Төлбөр хийхэд бэлэн боллоо.");
+  const bookingErrorGenericLabel = useTranslatedValue("booking.error_generic", "Захиалга үүсгэхэд алдаа гарлаа.");
+  const bookingErrorDatesTakenLabel = useTranslatedValue("booking.error_dates_taken", "Таны сонгосон огноо захиалагдсан байна. Өөр огноо сонгоно уу.");
+  const bookingErrorInvalidDatesLabel = useTranslatedValue("booking.error_invalid_dates", "Гарах өдөр ирэх өдрөөс хойш байх ёстой.");
+  const bookingErrorNotAuthorizedLabel = useTranslatedValue("booking.error_not_authorized", "Та захиалга хийх эрхгүй байна.");
+  const bookingErrorNotFoundLabel = useTranslatedValue("booking.error_not_found", "Camp олдсонгүй. Дахин оролдоно уу.");
+  const bookingErrorTitleLabel = useTranslatedValue("booking.error_title", "❌ Захиалга амжилтгүй");
+
+
   const [createBooking, { loading: bookingLoading, error: bookingError }] =
     useMutation(CREATE_BOOKING, {
       refetchQueries: [
@@ -259,8 +282,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         localStorage.setItem("userBookings", JSON.stringify(userBookings));
 
         toast({
-          title: useTranslatedValue("booking.success", "✅ Захиалга амжилттай"),
-          description: useTranslatedValue("booking.payment_ready", "Төлбөр хийхэд бэлэн боллоо."),
+          title: bookingSuccessLabel,
+          description: bookingPaymentReadyLabel,
         });
 
         // Store the booking ID and open payment modal
@@ -270,22 +293,21 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
       onError: (error) => {
         console.error('❌ Booking error:', error);
 
-        let errorMessage = useTranslatedValue("booking.error_generic", "Захиалга үүсгэхэд алдаа гарлаа.");
-
+        let errorMessage = bookingErrorGenericLabel;
         if (error.message.includes("not available")) {
-          errorMessage = useTranslatedValue("booking.error_dates_taken", "Таны сонгосон огноо захиалагдсан байна. Өөр огноо сонгоно уу.");
+          errorMessage = bookingErrorDatesTakenLabel;
         } else if (error.message.includes("End date must be after start date")) {
-          errorMessage = useTranslatedValue("booking.error_invalid_dates", "Гарах өдөр ирэх өдрөөс хойш байх ёстой.");
+          errorMessage = bookingErrorInvalidDatesLabel;
         } else if (error.message.includes("Not authorized")) {
-          errorMessage = useTranslatedValue("booking.error_not_authorized", "Та захиалга хийх эрхгүй байна.");
+          errorMessage = bookingErrorNotAuthorizedLabel;
         } else if (error.message.includes("Yurt not found")) {
-          errorMessage = useTranslatedValue("booking.error_not_found", "Camp олдсонгүй. Дахин оролдоно уу.");
+          errorMessage = bookingErrorNotFoundLabel;
         } else {
           errorMessage = error.message || errorMessage;
         }
 
         toast({
-          title: useTranslatedValue("booking.error_title", "❌ Захиалга амжилтгүй"),
+          title: bookingErrorTitleLabel,
           description: errorMessage,
           variant: "destructive",
         });
@@ -387,8 +409,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const handleSaveCamp = () => {
     if (!isAuthenticated || !user) {
       toast({
-        title: useTranslatedValue("common.login_required", "Нэвтрэх шаардлагатай"),
-        description: useTranslatedValue("camp.save_login_desc", "Амралт хадгалахын тулд нэвтрэх шаардлагатай."),
+        title: loginRequiredLabel,
+        description: saveLoginDescLabel,
         variant: "destructive",
       });
       return;
@@ -409,8 +431,8 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     });
 
     toast({
-      title: isSaved ? useTranslatedValue("camp.unsaved_title", "Хадгалсан амралт") : useTranslatedValue("camp.saved_title", "Амжилттай хадгалагдлаа"),
-      description: isSaved ? useTranslatedValue("camp.unsaved_desc", "Амралт хадгалсан жагсаалтаас хасагдлаа.") : useTranslatedValue("camp.saved_desc", "Амралт хадгалсан жагсаалтад нэмэгдлээ."),
+      title: isSaved ? unsavedTitleLabel : savedTitleLabel,
+      description: isSaved ? unsavedDescLabel : savedDescLabel,
     });
   };
 
@@ -420,7 +442,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-emerald-600 mx-auto mb-4"></div>
-            <p className="text-gray-600 font-medium">{useTranslatedValue("camp.loading_info", "Баазын мэдээллийг уншиж байна...")}</p>
+            <p className="text-gray-600 font-medium">{loadingInfoLabel}</p>
           </div>
         </div>
       </div>
@@ -433,7 +455,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              {useTranslatedValue("camp.error_title", "Баазын мэдээллийг уншихад алдаа гарлаа")}
+              {errorTitleLabel}
             </h1>
             <p className="text-gray-600 mb-8 font-medium">{error.message}</p>
             <Link href="/camps">
@@ -454,10 +476,10 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center">
             <h1 className="text-2xl font-bold text-gray-900 mb-4">
-              {useTranslatedValue("camp.not_found", "Camp Not Found")}
+              {campNotFoundLabel}
             </h1>
             <p className="text-gray-600 mb-8 font-medium">
-              {useTranslatedValue("camp.not_found_desc", "The camp you're looking for doesn't exist.")}
+              {campNotFoundDescLabel}
             </p>
             <Link href="/camps">
               <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">

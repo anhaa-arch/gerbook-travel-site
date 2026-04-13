@@ -36,10 +36,31 @@ const GET_ALL_EVENTS = gql`
 `;
 
 export default function EventsPage() {
-  const { t } = useTranslation();
   const { data, loading, error } = useQuery(GET_ALL_EVENTS, {
     variables: { activeOnly: true }
   });
+
+  const loadingLabel = useTranslatedValue("common.loading", "Ачаалж байна...");
+
+  const upcomingBadgeLabel = useTranslatedValue("events.upcoming_badge", "Удахгүй болох арга хэмжээнүүд");
+  const heroPart1Label = useTranslatedValue("events.hero.part1", "Монгол");
+  const heroPart2Label = useTranslatedValue("events.hero.part2", "Өв Соёл");
+  const heroPart3Label = useTranslatedValue("events.hero.part3", "ба Аялал");
+  const heroDescLabel = useTranslatedValue("events.hero.desc", "Малчин ахуй, үндэсний наадам, байгалийн үзэсгэлэнт газруудаар аялах онцгой хөтөлбөрүүдийг эндээс олж захиалаарай.");
+  const heroButtonLabel = useTranslatedValue("events.hero.button", "Аяллаа сонгох");
+  const listTitlePart1Label = useTranslatedValue("events.list.title.part1", "Бүх");
+  const listTitlePart2Label = useTranslatedValue("events.list.title.part2", "Арга Хэмжээ");
+  const listDescLabel = useTranslatedValue("events.list.desc", "Монгол орны өнцөг булан бүрт зохион байгуулагдаж буй соёлын болон адал явдалт арга хэмжээнүүд.");
+  const listCountTotalLabel = useTranslatedValue("events.list.count_total", "Нийт");
+  const listCountLabel = useTranslatedValue("events.list.count_label", "арга хэмжээ");
+  const emptyTitleLabel = useTranslatedValue("events.empty.title", "Одоогоор идэвхтэй арга хэмжээ алга");
+  const emptyDescLabel = useTranslatedValue("events.empty.desc", "Удахгүй шинэ арга хэмжээнүүд нэмэгдэх болно.");
+  const ctaTitlePart1Label = useTranslatedValue("events.cta.title.part1", "Өөрийн");
+  const ctaTitlePart2Label = useTranslatedValue("events.cta.title.part2", "Адал Явдлаа");
+  const ctaTitlePart3Label = useTranslatedValue("events.cta.title.part3", "Өнөөдөр Эхлүүл");
+  const ctaDescLabel = useTranslatedValue("events.cta.desc", "Бид танд хамгийн мартагдашгүй, жинхэнэ монгол ахуйг мэдрүүлэх аялал арга хэмжээнүүдийг санал болгож байна.");
+  const backToHomeLabel = useTranslatedValue("common.back_to_home", "Нүүр хуудас руу буцах");
+
 
   if (loading) {
     return (
@@ -47,7 +68,7 @@ export default function EventsPage() {
         <div className="flex flex-col items-center space-y-4">
           <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-emerald-600"></div>
           <p className="text-emerald-700 font-bold animate-pulse">
-            {useTranslatedValue("common.loading", "Ачаалж байна...")}
+            {loadingLabel}
           </p>
         </div>
       </div>
@@ -69,21 +90,21 @@ export default function EventsPage() {
         <div className="container mx-auto px-4 relative z-10 text-center space-y-8">
           <div className="inline-flex items-center space-x-2 px-4 py-2 rounded-full bg-emerald-500/10 border border-emerald-500/20 backdrop-blur-md text-emerald-400 text-sm font-bold uppercase tracking-widest animate-fade-in">
             <Sparkles className="w-4 h-4" />
-            <span>{useTranslatedValue("events.upcoming_badge", "Удахгүй болох арга хэмжээнүүд")}</span>
+            <span>{upcomingBadgeLabel}</span>
           </div>
           
           <h1 className="text-5xl sm:text-7xl lg:text-8xl font-black text-white font-display tracking-tight leading-[1.1] max-w-5xl mx-auto uppercase">
-            {useTranslatedValue("events.hero.part1", "Монгол")} <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-200">{useTranslatedValue("events.hero.part2", "Өв Соёл")}</span> {useTranslatedValue("events.hero.part3", "ба Аялал")}
+            {heroPart1Label} <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-emerald-200">{heroPart2Label}</span> {heroPart3Label}
           </h1>
           
           <p className="text-emerald-50/70 max-w-2xl mx-auto text-lg sm:text-xl font-medium leading-relaxed">
-            {useTranslatedValue("events.hero.desc", "Малчин ахуй, үндэсний наадам, байгалийн үзэсгэлэнт газруудаар аялах онцгой хөтөлбөрүүдийг эндээс олж захиалаарай.")}
+            {heroDescLabel}
           </p>
 
           <div className="pt-8">
             <Link href="#events-list">
               <Button className="bg-emerald-500 hover:bg-emerald-400 text-gray-900 font-black text-lg px-10 py-8 rounded-[2rem] shadow-2xl shadow-emerald-500/20 transition-all hover:scale-105 active:scale-95 group">
-                {useTranslatedValue("events.hero.button", "Аяллаа сонгох")}
+                {heroButtonLabel}
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Button>
             </Link>
@@ -97,16 +118,16 @@ export default function EventsPage() {
           <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8">
             <div className="space-y-4">
               <h2 className="text-4xl sm:text-5xl font-black text-gray-900 font-display uppercase tracking-tight">
-                {useTranslatedValue("events.list.title.part1", "Бүх")} <span className="text-emerald-600">{useTranslatedValue("events.list.title.part2", "Арга Хэмжээ")}</span>
+                {listTitlePart1Label} <span className="text-emerald-600">{listTitlePart2Label}</span>
               </h2>
               <p className="text-gray-500 text-lg font-medium max-w-xl">
-                {useTranslatedValue("events.list.desc", "Монгол орны өнцөг булан бүрт зохион байгуулагдаж буй соёлын болон адал явдалт арга хэмжээнүүд.")}
+                {listDescLabel}
               </p>
             </div>
             
             <div className="flex items-center space-x-4 bg-white/80 backdrop-blur-sm p-2 rounded-2xl border border-gray-100 shadow-sm">
               <div className="px-6 py-3 bg-emerald-50 text-emerald-700 rounded-xl font-bold text-sm">
-                {useTranslatedValue("events.list.count_total", "Нийт")} {events.length} {useTranslatedValue("events.list.count_label", "арга хэмжээ")}
+                {listCountTotalLabel} {events.length} {listCountLabel}
               </div>
             </div>
           </div>
@@ -128,8 +149,8 @@ export default function EventsPage() {
               <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Calendar className="w-10 h-10 text-gray-300" />
               </div>
-              <h3 className="text-2xl font-bold text-gray-900 mb-2">{useTranslatedValue("events.empty.title", "Одоогоор идэвхтэй арга хэмжээ алга")}</h3>
-              <p className="text-gray-500 font-medium">{useTranslatedValue("events.empty.desc", "Удахгүй шинэ арга хэмжээнүүд нэмэгдэх болно.")}</p>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">{emptyTitleLabel}</h3>
+              <p className="text-gray-500 font-medium">{emptyDescLabel}</p>
             </div>
           )}
         </div>
@@ -144,15 +165,15 @@ export default function EventsPage() {
             
             <div className="relative z-10 max-w-3xl mx-auto space-y-6">
               <h2 className="text-4xl sm:text-6xl font-black text-white font-display uppercase tracking-tight">
-                {useTranslatedValue("events.cta.title.part1", "Өөрийн")} <span className="text-emerald-200">{useTranslatedValue("events.cta.title.part2", "Адал Явдлаа")}</span> {useTranslatedValue("events.cta.title.part3", "Өнөөдөр Эхлүүл")}
+                {ctaTitlePart1Label} <span className="text-emerald-200">{ctaTitlePart2Label}</span> {ctaTitlePart3Label}
               </h2>
               <p className="text-emerald-50/80 text-xl font-medium leading-relaxed">
-                {useTranslatedValue("events.cta.desc", "Бид танд хамгийн мартагдашгүй, жинхэнэ монгол ахуйг мэдрүүлэх аялал арга хэмжээнүүдийг санал болгож байна.")}
+                {ctaDescLabel}
               </p>
               <div className="pt-4">
                  <Link href="/">
                   <Button variant="outline" className="bg-white hover:bg-emerald-50 text-emerald-700 border-none font-black text-lg px-12 py-8 rounded-[2rem] shadow-xl transition-all hover:scale-105 active:scale-95">
-                    {useTranslatedValue("common.back_to_home", "Нүүр хуудас руу буцах")}
+                    {backToHomeLabel}
                   </Button>
                 </Link>
               </div>
