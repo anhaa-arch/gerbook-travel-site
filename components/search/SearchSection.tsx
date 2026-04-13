@@ -16,31 +16,8 @@ import { getLocalizedField } from "@/lib/localization";
 
 // Архангай аймгийн сумдын жагсаалт
 const ARKHANGAI_ZIPCODE = "65000";
-
-const GET_SITE_TEXTS = gql`
-  query GetSiteTexts {
-    siteTexts {
-      key
-      value_mn
-      value_en
-      value_ko
-    }
-  }
-`;
-
 export function SearchSection() {
   const { t, i18n } = useTranslation();
-
-  const { data: siteTextsData } = useQuery(GET_SITE_TEXTS);
-
-  const getSiteText = (key: string, defaultValue: string) => {
-    if (!siteTextsData?.siteTexts) return defaultValue;
-    const item = siteTextsData.siteTexts.find((st: any) => st.key === key);
-    if (!item) return defaultValue;
-    const localized = getLocalizedField(item, "value", i18n.language);
-    return localized && localized.trim() !== "" ? localized : defaultValue;
-  };
-
   const router = useRouter();
   const [selectedProvince, setSelectedProvince] = useState("");
   const [selectedDistrict, setSelectedDistrict] = useState("Цэнхэр");
