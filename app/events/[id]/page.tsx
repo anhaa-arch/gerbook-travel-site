@@ -16,7 +16,7 @@ import { getImageUrl } from "@/lib/admin-utils";
 import { useTranslatedValue, useTranslatedPrice } from "@/hooks/use-translation";
 import { getLocalizedField } from "@/lib/localization";
 import { useTranslation } from "react-i18next";
-import "../../lib/i18n";
+import "@/lib/i18n";
 import { PaymentModal } from "@/components/payment-modal";
 
 const GET_EVENT_BY_ID = gql`
