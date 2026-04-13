@@ -108,7 +108,7 @@ export function SearchSection() {
   };
 
   const formatGuests = () => {
-    return selectedGuests === 1 ? "" : `${selectedGuests} зочин`;
+    return selectedGuests === 1 ? "" : `${selectedGuests} ${useTranslatedValue("common.guests", "зочин")}`;
   };
 
   const handleProvinceSelect = () => {
@@ -193,10 +193,10 @@ export function SearchSection() {
       <div className="max-w-6xl 2xl:max-w-7xl 3xl:max-w-[1800px] 4k:max-w-[2400px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12 mt-4 sm:mt-8">
           <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#0F3D2E] via-emerald-800 to-[#0F3D2E] tracking-tight leading-tight mb-4 font-display drop-shadow-sm py-1 uppercase sm:whitespace-nowrap">
-            {getSiteText("landing.hero.title", "ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ")}
+            {useTranslatedValue("landing.hero.title", "ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ")}
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-gray-500 max-w-2xl mx-auto font-medium tracking-wide">
-            {getSiteText("landing.hero.subtitle", "Нүүдэлчин ахуй соёлтой танилцах хамгийн таатай боломж")}
+            {useTranslatedValue("landing.hero.subtitle", "Нүүдэлчин ахуй соёлтой танилцах хамгийн таатай боломж")}
           </p>
         </div>
 

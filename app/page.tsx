@@ -230,7 +230,7 @@ export default function HomePage() {
                   {translatedPrice}
                 </span>
                 <span className="text-emerald-900/40 text-[8px] sm:text-xs font-bold whitespace-nowrap">
-                  /хоног
+                  /{useTranslatedValue("common.night", "хоног")}
                 </span>
               </div>
 
@@ -238,7 +238,7 @@ export default function HomePage() {
                 <Button
                   className="w-full bg-[#246e50] hover:bg-[#1a5a40] text-white font-black text-[10px] sm:text-sm h-9 sm:h-11 rounded-xl shadow-lg transition-all active:scale-95"
                 >
-                  Захиалах
+                  {useTranslatedValue("common.book_now", "Захиалах")}
                 </Button>
               </Link>
             </div>
@@ -325,7 +325,7 @@ export default function HomePage() {
                     }
                   }}
                 >
-                  Сагсанд нэмэх
+                  {useTranslatedValue("common.add_to_cart", "Сагсанд нэмэх")}
                 </Button>
               </div>
             </div>
@@ -482,8 +482,9 @@ export default function HomePage() {
         <section className="py-6 sm:py-8 md:py-12 lg:py-16 bg-white">
           <div className="max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[2000px] 4k:max-w-[2800px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-gray-900">
-                {getSiteText("home.featured_products", "Шилдэг бүтээгдэхүүнүүд")}
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-gray-900 flex items-center gap-3">
+                <Package className="w-6 h-6 text-emerald-600" />
+                {useTranslatedValue("home.featured_products", "Шилдэг бүтээгдэхүүнүүд")}
               </h2>
               <Link href="/products" className="w-full sm:w-auto">
                 <Button

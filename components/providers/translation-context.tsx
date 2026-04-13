@@ -30,16 +30,23 @@ export function AiTranslationProvider({ children }: { children: React.ReactNode 
   const [translatedTexts, setTranslatedTexts] = useState<Record<string, string>>({});
   const [translatedPrices, setTranslatedPrices] = useState<Record<string, TranslatedPrice>>({});
   const [isTranslating, setIsTranslating] = useState(false);
+  
+  // Track registered count to detect new items
+  const [registeredCount, setRegisteredCount] = useState(0);
 
   // Use a ref to keep track of all registered items on the current page
   const registry = useRef<TranslationRegistry>({ texts: {}, prices: {} });
 
   const registerText = useCallback((id: string, value: string) => {
+    if (registry.current.texts[id] === value) return;
     registry.current.texts[id] = value;
+    setRegisteredCount(prev => prev + 1);
   }, []);
 
   const registerPrice = useCallback((id: string, amount: number, currency: string) => {
+    if (registry.current.prices[id]?.amount === amount && registry.current.prices[id]?.currency === currency) return;
     registry.current.prices[id] = { amount, currency };
+    setRegisteredCount(prev => prev + 1);
   }, []);
 
   const translatePage = async () => {
@@ -49,13 +56,15 @@ export function AiTranslationProvider({ children }: { children: React.ReactNode 
       return;
     }
 
+    const snapshot = {
+      texts: Object.entries(registry.current.texts).map(([id, value]) => ({ id, value })),
+      prices: Object.entries(registry.current.prices).map(([id, p]) => ({ id, ...p })),
+    };
+
+    if (snapshot.texts.length === 0 && snapshot.prices.length === 0) return;
+
     setIsTranslating(true);
     try {
-      const snapshot = {
-        texts: Object.entries(registry.current.texts).map(([id, value]) => ({ id, value })),
-        prices: Object.entries(registry.current.prices).map(([id, p]) => ({ id, ...p })),
-      };
-
       const response = await fetch("/api/ai-translate-page", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -93,10 +102,22 @@ export function AiTranslationProvider({ children }: { children: React.ReactNode 
     setCurrentCurrency(currency);
   };
 
-  // Trigger translation when locale/currency changes (and it's not MN/MNT)
+  // 1. Initial trigger when locale/currency changes
   React.useEffect(() => {
     translatePage();
   }, [currentLocale, currentCurrency]);
+
+  // 2. Auto-sync: debounced trigger when new items are registered
+  React.useEffect(() => {
+    if (currentLocale === "mn" && currentCurrency === "MNT") return;
+    if (isTranslating) return;
+
+    const timer = setTimeout(() => {
+      translatePage();
+    }, 1000); // 1s debounce to batch registrations
+
+    return () => clearTimeout(timer);
+  }, [registeredCount, currentLocale, currentCurrency]);
 
   return (
     <AiTranslationContext.Provider

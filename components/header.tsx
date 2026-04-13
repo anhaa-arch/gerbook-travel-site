@@ -155,7 +155,18 @@ export function Header() {
                           <span className="text-sm text-gray-900 font-bold">Арга хэмжээ</span>
                         </Link>
                       </div>
+                      <div className="h-px bg-gray-100 mx-3"></div>
 
+                      {/* Language & Currency for Mobile */}
+                      <div className="px-3 py-1 space-y-3">
+                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 px-3">
+                          {t("nav.settings", "Тохиргоо")}
+                        </p>
+                        <div className="flex items-center justify-between px-3">
+                          <span className="text-sm font-bold text-gray-700">{t("nav.language_currency", "Хэл ба Валют")}</span>
+                          <AiLanguageSelector />
+                        </div>
+                      </div>
 
                       <div className="h-px bg-gray-100 mx-3"></div>
 
