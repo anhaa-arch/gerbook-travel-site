@@ -1,9 +1,7 @@
 import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
+
 
 // Mock exchange rates (MNT to target)
 const EXCHANGE_RATES: Record<string, number> = {
@@ -20,6 +18,10 @@ const CURRENCY_SYMBOLS: Record<string, string> = {
 export async function POST(req: Request) {
   try {
     const { fromLocale, toLocale, toCurrency, snapshot } = await req.json();
+
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY || "",
+    });
 
     if (!snapshot || !snapshot.texts || !snapshot.prices) {
       return NextResponse.json({ error: "Invalid snapshot" }, { status: 400 });
