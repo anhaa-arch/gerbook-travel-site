@@ -211,6 +211,11 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const guestsUnit = useTranslatedValue("common.guests_unit", "хүн");
   const experienceSuffix = useTranslatedValue("host.experience_suffix", "туршлагатай");
   const languagesLabel = useTranslatedValue("host.languages_label", "Хэл");
+  const capacityLabel = useTranslatedValue("common.capacity", "Багтаамж");
+  const totalGersLabel = useTranslatedValue("common.total_gers", "Нийт гэр");
+  const facilitiesLabel = useTranslatedValue("common.facilities", "Тохижилт");
+  const commonPhoneLabel = useTranslatedValue("common.phone", "Утас");
+  const commonEmailLabel = useTranslatedValue("common.email", "Имэйл");
 
   const [createBooking, { loading: bookingLoading, error: bookingError }] =
     useMutation(CREATE_BOOKING, {
@@ -886,13 +891,13 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
                       <div className="grid grid-cols-1 xs:grid-cols-2 gap-3">
                         <div className="flex flex-col bg-gray-50/80 p-3 rounded-lg border border-gray-100">
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-1">{useTranslatedValue("common.capacity", "Багтаамж")}</span>
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-1">{capacityLabel}</span>
                           <span className="text-base font-bold text-emerald-700">
                             {campData.accommodation.capacity}
                           </span>
                         </div>
                         <div className="flex flex-col bg-gray-50/80 p-3 rounded-lg border border-gray-100">
-                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-1">{useTranslatedValue("common.total_gers", "Нийт гэр")}</span>
+                          <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-1">{totalGersLabel}</span>
                           <span className="text-base font-bold text-emerald-700">
                             {campData.accommodation.totalGers} ш
                           </span>
@@ -903,7 +908,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                     {/* Facilities if any */}
                     {campData.accommodation.facilities?.length > 0 && (
                       <div className="pt-4 border-t border-gray-100">
-                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-3 block">{useTranslatedValue("common.facilities", "Тохижилт")}</span>
+                        <span className="text-xs font-semibold text-gray-500 uppercase tracking-tight mb-3 block">{facilitiesLabel}</span>
                         <div className="flex flex-wrap gap-2">
                           {campData.accommodation.facilities.map((facility: any, idx: number) => (
                             <FacilityItem key={idx} id={facility.id} label={facility.name} />
@@ -955,13 +960,13 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       <div className="flex flex-col gap-2 text-sm">
                         {campData.host.phone && (
                           <div className="flex items-center text-gray-600">
-                            <span className="font-medium whitespace-nowrap">{useTranslatedValue("common.phone", "Утас")}: </span>
+                            <span className="font-medium whitespace-nowrap">{commonPhoneLabel}: </span>
                             <span className="ml-2">{campData.host.phone}</span>
                           </div>
                         )}
                         {campData.host.email && (
                           <div className="flex items-start text-gray-600">
-                            <span className="font-medium whitespace-nowrap mt-0.5">{useTranslatedValue("common.email", "Имэйл")}: </span>
+                            <span className="font-medium whitespace-nowrap mt-0.5">{commonEmailLabel}: </span>
                             <span className="ml-2 break-all">{campData.host.email}</span>
                           </div>
                         )}
