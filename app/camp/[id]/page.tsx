@@ -247,6 +247,23 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const bookingErrorNotAuthorizedLabel = useTranslatedValue("booking.error_not_authorized", "Та захиалга хийх эрхгүй байна.");
   const bookingErrorNotFoundLabel = useTranslatedValue("booking.error_not_found", "Camp олдсонгүй. Дахин оролдоно уу.");
   const bookingErrorTitleLabel = useTranslatedValue("booking.error_title", "❌ Захиалга амжилтгүй");
+  const commonBackToCampsLabel = useTranslatedValue("common.back_to_camps", "Буцах");
+  const selectPeriodLabel = useTranslatedValue("common.select_period", "Хугацаа сонгох");
+  const commonNumberOfGuestsLabel = useTranslatedValue("common.number_of_guests", "Зочдын тоо");
+  const commonLoadingLabel = useTranslatedValue("common.loading", "Уншиж байна...");
+  const selectDatesLabel = useTranslatedValue("camp.select_dates", "Амрах өдрөө сонгох");
+  const calculateTotal = () => {
+    if (!checkIn || !checkOut) return 0;
+    const start = new Date(checkIn);
+    const end = new Date(checkOut);
+    const nights = Math.ceil(
+      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return nights > 0 && campData ? nights * campData.price : 0;
+  };
+
+  const totalPriceFormatted = useTranslatedPrice(`camp[${campId}].total`, calculateTotal(), "MNT");
+  const finalTotalPriceFormatted = useTranslatedPrice(`camp[${campId}].total_final`, calculateTotal(), "MNT");
 
 
   const [createBooking, { loading: bookingLoading, error: bookingError }] =
@@ -461,7 +478,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             <Link href="/camps">
               <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                {useTranslatedValue("common.back_to_camps", "Back to Camps")}
+                {commonBackToCampsLabel}
               </Button>
             </Link>
           </div>
@@ -484,7 +501,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
             <Link href="/camps">
               <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
                 <ArrowLeft className="w-4 h-4 mr-2" />
-                {useTranslatedValue("common.back_to_camps", "Back to Camps")}
+                {commonBackToCampsLabel}
               </Button>
             </Link>
           </div>
@@ -603,15 +620,6 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     },
   };
 
-  const calculateTotal = () => {
-    if (!checkIn || !checkOut) return 0;
-    const start = new Date(checkIn);
-    const end = new Date(checkOut);
-    const nights = Math.ceil(
-      (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return nights > 0 ? nights * campData.price : 0;
-  };
 
   const handleBooking = () => {
     console.log('🚀 handleBooking called', { checkIn, checkOut, user });
@@ -1075,7 +1083,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                 <CardContent className="p-3 xs:p-4 sm:p-5 lg:p-6 space-y-3 sm:space-y-4">
                   <div className="col-span-2">
                     <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
-                      {useTranslatedValue("common.select_period", "Хугацаа сонгох")}
+                      {selectPeriodLabel}
                     </label>
                     <div
                       className="flex items-center justify-between border rounded-md px-3 py-2 cursor-pointer hover:border-emerald-600 transition-all font-medium bg-gray-50/50"
@@ -1103,7 +1111,7 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
 
                   <div>
                     <label className="block text-xs sm:text-sm font-semibold text-gray-700 mb-1">
-                      {useTranslatedValue("common.number_of_guests", "Зочдын тоо")}
+                      {commonNumberOfGuestsLabel}
                     </label>
                     <div className="flex items-center space-x-2 sm:space-x-3">
                       <Button
@@ -1141,14 +1149,14 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                           {nightLabel}
                         </span>
                         <span className="font-semibold">
-                          {useTranslatedPrice(`camp[${campId}].total`, calculateTotal(), "MNT")}
+                          {totalPriceFormatted}
                         </span>
                       </div>
                       <Separator />
                       <div className="flex justify-between font-bold">
                         <span>{totalLabel}</span>
                         <span>
-                          {useTranslatedPrice(`camp[${campId}].total_final`, calculateTotal(), "MNT")}
+                          {finalTotalPriceFormatted}
                         </span>
                       </div>
                     </div>
@@ -1169,10 +1177,10 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
                       {bookingLoading ? (
                         <div className="flex items-center gap-2">
                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                          {useTranslatedValue("common.loading", "Уншиж байна...")}
+                          {commonLoadingLabel}
                         </div>
                       ) : (
-                        !checkIn || !checkOut ? useTranslatedValue("camp.select_dates", "Амрах өдрөө сонгох") : bookLabel
+                        !checkIn || !checkOut ? selectDatesLabel : bookLabel
                       )}
                     </Button>
                   </div>

@@ -35,6 +35,20 @@ export function SearchSection() {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showGuestSelector, setShowGuestSelector] = useState(false);
 
+  // Translation hooks at the top level
+  const heroTitle = useTranslatedValue("landing.hero.title", "ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ");
+  const heroSubtitle = useTranslatedValue("landing.hero.subtitle", "Нүүдэлчин ахуй соёлтой танилцах хамгийн таатай боломж");
+  const provinceLabelTranslate = useTranslatedValue("search.province_label", "Аймаг");
+  const selectProvincePlaceholder = useTranslatedValue("search.select_province_placeholder", "Аймаг сонгох");
+  const districtLabelTranslate = useTranslatedValue("search.district_label", "Сум");
+  const selectDistrictPlaceholder = useTranslatedValue("search.select_district_placeholder", "Сум сонгох");
+  const whenLabel = useTranslatedValue("search.when_label", "Хэзээ");
+  const selectDatesPlaceholder = useTranslatedValue("search.select_dates_placeholder", "Огноо сонгох");
+  const guestsLabelTranslate = useTranslatedValue("search.guests_label", "Зочид");
+  const guestsPlaceholder = useTranslatedValue("search.guests_placeholder", "Зочид");
+  const searchButtonText = useTranslatedValue("search.button_text", "Хайх");
+  const guestsUnit = useTranslatedValue("common.guests", "зочин");
+
   const provinceRef = useRef<HTMLDivElement>(null);
   const districtRef = useRef<HTMLDivElement>(null);
 
@@ -85,7 +99,7 @@ export function SearchSection() {
   };
 
   const formatGuests = () => {
-    return selectedGuests === 1 ? "" : `${selectedGuests} ${useTranslatedValue("common.guests", "зочин")}`;
+    return selectedGuests === 1 ? "" : `${selectedGuests} ${guestsUnit}`;
   };
 
   const handleProvinceSelect = () => {
@@ -170,10 +184,10 @@ export function SearchSection() {
       <div className="max-w-6xl 2xl:max-w-7xl 3xl:max-w-[1800px] 4k:max-w-[2400px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         <div className="text-center mb-8 sm:mb-12 mt-4 sm:mt-8">
           <h1 className="text-2xl xs:text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#0F3D2E] via-emerald-800 to-[#0F3D2E] tracking-tight leading-tight mb-4 font-display drop-shadow-sm py-1 uppercase sm:whitespace-nowrap">
-            {useTranslatedValue("landing.hero.title", "ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ")}
+            {heroTitle}
           </h1>
           <p className="text-sm sm:text-base md:text-lg text-gray-500 max-w-2xl mx-auto font-medium tracking-wide">
-            {useTranslatedValue("landing.hero.subtitle", "Нүүдэлчин ахуй соёлтой танилцах хамгийн таатай боломж")}
+            {heroSubtitle}
           </p>
         </div>
 
@@ -183,7 +197,7 @@ export function SearchSection() {
 
             <div className="flex-1 relative min-w-0" ref={provinceRef}>
               <label className="block text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-0.5 sm:mb-1">
-                {useTranslatedValue("search.province_label", "Аймаг")}
+                {provinceLabelTranslate}
               </label>
               <div className="relative">
                 <Mountain className="absolute left-2 sm:left-2.5 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
@@ -194,7 +208,7 @@ export function SearchSection() {
                   <span className={selectedProvince ? "text-gray-800 font-medium" : "text-gray-400"}>
                     {selectedProvince
                       ? translateWithMap(selectedProvince, i18n.language, provinceTranslations)
-                      : useTranslatedValue("search.select_province_placeholder", "Аймаг сонгох")}
+                      : selectProvincePlaceholder}
                   </span>
                 </button>
                 <ChevronDown className="absolute right-2 sm:right-2.5 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 pointer-events-none" />
@@ -228,7 +242,7 @@ export function SearchSection() {
 
             <div className="flex-1 relative min-w-0" ref={districtRef}>
               <label className="block text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-0.5 sm:mb-1">
-                {useTranslatedValue("search.district_label", "Сум")}
+                {districtLabelTranslate}
               </label>
               <div className="relative">
                 <MapPin className="absolute left-2 sm:left-2.5 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
@@ -243,7 +257,7 @@ export function SearchSection() {
                   className="w-full h-9 sm:h-10 pl-7 sm:pl-9 pr-8 sm:pr-9 rounded-lg cursor-pointer text-xs sm:text-sm text-left border border-gray-200 hover:border-emerald-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all bg-white flex items-center"
                 >
                   <span className={selectedDistrict ? "text-gray-800 font-medium" : "text-gray-400"}>
-                    {selectedDistrict ? translateWithMap(selectedDistrict, i18n.language, districtTranslations) : useTranslatedValue("search.select_district_placeholder", "Сум сонгох")}
+                    {selectedDistrict ? translateWithMap(selectedDistrict, i18n.language, districtTranslations) : selectDistrictPlaceholder}
                   </span>
                 </button>
                 <ChevronDown className="absolute right-2 sm:right-2.5 top-1/2 transform -translate-y-1/2 w-3 h-3 sm:w-3.5 sm:h-3.5 text-gray-400 pointer-events-none" />
@@ -282,7 +296,7 @@ export function SearchSection() {
             {/* Date */}
             <div className="flex-1 relative min-w-0">
               <label className="block text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-0.5 sm:mb-1">
-                {useTranslatedValue("search.when_label", "Хэзээ")}
+                {whenLabel}
               </label>
               <div className="relative">
                 <Calendar className="absolute left-2 sm:left-2.5 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
@@ -291,7 +305,7 @@ export function SearchSection() {
                   className="w-full h-9 sm:h-10 pl-7 sm:pl-9 pr-8 sm:pr-9 rounded-lg cursor-pointer text-xs sm:text-sm text-left border border-gray-200 hover:border-emerald-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all bg-white flex items-center"
                 >
                   <span className={selectedDates.start ? "text-gray-800 font-medium" : "text-gray-400"}>
-                    {formatDateRange() || useTranslatedValue("search.select_dates_placeholder", "Огноо сонгох")}
+                    {formatDateRange() || selectDatesPlaceholder}
                   </span>
                 </button>
                 {selectedDates.start && (
@@ -309,7 +323,7 @@ export function SearchSection() {
             {/* Guests */}
             <div className="flex-1 relative min-w-0">
               <label className="block text-[10px] sm:text-xs font-semibold text-gray-500 uppercase tracking-wider mb-0.5 sm:mb-1">
-                {useTranslatedValue("search.guests_label", "Зочид")}
+                {guestsLabelTranslate}
               </label>
               <div className="relative">
                 <Users className="absolute left-2 sm:left-2.5 top-1/2 transform -translate-y-1/2 w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-500" />
@@ -318,7 +332,7 @@ export function SearchSection() {
                   className="w-full h-9 sm:h-10 pl-7 sm:pl-9 pr-8 sm:pr-9 rounded-lg cursor-pointer text-xs sm:text-sm text-left border border-gray-200 hover:border-emerald-400 focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all bg-white flex items-center"
                 >
                   <span className={selectedGuests > 1 ? "text-gray-800 font-medium" : "text-gray-400"}>
-                    {formatGuests() || useTranslatedValue("search.guests_placeholder", "Зочид")}
+                    {formatGuests() || guestsPlaceholder}
                   </span>
                 </button>
                 {selectedGuests > 1 && (
@@ -347,7 +361,7 @@ export function SearchSection() {
                 onClick={handleSearch}
               >
                 <Search className="w-4 h-4 mr-1.5 sm:mr-2" />
-                <span className="text-xs sm:text-sm md:text-base">{useTranslatedValue("search.button_text", "Хайх")}</span>
+                <span className="text-xs sm:text-sm md:text-base">{searchButtonText}</span>
               </Button>
             </div>
           </div>

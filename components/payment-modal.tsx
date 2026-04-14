@@ -189,6 +189,12 @@ export function PaymentModal({
   const checkingLabel = useTranslatedValue("payment.checking", "Шалгаж байна...");
   const processingLabel = useTranslatedValue("payment.processing", "Боловсруулж байна...");
   const qpayLabel = useTranslatedValue("payment.qpay_guide", "QPay-ээр төлөх");
+  const successLabel = useTranslatedValue("payment.success", "Төлбөр амжилттай төлөгдлөө!");
+  const notPaidLabel = useTranslatedValue("payment.not_paid", "Төлбөр хараахан төлөгдөөгүй байна.");
+  const titleLabel = useTranslatedValue("payment.title", "Төлбөр төлөх");
+  const descriptionLabel = useTranslatedValue("payment.description", "Төлбөрөө QPay болон банкны апп-аар төлнө үү.");
+  const totalAmountLabel = useTranslatedValue("payment.total_amount", "Нийт дүн");
+  const cartTotalLabel = useTranslatedValue("payment.cart_total", "Сагсны нийт");
 
   const handlePayment = async () => {
     if (!selectedMethod) return;
@@ -303,10 +309,10 @@ export function PaymentModal({
       } else if (eventBookingId) {
         const { data } = await checkEventPayment({ variables: { bookingId: eventBookingId } });
         if (data?.checkQPayEventPaymentAndConfirm?.status === "PAID" || data?.checkQPayEventPaymentAndConfirm?.status === "CONFIRMED") {
-          alert(useTranslatedValue("payment.success", "Төлбөр амжилттай төлөгдлөө!"));
+          alert(successLabel);
           onComplete("qpay");
         } else {
-          alert(useTranslatedValue("payment.not_paid", "Төлбөр хараахан төлөгдөөгүй байна."));
+          alert(notPaidLabel);
         }
       }
     } catch (err: any) {
@@ -333,10 +339,10 @@ export function PaymentModal({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-xl md:text-2xl font-bold">
-            {useTranslatedValue("payment.title", "Төлбөр төлөх")}
+            {titleLabel}
           </DialogTitle>
           <DialogDescription className="text-sm text-gray-500">
-            {useTranslatedValue("payment.description", "Төлбөрөө QPay болон банкны апп-аар төлнө үү.")}
+            {descriptionLabel}
           </DialogDescription>
         </DialogHeader>
 
@@ -408,7 +414,7 @@ export function PaymentModal({
                         </div>
                         <Separator />
                         <div className="flex justify-between text-base font-bold">
-                          <span>{useTranslatedValue("payment.total_amount", "Нийт дүн")}</span>
+                          <span>{totalAmountLabel}</span>
                           <span className="text-emerald-600">
                             {formattedTotal}
                           </span>
@@ -459,7 +465,7 @@ export function PaymentModal({
                     <div className="flex items-center gap-3 p-3 bg-emerald-50 rounded-lg">
                       <ShoppingBag className="w-6 h-6 text-emerald-600" />
                       <div>
-                        <p className="text-xs text-gray-500 font-bold uppercase">{useTranslatedValue("payment.cart_total", "Сагсны нийт")}</p>
+                        <p className="text-xs text-gray-500 font-bold uppercase">{cartTotalLabel}</p>
                         <p className="text-lg font-black text-emerald-700">{formattedTotal}</p>
                       </div>
                     </div>

@@ -19,6 +19,11 @@ import {
   ChevronRight,
   ExternalLink,
   RefreshCcw,
+  CheckCircle,
+  Navigation2,
+  Map as MapIcon,
+  Share2,
+  MessageSquare,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -202,9 +207,1107 @@ const CHECK_QPAY_EVENT_BOOKING = gql`
   }
 `;
 
+// --- Sub-components for Hook Compliance in Loops ---
+
+interface BookingItemProps {
+  booking: Booking;
+  confirmedLabel: string;
+  pendingLabel: string;
+  activeLabel: string;
+  approvedLabel: string;
+  declinedLabel: string;
+  cancelledLabel: string;
+  completedLabel: string;
+}
+
+function BookingItem({ booking, ...statusLabels }: BookingItemProps) {
+  const price = useTranslatedPrice(`booking[${booking.id}].amount`, booking.amount, "MNT");
+  
+  const getStatusDisplay = () => {
+    switch (booking.status) {
+      case "confirmed": return statusLabels.confirmedLabel;
+      case "pending": return statusLabels.pendingLabel;
+      case "active": return statusLabels.activeLabel;
+      case "approved": return statusLabels.approvedLabel;
+      case "declined": return statusLabels.declinedLabel;
+      case "cancelled": return statusLabels.cancelledLabel;
+      case "completed": return statusLabels.completedLabel;
+      default: return booking.status;
+    }
+  };
+
+  return (
+    <div className="flex items-center space-x-2 sm:space-x-4">
+      <img
+        src={booking.image || "/placeholder.svg"}
+        alt={booking.camp}
+        className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0"
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = "/placeholder.svg";
+        }}
+      />
+      <div className="min-w-0 flex-1">
+        <p className="font-semibold text-xs sm:text-sm md:text-base truncate">
+          {booking.camp}
+        </p>
+        <p className="text-[10px] xs:text-xs sm:text-sm text-gray-600 truncate font-medium">
+          {booking.location}
+        </p>
+        <p className="text-[10px] xs:text-xs text-gray-500 font-medium hidden xs:block">
+          {booking.checkIn} - {booking.checkOut}
+        </p>
+      </div>
+      <div className="text-right flex-shrink-0">
+        <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
+          {price}
+        </p>
+        <Badge
+          variant={booking.status === "confirmed" ? "default" : "secondary"}
+          className={`text-[10px] xs:text-xs font-medium mt-1 ${booking.status === "confirmed" ? "bg-green-100 text-green-800" : ""}`}
+        >
+          {getStatusDisplay()}
+        </Badge>
+      </div>
+    </div>
+  );
+}
+
+interface OrderListItemProps {
+  order: Order;
+  statusLabels: Record<string, string>;
+}
+
+function OrderListItem({ order, statusLabels }: OrderListItemProps) {
+  const price = useTranslatedPrice(`order[${order.id}].amount`, order.amount, "MNT");
+
+  const getStatusDisplay = () => {
+    switch (order.status.toLowerCase()) {
+      case "delivered": return statusLabels.delivered;
+      case "shipped": return statusLabels.shipped;
+      case "paid": return statusLabels.paid;
+      case "pending": return statusLabels.pending;
+      case "approved": return statusLabels.approved;
+      case "confirmed": return statusLabels.confirmed;
+      case "cancelled": return statusLabels.cancelled;
+      case "rejected": return statusLabels.rejected;
+      default: return order.status;
+    }
+  };
+
+  return (
+    <div className="flex items-center space-x-2 sm:space-x-4">
+      <img
+        src={order.image || "/placeholder.svg"}
+        alt={order.product}
+        className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0"
+        onError={(e) => {
+          (e.target as HTMLImageElement).src = "/placeholder.svg";
+        }}
+      />
+      <div className="min-w-0 flex-1">
+        <p className="font-semibold text-xs sm:text-sm md:text-base truncate">
+          {order.product}
+        </p>
+        <p className="text-[10px] xs:text-xs sm:text-sm text-gray-600 truncate font-medium">
+          {order.seller}
+        </p>
+        <p className="text-[10px] xs:text-xs text-gray-500 font-medium hidden xs:block">
+          {order.date}
+        </p>
+      </div>
+      <div className="text-right flex-shrink-0">
+        <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
+          {price}
+        </p>
+        <Badge
+          variant={order.status === "delivered" ? "default" : "secondary"}
+          className={`text-[10px] xs:text-xs font-medium mt-1 ${order.status === "delivered" ? "bg-green-100 text-green-800" : ""}`}
+        >
+          {getStatusDisplay()}
+        </Badge>
+      </div>
+    </div>
+  );
+}
+
+function FavoriteItem({ 
+  item, 
+  sellerLabel, 
+  detailsLabel, 
+  addToCartLabel, 
+  campLabel, 
+  productLabel 
+}: { 
+  item: Favorite; 
+  sellerLabel: string; 
+  detailsLabel: string; 
+  addToCartLabel: string; 
+  campLabel: string; 
+  productLabel: string 
+}) {
+  const price = useTranslatedPrice(`favorite[${item.id}].price`, item.price, "MNT");
+  
+  return (
+    <Card key={item.id} className="overflow-hidden shadow-sm hover:shadow-md transition-shadow group">
+      <div className="relative aspect-[16/10] sm:aspect-video overflow-hidden">
+        <img
+          src={item.image || "/placeholder.svg"}
+          alt={item.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/placeholder.svg";
+          }}
+        />
+        <div className="absolute top-2 right-2">
+          <Badge className="bg-white/90 text-emerald-700 hover:bg-white border-none shadow-sm backdrop-blur-sm font-bold">
+            {item.rating} <Star className="w-3 h-3 ml-1 fill-emerald-700" />
+          </Badge>
+        </div>
+        <div className="absolute top-2 left-2">
+          <Badge className="bg-emerald-600/90 text-white border-none shadow-sm backdrop-blur-sm font-bold">
+            {item.type === "camp" ? campLabel : productLabel}
+          </Badge>
+        </div>
+      </div>
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex justify-between items-start mb-2">
+          <h4 className="font-bold text-sm sm:text-base text-gray-900 truncate pr-2">
+            {item.name}
+          </h4>
+          <span className="text-emerald-700 font-bold text-sm sm:text-base whitespace-nowrap">
+            {price}
+          </span>
+        </div>
+        <div className="flex items-center text-gray-500 text-[10px] xs:text-xs mb-3 font-medium">
+          <MapPin className="w-3 h-3 mr-1" />
+          <span className="truncate">{item.location}</span>
+          <Separator orientation="vertical" className="h-2 mx-2" />
+          <Package className="w-3 h-3 mr-1" />
+          <span className="truncate">{sellerLabel}: {item.seller}</span>
+        </div>
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" className="flex-1 text-[10px] xs:text-xs h-8 sm:h-9 font-bold">
+            {detailsLabel}
+          </Button>
+          <Button size="sm" className="flex-1 text-[10px] xs:text-xs h-8 sm:h-9 bg-emerald-600 hover:bg-emerald-700 font-bold">
+            {addToCartLabel}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface TravelBookingItemProps {
+  booking: Booking;
+  statusLabels: Record<string, string>;
+  totalLabel: string;
+  peopleLabel: string;
+}
+
+function TravelBookingItem({ booking, statusLabels, totalLabel, peopleLabel }: TravelBookingItemProps) {
+  const price = useTranslatedPrice(`travelbook[${booking.id}].total`, booking.amount, "MNT");
+
+  return (
+    <div className="flex items-start space-x-3 sm:space-x-4 p-3 bg-gray-50/50 rounded-xl border border-gray-100">
+      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 shadow-sm">
+        <img
+          src={booking.image || "/placeholder.svg"}
+          alt={booking.camp}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-start">
+          <div>
+            <h4 className="font-bold text-sm sm:text-base text-gray-900 truncate">
+              {booking.camp}
+            </h4>
+            <div className="flex items-center text-[10px] xs:text-xs text-gray-500 mt-0.5 font-medium">
+              <MapPin className="w-3 h-3 mr-1" />
+              <span className="truncate">{booking.location}</span>
+            </div>
+          </div>
+          <Badge
+            variant={booking.status === "confirmed" ? "default" : "secondary"}
+            className={`text-[9px] xs:text-[10px] sm:text-xs font-bold ${booking.status === "confirmed" ? "bg-green-100 text-green-800" : ""}`}
+          >
+            {booking.status === "confirmed" ? statusLabels.confirmed : 
+             booking.status === "pending" ? statusLabels.pending_short : 
+             booking.status === "completed" ? statusLabels.completed :
+             booking.status === "cancelled" ? statusLabels.cancelled : booking.status}
+          </Badge>
+        </div>
+        <div className="flex items-center justify-between mt-3">
+          <div className="flex items-center gap-3">
+            <p className="text-[10px] xs:text-xs text-gray-500 font-medium bg-white px-2 py-1 rounded-md border border-gray-100">
+              {booking.checkIn}
+            </p>
+            <span className="text-[10px] xs:text-xs text-gray-500 font-bold bg-white px-2 py-1 rounded-md border border-gray-100">
+              {booking.guests} {peopleLabel}
+            </span>
+          </div>
+          <div className="text-right">
+            <p className="text-[9px] xs:text-[10px] text-gray-400 font-bold uppercase tracking-wider">{totalLabel}</p>
+            <p className="font-bold text-sm sm:text-base text-emerald-700">{price}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface EventBookingItemProps {
+  booking: EventBooking;
+  statusLabels: Record<string, string>;
+  totalLabel: string;
+  checkingPayment: string | null;
+  checkingLabel: string;
+  checkPaymentLabel: string;
+  onCheckPayment: (id: string) => void;
+}
+
+function EventBookingItem({ booking, statusLabels, totalLabel, checkingPayment, checkingLabel, checkPaymentLabel, onCheckPayment }: EventBookingItemProps) {
+  const price = useTranslatedPrice(`eventbook[${booking.id}].total`, booking.totalPrice, "MNT");
+
+  return (
+    <div className="flex items-start space-x-3 sm:space-x-4 p-3 bg-gray-50/50 rounded-xl border border-gray-100">
+      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden flex-shrink-0 bg-gray-200 shadow-sm">
+        <img
+          src={getFirstImage(booking.event.images)}
+          alt={booking.event.title}
+          className="w-full h-full object-cover"
+        />
+      </div>
+      <div className="flex-1 min-w-0">
+        <div className="flex justify-between items-start">
+          <div>
+            <h4 className="font-bold text-sm sm:text-base text-gray-900 truncate">
+              {booking.event.title}
+            </h4>
+            <div className="flex items-center text-[10px] xs:text-xs text-gray-500 mt-0.5 font-medium">
+              <MapIcon className="w-3 h-3 mr-1" />
+              <span className="truncate">{booking.event.location}</span>
+            </div>
+          </div>
+          <Badge
+            variant={booking.status === "PAID" || booking.status === "confirmed" ? "default" : "secondary"}
+            className={`text-[9px] xs:text-[10px] sm:text-xs font-bold ${booking.status === "PAID" || booking.status === "confirmed" ? "bg-green-100 text-green-800" : ""}`}
+          >
+            {booking.status === "confirmed" || booking.status === "PAID" ? statusLabels.confirmed : 
+             booking.status === "pending" ? statusLabels.pending_short : 
+             booking.status === "completed" ? statusLabels.completed :
+             booking.status === "cancelled" ? statusLabels.cancelled : booking.status}
+          </Badge>
+        </div>
+        <div className="flex items-center justify-between mt-3">
+          <p className="text-[10px] xs:text-xs text-gray-500 font-medium bg-white px-2 py-1 rounded-md border border-gray-100">
+            {new Date(booking.event.startDate).toLocaleDateString()}
+          </p>
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-[9px] xs:text-[10px] text-gray-400 font-bold uppercase tracking-wider">{totalLabel}</p>
+              <p className="font-bold text-sm sm:text-base text-emerald-700">{price}</p>
+            </div>
+            {booking.status.toUpperCase() === "PENDING" && (
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-7 sm:h-8 text-[10px] sm:text-xs px-2 sm:px-3 font-bold border-amber-200 text-amber-700 hover:bg-amber-50"
+                onClick={() => onCheckPayment(booking.id)}
+                disabled={checkingPayment === booking.id}
+              >
+                {checkingPayment === booking.id ? (
+                  <>
+                    <RefreshCcw className="w-3 h-3 mr-1 animate-spin" />
+                    {checkingLabel}
+                  </>
+                ) : (
+                  checkPaymentLabel
+                )}
+              </Button>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface CampBookingCardProps {
+  booking: Booking;
+  statusLabels: Record<string, string>;
+  ownerLabels: Record<string, string>;
+  commonLabels: Record<string, string>;
+  checkingPayment: string | null;
+  onCheckPayment: (id: string) => void;
+  onSelect: (booking: Booking) => void;
+}
+
+function CampBookingCard({ booking, statusLabels, ownerLabels, commonLabels, checkingPayment, onCheckPayment, onSelect }: CampBookingCardProps) {
+  const price = useTranslatedPrice(`booking[${booking.id}].amount`, booking.amount, "MNT");
+  
+  const getStatusDisplay = () => {
+    switch (booking.status) {
+      case "confirmed": return statusLabels.confirmed;
+      case "pending": return statusLabels.pending;
+      case "completed": return statusLabels.completed;
+      case "cancelled": return statusLabels.cancelled;
+      default: return booking.status;
+    }
+  };
+
+  return (
+    <Card key={booking.id} className="overflow-hidden shadow-sm">
+      <div className="relative aspect-video bg-gray-100 overflow-hidden">
+        <img
+          src={booking.image || "/placeholder.svg"}
+          alt={booking.camp}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/placeholder.svg";
+          }}
+        />
+        <div className="absolute top-2 right-2">
+          <Badge
+            variant={booking.status === "confirmed" ? "default" : "secondary"}
+            className={`text-[10px] sm:text-xs font-bold shadow-sm ${booking.status === "confirmed" ? "bg-green-100 text-green-800" : ""}`}
+          >
+            <span className="flex items-center">
+              {getStatusDisplay()}
+            </span>
+          </Badge>
+        </div>
+      </div>
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex items-start justify-between mb-3">
+          <div className="min-w-0 flex-1">
+            <h3 className="font-bold text-base sm:text-lg truncate text-gray-900 group-hover:text-emerald-700 transition-colors">
+              {booking.camp}
+            </h3>
+            <div className="flex items-center text-gray-500 mt-1">
+              <MapPin className="w-3.5 h-3.5 mr-1 flex-shrink-0 text-emerald-600" />
+              <span className="text-xs sm:text-sm truncate font-medium">
+                {booking.location}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="flex items-center text-gray-600 mb-1.5 sm:mb-2">
+          <MapPin className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+          <span className="text-xs sm:text-sm truncate font-medium">
+            {booking.location}
+          </span>
+        </div>
+        <div className="flex items-center text-gray-600 mb-3 sm:mb-4">
+          <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
+          <span className="text-xs sm:text-sm font-medium">
+            {booking.checkIn} - {booking.checkOut}
+          </span>
+        </div>
+
+        {booking.owner && (
+          <div className="bg-emerald-50 rounded-lg p-3 mb-4 border border-emerald-100">
+            <div className="flex items-center justify-between mb-2">
+              <h4 className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
+                {ownerLabels.info}
+              </h4>
+              <Badge variant="outline" className="text-[10px] bg-white border-emerald-200 text-emerald-700">
+                {commonLabels.herder}
+              </Badge>
+            </div>
+            <p className="text-sm font-bold text-gray-900 mb-2">
+              {booking.owner.name}
+            </p>
+            <div className="flex gap-2">
+              {booking.owner.phone && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 h-8 bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50 text-xs font-bold"
+                  onClick={() => window.location.href = `tel:${booking.owner?.phone}`}
+                >
+                  <Phone className="w-3 h-3 mr-1" />
+                  {commonLabels.call}
+                </Button>
+              )}
+              {booking.owner.email && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="flex-1 h-8 bg-white text-emerald-700 border-emerald-200 hover:bg-emerald-50 text-xs font-bold"
+                  onClick={() => window.location.href = `mailto:${booking.owner?.email}`}
+                >
+                  <Mail className="w-3 h-3 mr-1" />
+                  {commonLabels.emailWrite}
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
+          <div>
+            <span className="text-base sm:text-lg md:text-xl font-bold text-emerald-700">
+              {price}
+            </span>
+            <span className="text-gray-500 ml-1 text-xs font-medium">
+              {commonLabels.total}
+            </span>
+          </div>
+          <div className="flex gap-2">
+            {booking.status === "pending" && booking.qpayInvoiceId && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-emerald-700 font-bold text-xs border-emerald-200 hover:bg-emerald-50"
+                disabled={checkingPayment === booking.id}
+                onClick={() => onCheckPayment(booking.id)}
+              >
+                <RefreshCcw className={`w-3 h-3 mr-1 ${checkingPayment === booking.id ? "animate-spin" : ""}`} />
+                {checkingPayment === booking.id ? commonLabels.checking : commonLabels.checkPayment}
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="sm"
+              className="text-gray-600 hover:text-emerald-700 font-bold text-xs"
+              onClick={() => onSelect(booking)}
+            >
+              {commonLabels.details}
+              <ChevronRight className="w-3 h-3 ml-1" />
+            </Button>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface AttractionItemProps {
+  attraction: any;
+  moreLabel: string;
+}
+
+function AttractionItem({ attraction, moreLabel }: AttractionItemProps) {
+  return (
+    <div className="border rounded-lg p-3 bg-gray-50">
+      <div className="flex items-center space-x-3 mb-2">
+        <img
+          src={attraction.image || "/placeholder.svg"}
+          alt={attraction.name}
+          className="w-10 h-10 rounded object-cover"
+        />
+        <div className="flex-1 min-w-0">
+          <h5 className="font-semibold text-sm truncate">{attraction.name}</h5>
+          <p className="text-xs text-gray-600 capitalize font-medium">
+            {attraction.type} • {attraction.duration}
+          </p>
+        </div>
+      </div>
+      <div className="flex flex-wrap gap-1">
+        {attraction.activities.slice(0, 2).map((activity: string, actIndex: number) => (
+          <Badge key={actIndex} variant="outline" className="text-xs font-medium">
+            {activity}
+          </Badge>
+        ))}
+        {attraction.activities.length > 2 && (
+          <Badge variant="outline" className="text-xs font-medium">
+            +{attraction.activities.length - 2} {moreLabel}
+          </Badge>
+        )}
+      </div>
+    </div>
+  );
+}
+
+interface TravelRouteItemProps {
+  route: TravelRoute;
+  statusLabels: Record<string, string>;
+  difficultyLabels: Record<string, string>;
+  seasonLabels: Record<string, string>;
+  commonLabels: Record<string, string>;
+  dashboardLabels: Record<string, string>;
+  onSelect: (route: TravelRoute) => void;
+  onReorder: (route: TravelRoute) => void;
+  onConfirm: (route: TravelRoute) => void;
+  onUse: (route: TravelRoute) => void;
+  onViewMap: (route: TravelRoute) => void;
+  onShare: (route: TravelRoute) => void;
+  onWriteReview: (route: TravelRoute) => void;
+}
+
+function TravelRouteItem({
+  route,
+  statusLabels,
+  difficultyLabels,
+  seasonLabels,
+  commonLabels,
+  dashboardLabels,
+  onSelect,
+  onReorder,
+  onConfirm,
+  onUse,
+  onViewMap,
+  onShare,
+  onWriteReview,
+}: TravelRouteItemProps) {
+  const price = useTranslatedPrice(`route[${route.id}].cost`, route.estimatedCost, "MNT");
+
+  return (
+    <div key={route.id} className="bg-white border rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-all group">
+      <div className="flex flex-col sm:flex-row justify-between items-start gap-4 mb-4 sm:mb-6">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-900 group-hover:text-emerald-700 transition-colors mb-2">
+            {route.title}
+          </h3>
+          <div className="flex flex-wrap items-center gap-3 text-xs sm:text-sm text-gray-500">
+            <div className="flex items-center">
+              <Calendar className="w-4 h-4 mr-1" />
+              <span className="font-medium">{route.duration}</span>
+            </div>
+            <div className="flex items-center">
+              <MapPin className="w-4 h-4 mr-1" />
+              <span className="font-medium">{route.totalDistance}</span>
+            </div>
+            <div className="flex items-center">
+              <Package className="w-4 h-4 mr-1" />
+              <span className="font-medium">{price}</span>
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col items-start sm:items-end gap-2">
+          <Badge
+            variant={route.status === "completed" ? "default" : route.status === "planning" ? "secondary" : "outline"}
+            className="font-medium"
+          >
+            {route.status === "saved" ? statusLabels.saved : route.status}
+          </Badge>
+          <Badge
+            variant="outline"
+            className={`font-medium ${route.difficulty === "extreme" ? "border-red-500 text-red-600" :
+              route.difficulty === "challenging" ? "border-orange-500 text-orange-600" : "border-green-500 text-green-600"}`}
+          >
+            {route.difficulty === "extreme" ? difficultyLabels.extreme :
+              route.difficulty === "challenging" ? difficultyLabels.challenging :
+                route.difficulty === "moderate" ? difficultyLabels.moderate : difficultyLabels.easy}
+          </Badge>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+        <div>
+          <h4 className="font-bold text-sm text-gray-700 mb-2">{dashboardLabels.route_info}</h4>
+          <div className="space-y-1 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-600 font-medium">{commonLabels.season}:</span>
+              <span className="capitalize font-semibold">
+                {route.weatherSeason === "autumn" ? seasonLabels.autumn :
+                  route.weatherSeason === "spring" ? seasonLabels.spring : route.weatherSeason}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600 font-medium">{commonLabels.child_friendly}:</span>
+              <span className={`font-semibold ${route.childFriendly ? "text-green-600" : "text-red-600"}`}>
+                {route.childFriendly ? commonLabels.yes : commonLabels.no}
+              </span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-600 font-medium">{commonLabels.transport}:</span>
+              <span className="text-right font-semibold">
+                {route.transportation === "Guided tour" ? commonLabels.guidedTour : route.transportation}
+              </span>
+            </div>
+          </div>
+        </div>
+        <div>
+          <h4 className="font-bold text-sm text-gray-700 mb-2">{dashboardLabels.accommodation}</h4>
+          <div className="flex flex-wrap gap-1">
+            {route.accommodations.map((acc: string, index: number) => (
+              <Badge key={index} variant="secondary" className="text-xs font-medium">{acc}</Badge>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <h4 className="font-bold text-sm text-gray-700 mb-3">{dashboardLabels.attractions_activities}</h4>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+          {route.attractions.map((attraction: any, index: number) => (
+            <AttractionItem key={index} attraction={attraction} moreLabel={commonLabels.more} />
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-4">
+        <p className="text-sm text-gray-700 italic font-medium">{route.notes}</p>
+        {route.review && (
+          <div className="mt-2 p-3 bg-green-50 rounded-lg border border-green-200">
+            <div className="flex items-center mb-1">
+              <div className="flex">
+                {[...Array(route.rating)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                ))}
+              </div>
+              <span className="ml-2 text-sm font-semibold">{dashboardLabels.my_review}</span>
+            </div>
+            <p className="text-sm text-gray-700 font-medium">"{route.review}"</p>
+          </div>
+        )}
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-4 pt-4 border-t">
+        <div className="flex flex-wrap gap-2">
+          {route.status === "completed" ? (
+            <Button onClick={() => onReorder(route)} variant="outline" size="sm" className="h-9 font-bold">
+              <RefreshCcw className="w-4 h-4 mr-1.5" />
+              {dashboardLabels.reorder_route}
+            </Button>
+          ) : route.status === "planning" ? (
+            <Button onClick={() => onConfirm(route)} className="bg-emerald-600 hover:bg-emerald-700 h-9 font-bold">
+              <CheckCircle className="w-4 h-4 mr-1.5" />
+              {dashboardLabels.confirm_booking}
+            </Button>
+          ) : (
+            <Button onClick={() => onUse(route)} className="bg-emerald-600 hover:bg-emerald-700 h-9 font-bold">
+              <Navigation2 className="w-4 h-4 mr-1.5" />
+              {dashboardLabels.use_route}
+            </Button>
+          )}
+          <Button onClick={() => onViewMap(route)} variant="ghost" size="sm" className="h-9 font-bold text-gray-600">
+            <MapIcon className="w-4 h-4 mr-1.5" />
+            {dashboardLabels.view_on_map}
+          </Button>
+          <Button onClick={() => onShare(route)} variant="ghost" size="sm" className="h-9 font-bold text-gray-600">
+            <Share2 className="w-4 h-4 mr-1.5" />
+            {dashboardLabels.share_route}
+          </Button>
+        </div>
+        <div className="flex flex-col items-end text-xs text-gray-400 font-medium">
+          {route.status !== "completed" ? (
+            <Button onClick={() => onWriteReview(route)} variant="ghost" size="sm" className="h-9 font-bold text-emerald-600 hover:text-emerald-700 hover:bg-emerald-50">
+              <MessageSquare className="w-4 h-4 mr-1.5" />
+              {dashboardLabels.write_review}
+            </Button>
+          ) : (
+            <>
+              <span>{commonLabels.created}: {route.createdDate}</span>
+              {route.completedDate && <span>{commonLabels.completed}: {route.completedDate}</span>}
+            </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface TravelBookingCardProps {
+  booking: Booking;
+  statusLabels: Record<string, string>;
+  commonLabels: Record<string, string>;
+  peopleLabel: string;
+}
+
+function TravelBookingCard({ booking, statusLabels, commonLabels, peopleLabel }: TravelBookingCardProps) {
+  const price = useTranslatedPrice(`travelbook[${booking.id}].total`, booking.amount, "MNT");
+  
+  const getStatusDisplay = () => {
+    switch (booking.status) {
+      case "confirmed": return statusLabels.confirmed;
+      case "pending": return statusLabels.pending;
+      case "completed": return statusLabels.completed;
+      case "cancelled": return statusLabels.cancelled;
+      default: return booking.status;
+    }
+  };
+
+  return (
+    <Card key={booking.id} className="overflow-hidden shadow-sm">
+      <div className="aspect-video bg-gray-100 flex items-center justify-center">
+        <img
+          src={booking.image || "/placeholder.svg"}
+          alt={booking.camp}
+          className="w-full h-full object-cover"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/placeholder.svg";
+          }}
+        />
+      </div>
+      <CardContent className="p-3 sm:p-4">
+        <div className="flex items-start justify-between mb-2">
+          <h3 className="font-bold text-sm sm:text-base md:text-lg truncate flex-1 pr-2">
+            {booking.camp}
+          </h3>
+          <Badge
+            variant={booking.status === "completed" ? "default" : booking.status === "confirmed" ? "secondary" : "outline"}
+            className={`text-xs ml-2 font-medium ${booking.status === "confirmed" ? "bg-green-100 text-green-800 border-green-300" :
+              booking.status === "pending" ? "bg-yellow-100 text-yellow-800 border-yellow-300" : ""}`}
+          >
+            {getStatusDisplay()}
+          </Badge>
+        </div>
+        <div className="flex items-center text-gray-600 mb-2">
+          <MapPin className="w-4 h-4 mr-1" />
+          <span className="text-sm truncate font-medium">
+            {booking.location}
+          </span>
+        </div>
+        <div className="flex items-center text-gray-600 mb-4">
+          <Calendar className="w-4 h-4 mr-1" />
+          <span className="text-sm font-medium">
+            {booking.checkIn}
+          </span>
+        </div>
+        <div className="flex items-center justify-between">
+          <div>
+            <span className="text-xl font-bold">
+              {price}
+            </span>
+            <span className="text-gray-600 ml-1 text-sm font-medium">
+              {commonLabels.total}
+            </span>
+          </div>
+          <span className="text-sm text-gray-600 font-medium">
+            {booking.guests} {peopleLabel}
+          </span>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface OrderMobileCardProps {
+  order: Order;
+  checkingPayment: string | null;
+  statusLabels: Record<string, string>;
+  commonLabels: Record<string, string>;
+  onCheckPayment: (id: string) => void;
+  onSelect: (order: Order) => void;
+}
+
+function OrderMobileCard({ order, checkingPayment, statusLabels, commonLabels, onCheckPayment, onSelect }: OrderMobileCardProps) {
+  const price = useTranslatedPrice(`order[${order.id}].total`, order.amount, "MNT");
+
+  const getStatusDisplay = () => {
+    switch (order.status.toLowerCase()) {
+      case "delivered": return statusLabels.delivered;
+      case "shipped": return statusLabels.shipped;
+      case "paid": return statusLabels.paid;
+      case "pending": return statusLabels.pending;
+      case "approved": return statusLabels.approved;
+      case "confirmed": return statusLabels.confirmed;
+      case "cancelled": return statusLabels.cancelled;
+      case "rejected": return statusLabels.rejected;
+      default: return order.status;
+    }
+  };
+
+  return (
+    <Card key={order.id} className="shadow-sm">
+      <CardContent className="p-3">
+        <div className="flex items-start space-x-3 mb-2">
+          <img
+            src={order.image || "/placeholder.svg"}
+            alt={order.product}
+            className="w-12 h-12 rounded object-cover flex-shrink-0"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/placeholder.svg";
+            }}
+          />
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-sm truncate">{order.product}</p>
+            <p className="text-xs text-gray-600 truncate">{order.seller}</p>
+            <p className="text-xs text-gray-500 mt-1">#{order.id.substring(0, 8)}</p>
+          </div>
+          <div className="text-right flex-shrink-0">
+            <p className="font-bold text-sm">{price}</p>
+            <Badge
+              variant={order.status === "delivered" ? "default" : order.status === "shipped" ? "secondary" : "outline"}
+              className={`text-[10px] mt-1 ${order.status === "delivered"
+                ? "bg-green-100 text-green-800"
+                : order.status === "shipped"
+                  ? "bg-blue-100 text-blue-800"
+                  : order.status === "paid"
+                    ? "bg-purple-100 text-purple-800"
+                    : ""
+                }`}
+            >
+              {getStatusDisplay()}
+            </Badge>
+            {order.status === "pending" && order.qpayInvoiceId && (
+              <div className="mt-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="text-[10px] h-7 text-emerald-700 w-full border-emerald-200"
+                  disabled={checkingPayment === order.id}
+                  onClick={() => onCheckPayment(order.id)}
+                >
+                  <RefreshCcw className={`w-2.5 h-2.5 mr-1 ${checkingPayment === order.id ? "animate-spin" : ""}`} />
+                  {checkingPayment === order.id ? "..." : commonLabels.checkPayment}
+                </Button>
+              </div>
+            )}
+          </div>
+        </div>
+        <div className="flex justify-between items-center text-xs text-gray-600 mt-2 pt-2 border-t">
+          <div className="flex gap-4">
+            <span>{commonLabels.quantity}: {order.quantity}</span>
+            <span>{order.date}</span>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-7 text-xs text-emerald-700 font-bold p-0"
+            onClick={() => onSelect(order)}
+          >
+            {commonLabels.details}
+            <ChevronRight className="w-3 h-3 ml-1" />
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+interface OrderTableRowProps {
+  order: Order;
+  checkingPayment: string | null;
+  statusLabels: Record<string, string>;
+  commonLabels: Record<string, string>;
+  onCheckPayment: (id: string) => void;
+  onSelect: (order: Order) => void;
+}
+
+function OrderTableRow({ order, checkingPayment, statusLabels, commonLabels, onCheckPayment, onSelect }: OrderTableRowProps) {
+  const price = useTranslatedPrice(`order[${order.id}].amount`, order.amount, "MNT");
+
+  const getStatusDisplay = () => {
+    switch (order.status.toLowerCase()) {
+      case "delivered": return statusLabels.delivered;
+      case "shipped": return statusLabels.shipped;
+      case "paid": return statusLabels.paid;
+      case "pending": return statusLabels.pending;
+      case "approved": return statusLabels.approved;
+      case "confirmed": return statusLabels.confirmed;
+      case "cancelled": return statusLabels.cancelled;
+      case "rejected": return statusLabels.rejected;
+      default: return order.status;
+    }
+  };
+
+  return (
+    <TableRow key={order.id}>
+      <TableCell className="font-semibold text-xs md:text-sm">
+        #{order.id.substring(0, 8)}
+      </TableCell>
+      <TableCell>
+        <div className="flex items-center space-x-2">
+          <img
+            src={order.image || "/placeholder.svg"}
+            alt={order.product}
+            className="w-8 h-8 rounded object-cover flex-shrink-0"
+            onError={(e) => {
+              (e.target as HTMLImageElement).src = "/placeholder.svg";
+            }}
+          />
+          <span className="truncate max-w-[120px] font-medium text-xs md:text-sm">
+            {order.product}
+          </span>
+        </div>
+      </TableCell>
+      <TableCell className="truncate max-w-[120px] font-medium text-xs md:text-sm">
+        {order.seller}
+      </TableCell>
+      <TableCell className="font-medium text-xs md:text-sm">
+        {order.quantity}
+      </TableCell>
+      <TableCell className="font-bold text-xs md:text-sm">
+        {price}
+      </TableCell>
+      <TableCell>
+        <Badge
+          variant={
+            order.status === "delivered"
+              ? "default"
+              : order.status === "shipped"
+                ? "secondary"
+                : "outline"
+          }
+          className={`font-medium text-[10px] md:text-xs ${order.status === "delivered"
+            ? "bg-green-100 text-green-800"
+            : order.status === "shipped"
+              ? "bg-blue-100 text-blue-800"
+              : order.status === "paid"
+                ? "bg-purple-100 text-purple-800"
+                : ""
+            }`}
+        >
+          {getStatusDisplay()}
+        </Badge>
+        {order.status === "pending" && order.qpayInvoiceId && (
+          <div className="mt-2">
+            <Button
+              size="sm"
+              variant="outline"
+              className="text-[10px] h-6 px-2 text-emerald-700 font-medium border-emerald-200"
+              disabled={checkingPayment === order.id}
+              onClick={() => onCheckPayment(order.id)}
+            >
+              <RefreshCcw className={`w-2.5 h-2.5 mr-1 ${checkingPayment === order.id ? "animate-spin" : ""}`} />
+              {checkingPayment === order.id ? commonLabels.checking : commonLabels.checkPayment}
+            </Button>
+          </div>
+        )}
+      </TableCell>
+      <TableCell className="hidden md:table-cell font-medium text-xs md:text-sm">
+        {order.date}
+      </TableCell>
+      <TableCell>
+        <Button
+          variant="ghost"
+          size="sm"
+          className="text-gray-600 hover:text-emerald-700 font-bold text-xs"
+          onClick={() => onSelect(order)}
+        >
+          {commonLabels.details}
+          <ChevronRight className="w-3 h-3 ml-1" />
+        </Button>
+      </TableCell>
+    </TableRow>
+  );
+}
+
 export default function UserDashboardContent() {
   const { t, i18n } = useTranslation();
   const currentLang = i18n.language;
+
+  // Translation Labels
+  const noOrdersYetLabel = useTranslatedValue("dashboard.no_orders_yet", "Захиалга байхгүй");
+  const noOrdersYetDescLabel = useTranslatedValue("dashboard.no_orders_yet_desc", "Та одоогоор ямар ч захиалга хийгээгүй байна.");
+  const startLabel = useTranslatedValue("common.start", "Эхлэх");
+  const savedCampsLabel = useTranslatedValue("dashboard.saved_camps", "Хадгалсан амралтууд");
+  const clearAllLabel = useTranslatedValue("common.clear_all", "Бүгдийг цэвэрлэх");
+  const campLabel = useTranslatedValue("common.camp", "Бааз");
+  const productLabel = useTranslatedValue("common.product", "Бараа");
+  const sellerLabel = useTranslatedValue("common.seller", "Борлуулагч");
+  const detailsLabel = useTranslatedValue("common.details", "Дэлгэрэнгүй");
+  const addToCartLabel = useTranslatedValue("common.add_to_cart", "Сагсанд нэмэх");
+  const noSavedLabel = useTranslatedValue("dashboard.no_saved", "Хадгалсан амралт байхгүй");
+  const noSavedDescLabel = useTranslatedValue("dashboard.no_saved_desc", "Та одоогоор ямар ч амралт хадгалаагүй байна.");
+  const searchCampsLabel = useTranslatedValue("dashboard.search_camps", "Амралт хайх");
+  const myRoutesLabel = useTranslatedValue("dashboard.my_routes", "Миний аяллын маршрут");
+  const routesDescLabel = useTranslatedValue("dashboard.routes_desc", "Таны сонирхолд нийцсэн хувийн маршрут");
+  const createRouteLabel = useTranslatedValue("dashboard.create_route", "Шинэ маршрут үүсгэх");
+  const routeInfoLabel = useTranslatedValue("dashboard.route_info", "Аяллын мэдээлэл");
+  const seasonLabel = useTranslatedValue("common.season", "Улирал");
+  const childFriendlyLabel = useTranslatedValue("common.child_friendly", "Хүүхдэд ээлтэй");
+  const transportLabel = useTranslatedValue("common.transport", "Тээвэр");
+  const accommodationLabel = useTranslatedValue("dashboard.accommodation", "Байрлах газар");
+  const attractionsActivitiesLabel = useTranslatedValue("dashboard.attractions_activities", "Үзэх газрууд & Үйл ажиллагаа");
+  const moreLabel = useTranslatedValue("common.more", "илүү");
+  const myReviewLabel = useTranslatedValue("dashboard.my_review", "Таны сэтгэгдэл");
+  const reorderRouteLabel = useTranslatedValue("dashboard.reorder_route", "Ижил аялал захиалах");
+  const confirmBookingLabelTop = useTranslatedValue("dashboard.confirm_booking", "Захиалгаа баталгаажуулах");
+  const useRouteLabel = useTranslatedValue("dashboard.use_route", "Энэ маршрутыг ашиглах");
+  const viewOnMapLabel = useTranslatedValue("dashboard.view_on_map", "Газрын зураг дээр харах");
+  const shareRouteLabel = useTranslatedValue("dashboard.share_route", "Маршрутыг хуваалцах");
+  const writeReviewLabel = useTranslatedValue("dashboard.write_review", "Сэтгэгдэл бичих");
+  const createdLabel = useTranslatedValue("common.created", "Үүсгэсэн");
+  const completedLabel = useTranslatedValue("common.completed", "Дууссан");
+  const completedRoutesLabel = useTranslatedValue("dashboard.completed_routes", "Дууссан маршрут");
+  const planningRoutesLabel = useTranslatedValue("dashboard.planning_routes", "Төлөвлөж буй");
+  const totalDaysLabel = useTranslatedValue("dashboard.total_days", "Нийт аялсан хоног");
+  const totalBudgetLabel = useTranslatedValue("dashboard.total_budget", "Нийт төсөв");
+  const profileSettingsLabel = useTranslatedValue("profile.settings", "Профайл тохиргоо");
+  const accountOverviewLabel = useTranslatedValue("dashboard.account_overview", "Дансны тойм");
+  const totalBookingsStatLabel = useTranslatedValue("dashboard.stats.total_bookings", "Нийт захиалга");
+  const totalOrdersStatLabel = useTranslatedValue("dashboard.stats.total_orders", "Нийт барааны захиалга");
+  const totalSpentStatLabel = useTranslatedValue("dashboard.stats.total_spent", "Нийт зарцуулсан");
+  const bookingDetailsLabel = useTranslatedValue("dashboard.booking_details", "Захиалгын дэлгэрэнгүй");
+  const checkInLabel = useTranslatedValue("common.check_in", "Ирэх өдөр");
+  const checkOutLabel = useTranslatedValue("common.check_out", "Гарах өдөр");
+  const descriptionLabel = useTranslatedValue("common.description", "Тайлбар");
+  const cancellationPolicyLabel = useTranslatedValue("common.cancellation_policy", "Цуцлалтын бодлого");
+  const amenitiesLabel = useTranslatedValue("common.amenities", "Үйлчилгээ ба тав тух");
+  const noAmenitiesLabel = useTranslatedValue("common.no_amenities", "Үйлчилгээний мэдээлэл байхгүй");
+  const ownerContactLabel = useTranslatedValue("owner.contact", "Эзэмшигчтэй холбогдох");
+  const phoneLabel = useTranslatedValue("common.phone", "Утасны дугаар");
+  const emailLabel = useTranslatedValue("common.email", "Цахим шуудан");
+  const orderDetailsLabel = useTranslatedValue("dashboard.order_details", "Захиалгын дэлгэрэнгүй");
+  const orderIdLabel = useTranslatedValue("order.id", "Захиалга");
+  const dateLabel = useTranslatedValue("common.date", "Огноо");
+  const orderedItemsLabel = useTranslatedValue("dashboard.ordered_items", "Захиалсан бараанууд");
+  const quantityLabel = useTranslatedValue("common.quantity", "Тоо");
+  const unitPriceLabel = useTranslatedValue("common.unit_price", "Нэгж үнэ");
+  const loadingLabel = useTranslatedValue("common.loading", "Ачаалж байна...");
+  const successLabel = useTranslatedValue("payment.success", "Амжилттай");
+  const warningLabel = useTranslatedValue("payment.warning", "Анхааруулга");
+  const errorLabel = useTranslatedValue("common.error", "Алдаа");
+  const checkErrorLabel = useTranslatedValue("payment.check_error", "Төлбөр шалгахад алдаа гарлаа");
+  const confirmedDescLabel = useTranslatedValue("payment.confirmed_desc", "Таны төлбөр амжилттай, захиалгын төлөв CONFIRMED боллоо.");
+  const paidDescLabel = useTranslatedValue("payment.paid_desc", "Таны төлбөр амжилттай, захиалгын төлөв PAID боллоо.");
+  const notPaidDescLabel = useTranslatedValue("payment.not_paid_desc", "Төлбөр төлөгдөөгүй байна.");
+
+  // Dashboard UI labels
+  const dashboardTitleLabel = useTranslatedValue("dashboard.title", "Хэрэглэгчийн хянах самбар");
+  const dashboardSubtitleLabel = useTranslatedValue("dashboard.subtitle", "Захиалга, бараа болон аяллын тохиргоогоо удирдах");
+  const errorOccurredLabel = useTranslatedValue("common.error_occurred", "Алдаа гарлаа. Дахин оролдоно уу.");
+  const bookingsErrorLabel = useTranslatedValue("dashboard.bookings", "Захиалга");
+  const productsErrorLabel = useTranslatedValue("dashboard.products", "Бараа");
+  const travelErrorLabel = useTranslatedValue("dashboard.travel", "Аялал");
+  const logoutLabel = useTranslatedValue("common.logout", "Гарах");
+  const overviewTabLabel = useTranslatedValue("dashboard.tab.overview", "Тойм");
+  const bookingsTabLabel = useTranslatedValue("dashboard.tab.bookings", "Захиалга");
+  const savedTabLabel = useTranslatedValue("dashboard.tab.saved", "Хадгалсан");
+  const routesTabLabel = useTranslatedValue("dashboard.tab.routes", "Маршрут");
+  const profileTabLabel = useTranslatedValue("dashboard.tab.profile", "Профайл");
+  const thisMonthLabel = useTranslatedValue("dashboard.stats.this_month", "Энэ сард");
+  const savedLabel = useTranslatedValue("dashboard.saved", "Хадгалсан");
+  const upcomingBookingsLabel = useTranslatedValue("dashboard.upcoming_bookings", "Ирэх захиалгууд");
+  const noUpcomingLabel = useTranslatedValue("dashboard.no_upcoming", "Ирэх захиалга байхгүй");
+  const recentOrdersLabel = useTranslatedValue("dashboard.recent_orders", "Сүүлийн захиалгууд");
+  const noOrdersLabel = useTranslatedValue("dashboard.no_orders", "Захиалга байхгүй");
+  const myBookingsLabel = useTranslatedValue("dashboard.my_bookings", "Миний захиалгууд");
+  const newBookingLabel = useTranslatedValue("dashboard.new_booking", "Шинэ бааз захиалах");
+  const campBookingsLabel = useTranslatedValue("dashboard.camp_bookings", "Кемпийн буудлын захиалгууд");
+  const ownerInfoLabel = useTranslatedValue("owner.info", "Эзэмшигчийн мэдээлэл");
+  const herderLabel = useTranslatedValue("common.herder", "Малчин");
+  const callLabel = useTranslatedValue("common.call", "Залгах");
+  const emailWriteLabel = useTranslatedValue("common.email_write", "Мейл бичих");
+  const totalLabel = useTranslatedValue("common.total", "Нийт");
+  const checkingLabel = useTranslatedValue("common.checking", "Шалгаж байна...");
+  const checkPaymentLabel = useTranslatedValue("common.check_payment", "Төлбөр шалгах");
+  const eventBookingsLabel = useTranslatedValue("dashboard.event_bookings", "Арга хэмжээний захиалгууд");
+  const travelBookingsLabel = useTranslatedValue("dashboard.travel_bookings", "Аяллын захиалгууд");
+  const peopleLabel = useTranslatedValue("common.people", "хүн");
+  const ordersLoadingLabel = useTranslatedValue("status.loading_orders", "Захиалга ачаалж байна...");
+  const productOrdersLabel = useTranslatedValue("dashboard.product_orders", "Барааны захиалга");
+  const statusSavedLabel = useTranslatedValue("status.saved", "Хадгалсан");
+  const seasonAutumnLabel = useTranslatedValue("season.autumn", "Намар");
+  const seasonSpringLabel = useTranslatedValue("season.spring", "Хавар");
+  const yesLabel = useTranslatedValue("common.yes", "Тийм");
+  const noLabel = useTranslatedValue("common.no", "Үгүй");
+  const guidedTourLabel = useTranslatedValue("transport.guided", "Хөтөчтэй аялал");
+  const difficultyExtremeLabel = useTranslatedValue("difficulty.extreme", "Маш хүнд");
+  const difficultyChallengingLabel = useTranslatedValue("difficulty.challenging", "Хүнд");
+  const difficultyModerateLabel = useTranslatedValue("difficulty.moderate", "Дунд зэрэг");
+  const difficultyEasyLabel = useTranslatedValue("difficulty.easy", "Хялбар");
+  const priceCommonLabel = useTranslatedValue("common.price_label", "Үнэ");
+
+  // Status Labels
+  const statusConfirmedLabel = useTranslatedValue("status.confirmed", "Баталгаажсан");
+  const statusPendingLabel = useTranslatedValue("status.pending", "Хүлээгдэж байна");
+  const statusActiveLabel = useTranslatedValue("status.active", "Идэвхтэй");
+  const statusApprovedLabel = useTranslatedValue("status.approved", "Зөвшөөрсөн");
+  const statusDeclinedLabel = useTranslatedValue("status.declined", "Татгалзсан");
+  const statusCancelledLabel = useTranslatedValue("status.cancelled", "Цуцлагдсан");
+  const statusCompletedLabel = useTranslatedValue("status.completed", "Дууссан");
+  const statusDeliveredLabel = useTranslatedValue("status.delivered", "Хүргэгдсэн");
+  const statusShippedLabel = useTranslatedValue("status.shipped", "Илгээгдсэн");
+  const statusPaidLabel = useTranslatedValue("status.paid", "Төлөгдсөн");
+  const statusRejectedLabel = useTranslatedValue("status.rejected", "Татгалзсан");
+  const statusPendingShortLabel = useTranslatedValue("status.pending_short", "Хүлээгдэж байна");
 
   const parseAmenities = (amenitiesStr?: string) => {
     if (!amenitiesStr) return { items: [], activities: [], facilities: [] };
@@ -226,9 +1329,32 @@ export default function UserDashboardContent() {
     }
   };
 
+  // Status Labels Mapper (no hook, uses top-level hook values)
+  const getStatusLabel = (status: string | undefined) => {
+    if (!status) return "";
+    switch (status.toLowerCase()) {
+      case "confirmed": return statusConfirmedLabel;
+      case "pending": return statusPendingLabel;
+      case "active": return statusActiveLabel;
+      case "approved": return statusApprovedLabel;
+      case "declined": return statusDeclinedLabel;
+      case "cancelled": return statusCancelledLabel;
+      case "completed": return statusCompletedLabel;
+      case "delivered": return statusDeliveredLabel;
+      case "shipped": return statusShippedLabel;
+      case "paid": return statusPaidLabel;
+      case "rejected": return statusRejectedLabel;
+      case "pending_short": return statusPendingShortLabel;
+      default: return status;
+    }
+  };
+
+  const formatPrice = (amount: number) => `${amount.toLocaleString()}₮`;
+
   const [activeTab, setActiveTab] = useState("overview");
   const [selectedBooking, setSelectedBooking] = useState<Booking | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+  const [selectedRoute, setSelectedRoute] = useState<TravelRoute | null>(null);
   const [checkingPayment, setCheckingPayment] = useState<string | null>(null);
   const { logout, user } = useAuth();
   const router = useRouter();
@@ -322,13 +1448,13 @@ export default function UserDashboardContent() {
       setCheckingPayment(orderId);
       const { data } = await checkOrderPayment({ variables: { orderId } });
       if (data?.checkQPayPaymentAndConfirmOrder?.status === "CONFIRMED") {
-        toast({ title: useTranslatedValue("payment.success", "Амжилттай"), description: useTranslatedValue("payment.confirmed_desc", "Таны төлбөр амжилттай, захиалгын төлөв CONFIRMED боллоо."), variant: "default" });
+        toast({ title: successLabel, description: confirmedDescLabel, variant: "default" });
         refetchOrders();
       } else {
-        toast({ title: useTranslatedValue("payment.warning", "Анхааруулга"), description: useTranslatedValue("payment.not_paid_desc", "Төлбөр төлөгдөөгүй байна."), variant: "destructive" });
+        toast({ title: warningLabel, description: notPaidDescLabel, variant: "destructive" });
       }
     } catch (err: any) {
-      toast({ title: useTranslatedValue("common.error", "Алдаа"), description: err.message || useTranslatedValue("payment.check_error", "Төлбөр шалгахад алдаа гарлаа"), variant: "destructive" });
+      toast({ title: errorLabel, description: err.message || checkErrorLabel, variant: "destructive" });
     } finally {
       setCheckingPayment(null);
     }
@@ -339,13 +1465,13 @@ export default function UserDashboardContent() {
       setCheckingPayment(bookingId);
       const { data } = await checkBookingPayment({ variables: { bookingId } });
       if (data?.checkQPayPaymentAndConfirmBooking?.status === "CONFIRMED") {
-        toast({ title: useTranslatedValue("payment.success", "Амжилттай"), description: useTranslatedValue("payment.confirmed_desc", "Таны төлбөр амжилттай, захиалгын төлөв CONFIRMED боллоо."), variant: "default" });
+        toast({ title: successLabel, description: confirmedDescLabel, variant: "default" });
         refetchBookings();
       } else {
-        toast({ title: useTranslatedValue("payment.warning", "Анхааруулга"), description: useTranslatedValue("payment.not_paid_desc", "Төлбөр төлөгдөөгүй байна."), variant: "destructive" });
+        toast({ title: warningLabel, description: notPaidDescLabel, variant: "destructive" });
       }
     } catch (err: any) {
-      toast({ title: useTranslatedValue("common.error", "Алдаа"), description: err.message || useTranslatedValue("payment.check_error", "Төлбөр шалгахад алдаа гарлаа"), variant: "destructive" });
+      toast({ title: errorLabel, description: err.message || checkErrorLabel, variant: "destructive" });
     } finally {
       setCheckingPayment(null);
     }
@@ -356,13 +1482,13 @@ export default function UserDashboardContent() {
       setCheckingPayment(bookingId);
       const { data } = await checkEventBookingPayment({ variables: { bookingId } });
       if (data?.checkQPayEventPaymentAndConfirm?.status === "PAID") {
-        toast({ title: useTranslatedValue("payment.success", "Амжилттай"), description: useTranslatedValue("payment.paid_desc", "Таны төлбөр амжилттай, захиалгын төлөв PAID боллоо."), variant: "default" });
+        toast({ title: successLabel, description: paidDescLabel, variant: "default" });
         refetchEventBookings();
       } else {
-        toast({ title: useTranslatedValue("payment.warning", "Анхааруулга"), description: useTranslatedValue("payment.not_paid_desc", "Төлбөр төлөгдөөгүй байна."), variant: "destructive" });
+        toast({ title: warningLabel, description: notPaidDescLabel, variant: "destructive" });
       }
     } catch (err: any) {
-      toast({ title: useTranslatedValue("common.error", "Алдаа"), description: err.message || useTranslatedValue("payment.check_error", "Төлбөр шалгахад алдаа гарлаа"), variant: "destructive" });
+      toast({ title: errorLabel, description: err.message || checkErrorLabel, variant: "destructive" });
     } finally {
       setCheckingPayment(null);
     }
@@ -862,62 +1988,17 @@ export default function UserDashboardContent() {
                               booking.status === "pending"
                           )
                           .map((booking: Booking) => (
-                            <div
+                            <BookingItem
                               key={booking.id}
-                              className="flex items-center space-x-2 sm:space-x-4"
-                            >
-                              <img
-                                src={booking.image || "/placeholder.svg"}
-                                alt={booking.camp}
-                                className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0"
-                                onError={(e) => {
-                                  (e.target as HTMLImageElement).src = "/placeholder.svg";
-                                }}
-                              />
-                              <div className="min-w-0 flex-1">
-                                <p className="font-semibold text-xs sm:text-sm md:text-base truncate">
-                                  {booking.camp}
-                                </p>
-                                <p className="text-[10px] xs:text-xs sm:text-sm text-gray-600 truncate font-medium">
-                                  {booking.location}
-                                </p>
-                                <p className="text-[10px] xs:text-xs text-gray-500 font-medium hidden xs:block">
-                                  {booking.checkIn} - {booking.checkOut}
-                                </p>
-                              </div>
-                              <div className="text-right flex-shrink-0">
-                                <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
-                                  {useTranslatedPrice(`booking[${booking.id}].amount`, booking.amount, "MNT")}
-                                </p>
-                                <Badge
-                                  variant={
-                                    booking.status === "confirmed"
-                                      ? "default"
-                                      : "secondary"
-                                  }
-                                  className={`text-[10px] xs:text-xs font-medium mt-1 ${booking.status === "confirmed"
-                                    ? "bg-green-100 text-green-800"
-                                    : ""
-                                    }`}
-                                >
-                                  {booking.status === "confirmed"
-                                    ? useTranslatedValue("status.confirmed", "Баталгаажсан")
-                                    : booking.status === "pending"
-                                      ? useTranslatedValue("status.pending", "Хүлээгдэж байна")
-                                      : booking.status === "active"
-                                        ? useTranslatedValue("status.active", "Идэвхтэй")
-                                        : booking.status === "approved"
-                                          ? useTranslatedValue("status.approved", "Зөвшөөрсөн")
-                                          : booking.status === "declined"
-                                            ? useTranslatedValue("status.declined", "Татгалзсан")
-                                            : booking.status === "cancelled"
-                                              ? useTranslatedValue("status.cancelled", "Цуцлагдсан")
-                                              : booking.status === "completed"
-                                                ? useTranslatedValue("status.completed", "Дууссан")
-                                                : booking.status}
-                                </Badge>
-                              </div>
-                            </div>
+                              booking={booking}
+                              confirmedLabel={statusConfirmedLabel}
+                              pendingLabel={statusPendingLabel}
+                              activeLabel={statusActiveLabel}
+                              approvedLabel={statusApprovedLabel}
+                              declinedLabel={statusDeclinedLabel}
+                              cancelledLabel={statusCancelledLabel}
+                              completedLabel={statusCompletedLabel}
+                            />
                           ))
                       )}
                     </div>
@@ -944,58 +2025,20 @@ export default function UserDashboardContent() {
                         </p>
                       ) : (
                         orders.slice(0, 3).map((order: Order) => (
-                          <div
+                          <OrderListItem
                             key={order.id}
-                            className="flex items-center space-x-2 sm:space-x-4"
-                          >
-                            <img
-                              src={order.image || "/placeholder.svg"}
-                              alt={order.product}
-                              className="w-10 h-10 sm:w-12 sm:h-12 rounded object-cover flex-shrink-0"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = "/placeholder.svg";
-                              }}
-                            />
-                            <div className="min-w-0 flex-1">
-                              <p className="font-semibold text-xs sm:text-sm md:text-base truncate">
-                                {order.product}
-                              </p>
-                              <p className="text-[10px] xs:text-xs sm:text-sm text-gray-600 truncate font-medium">
-                                {order.seller}
-                              </p>
-                            </div>
-                            <div className="text-right flex-shrink-0">
-                              <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
-                                {useTranslatedPrice(`order[${order.id}].amount`, order.amount, "MNT")}
-                              </p>
-                              <Badge
-                                variant={
-                                  order.status === "delivered"
-                                    ? "default"
-                                    : "secondary"
-                                }
-                                className="text-[10px] xs:text-xs font-medium mt-1"
-                              >
-                                {order.status === "delivered"
-                                  ? useTranslatedValue("status.delivered", "Хүргэгдсэн")
-                                  : order.status === "shipped"
-                                    ? useTranslatedValue("status.shipped", "Илгээсэн")
-                                    : order.status === "paid"
-                                      ? useTranslatedValue("status.paid", "Төлсөн")
-                                      : order.status === "pending"
-                                        ? useTranslatedValue("status.pending", "Хүлээгдэж байна")
-                                        : order.status === "approved"
-                                          ? useTranslatedValue("status.approved", "Зөвшөөрсөн")
-                                          : order.status === "confirmed"
-                                            ? useTranslatedValue("status.confirmed", "Баталгаажсан")
-                                            : order.status === "cancelled"
-                                              ? useTranslatedValue("status.cancelled", "Цуцлагдсан")
-                                              : order.status === "rejected"
-                                                ? useTranslatedValue("status.rejected", "Татгалзсан")
-                                                : order.status}
-                              </Badge>
-                            </div>
-                          </div>
+                            order={order}
+                            statusLabels={{
+                              delivered: statusDeliveredLabel,
+                              shipped: statusShippedLabel,
+                              paid: statusPaidLabel,
+                              pending: statusPendingLabel,
+                              approved: statusApprovedLabel,
+                              confirmed: statusConfirmedLabel,
+                              cancelled: statusCancelledLabel,
+                              rejected: statusRejectedLabel,
+                            }}
+                          />
                         ))
                       )}
                     </div>
@@ -1189,89 +2232,21 @@ export default function UserDashboardContent() {
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                     {eventBookings.map((booking: EventBooking) => (
-                      <Card key={booking.id} className="overflow-hidden shadow-sm">
-                        <div className="relative aspect-video bg-gray-100 overflow-hidden">
-                          <img
-                            src={booking.event.images || "/placeholder.svg"}
-                            alt={booking.event.title}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/placeholder.svg";
-                            }}
-                          />
-                          <div className="absolute top-2 right-2">
-                            <Badge
-                              className={`px-2 py-0.5 rounded-full font-bold shadow-sm border-none ${booking.status === "confirmed" || booking.status === "paid" || booking.status === "PAID"
-                                ? "bg-green-500 text-white"
-                                : booking.status === "pending"
-                                  ? "bg-amber-500 text-white"
-                                  : booking.status === "completed"
-                                    ? "bg-blue-500 text-white"
-                                    : "bg-gray-500 text-white"
-                                }`}
-                            >
-                              <span className="text-[10px] uppercase tracking-wider">
-                                {booking.status === "confirmed" || booking.status === "paid" || booking.status === "PAID"
-                                  ? useTranslatedValue("status.confirmed", "Баталгаажсан")
-                                  : booking.status === "pending"
-                                    ? useTranslatedValue("status.pending_short", "Хүлээгдэж буй")
-                                    : booking.status === "completed"
-                                      ? useTranslatedValue("status.completed", "Дууссан")
-                                      : booking.status === "cancelled"
-                                        ? useTranslatedValue("status.cancelled", "Цуцлагдсан")
-                                        : booking.status}
-                              </span>
-                            </Badge>
-                          </div>
-                        </div>
-                        <CardContent className="p-3 sm:p-4">
-                          <div className="flex items-start justify-between mb-3">
-                            <div className="min-w-0 flex-1">
-                              <h3 className="font-bold text-base sm:text-lg truncate text-gray-900 group-hover:text-emerald-700 transition-colors">
-                                {booking.event.title}
-                              </h3>
-                              <div className="flex items-center text-gray-500 mt-1">
-                                <MapPin className="w-3.5 h-3.5 mr-1 flex-shrink-0 text-emerald-600" />
-                                <span className="text-xs sm:text-sm truncate font-medium">
-                                  {booking.event.location}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          <div className="flex items-center text-gray-600 mb-3 sm:mb-4">
-                            <Calendar className="w-3 h-3 sm:w-4 sm:h-4 mr-1 flex-shrink-0" />
-                            <span className="text-xs sm:text-sm font-medium">
-                              {booking.event.startDate} - {booking.event.endDate}
-                            </span>
-                          </div>
-
-                          <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
-                            <div>
-                              <span className="text-base sm:text-lg md:text-xl font-bold text-emerald-700">
-                                {useTranslatedPrice(`eventbook[${booking.id}].total`, booking.totalPrice, "MNT")}
-                              </span>
-                              <span className="text-gray-500 ml-1 text-xs font-medium">
-                                {useTranslatedValue("common.total", "нийт")}
-                              </span>
-                            </div>
-                            <div className="flex gap-2">
-                              {booking.status === "pending" && booking.qpayInvoiceId && (
-                                <Button
-                                  variant="outline"
-                                  size="sm"
-                                  className="text-emerald-700 font-bold text-xs border-emerald-200 hover:bg-emerald-50"
-                                  disabled={checkingPayment === booking.id}
-                                  onClick={() => handleCheckEventBookingPayment(booking.id)}
-                                >
-                                  <RefreshCcw className={`w-3 h-3 mr-1 ${checkingPayment === booking.id ? "animate-spin" : ""}`} />
-                                  {checkingPayment === booking.id ? useTranslatedValue("common.checking", "Шалгаж байна...") : useTranslatedValue("payment.check_payment", "Төлбөр шалгах")}
-                                </Button>
-                              )}
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      <EventBookingItem
+                        key={booking.id}
+                        booking={booking}
+                        statusLabels={{
+                          confirmed: statusConfirmedLabel,
+                          pending_short: statusPendingShortLabel,
+                          completed: statusCompletedLabel,
+                          cancelled: statusCancelledLabel,
+                        }}
+                        totalLabel={totalLabel}
+                        checkingPayment={checkingPayment}
+                        checkingLabel={checkingLabel}
+                        checkPaymentLabel={checkPaymentLabel}
+                        onCheckPayment={handleCheckEventBookingPayment}
+                      />
                     ))}
                   </div>
                 </div>
@@ -1287,75 +2262,20 @@ export default function UserDashboardContent() {
                   <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">{useTranslatedValue("dashboard.travel_bookings", "Аяллын захиалгууд")}</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                     {travelBookings.map((booking: Booking) => (
-                      <Card key={booking.id} className="overflow-hidden shadow-sm">
-                        <div className="aspect-video bg-gray-100 flex items-center justify-center">
-                          <img
-                            src={booking.image || "/placeholder.svg"}
-                            alt={booking.camp}
-                            className="w-full h-full object-cover"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).src = "/placeholder.svg";
-                            }}
-                          />
-                        </div>
-                        <CardContent className="p-3 sm:p-4">
-                          <div className="flex items-start justify-between mb-2">
-                            <h3 className="font-bold text-sm sm:text-base md:text-lg truncate flex-1 pr-2">
-                              {booking.camp}
-                            </h3>
-                            <Badge
-                              variant={
-                                booking.status === "completed"
-                                  ? "default"
-                                  : booking.status === "confirmed"
-                                    ? "secondary"
-                                    : "outline"
-                              }
-                              className={`text-xs ml-2 font-medium ${booking.status === "confirmed"
-                                ? "bg-green-100 text-green-800 border-green-300"
-                                : booking.status === "pending"
-                                  ? "bg-yellow-100 text-yellow-800 border-yellow-300"
-                                  : ""
-                                }`}
-                            >
-                              {booking.status === "confirmed"
-                                ? useTranslatedValue("status.confirmed", "Баталгаажсан")
-                                : booking.status === "pending"
-                                  ? useTranslatedValue("status.pending", "Хүлээгдэж байна")
-                                  : booking.status === "completed"
-                                    ? useTranslatedValue("status.completed", "Дууссан")
-                                    : booking.status === "cancelled"
-                                      ? useTranslatedValue("status.cancelled", "Цуцлагдсан")
-                                      : booking.status}
-                            </Badge>
-                          </div>
-                          <div className="flex items-center text-gray-600 mb-2">
-                            <MapPin className="w-4 h-4 mr-1" />
-                            <span className="text-sm truncate font-medium">
-                              {booking.location}
-                            </span>
-                          </div>
-                          <div className="flex items-center text-gray-600 mb-4">
-                            <Calendar className="w-4 h-4 mr-1" />
-                            <span className="text-sm font-medium">
-                              {booking.checkIn}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <span className="text-xl font-bold">
-                                {useTranslatedPrice(`travelbook[${booking.id}].total`, booking.amount, "MNT")}
-                              </span>
-                              <span className="text-gray-600 ml-1 text-sm font-medium">
-                                {useTranslatedValue("common.total", "нийт")}
-                              </span>
-                            </div>
-                            <span className="text-sm text-gray-600 font-medium">
-                              {booking.guests} {useTranslatedValue("common.people", "хүн")}
-                            </span>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      <TravelBookingCard
+                        key={booking.id}
+                        booking={booking}
+                        statusLabels={{
+                          confirmed: statusConfirmedLabel,
+                          pending: statusPendingLabel,
+                          completed: statusCompletedLabel,
+                          cancelled: statusCancelledLabel,
+                        }}
+                        commonLabels={{
+                          total: totalLabel,
+                        }}
+                        peopleLabel={peopleLabel}
+                      />
                     ))}
                   </div>
                 </div>
@@ -1373,70 +2293,28 @@ export default function UserDashboardContent() {
                   {/* Mobile: Card Layout */}
                   <div className="sm:hidden space-y-3">
                     {orders.map((order: Order) => (
-                      <Card key={order.id} className="shadow-sm">
-                        <CardContent className="p-3">
-                          <div className="flex items-start space-x-3 mb-2">
-                            <img
-                              src={order.image || "/placeholder.svg"}
-                              alt={order.product}
-                              className="w-12 h-12 rounded object-cover flex-shrink-0"
-                              onError={(e) => {
-                                (e.target as HTMLImageElement).src = "/placeholder.svg";
-                              }}
-                            />
-                            <div className="flex-1 min-w-0">
-                              <p className="font-semibold text-sm truncate">{order.product}</p>
-                              <p className="text-xs text-gray-600 truncate">{order.seller}</p>
-                              <p className="text-xs text-gray-500 mt-1">#{order.id.substring(0, 8)}</p>
-                            </div>
-                            <div className="text-right flex-shrink-0">
-                              <p className="font-bold text-sm">{useTranslatedPrice(`order[${order.id}].total`, order.amount, "MNT")}</p>
-                              <Badge
-                                variant={order.status === "delivered" ? "default" : order.status === "shipped" ? "secondary" : "outline"}
-                                className={`text-[10px] mt-1 ${order.status === "delivered"
-                                  ? "bg-green-100 text-green-800"
-                                  : order.status === "shipped"
-                                    ? "bg-blue-100 text-blue-800"
-                                    : order.status === "paid"
-                                      ? "bg-purple-100 text-purple-800"
-                                      : ""
-                                  }`}
-                              >
-                                {order.status === "delivered" ? useTranslatedValue("status.delivered", "Хүргэгдсэн") : order.status === "shipped" ? useTranslatedValue("status.shipped", "Илгээсэн") : order.status === "paid" ? useTranslatedValue("status.paid", "Төлсөн") : order.status === "pending" ? useTranslatedValue("status.pending", "Хүлээгдэж байна") : order.status}
-                              </Badge>
-                              {order.status === "pending" && order.qpayInvoiceId && (
-                                <div className="mt-2">
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    className="text-[10px] h-7 text-emerald-700 w-full border-emerald-200"
-                                    disabled={checkingPayment === order.id}
-                                    onClick={() => handleCheckOrderPayment(order.id)}
-                                  >
-                                    <RefreshCcw className={`w-2.5 h-2.5 mr-1 ${checkingPayment === order.id ? "animate-spin" : ""}`} />
-                                    {checkingPayment === order.id ? "..." : useTranslatedValue("status.check_payment", "Төлбөр шалгах")}
-                                  </Button>
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                          <div className="flex justify-between items-center text-xs text-gray-600 mt-2 pt-2 border-t">
-                            <div className="flex gap-4">
-                              <span>{useTranslatedValue("common.quantity", "Тоо")}: {order.quantity}</span>
-                              <span>{order.date}</span>
-                            </div>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-7 text-xs text-emerald-700 font-bold p-0"
-                              onClick={() => setSelectedOrder(order)}
-                            >
-                              {useTranslatedValue("common.details", "Дэлгэрэнгүй")}
-                              <ChevronRight className="w-3 h-3 ml-1" />
-                            </Button>
-                          </div>
-                        </CardContent>
-                      </Card>
+                      <OrderMobileCard
+                        key={order.id}
+                        order={order}
+                        checkingPayment={checkingPayment}
+                        statusLabels={{
+                          delivered: statusDeliveredLabel,
+                          shipped: statusShippedLabel,
+                          paid: statusPaidLabel,
+                          pending: statusPendingLabel,
+                          approved: statusApprovedLabel,
+                          confirmed: statusConfirmedLabel,
+                          cancelled: statusCancelledLabel,
+                          rejected: statusRejectedLabel,
+                        }}
+                        commonLabels={{
+                          checkPayment: useTranslatedValue("status.check_payment", "Төлбөр шалгах"),
+                          quantity: useTranslatedValue("common.quantity", "Тоо"),
+                          details: useTranslatedValue("common.details", "Дэлгэрэнгүй"),
+                        }}
+                        onCheckPayment={handleCheckOrderPayment}
+                        onSelect={setSelectedOrder}
+                      />
                     ))}
                   </div>
 
@@ -1472,92 +2350,28 @@ export default function UserDashboardContent() {
                           </TableHeader>
                           <TableBody>
                             {orders.map((order: Order) => (
-                              <TableRow key={order.id}>
-                                <TableCell className="font-semibold text-xs md:text-sm">
-                                  #{order.id.substring(0, 8)}
-                                </TableCell>
-                                <TableCell>
-                                  <div className="flex items-center space-x-2">
-                                    <img
-                                      src={order.image || "/placeholder.svg"}
-                                      alt={order.product}
-                                      className="w-8 h-8 rounded object-cover flex-shrink-0"
-                                      onError={(e) => {
-                                        (e.target as HTMLImageElement).src = "/placeholder.svg";
-                                      }}
-                                    />
-                                    <span className="truncate max-w-[120px] font-medium text-xs md:text-sm">
-                                      {order.product}
-                                    </span>
-                                  </div>
-                                </TableCell>
-                                <TableCell className="truncate max-w-[120px] font-medium text-xs md:text-sm">
-                                  {order.seller}
-                                </TableCell>
-                                <TableCell className="font-medium text-xs md:text-sm">
-                                  {order.quantity}
-                                </TableCell>
-                                <TableCell className="font-bold text-xs md:text-sm">
-                                  {useTranslatedPrice(`order[${order.id}].amount`, order.amount, "MNT")}
-                                </TableCell>
-                                <TableCell>
-                                  <Badge
-                                    variant={
-                                      order.status === "delivered"
-                                        ? "default"
-                                        : order.status === "shipped"
-                                          ? "secondary"
-                                          : "outline"
-                                    }
-                                    className={`font-medium text-[10px] md:text-xs ${order.status === "delivered"
-                                      ? "bg-green-100 text-green-800"
-                                      : order.status === "shipped"
-                                        ? "bg-blue-100 text-blue-800"
-                                        : order.status === "paid"
-                                          ? "bg-purple-100 text-purple-800"
-                                          : ""
-                                      }`}
-                                  >
-                                    {order.status === "delivered"
-                                      ? useTranslatedValue("status.delivered", "Хүргэгдсэн")
-                                      : order.status === "shipped"
-                                        ? useTranslatedValue("status.shipped", "Илгээсэн")
-                                        : order.status === "paid"
-                                          ? useTranslatedValue("status.paid", "Төлсөн")
-                                          : order.status === "pending"
-                                            ? useTranslatedValue("status.pending", "Хүлээгдэж байна")
-                                            : order.status}
-                                  </Badge>
-                                  {order.status === "pending" && order.qpayInvoiceId && (
-                                    <div className="mt-2">
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="text-[10px] h-6 px-2 text-emerald-700 font-medium border-emerald-200"
-                                        disabled={checkingPayment === order.id}
-                                        onClick={() => handleCheckOrderPayment(order.id)}
-                                      >
-                                        <RefreshCcw className={`w-2.5 h-2.5 mr-1 ${checkingPayment === order.id ? "animate-spin" : ""}`} />
-                                        {checkingPayment === order.id ? useTranslatedValue("common.checking", "Шалгаж байна...") : useTranslatedValue("status.check_payment", "Төлбөр шалгах")}
-                                      </Button>
-                                    </div>
-                                  )}
-                                </TableCell>
-                                <TableCell className="hidden md:table-cell font-medium text-xs md:text-sm">
-                                  {order.date}
-                                </TableCell>
-                                <TableCell>
-                                  <Button
-                                    variant="ghost"
-                                    size="sm"
-                                    className="text-gray-600 hover:text-emerald-700 font-bold text-xs"
-                                    onClick={() => setSelectedOrder(order)}
-                                  >
-                                    {useTranslatedValue("common.details", "Дэлгэрэнгүй")}
-                                    <ChevronRight className="w-3 h-3 ml-1" />
-                                  </Button>
-                                </TableCell>
-                              </TableRow>
+                              <OrderTableRow
+                                key={order.id}
+                                order={order}
+                                checkingPayment={checkingPayment}
+                                statusLabels={{
+                                  delivered: statusDeliveredLabel,
+                                  shipped: statusShippedLabel,
+                                  paid: statusPaidLabel,
+                                  pending: statusPendingLabel,
+                                  approved: statusApprovedLabel,
+                                  confirmed: statusConfirmedLabel,
+                                  cancelled: statusCancelledLabel,
+                                  rejected: statusRejectedLabel,
+                                }}
+                                commonLabels={{
+                                  checkPayment: useTranslatedValue("status.check_payment", "Төлбөр шалгах"),
+                                  checking: useTranslatedValue("common.checking", "Шалгаж байна..."),
+                                  details: useTranslatedValue("common.details", "Дэлгэрэнгүй"),
+                                }}
+                                onCheckPayment={handleCheckOrderPayment}
+                                onSelect={setSelectedOrder}
+                              />
                             ))}
                           </TableBody>
                         </Table>
@@ -1613,64 +2427,15 @@ export default function UserDashboardContent() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
               {favorites.length > 0 ? (
                 favorites.map((item: Favorite) => (
-                  <Card key={item.id} className="overflow-hidden">
-                    <div className="aspect-video bg-gray-100 flex items-center justify-center">
-                      <img
-                        src={item.image || "/placeholder.svg"}
-                        alt={item.name}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-2">
-                        <h3 className="font-bold text-base sm:text-lg truncate flex-1">
-                          {item.name}
-                        </h3>
-                        <Badge
-                          variant="outline"
-                          className="text-xs ml-2 font-medium"
-                        >
-                          {item.type === "camp" ? useTranslatedValue("common.camp", "Бааз") : useTranslatedValue("common.product", "Бараа")}
-                        </Badge>
-                      </div>
-                      {item.type === "camp" ? (
-                        <div className="flex items-center text-gray-600 mb-2">
-                          <MapPin className="w-4 h-4 mr-1" />
-                          <span className="text-sm truncate font-medium">
-                            {item.location}
-                          </span>
-                        </div>
-                      ) : (
-                        <p className="text-sm text-gray-600 mb-2 font-medium">
-                          {useTranslatedValue("common.seller", "Борлуулагч")}: {item.seller}
-                        </p>
-                      )}
-                      <div className="flex items-center justify-between mb-4">
-                        <div className="flex items-center">
-                          <Star className="w-4 h-4 fill-yellow-400 text-yellow-400 mr-1" />
-                          <span className="text-sm font-semibold">
-                            {item.rating}
-                          </span>
-                        </div>
-                        <span className="text-xl font-bold">{useTranslatedPrice(`fav[${item.id}].price`, item.price, "MNT")}</span>
-                      </div>
-                      <div className="flex space-x-2">
-                        <Link href={`/camp/${item.id}`}>
-                          <Button
-                            size="sm"
-                            className="flex-1 bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                          >
-                            {item.type === "camp"
-                              ? useTranslatedValue("common.details", "Дэлгэрэнгүй")
-                              : useTranslatedValue("common.add_to_cart", "Сагсанд нэмэх")}
-                          </Button>
-                        </Link>
-                        <Button variant="outline" size="sm">
-                          <Heart className="w-4 h-4 fill-red-500 text-red-500" />
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <FavoriteItem
+                    key={item.id}
+                    item={item}
+                    sellerLabel={useTranslatedValue("common.seller", "Борлуулагч")}
+                    detailsLabel={useTranslatedValue("common.details", "Дэлгэрэнгүй")}
+                    addToCartLabel={useTranslatedValue("common.add_to_cart", "Сагсанд нэмэх")}
+                    campLabel={useTranslatedValue("common.camp", "Бааз")}
+                    productLabel={useTranslatedValue("common.product", "Бараа")}
+                  />
                 ))
               ) : (
                 <div className="col-span-full text-center py-12">
@@ -1709,269 +2474,53 @@ export default function UserDashboardContent() {
 
             <div className="grid grid-cols-1 gap-6">
               {travelRoutes.map((route: TravelRoute) => (
-                <Card key={route.id} className="overflow-hidden">
-                  <CardContent className="p-0">
-                    <div className="p-4 sm:p-6">
-                      <div className="flex flex-col lg:flex-row lg:items-start gap-6">
-                        {/* Route Header */}
-                        <div className="flex-1">
-                          <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-4 gap-4">
-                            <div>
-                              <h3 className="font-bold text-lg sm:text-xl mb-2 font-display">
-                                {route.title}
-                              </h3>
-                              <div className="flex flex-wrap items-center gap-4 text-sm text-gray-600">
-                                <div className="flex items-center">
-                                  <Clock className="w-4 h-4 mr-1" />
-                                  <span className="font-medium">
-                                    {route.duration}
-                                  </span>
-                                </div>
-                                <div className="flex items-center">
-                                  <MapPin className="w-4 h-4 mr-1" />
-                                  <span className="font-medium">
-                                    {route.totalDistance}
-                                  </span>
-                                </div>
-                                <div className="flex items-center">
-                                  <Package className="w-4 h-4 mr-1" />
-                                  <span className="font-medium">
-                                    {useTranslatedPrice(`route[${route.id}].cost`, route.estimatedCost, "MNT")}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div className="flex flex-col items-start sm:items-end gap-2">
-                              <Badge
-                                variant={
-                                  route.status === "completed"
-                                    ? "default"
-                                    : route.status === "planning"
-                                      ? "secondary"
-                                      : "outline"
-                                }
-                                className="font-medium"
-                              >
-                                {route.status === "saved" ? useTranslatedValue("status.saved", "Хадгалсан") : route.status}
-                              </Badge>
-                              <Badge
-                                variant="outline"
-                                className={`font-medium ${route.difficulty === "extreme"
-                                  ? "border-red-500 text-red-600"
-                                  : route.difficulty === "challenging"
-                                    ? "border-orange-500 text-orange-600"
-                                    : "border-green-500 text-green-600"
-                                  }`}
-                              >
-                                {route.difficulty === "extreme" ? useTranslatedValue("difficulty.extreme", "Маш хүнд") :
-                                  route.difficulty === "challenging" ? useTranslatedValue("difficulty.challenging", "Хүнд") :
-                                    route.difficulty === "moderate" ? useTranslatedValue("difficulty.moderate", "Дунд зэрэг") : useTranslatedValue("difficulty.easy", "Хялбар")}
-                              </Badge>
-                            </div>
-                          </div>
-
-                          {/* Route Details */}
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div>
-                              <h4 className="font-bold text-sm text-gray-700 mb-2">
-                                {useTranslatedValue("dashboard.route_info", "Аяллын мэдээлэл")}
-                              </h4>
-                              <div className="space-y-1 text-sm">
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600 font-medium">
-                                    {useTranslatedValue("common.season", "Улирал")}:
-                                  </span>
-                                  <span className="capitalize font-semibold">
-                                        {route.weatherSeason === "autumn" ? useTranslatedValue("season.autumn", "Намар") :
-                                          route.weatherSeason === "spring" ? useTranslatedValue("season.spring", "Хавар") : route.weatherSeason}
-                                  </span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600 font-medium">
-                                    {useTranslatedValue("common.child_friendly", "Хүүхдэд ээлтэй")}:
-                                  </span>
-                                  <span
-                                    className={`font-semibold ${route.childFriendly
-                                      ? "text-green-600"
-                                      : "text-red-600"
-                                      }`}
-                                  >
-                                    {route.childFriendly ? useTranslatedValue("common.yes", "Тийм") : useTranslatedValue("common.no", "Үгүй")}
-                                  </span>
-                                </div>
-                                <div className="flex justify-between">
-                                  <span className="text-gray-600 font-medium">
-                                    {useTranslatedValue("common.transport", "Тээвэр")}:
-                                  </span>
-                                  <span className="text-right font-semibold">
-                                    {route.transportation === "Guided tour" ? useTranslatedValue("transport.guided", "Хөтөчтэй аялал") : route.transportation}
-                                  </span>
-                                </div>
-                              </div>
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-sm text-gray-700 mb-2">
-                                {useTranslatedValue("dashboard.accommodation", "Байрлах газар")}
-                              </h4>
-                              <div className="flex flex-wrap gap-1">
-                                {route.accommodations.map(
-                                  (acc: string, index: number) => (
-                                    <Badge
-                                      key={index}
-                                      variant="secondary"
-                                      className="text-xs font-medium"
-                                    >
-                                      {acc}
-                                    </Badge>
-                                  )
-                                )}
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Attractions */}
-                          <div className="mb-4">
-                            <h4 className="font-bold text-sm text-gray-700 mb-3">
-                              {useTranslatedValue("dashboard.attractions_activities", "Үзэх газрууд & Үйл ажиллагаа")}
-                            </h4>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                              {route.attractions.map(
-                                (attraction: any, index: number) => (
-                                  <div
-                                    key={index}
-                                    className="border rounded-lg p-3 bg-gray-50"
-                                  >
-                                    <div className="flex items-center space-x-3 mb-2">
-                                      <img
-                                        src={
-                                          attraction.image || "/placeholder.svg"
-                                        }
-                                        alt={attraction.name}
-                                        className="w-10 h-10 rounded object-cover"
-                                      />
-                                      <div className="flex-1 min-w-0">
-                                        <h5 className="font-semibold text-sm truncate">
-                                          {attraction.name}
-                                        </h5>
-                                        <p className="text-xs text-gray-600 capitalize font-medium">
-                                          {attraction.type} •{" "}
-                                          {attraction.duration}
-                                        </p>
-                                      </div>
-                                    </div>
-                                    <div className="flex flex-wrap gap-1">
-                                      {attraction.activities
-                                        .slice(0, 2)
-                                        .map(
-                                          (
-                                            activity: string,
-                                            actIndex: number
-                                          ) => (
-                                            <Badge
-                                              key={actIndex}
-                                              variant="outline"
-                                              className="text-xs font-medium"
-                                            >
-                                              {activity}
-                                            </Badge>
-                                          )
-                                        )}
-                                      {attraction.activities.length > 2 && (
-                                        <Badge
-                                          variant="outline"
-                                          className="text-xs font-medium"
-                                        >
-                                          +{attraction.activities.length - 2}{" "}
-                                          {useTranslatedValue("common.more", "илүү")}
-                                        </Badge>
-                                      )}
-                                    </div>
-                                  </div>
-                                )
-                              )}
-                            </div>
-                          </div>
-
-                          {/* Notes and Review */}
-                          <div className="mb-4">
-                            <p className="text-sm text-gray-700 italic font-medium">
-                              {route.notes}
-                            </p>
-                            {route.review && (
-                              <div className="mt-2 p-3 bg-green-50 rounded-lg border border-green-200">
-                                <div className="flex items-center mb-1">
-                                  <div className="flex">
-                                    {[...Array(route.rating)].map((_, i) => (
-                                      <Star
-                                        key={i}
-                                        className="w-4 h-4 fill-yellow-400 text-yellow-400"
-                                      />
-                                    ))}
-                                  </div>
-                                  <span className="ml-2 text-sm font-semibold">
-                                    {useTranslatedValue("dashboard.my_review", "Таны сэтгэгдэл")}
-                                  </span>
-                                </div>
-                                <p className="text-sm text-gray-700 font-medium">
-                                  "{route.review}"
-                                </p>
-                              </div>
-                            )}
-                          </div>
-
-                          {/* Action Buttons */}
-                          <div className="flex flex-wrap gap-2">
-                            <Button
-                              size="sm"
-                              className="bg-emerald-600 hover:bg-emerald-700 font-semibold"
-                            >
-                              {route.status === "completed"
-                                ? useTranslatedValue("dashboard.reorder_route", "Ижил аялал захиалах")
-                                : route.status === "planning"
-                                  ? useTranslatedValue("dashboard.confirm_booking", "Захиалгаа баталгаажуулах")
-                                  : useTranslatedValue("dashboard.use_route", "Энэ маршрутыг ашиглах")}
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="font-semibold bg-transparent"
-                            >
-                              {useTranslatedValue("dashboard.view_on_map", "Газрын зураг дээр харах")}
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="font-semibold bg-transparent"
-                            >
-                              {useTranslatedValue("dashboard.share_route", "Маршрутыг хуваалцах")}
-                            </Button>
-                            {route.status === "completed" && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                className="font-semibold bg-transparent"
-                              >
-                                {useTranslatedValue("dashboard.write_review", "Сэтгэгдэл бичих")}
-                              </Button>
-                            )}
-                          </div>
-
-                          {/* Dates */}
-                          <div className="flex justify-between items-center mt-4 pt-4 border-t text-xs text-gray-500">
-                            <span className="font-medium">
-                              {useTranslatedValue("common.created", "Үүсгэсэн")}: {route.createdDate}
-                            </span>
-                            {route.completedDate && (
-                              <span className="font-medium">
-                                {useTranslatedValue("common.completed", "Дууссан")}: {route.completedDate}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <TravelRouteItem
+                  key={route.id}
+                  route={route}
+                  statusLabels={{
+                    saved: statusSavedLabel,
+                  }}
+                  difficultyLabels={{
+                    extreme: useTranslatedValue("difficulty.extreme", "Маш хүнд"),
+                    challenging: useTranslatedValue("difficulty.challenging", "Хүнд"),
+                    moderate: useTranslatedValue("difficulty.moderate", "Дунд зэрэг"),
+                    easy: useTranslatedValue("difficulty.easy", "Хялбар"),
+                  }}
+                  seasonLabels={{
+                    autumn: seasonAutumnLabel,
+                    spring: seasonSpringLabel,
+                  }}
+                  commonLabels={{
+                    season: useTranslatedValue("common.season", "Улирал"),
+                    child_friendly: useTranslatedValue("common.child_friendly", "Хүүхдэд ээлтэй"),
+                    transport: useTranslatedValue("common.transport", "Тээвэр"),
+                    yes: yesLabel,
+                    no: noLabel,
+                    guidedTour: guidedTourLabel,
+                    more: useTranslatedValue("common.more", "илүү"),
+                    created: useTranslatedValue("common.created", "Үүсгэсэн"),
+                    completed: useTranslatedValue("common.completed", "Дууссан"),
+                  }}
+                  dashboardLabels={{
+                    route_info: useTranslatedValue("dashboard.route_info", "Аяллын мэдээлэл"),
+                    accommodation: useTranslatedValue("dashboard.accommodation", "Байрлах газар"),
+                    attractions_activities: useTranslatedValue("dashboard.attractions_activities", "Үзэх газрууд & Үйл ажиллагаа"),
+                    my_review: useTranslatedValue("dashboard.my_review", "Таны сэтгэгдэл"),
+                    reorder_route: useTranslatedValue("dashboard.reorder_route", "Ижил аялал захиалах"),
+                    confirm_booking: useTranslatedValue("dashboard.confirm_booking", "Захиалгаа баталгаажуулах"),
+                    use_route: useTranslatedValue("dashboard.use_route", "Маршрут ашиглах"),
+                    view_on_map: useTranslatedValue("dashboard.view_on_map", "Газрын зураг дээр харах"),
+                    share_route: useTranslatedValue("dashboard.share_route", "Маршрут хуваалцах"),
+                    write_review: useTranslatedValue("dashboard.write_review", "Сэтгэгдэл бичих"),
+                  }}
+                  onSelect={setSelectedRoute}
+                  onReorder={(r) => console.log("Reorder", r)}
+                  onConfirm={(r) => console.log("Confirm", r)}
+                  onUse={(r) => console.log("Use", r)}
+                  onViewMap={(r) => console.log("View Map", r)}
+                  onShare={(r) => console.log("Share", r)}
+                  onWriteReview={(r) => console.log("Write review", r)}
+                />
               ))}
             </div>
 
