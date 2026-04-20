@@ -1,21 +1,35 @@
 "use client";
 
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useAiTranslationContext } from "../components/providers/translation-context";
 
 /**
  * Hook to get a translated text value.
- * Registers the text in the translation context on mount.
+ * First checks i18n keys (locales/*.ts), then falls back to AI translation context,
+ * and finally uses the original string as a last resort.
  */
 export function useTranslatedValue(id: string, original: string): string {
+  const { t, i18n } = useTranslation();
   const { translatedTexts, currentLocale, registerText } = useAiTranslationContext();
 
   useEffect(() => {
     registerText(id, original);
   }, [id, original, registerText]);
 
-  if (currentLocale === "mn") return original;
-  return translatedTexts[id] ?? original;
+  // Always check i18n first — this is where locales/mn.ts, en.ts, ko.ts live
+  const i18nValue = t(id, { defaultValue: "" });
+  if (i18nValue && i18nValue !== id && i18nValue !== "") {
+    return i18nValue;
+  }
+
+  // For non-MN locales, try AI translation context
+  if (currentLocale !== "mn") {
+    return translatedTexts[id] ?? original;
+  }
+
+  // Final fallback: the original parameter
+  return original;
 }
 
 /**

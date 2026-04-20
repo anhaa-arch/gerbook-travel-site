@@ -23,7 +23,6 @@ import mnData from "@/data";
 import { gql, useQuery } from "@apollo/client";
 import { getFirstImage } from "@/lib/imageUtils";
 import { amenitiesOptions } from "@/data/camp-options";
-import "../../lib/i18n";
 import { useCart } from "@/hooks/use-cart";
 import { useToast } from "@/components/ui/use-toast";
 import { getLocalizedField } from "@/lib/localization";
@@ -199,6 +198,9 @@ const ProductListingCard = ({ product, addToCart, toast }: any) => {
   const addToCartLabel = useTranslatedValue("common.add_to_cart", "Сагсанд нэмэх");
   const addedLabel = useTranslatedValue("common.added_to_cart", "Сагсанд нэмэгдлээ");
 
+  const categoryName = product.category?.name || "Бараа";
+  const translatedCategory = useTranslatedValue(`cat.${categoryName}`, categoryName);
+
   return (
     <Card
       key={product.id}
@@ -233,7 +235,7 @@ const ProductListingCard = ({ product, addToCart, toast }: any) => {
             </DialogContent>
           </Dialog>
           <div className="absolute top-2 right-2 bg-emerald-700 text-white px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider z-20 shadow-lg backdrop-blur-sm pointer-events-none">
-            {useTranslatedValue(`cat.${product.category?.name}`, product.category?.name || "Бараа")}
+            {translatedCategory}
           </div>
         </div>
 
@@ -296,6 +298,21 @@ export default function ListingsPage() {
   const [campPage, setCampPage] = useState(1);
   const [productPage, setProductPage] = useState(1);
   const itemsPerPage = 10;
+
+  // Translation Hooks
+  const listingsTitle = useTranslatedValue("listings.title", "Бүх жагсаалт");
+  const selectProvinceLabel = useTranslatedValue("listings.select_province", "Аймаг сонгох");
+  const selectDistrictLabel = useTranslatedValue("listings.select_district", "Сум сонгох");
+  const dateLabel = useTranslatedValue("common.date", "Огноо");
+  const selectDatesLabel = useTranslatedValue("common.select_dates", "Огноо сонгох");
+  const filterLabel = useTranslatedValue("common.filter", "Шүүх");
+  const campsTabLabel = useTranslatedValue("listings.camps_tab", "Амралт баазууд");
+  const productsTabLabel = useTranslatedValue("listings.products_tab", "Бүтээгдэхүүн");
+  const campsFoundLabel = useTranslatedValue("listings.camps_found", "бааз олдлоо");
+  const searchResultsLabel = useTranslatedValue("common.search_results", "хайлтын үр дүн");
+  const noCampsLabel = useTranslatedValue("listings.no_camps", "Амралт бааз олдсонгүй.");
+  const productsFoundLabel = useTranslatedValue("listings.products_found", "бүтээгдэхүүн олдлоо");
+
 
   // Get location data from search section
   const locationData = mnData();
@@ -440,21 +457,21 @@ export default function ListingsPage() {
       <section className="bg-white border-b border-gray-200 py-8">
         <div className="max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[2000px] 4k:max-w-[2800px] mx-auto px-4 sm:px-6 lg:px-8">
           <h1 className="text-3xl font-bold text-gray-900 mb-6 font-display">
-            {useTranslatedValue("listings.title", "Бүх жагсаалт")}
+            {listingsTitle}
           </h1>
 
           {/* Filters */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {useTranslatedValue("listings.select_province", "Аймаг сонгох")}
+                {selectProvinceLabel}
               </label>
               <Select
                 value={selectedProvince}
                 onValueChange={handleProvinceChange}
               >
                 <SelectTrigger className="bg-white border-gray-200">
-                  <SelectValue placeholder={useTranslatedValue("listings.select_province", "Аймаг сонгох")} />
+                  <SelectValue placeholder={selectProvinceLabel} />
                 </SelectTrigger>
                 <SelectContent>
                   {provinces.map((province) => (
@@ -468,7 +485,7 @@ export default function ListingsPage() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {useTranslatedValue("listings.select_district", "Сум сонгох")}
+                {selectDistrictLabel}
               </label>
               <Select
                 value={selectedDistrict}
@@ -476,7 +493,7 @@ export default function ListingsPage() {
                 disabled={!selectedProvince}
               >
                 <SelectTrigger className="bg-white border-gray-200">
-                  <SelectValue placeholder={useTranslatedValue("listings.select_district", "Сум сонгох")} />
+                  <SelectValue placeholder={selectDistrictLabel} />
                 </SelectTrigger>
                 <SelectContent>
                   {availableDistricts.map((district) => (
@@ -490,7 +507,7 @@ export default function ListingsPage() {
 
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-2">
-                {useTranslatedValue("common.date", "Огноо")}
+                {dateLabel}
               </label>
               <Button
                 variant="outline"
@@ -503,7 +520,7 @@ export default function ListingsPage() {
                     {checkIn.toLocaleDateString(i18n.language === 'mn' ? 'mn-MN' : 'en-US', { month: 'numeric', day: 'numeric' })} - {checkOut.toLocaleDateString(i18n.language === 'mn' ? 'mn-MN' : 'en-US', { month: 'numeric', day: 'numeric' })}
                   </span>
                 ) : (
-                  <span className="text-gray-400">{useTranslatedValue("common.select_dates", "Огноо сонгох")}</span>
+                  <span className="text-gray-400">{selectDatesLabel}</span>
                 )}
               </Button>
             </div>
@@ -514,7 +531,7 @@ export default function ListingsPage() {
                 onClick={handleSearch}
               >
                 <Filter className="w-4 h-4 mr-2" />
-                {useTranslatedValue("common.filter", "Шүүх")}
+                {filterLabel}
               </Button>
             </div>
           </div>
@@ -532,11 +549,11 @@ export default function ListingsPage() {
             <TabsList className="grid w-full grid-cols-2">
               <TabsTrigger value="camps" className="flex items-center gap-2">
                 <Home className="w-4 h-4" />
-                {useTranslatedValue("listings.camps_tab", "Амралт баазууд")}
+                {campsTabLabel}
               </TabsTrigger>
               <TabsTrigger value="products" className="flex items-center gap-2">
                 <Package className="w-4 h-4" />
-                {useTranslatedValue("listings.products_tab", "Бүтээгдэхүүн")}
+                {productsTabLabel}
               </TabsTrigger>
             </TabsList>
 
@@ -545,7 +562,7 @@ export default function ListingsPage() {
               <div className="mb-6">
 
                 <p className="text-gray-600 font-medium">
-                  {filteredCamps.length} {useTranslatedValue("listings.camps_found", "бааз олдлоо")}
+                  {filteredCamps.length} {campsFoundLabel}
                   {selectedProvince && (
                     <span className="ml-2 text-emerald-600">
                       "{selectedProvince}"
@@ -557,7 +574,7 @@ export default function ListingsPage() {
                     </span>
                   )}
                   {selectedProvince || selectedDistrict ? (
-                    <span className="ml-2 text-gray-500">- {useTranslatedValue("common.search_results", "хайлтын үр дүн")}</span>
+                    <span className="ml-2 text-gray-500">- {searchResultsLabel}</span>
                   ) : null}
                 </p>
               </div>
@@ -577,7 +594,7 @@ export default function ListingsPage() {
                       />
                     ))
                 ) : (
-                  <p className="text-gray-500 text-center py-10">{useTranslatedValue("listings.no_camps", "Амралт бааз олдсонгүй.")}</p>
+                  <p className="text-gray-500 text-center py-10">{noCampsLabel}</p>
                 )}
               </div>
 
@@ -617,7 +634,7 @@ export default function ListingsPage() {
             <TabsContent value="products" className="space-y-6">
               <div className="mb-6">
                 <p className="text-gray-600 font-medium">
-                  {products.length} {useTranslatedValue("listings.products_found", "бүтээгдэхүүн олдлоо")}
+                  {products.length} {productsFoundLabel}
                 </p>
               </div>
 

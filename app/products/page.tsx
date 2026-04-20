@@ -15,7 +15,6 @@ import { getImageUrl, translateCategory } from "@/lib/admin-utils"
 import { getFirstImage } from "@/lib/imageUtils"
 import { useTranslatedValue, useTranslatedPrice } from "@/hooks/use-translation"
 import { getLocalizedField } from "@/lib/localization"
-import '../../lib/i18n'
 import { useCart } from "@/hooks/use-cart"
 import { toast, useToast } from "@/components/ui/use-toast"
 import {

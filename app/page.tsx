@@ -113,6 +113,15 @@ export default function HomePage() {
     errorPolicy: "all",
   });
 
+  const activeUsersLabel = useTranslatedValue("landing.stats.activeUsers", "Идэвхтэй");
+  const herdersLabel = useTranslatedValue("landing.stats.herders", "Малчин");
+  const verifiedLabel = useTranslatedValue("landing.stats.verified", "Бодит");
+  const safeLabel = useTranslatedValue("common.safe", "Аюулгүй");
+  const secureLabel = useTranslatedValue("landing.stats.secure", "Баталгаат");
+  const featuredCampsLabel = useTranslatedValue("home.featured_camps", "Онцлох гэр баазууд");
+  const detailsLabel = useTranslatedValue("common.details", "Дэлгэрэнгүй");
+  const featuredProductsLabel = useTranslatedValue("home.featured_products", "Шилдэг бүтээгдэхүүнүүд");
+
   // Handle GraphQL loading and error states
   if (productsLoading || yurtsLoading) {
     console.log("Loading GraphQL data...");
@@ -364,22 +373,22 @@ export default function HomePage() {
                 {
                   icon: <Users className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
                   title: "2,000+",
-                  desc: useTranslatedValue("landing.stats.activeUsers", "Идэвхтэй")
+                  desc: activeUsersLabel
                 },
                 {
                   icon: <Home className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
                   title: "100+",
-                  desc: useTranslatedValue("landing.stats.herders", "Малчин")
+                  desc: herdersLabel
                 },
                 {
                   icon: <Filter className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
                   title: "100%",
-                  desc: useTranslatedValue("landing.stats.verified", "Бодит")
+                  desc: verifiedLabel
                 },
                 {
                   icon: <Check className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-600" />,
-                  title: useTranslatedValue("common.safe", "Аюулгүй"),
-                  desc: useTranslatedValue("landing.stats.secure", "Баталгаат")
+                  title: safeLabel,
+                  desc: secureLabel
                 },
               ].map((stat, i) => (
                 <div key={i} className="flex flex-col items-center text-center space-y-1 px-1">
@@ -399,14 +408,14 @@ export default function HomePage() {
           <div className="max-w-7xl 2xl:max-w-[1600px] 3xl:max-w-[2000px] 4k:max-w-[2800px] mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-gray-900 flex items-center gap-3">
-                {useTranslatedValue("home.featured_camps", "Онцлох гэр баазууд")}
+                {featuredCampsLabel}
               </h2>
               <Link href="/camps" className="w-full sm:w-auto">
                 <Button
                   variant="outline"
                   className="font-semibold bg-transparent w-full sm:w-auto text-sm sm:text-base"
                 >
-                  {useTranslatedValue("common.details", "Дэлгэрэнгүй")}
+                  {detailsLabel}
                 </Button>
               </Link>
             </div>
@@ -461,14 +470,14 @@ export default function HomePage() {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 sm:mb-6 md:mb-8 gap-3 sm:gap-4">
               <h2 className="text-xl sm:text-2xl md:text-3xl font-bold font-display text-gray-900 flex items-center gap-3">
                 <Package className="w-6 h-6 text-emerald-600" />
-                {useTranslatedValue("home.featured_products", "Шилдэг бүтээгдэхүүнүүд")}
+                {featuredProductsLabel}
               </h2>
               <Link href="/products" className="w-full sm:w-auto">
                 <Button
                   variant="outline"
                   className="font-semibold bg-transparent w-full sm:w-auto text-sm sm:text-base"
                 >
-                  {useTranslatedValue("common.details", "Дэлгэрэнгүй")}
+                  {detailsLabel}
                 </Button>
               </Link>
             </div>

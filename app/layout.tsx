@@ -3,6 +3,7 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Montserrat } from "next/font/google";
 import "./globals.css";
+import "@/lib/i18n";
 
 import { ClientHeader } from "@/components/client-header";
 import { LanguageProvider } from "@/components/language-provider";
@@ -29,13 +30,13 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   // Brand-first title with both Latin and Cyrillic brand names
   title: {
-    default: "Малчин Кэмп – Тасалж болохгүй  ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ | Гэр бааз, аялал, бүтээгдэхүүн",
-    template: "%s | Малчин Кэмп – Тасалж болохгүй  ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
+    default: "Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ | Гэр бааз, аялал, бүтээгдэхүүн",
+    template: "%s | Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ",
   },
   description:
-    "Малчин Кэмп – Тасалж болохгүй  ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ. Монголын гэр бааз, аялал, морьт харваа, соёлын наадам, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
+    "Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ. Монголын гэр бааз, аялал, морьт харваа, соёлын наадам, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
   keywords:
-    "Малчин Кэмп, MalchinCamp, Тасалж болохгүй  ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ, malchincamp.mn, гэр бааз, ger camp, Mongolia travel, Монгол аялал, нүүдэлчин соёл, морьт харваа, малчдын бүтээгдэхүүн, nomadic culture, adventure tourism, Архангай, Цэнхэр",
+    "Малчин Кэмп, MalchinCamp, ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ, malchincamp.mn, гэр бааз, ger camp, Mongolia travel, Монгол аялал, нүүдэлчин соёл, морьт харваа, малчдын бүтээгдэхүүн, nomadic culture, adventure tourism, Архангай, Цэнхэр",
   // Canonical URL
   metadataBase: new URL("https://www.malchincamp.mn"),
   alternates: {
@@ -43,9 +44,9 @@ export const metadata: Metadata = {
   },
   // Open Graph tags for social media and Google
   openGraph: {
-    title: "Малчин Кэмп – Тасалж болохгүй  ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
+    title: "Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ",
     description:
-      "Малчин Кэмп – Тасалж болохгүй  ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ. Монголын гэр бааз, аялал, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
+      "Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ. Монголын гэр бааз, аялал, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
     url: "https://www.malchincamp.mn",
     siteName: "MalchinCamp",
     type: "website",
@@ -62,9 +63,9 @@ export const metadata: Metadata = {
   // Twitter Card
   twitter: {
     card: "summary_large_image",
-    title: "Малчин Кэмп – Тасалж болохгүй  ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
+    title: "Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ",
     description:
-      "Малчин Кэмп – Тасалж болохгүй  ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ. Монголын гэр бааз, аялал, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
+      "Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ. Монголын гэр бааз, аялал, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
     images: ["/header-bg.png"],
   },
   // Robots
@@ -88,7 +89,7 @@ export const metadata: Metadata = {
   },
 };
 
-const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID as string;
+const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "";
 
 export default function RootLayout({
   children,
@@ -112,7 +113,22 @@ export default function RootLayout({
           <ApolloClientProvider>
             <CartProvider>
               <SavedProvider>
-                <GoogleOAuthProvider clientId={googleClientId}>
+                {googleClientId ? (
+                  <GoogleOAuthProvider clientId={googleClientId}>
+                    <AuthProvider>
+                      <LanguageProvider>
+                        <AiTranslationProvider>
+                          <TooltipProvider>
+                            <ClientHeader />
+                            <main className="flex-1">{children}</main>
+                            <Toaster />
+                            <Footer />
+                          </TooltipProvider>
+                        </AiTranslationProvider>
+                      </LanguageProvider>
+                    </AuthProvider>
+                  </GoogleOAuthProvider>
+                ) : (
                   <AuthProvider>
                     <LanguageProvider>
                       <AiTranslationProvider>
@@ -125,7 +141,7 @@ export default function RootLayout({
                       </AiTranslationProvider>
                     </LanguageProvider>
                   </AuthProvider>
-                </GoogleOAuthProvider>
+                )}
               </SavedProvider>
             </CartProvider>
           </ApolloClientProvider>

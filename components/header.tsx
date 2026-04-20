@@ -142,7 +142,7 @@ export function Header() {
                           <div className="w-10 h-10 bg-[#1b7c53]/10 rounded-xl flex items-center justify-center mr-3 group-hover:bg-[#1b7c53]/20 transition-colors">
                             <ShoppingBag className="w-5 h-5 text-[#1b7c53]" />
                           </div>
-                          <span className="text-sm text-gray-900 font-bold">{t("nav.products", "Бүтээгдэхүүн")}</span>
+                          <span className="text-sm text-gray-900 font-bold">{t("nav.products")}</span>
                         </Link>
                         <Link
                           href="/events"
@@ -152,7 +152,7 @@ export function Header() {
                           <div className="w-10 h-10 bg-[#1b7c53]/10 rounded-xl flex items-center justify-center mr-3 group-hover:bg-[#1b7c53]/20 transition-colors">
                             <Calendar className="w-5 h-5 text-[#1b7c53]" />
                           </div>
-                          <span className="text-sm text-gray-900 font-bold">Арга хэмжээ</span>
+                          <span className="text-sm text-gray-900 font-bold">{t("nav.events")}</span>
                         </Link>
                       </div>
                       <div className="h-px bg-gray-100 mx-3"></div>
@@ -160,10 +160,10 @@ export function Header() {
                       {/* Language & Currency for Mobile */}
                       <div className="px-3 py-1 space-y-3">
                         <p className="text-[10px] font-black uppercase tracking-widest text-gray-400 px-3">
-                          {t("nav.settings", "Тохиргоо")}
+                          {t("nav.settings")}
                         </p>
                         <div className="flex items-center justify-between px-3">
-                          <span className="text-sm font-bold text-gray-700">{t("nav.language_currency", "Хэл ба Валют")}</span>
+                          <span className="text-sm font-bold text-gray-700">{t("nav.language_currency")}</span>
                           <AiLanguageSelector />
                         </div>
                       </div>
@@ -195,9 +195,9 @@ export function Header() {
                               className="w-full flex items-center justify-center p-3 bg-gray-900 hover:bg-black text-white rounded-2xl transition-all text-sm font-bold"
                               onClick={() => setIsMobileMenuOpen(false)}
                             >
-                              {user?.role === "ADMIN" ? t("nav.admin_dashboard", "Админ самбар") : 
-                               user?.role === "HERDER" ? t("nav.herder_dashboard", "Малчны самбар") : 
-                               t("nav.user_dashboard", "Хэрэглэгчийн самбар")}
+                              {user?.role === "ADMIN" ? t("nav.adminDashboard") : 
+                               user?.role === "HERDER" ? t("nav.herderDashboard") : 
+                               t("nav.userDashboard")}
                             </Link>
 
                             <button
@@ -208,7 +208,7 @@ export function Header() {
                               }}
                             >
                               <LogOut className="w-4 h-4 mr-2" />
-                              {t("nav.logout", "Гарах")}
+                              {t("nav.logout")}
                             </button>
                           </div>
                         </div>
@@ -219,7 +219,7 @@ export function Header() {
                             className="flex items-center justify-center p-3 w-full bg-white border-2 border-gray-100 hover:border-gray-200 rounded-2xl text-sm font-bold text-gray-900 transition-colors"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            {t("nav.login", "Нэвтрэх")}
+                            {t("nav.login")}
                           </Link>
 
                           <Link
@@ -227,7 +227,7 @@ export function Header() {
                             className="flex items-center justify-center p-3 w-full bg-[#1b7c53] hover:bg-[#156040] text-white rounded-2xl text-sm font-bold shadow-lg shadow-[#1b7c53]/20 transition-all active:scale-95"
                             onClick={() => setIsMobileMenuOpen(false)}
                           >
-                            {t("nav.register", "Бүртгүүлэх")}
+                            {t("nav.register")}
                           </Link>
                         </div>
                       )}

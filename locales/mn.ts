@@ -10,7 +10,35 @@ export default {
     error: "Алдаа гарлаа. Дахин оролдоно уу.",
     noData: "Мэдээлэл олдсонгүй.",
     or: "Эсвэл",
-    language: "Монгол"
+    language: "Монгол",
+    back_to_camps: "Гэр бааз руу буцах",
+    back_to_home: "Нүүр хуудас руу буцах",
+    reviews: "үнэлгээ",
+    saved: "Хадгалсан",
+    night: "шөнө",
+    check_in: "Ирэх өдөр",
+    check_out: "Буцах өдөр",
+    total: "Нийт дүн",
+    guests_unit: "хүн",
+    add_to_cart: "Сагсанд нэмэх",
+    added_to_cart: "Сагсанд нэмэгдлээ",
+    book_now: "Захиалах",
+    guests: "зочин",
+    safe: "Аюулгүй",
+    date: "Огноо",
+    select_dates: "Огноо сонгох",
+    select_period: "Хугацаа сонгох",
+    filter: "Шүүх",
+    search_results: "хайлтын үр дүн",
+    login_required: "Нэвтрэх шаардлагатай",
+    success: "Амжилттай",
+    capacity: "Багтаамж",
+    total_gers: "Нийт гэр",
+    facilities: "Тохижилт",
+    phone: "Утас",
+    email: "Имэйл",
+    share: "Хуваалцах",
+    number_of_guests: "Зочдын тоо"
   },
   nav: {
     home: "Нүүр",
@@ -23,7 +51,9 @@ export default {
     logout: "Гарах",
     adminDashboard: "Админы самбар",
     herderDashboard: "Малчны самбар",
-    userDashboard: "Хэрэглэгчийн самбар"
+    userDashboard: "Хэрэглэгчийн самбар",
+    settings: "Тохиргоо",
+    language_currency: "Хэл ба Валют"
   },
   auth: {
     login: {
@@ -189,6 +219,24 @@ export default {
     termsNotice: "Төлбөр төлөх товчийг дарснаар та манай үйлчилгээний нөхцлийг зөвшөөрч буйгаа баталгаажуулна."
   },
   camp: {
+    partner: "Онцгой хамтрагч",
+    partner_label: "Онцгой хамтрагч",
+    book_now: "Захиалах",
+    amenities_label: "Тав тухтай байдал",
+    activities_label: "Үйл ажиллагаа ба туршлага",
+    accommodation_label: "Байршуулалт",
+    host_label: "Эзэнтэй танилцах",
+    rules_label: "Дүрэм журам",
+    loading_info: "Баазын мэдээллийг уншиж байна...",
+    error_title: "Баазын мэдээллийг уншихад алдаа гарлаа",
+    not_found: "Гэр бааз олдсонгүй",
+    not_found_desc: "Таны хайсан гэр бааз байхгүй байна.",
+    save_login_desc: "Амралт хадгалахын тулд нэвтрэх шаардлагатай.",
+    unsaved_title: "Хадгалсан амралт",
+    saved_title: "Амжилттай хадгалагдлаа",
+    unsaved_desc: "Амралт хадгаалсан жагсаалтаас хасагдлаа.",
+    saved_desc: "Амралт хадгаалсан жагсаалтад нэмэгдлээ.",
+    select_dates: "Амрах өдрөө сонгох",
     detail: {
       capacity: "{{count}} зочин",
       pricePerNight: "₮ / шөнө",
@@ -197,6 +245,97 @@ export default {
     list: {
       title: "Гэр баазууд",
       filter: "Шүүлтүүр"
+    }
+  },
+  booking: {
+    check_in: "Ирэх өдөр",
+    check_out: "Буцах өдөр",
+    night: "шөнө",
+    success: "✅ Захиалга амжилттай",
+    payment_ready: "Төлбөр хийхэд бэлэн боллоо.",
+    error_generic: "Захиалга үүсгэхэд алдаа гарлаа.",
+    error_dates_taken: "Таны сонгосон огноо захиалагдсан байна. Өөр огноо сонгоно уу.",
+    error_invalid_dates: "Гарах өдөр ирэх өдрөөс хойш байх ёстой.",
+    error_not_authorized: "Та захиалга хийх эрхгүй байна.",
+    error_not_found: "Бааз олдсонгүй. Дахин оролдоно уу.",
+    error_title: "❌ Захиалга амжилтгүй"
+  },
+  review: {
+    count_zero: "Одоогоор үнэлгээ алга",
+    count_plural: "({{count}} үнэлгээ)"
+  },
+  listings: {
+    title: "Бүх жагсаалт",
+    select_province: "Аймаг сонгох",
+    select_district: "Сум сонгох",
+    camps_tab: "Амралт баазууд",
+    products_tab: "Бүтээгдэхүүн",
+    camps_found: "бааз олдлоо",
+    no_camps: "Амралт бааз олдсонгүй.",
+    products_found: "бүтээгдэхүүн олдлоо"
+  },
+  home: {
+    featured_camps: "Онцлох гэр баазууд",
+    featured_products: "Шилдэг бүтээгдэхүүнүүд"
+  },
+  events: {
+    upcoming_badge: "Удахгүй болох арга хэмжээнүүд",
+    hero: {
+      part1: "Монгол",
+      part2: "Өв Соёл",
+      part3: "ба Аялал",
+      desc: "Малчин ахуй, үндэсний наадам, байгалийн үзэсгэлэнт газруудаар аялах онцгой хөтөлбөрүүдийг эндээс олж захиалаарай.",
+      button: "Аяллаа сонгох"
+    },
+    list: {
+      title: {
+        part1: "Бүх",
+        part2: "Арга Хэмжээ"
+      },
+      desc: "Монгол орны өнцөг булан бүрт зохион байгуулагдаж буй соёлын болон адал явдалт арга хэмжээнүүд.",
+      count_total: "Нийт",
+      count_label: "арга хэмжээ"
+    },
+    empty: {
+      title: "Одоогоор идэвхтэй арга хэмжээ алга",
+      desc: "Удахгүй шинэ арга хэмжээнүүд нэмэгдэх болно."
+    },
+    cta: {
+      title: {
+        part1: "Өөрийн",
+        part2: "Адал Явдлаа",
+        part3: "Өнөөдөр Эхлүүл"
+      },
+      desc: "Бид танд хамгийн мартагдашгүй, жинхэнэ монгол ахуйг мэдрүүлэх аялал арга хэмжээнүүдийг санал болгож байна."
+    }
+  },
+  products: {
+    title: "Шилдэг бүтээгдэхүүнүүд",
+    filter_category: "Төрөл",
+    all_categories: "Бүх төрөл",
+    filter_price: "Үнэ",
+    all_prices: "Бүх үнэ",
+    sort_by: "Эрэмбэлэх",
+    popularity: "Эрэлттэй",
+    price_low: "Үнэ: Багаас их",
+    price_high: "Үнэ: Ихээс бага",
+    rating: "Үнэлгээ",
+    more_filters: "Бусад шүүлтүүр",
+    items_found: "бүтээгдэхүүн олдлоо",
+    out_of_stock: "Дууссан",
+    add_to_cart: "Сагсанд нэмэх"
+  },
+  host: {
+    contact_button: "Эзэнтэй холбогдох",
+    experience_suffix: "туршлагатай",
+    languages_label: "Хэл"
+  },
+  landing: {
+    stats: {
+      activeUsers: "Идэвхтэй",
+      herders: "Малчин",
+      verified: "Бодит",
+      secure: "Баталгаат"
     }
   },
   product: {
@@ -210,10 +349,20 @@ export default {
     privacy: { title: "Нууцлалын бодлого" }
   },
   sidebarQuotes: {
-    mainTitle: "Тасалж болохгүй  ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
+    mainTitle: "ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ",
     subTitle: "Нүүдэлчин ахуй соёл Монголын баялаг",
     feature1: "Гэр амралт",
     feature2: "Байгалийн сайхан",
     feature3: "Малчны амьдрал"
+  },
+  footer: {
+    copyright: "Бүх эрх хуулиар хамгаалагдсан."
+  },
+  cat: {
+    Handicrafts: "Гар урлал",
+    Food: "Хоол хүнс",
+    Souvenirs: "Бэлэг дурсгал",
+    Clothing: "Хувцас",
+    Equipment: "Тоног төхөөрөмж"
   }
 };

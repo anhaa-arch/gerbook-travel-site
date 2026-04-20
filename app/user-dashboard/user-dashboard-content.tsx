@@ -48,7 +48,6 @@ import { Separator } from "@/components/ui/separator";
 import { amenitiesOptions, activitiesOptions, facilitiesOptions, policiesOptions } from "@/data/camp-options";
 import { gql, useQuery, useMutation } from "@apollo/client";
 import { useToast } from "@/components/ui/use-toast";
-import "../../lib/i18n";
 import { useAuth } from "@/hooks/use-auth";
 import Link from "next/link";
 import { getPrimaryImage, getFirstImage } from "@/lib/imageUtils";

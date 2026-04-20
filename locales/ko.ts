@@ -10,7 +10,35 @@ export default {
     error: "오류가 발생했습니다. 다시 시도해 주세요.",
     noData: "데이터가 없습니다.",
     or: "또는",
-    language: "한국어"
+    language: "한국어",
+    back_to_camps: "캠프로 돌아가기",
+    back_to_home: "홈으로 돌아가기",
+    reviews: "리뷰",
+    saved: "저장됨",
+    night: "박",
+    check_in: "체크인",
+    check_out: "체크아웃",
+    total: "총액",
+    guests_unit: "명",
+    add_to_cart: "장바구니 담기",
+    added_to_cart: "장바구니에 담겼습니다",
+    book_now: "예약하기",
+    guests: "명",
+    safe: "안전",
+    date: "날짜",
+    select_dates: "날짜 선택",
+    select_period: "기간 선택",
+    filter: "필터",
+    search_results: "검색 결과",
+    login_required: "로그인 필요",
+    success: "성공",
+    capacity: "수용 인원",
+    total_gers: "총 게르",
+    facilities: "시설",
+    phone: "전화번호",
+    email: "이메일",
+    share: "공유",
+    number_of_guests: "인원 수"
   },
   nav: {
     home: "홈",
@@ -22,8 +50,10 @@ export default {
     register: "회원가입",
     logout: "로그아웃",
     adminDashboard: "관리자 대시보드",
-    herderDashboard: "유목민 대시보드",
-    userDashboard: "마이페이지"
+    herderDashboard: "유목민 대시보д",
+    userDashboard: "마이페이지",
+    settings: "설정",
+    language_currency: "언어 및 통화"
   },
   auth: {
     login: {
@@ -189,6 +219,24 @@ export default {
     termsNotice: "결제 버튼을 클릭하시면 이용 약관에 동의하는 것으로 간주됩니다."
   },
   camp: {
+    partner: "특별 파트너",
+    partner_label: "특별 파트너",
+    book_now: "예약하기",
+    amenities_label: "편의시설",
+    activities_label: "액티비티 & 체험",
+    accommodation_label: "숙박 유형",
+    host_label: "호스트 소개",
+    rules_label: "이용 규칙",
+    loading_info: "캠프 정보를 불러오는 중...",
+    error_title: "캠프 정보를 불러오는 데 실패했습니다",
+    not_found: "캠프를 찾을 수 없습니다",
+    not_found_desc: "찾으시는 캠프가 존재하지 않습니다.",
+    save_login_desc: "캠프를 저장하려면 로그인이 필요합니다.",
+    unsaved_title: "저장 해제됨",
+    saved_title: "성공적으로 저장됨",
+    unsaved_desc: "캠프가 저장 목록에서 제거되었습니다.",
+    saved_desc: "캠프가 저장 목록에 추가되었습니다.",
+    select_dates: "숨박 날짜 선택",
     detail: {
       capacity: "{{count}}명",
       pricePerNight: "₩ / 1박",
@@ -197,6 +245,97 @@ export default {
     list: {
       title: "게르 캠프",
       filter: "필터"
+    }
+  },
+  booking: {
+    check_in: "체크인",
+    check_out: "체크아웃",
+    night: "박",
+    success: "✅ 예약 성공",
+    payment_ready: "결제 준비가 완료되었습니다.",
+    error_generic: "예약을 생성하는 중 오류가 발생했습니다.",
+    error_dates_taken: "선택하신 날짜는 이미 예약되었습니다. 다른 날짜를 선택해주세요.",
+    error_invalid_dates: "체크아웃 날짜는 체크인 날짜 이후여야 합니다.",
+    error_not_authorized: "예약 권한이 없습니다.",
+    error_not_found: "캠프를 찾을 수 없습니다. 다시 시도해주세요.",
+    error_title: "❌ 예약 실패"
+  },
+  review: {
+    count_zero: "리뷰 0개",
+    count_plural: "(리뷰 {{count}}개)"
+  },
+  listings: {
+    title: "전체 목록",
+    select_province: "지역 선택",
+    select_district: "상세 선택",
+    camps_tab: "게르 캠프",
+    products_tab: "상품",
+    camps_found: "개의 캠프 찾음",
+    no_camps: "캠프를 찾을 수 없습니다.",
+    products_found: "개의 상품 찾음"
+  },
+  home: {
+    featured_camps: "추천 게르 캠프",
+    featured_products: "추천 상품"
+  },
+  events: {
+    upcoming_badge: "예정된 이벤트",
+    hero: {
+      part1: "몽골",
+      part2: "문화유산",
+      part3: "& 여행",
+      desc: "유목 생활, 전통 축제, 아름다운 자연을 체험할 수 있는 특별한 프로그램을 찾아 예약하세요.",
+      button: "투어 선택하기"
+    },
+    list: {
+      title: {
+        part1: "모든",
+        part2: "이벤트"
+      },
+      desc: "몽골 전역에서 열리는 문화 및 어드벤처 이벤트입니다.",
+      count_total: "총",
+      count_label: "개 이벤트"
+    },
+    empty: {
+      title: "현재 진행 중인 이벤트가 없습니다",
+      desc: "곧 새로운 이벤트가 추가될 예정입니다."
+    },
+    cta: {
+      title: {
+        part1: "지금",
+        part2: "모험을",
+        part3: "시작하세요"
+      },
+      desc: "가장 잊을 수 없는 진정한 몽골 문화를 경험할 수 있는 이벤트와 투어를 제공합니다."
+    }
+  },
+  products: {
+    title: "추천 상품",
+    filter_category: "카테고리",
+    all_categories: "모든 카테고리",
+    filter_price: "가격",
+    all_prices: "모든 가격",
+    sort_by: "정렬 기준",
+    popularity: "인기순",
+    price_low: "가격: 낮은 순",
+    price_high: "가격: 높은 순",
+    rating: "평점",
+    more_filters: "추가 필터",
+    items_found: "개의 상품 찾음",
+    out_of_stock: "품절",
+    add_to_cart: "장바구니 담기"
+  },
+  host: {
+    contact_button: "호스트에게 연락하기",
+    experience_suffix: "경력",
+    languages_label: "언어"
+  },
+  landing: {
+    stats: {
+      activeUsers: "활성",
+      herders: "유목민",
+      verified: "검증됨",
+      secure: "안전"
     }
   },
   product: {
@@ -215,5 +354,15 @@ export default {
     feature1: "게르 숙박",
     feature2: "아름다운 자연",
     feature3: "유목 생활"
+  },
+  footer: {
+    copyright: "모든 권리 보유."
+  },
+  cat: {
+    Handicrafts: "수공예품",
+    Food: "식품",
+    Souvenirs: "기념품",
+    Clothing: "의류",
+    Equipment: "장비"
   }
 };

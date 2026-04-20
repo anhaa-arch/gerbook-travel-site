@@ -8,7 +8,6 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { useTranslatedValue } from "@/hooks/use-translation";
 import { getLocalizedField } from "@/lib/localization";
-import "../../lib/i18n";
 
 const GET_ALL_EVENTS = gql`
   query GetAllEvents($activeOnly: Boolean) {
