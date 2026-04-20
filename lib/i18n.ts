@@ -19,16 +19,21 @@ const resources = {
   },
 }
 
-i18n
-  .use(initReactI18next)
-  .init({
-    resources,
-    lng: "mn", // Default language is Mongolian
-    fallbackLng: "en",
-    interpolation: {
-      escapeValue: false, // React already safes from xss
-    },
-  })
+if (!i18n.isInitialized) {
+  i18n
+    .use(initReactI18next)
+    .init({
+      resources,
+      lng: "mn", // Default language is Mongolian
+      fallbackLng: "en",
+      interpolation: {
+        escapeValue: false, // React already safes from xss
+      },
+      react: {
+        useSuspense: false, // Prevents loading issues in some Next.js environments
+      },
+    })
+}
 
 export const ensureTranslation = () => {
   if (typeof document !== "undefined") {

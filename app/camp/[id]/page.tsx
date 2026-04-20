@@ -252,13 +252,13 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
   const commonLoadingLabel = useTranslatedValue("common.loading", "Уншиж байна...");
   const selectDatesLabel = useTranslatedValue("camp.select_dates", "Амрах өдрөө сонгох");
   const calculateTotal = () => {
-    if (!checkIn || !checkOut) return 0;
+    if (!checkIn || !checkOut || !data?.yurt) return 0;
     const start = new Date(checkIn);
     const end = new Date(checkOut);
     const nights = Math.ceil(
       (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
     );
-    return nights > 0 && campData ? nights * campData.price : 0;
+    return nights > 0 ? nights * data.yurt.pricePerNight : 0;
   };
 
   const totalPriceFormatted = useTranslatedPrice(`camp[${campId}].total`, calculateTotal(), "MNT");

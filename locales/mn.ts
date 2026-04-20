@@ -364,5 +364,8 @@ export default {
     Souvenirs: "Бэлэг дурсгал",
     Clothing: "Хувцас",
     Equipment: "Тоног төхөөрөмж"
+  },
+  camps: {
+    title: "Амралт баазууд"
   }
 };

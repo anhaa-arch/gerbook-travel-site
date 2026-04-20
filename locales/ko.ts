@@ -364,5 +364,8 @@ export default {
     Souvenirs: "기념품",
     Clothing: "의류",
     Equipment: "장비"
+  },
+  camps: {
+    title: "캠프"
   }
 };

@@ -23,7 +23,7 @@ import {
   PaginationNext,
   PaginationPrevious,
 } from "@/components/ui/pagination"
-import '../../lib/i18n'
+
 
 const GET_YURTS = gql`
   query GetYurts($first: Int, $filter: String, $orderBy: String) {

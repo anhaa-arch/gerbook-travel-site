@@ -364,5 +364,8 @@ export default {
     Souvenirs: "Souvenirs",
     Clothing: "Clothing",
     Equipment: "Equipment"
+  },
+  camps: {
+    title: "Camps"
   }
 };

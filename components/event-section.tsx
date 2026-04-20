@@ -29,36 +29,13 @@ const GET_ACTIVE_EVENTS = gql`
   }
 `;
 
-const GET_SITE_TEXTS = gql`
-  query GetSiteTexts {
-    siteTexts {
-      key
-      value_mn
-      value_en
-      value_ko
-    }
-  }
-`;
-
 export const EventSection = () => {
   const { t, i18n } = useTranslation();
-  
-  const { data: siteTextsData } = useQuery(GET_SITE_TEXTS, { fetchPolicy: "cache-first" });
 
-  const getSiteText = (key: string, defaultValue: string) => {
-    if (!siteTextsData?.siteTexts) return defaultValue;
-    const item = siteTextsData.siteTexts.find((st: any) => st.key === key);
-    if (!item) return defaultValue;
-    // Assuming getLocalizedField is available or we can just write simple fallback
-    if (i18n.language === "en" && item.value_en) return item.value_en;
-    if (i18n.language === "ko" && item.value_ko) return item.value_ko;
-    return item.value_mn || defaultValue;
-  };
-
-  const tagLabel = getSiteText("events.tag_label", "Онцгой Хөтөлбөрүүд");
-  const titleMain = getSiteText("events.title_main", "Наадам");
-  const titleAccent = getSiteText("events.title_accent", "Арга Хэмжээ");
-  const description = getSiteText("events.description", "Соёлын наадам, багийн эв нэгдлийг нэмэх тусгай хөтөлбөрүүдийг нэг дороос.");
+  const tagLabel = useTranslatedValue("events.tag_label", "Онцгой Хөтөлбөрүүд");
+  const titleMain = useTranslatedValue("events.title_main", "Наадам");
+  const titleAccent = useTranslatedValue("events.title_accent", "Арга Хэмжээ");
+  const description = useTranslatedValue("events.description", "Соёлын наадам, багийн эв нэгдлийг нэмэх тусгай хөтөлбөрүүдийг нэг дороос.");
 
   const { data, loading, error } = useQuery(GET_ACTIVE_EVENTS);
 
