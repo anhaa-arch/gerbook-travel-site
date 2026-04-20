@@ -349,7 +349,7 @@ export default {
     privacy: { title: "Нууцлалын бодлого" }
   },
   sidebarQuotes: {
-    mainTitle: "ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ",
+    mainTitle: "ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
     subTitle: "Нүүдэлчин ахуй соёл Монголын баялаг",
     feature1: "Гэр амралт",
     feature2: "Байгалийн сайхан",

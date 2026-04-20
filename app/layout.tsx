@@ -30,13 +30,13 @@ const montserrat = Montserrat({
 export const metadata: Metadata = {
   // Brand-first title with both Latin and Cyrillic brand names
   title: {
-    default: "Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ | Гэр бааз, аялал, бүтээгдэхүүн",
-    template: "%s | Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ",
+    default: "Малчин Кэмп – ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ | Гэр бааз, аялал, бүтээгдэхүүн",
+    template: "%s | Малчин Кэмп – ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
   },
   description:
-    "Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ. Монголын гэр бааз, аялал, морьт харваа, соёлын наадам, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
+    "Малчин Кэмп – ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ. Монголын гэр бааз, аялал, морьт харваа, соёлын наадам, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
   keywords:
-    "Малчин Кэмп, MalchinCamp, ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ, malchincamp.mn, гэр бааз, ger camp, Mongolia travel, Монгол аялал, нүүдэлчин соёл, морьт харваа, малчдын бүтээгдэхүүн, nomadic culture, adventure tourism, Архангай, Цэнхэр",
+    "Малчин Кэмп, MalchinCamp, ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ, malchincamp.mn, гэр бааз, ger camp, Mongolia travel, Монгол аялал, нүүдэлчин соёл, морьт харваа, малчдын бүтээгдэхүүн, nomadic culture, adventure tourism, Архангай, Цэнхэр",
   // Canonical URL
   metadataBase: new URL("https://www.malchincamp.mn"),
   alternates: {
@@ -44,9 +44,9 @@ export const metadata: Metadata = {
   },
   // Open Graph tags for social media and Google
   openGraph: {
-    title: "Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ",
+    title: "Малчин Кэмп – ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
     description:
-      "Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ. Монголын гэр бааз, аялал, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
+      "Малчин Кэмп – ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ. Монголын гэр бааз, аялал, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
     url: "https://www.malchincamp.mn",
     siteName: "MalchinCamp",
     type: "website",
@@ -63,9 +63,9 @@ export const metadata: Metadata = {
   // Twitter Card
   twitter: {
     card: "summary_large_image",
-    title: "Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ",
+    title: "Малчин Кэмп – ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ",
     description:
-      "Малчин Кэмп – ТАЛЫН СОЁЛ, МОНГОЛЫН ӨВ. Монголын гэр бааз, аялал, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
+      "Малчин Кэмп – ТАСАЛЖ БОЛОХГҮЙ ТАЛЫН СОЁЛ. Монголын гэр бааз, аялал, малчдын бүтээгдэхүүнийг онлайнаар захиалах платформ.",
     images: ["/header-bg.png"],
   },
   // Robots
