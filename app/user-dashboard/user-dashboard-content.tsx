@@ -1189,9 +1189,10 @@ export default function UserDashboardContent() {
   const clearAllLabel = useTranslatedValue("common.clear_all", "Бүгдийг цэвэрлэх");
   const campLabel = useTranslatedValue("common.camp", "Бааз");
   const productLabel = useTranslatedValue("common.product", "Бараа");
-  const sellerLabel = useTranslatedValue("common.seller", "Борлуулагч");
-  const detailsLabel = useTranslatedValue("common.details", "Дэлгэрэнгүй");
-  const addToCartLabel = useTranslatedValue("common.add_to_cart", "Сагсанд нэмэх");
+  const sellerLabel = sellerLabel;
+  const sellerNameLabel = useTranslatedValue("common.seller_name", "Монгол");
+  const detailsLabel = detailsLabel;
+  const addToCartLabel = addToCartLabel;
   const noSavedLabel = useTranslatedValue("dashboard.no_saved", "Хадгалсан амралт байхгүй");
   const noSavedDescLabel = useTranslatedValue("dashboard.no_saved_desc", "Та одоогоор ямар ч амралт хадгалаагүй байна.");
   const searchCampsLabel = useTranslatedValue("dashboard.search_camps", "Амралт хайх");
@@ -1237,7 +1238,7 @@ export default function UserDashboardContent() {
   const orderIdLabel = useTranslatedValue("order.id", "Захиалга");
   const dateLabel = useTranslatedValue("common.date", "Огноо");
   const orderedItemsLabel = useTranslatedValue("dashboard.ordered_items", "Захиалсан бараанууд");
-  const quantityLabel = useTranslatedValue("common.quantity", "Тоо");
+  const quantityLabel = quantityLabel;
   const unitPriceLabel = useTranslatedValue("common.unit_price", "Нэгж үнэ");
   const loadingLabel = useTranslatedValue("common.loading", "Ачаалж байна...");
   const successLabel = useTranslatedValue("payment.success", "Амжилттай");
@@ -1275,7 +1276,7 @@ export default function UserDashboardContent() {
   const callLabel = useTranslatedValue("common.call", "Залгах");
   const emailWriteLabel = useTranslatedValue("common.email_write", "Мейл бичих");
   const totalLabel = useTranslatedValue("common.total", "Нийт");
-  const checkingLabel = useTranslatedValue("common.checking", "Шалгаж байна...");
+  const checkingLabel = checkingLabel;
   const checkPaymentLabel = useTranslatedValue("common.check_payment", "Төлбөр шалгах");
   const eventBookingsLabel = useTranslatedValue("dashboard.event_bookings", "Арга хэмжээний захиалгууд");
   const travelBookingsLabel = useTranslatedValue("dashboard.travel_bookings", "Аяллын захиалгууд");
@@ -1288,10 +1289,10 @@ export default function UserDashboardContent() {
   const yesLabel = useTranslatedValue("common.yes", "Тийм");
   const noLabel = useTranslatedValue("common.no", "Үгүй");
   const guidedTourLabel = useTranslatedValue("transport.guided", "Хөтөчтэй аялал");
-  const difficultyExtremeLabel = useTranslatedValue("difficulty.extreme", "Маш хүнд");
-  const difficultyChallengingLabel = useTranslatedValue("difficulty.challenging", "Хүнд");
-  const difficultyModerateLabel = useTranslatedValue("difficulty.moderate", "Дунд зэрэг");
-  const difficultyEasyLabel = useTranslatedValue("difficulty.easy", "Хялбар");
+  const difficultyExtremeLabel = difficultyExtremeLabel;
+  const difficultyChallengingLabel = difficultyChallengingLabel;
+  const difficultyModerateLabel = difficultyModerateLabel;
+  const difficultyEasyLabel = difficultyEasyLabel;
   const priceCommonLabel = useTranslatedValue("common.price_label", "Үнэ");
 
   // Status Labels
@@ -1527,8 +1528,6 @@ export default function UserDashboardContent() {
 
       const translatedName = getLocalizedField(yurt, "name", currentLang);
       const translatedLoc = getLocalizedField(yurt, "location", currentLang);
-      const translatedPrice = useTranslatedPrice(`booking[${edge.node.id}].price`, parseFloat(edge.node.totalPrice) || 0, "MNT");
-
       return {
         id: edge.node.id,
         camp: translatedName || "Unknown Camp",
@@ -1565,7 +1564,7 @@ export default function UserDashboardContent() {
       return {
         id: orderNode.id,
         product: getLocalizedField(product, "name", currentLang) || "Multiple items",
-        seller: useTranslatedValue("common.seller_name", "Монгол"),
+        seller: sellerNameLabel,
         quantity: orderItems.reduce(
           (sum: number, item: any) => sum + (item.quantity || 0),
           0
@@ -1581,7 +1580,7 @@ export default function UserDashboardContent() {
           price: item.price || 0,
           quantity: item.quantity || 0,
           image: getPrimaryImage(item.product?.images),
-          category: useTranslatedValue(`cat.${item.product?.category?.name}`, item.product?.category?.name || "Бараа"),
+          category: item.product?.category?.name || "Бараа",
         })),
       };
     }) || [];
@@ -1589,10 +1588,10 @@ export default function UserDashboardContent() {
   const translateCategory = (cat: string | undefined) => {
     if (!cat) return "";
     const lower = cat.toLowerCase();
-    if (lower.includes("dairy")) return useTranslatedValue("cat.dairy", "Сүүн бүтээгдэхүүн");
-    if (lower.includes("handicraft")) return useTranslatedValue("cat.handicraft", "Гар урлал");
-    if (lower.includes("meat")) return useTranslatedValue("cat.meat", "Махан бүтээгдэхүүн");
-    return useTranslatedValue(`cat.${cat}`, cat);
+    if (lower.includes("dairy")) return t("cat.dairy", "Сүүн бүтээгдэхүүн");
+    if (lower.includes("handicraft")) return t("cat.handicraft", "Гар урлал");
+    if (lower.includes("meat")) return t("cat.meat", "Махан бүтээгдэхүүн");
+    return t(`cat.${cat}`, cat);
   };
 
   const travelBookings: Booking[] =
@@ -1805,10 +1804,10 @@ export default function UserDashboardContent() {
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8 py-3 sm:py-4 md:py-8">
         <div className="mb-4 sm:mb-6 md:mb-8">
           <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 font-display">
-            {useTranslatedValue("dashboard.title", "Хэрэглэгчийн хянах самбар")}
+            {t("dashboard.title", "Хэрэглэгчийн хянах самбар")}
           </h1>
           <p className="text-gray-600 text-xs sm:text-sm md:text-base font-medium mt-1">
-            {useTranslatedValue("dashboard.subtitle", "Захиалга, бараа болон аяллын тохиргоогоо удирдах")}
+            {t("dashboard.subtitle", "Захиалга, бараа болон аяллын тохиргоогоо удирдах")}
           </p>
         </div>
 
@@ -1816,11 +1815,11 @@ export default function UserDashboardContent() {
         {(bookingsError || ordersError || travelBookingsError) && (
           <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
             <p className="text-red-800 font-medium">
-              {useTranslatedValue("common.error_occurred", "Алдаа гарлаа. Дахин оролдоно уу.")}
+              {t("common.error_occurred", "Алдаа гарлаа. Дахин оролдоно уу.")}
             </p>
-            {bookingsError && <p className="text-sm text-red-600">{useTranslatedValue("dashboard.bookings", "Захиалга")}: {bookingsError.message}</p>}
-            {ordersError && <p className="text-sm text-red-600">{useTranslatedValue("dashboard.products", "Бараа")}: {ordersError.message}</p>}
-            {travelBookingsError && <p className="text-sm text-red-600">{useTranslatedValue("dashboard.travel", "Аялал")}: {travelBookingsError.message}</p>}
+            {bookingsError && <p className="text-sm text-red-600">{t("dashboard.bookings", "Захиалга")}: {bookingsError.message}</p>}
+            {ordersError && <p className="text-sm text-red-600">{t("dashboard.products", "Бараа")}: {ordersError.message}</p>}
+            {travelBookingsError && <p className="text-sm text-red-600">{t("dashboard.travel", "Аялал")}: {travelBookingsError.message}</p>}
           </div>
         )}
 
@@ -1831,8 +1830,8 @@ export default function UserDashboardContent() {
             className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base px-3 py-2 sm:px-4 sm:py-2"
           >
             <LogOut className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-            <span className="hidden xs:inline">{useTranslatedValue("common.logout", "Гарах")}</span>
-            <span className="xs:hidden">{useTranslatedValue("common.logout", "Гарах")}</span>
+            <span className="hidden xs:inline">{t("common.logout", "Гарах")}</span>
+            <span className="xs:hidden">{t("common.logout", "Гарах")}</span>
           </Button>
         </div>
 
@@ -1848,35 +1847,35 @@ export default function UserDashboardContent() {
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[70px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <Package className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>{useTranslatedValue("dashboard.tab.overview", "Тойм")}</span>
+                <span>{t("dashboard.tab.overview", "Тойм")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="bookings"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[70px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <Calendar className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>{useTranslatedValue("dashboard.tab.bookings", "Захиалга")}</span>
+                <span>{t("dashboard.tab.bookings", "Захиалга")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="favorites"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[70px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <Heart className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>{useTranslatedValue("dashboard.tab.saved", "Хадгалсан")}</span>
+                <span>{t("dashboard.tab.saved", "Хадгалсан")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="routes"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[70px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>{useTranslatedValue("dashboard.tab.routes", "Маршрут")}</span>
+                <span>{t("dashboard.tab.routes", "Маршрут")}</span>
               </TabsTrigger>
               <TabsTrigger
                 value="profile"
                 className="flex flex-col sm:flex-row items-center gap-1 sm:gap-2 text-[10px] xs:text-xs sm:text-sm font-bold min-w-[70px] sm:min-w-0 px-2 sm:px-3 py-2 sm:py-2.5 rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm data-[state=active]:text-emerald-700 transition-all"
               >
                 <Star className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-                <span>{useTranslatedValue("dashboard.tab.profile", "Профайл")}</span>
+                <span>{t("dashboard.tab.profile", "Профайл")}</span>
               </TabsTrigger>
             </TabsList>
           </div>
@@ -1887,7 +1886,7 @@ export default function UserDashboardContent() {
               <Card className="shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 sm:pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
                   <CardTitle className="text-[10px] xs:text-xs sm:text-sm font-semibold leading-tight">
-                    {useTranslatedValue("dashboard.stats.total_bookings", "Нийт захиалга")}
+                    {t("dashboard.stats.total_bookings", "Нийт захиалга")}
                   </CardTitle>
                   <Calendar className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                 </CardHeader>
@@ -1896,7 +1895,7 @@ export default function UserDashboardContent() {
                     {totalBookings}
                   </div>
                   <p className="text-[10px] xs:text-xs text-muted-foreground font-medium mt-0.5">
-                    {useTranslatedValue("dashboard.stats.this_month", "Энэ сард")} +{monthlyBookings}
+                    {t("dashboard.stats.this_month", "Энэ сард")} +{monthlyBookings}
                   </p>
                 </CardContent>
               </Card>
@@ -1904,7 +1903,7 @@ export default function UserDashboardContent() {
               <Card className="shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 sm:pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
                   <CardTitle className="text-[10px] xs:text-xs sm:text-sm font-semibold leading-tight">
-                    {useTranslatedValue("dashboard.stats.total_orders", "Барааны захиалга")}
+                    {t("dashboard.stats.total_orders", "Барааны захиалга")}
                   </CardTitle>
                   <ShoppingBag className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                 </CardHeader>
@@ -1913,7 +1912,7 @@ export default function UserDashboardContent() {
                     {totalOrders}
                   </div>
                   <p className="text-[10px] xs:text-xs text-muted-foreground font-medium mt-0.5">
-                    {useTranslatedValue("dashboard.stats.this_month", "Энэ сард")} +{monthlyOrders}
+                    {t("dashboard.stats.this_month", "Энэ сард")} +{monthlyOrders}
                   </p>
                 </CardContent>
               </Card>
@@ -1921,7 +1920,7 @@ export default function UserDashboardContent() {
               <Card className="shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 sm:pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
                   <CardTitle className="text-[10px] xs:text-xs sm:text-sm font-semibold leading-tight">
-                    {useTranslatedValue("dashboard.stats.total_spent", "Нийт зарцуулсан")}
+                    {t("dashboard.stats.total_spent", "Нийт зарцуулсан")}
                   </CardTitle>
                   <Package className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                 </CardHeader>
@@ -1930,7 +1929,7 @@ export default function UserDashboardContent() {
                     {useTranslatedPrice("dashboard.total_spent", totalSpent, "MNT")}
                   </div>
                   <p className="text-[10px] xs:text-xs text-muted-foreground font-medium mt-0.5">
-                    {useTranslatedValue("dashboard.stats.this_month", "Энэ сард")} +{useTranslatedPrice("dashboard.monthly_spent", monthlySpent, "MNT")}
+                    {t("dashboard.stats.this_month", "Энэ сард")} +{useTranslatedPrice("dashboard.monthly_spent", monthlySpent, "MNT")}
                   </p>
                 </CardContent>
               </Card>
@@ -1938,7 +1937,7 @@ export default function UserDashboardContent() {
               <Card className="shadow-sm">
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-1.5 sm:pb-2 px-3 sm:px-6 pt-3 sm:pt-6">
                   <CardTitle className="text-[10px] xs:text-xs sm:text-sm font-semibold leading-tight">
-                    {useTranslatedValue("dashboard.saved", "Хадгалсан")}
+                    {t("dashboard.saved", "Хадгалсан")}
                   </CardTitle>
                   <Heart className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-muted-foreground flex-shrink-0" />
                 </CardHeader>
@@ -1947,7 +1946,7 @@ export default function UserDashboardContent() {
                     {favorites.length}
                   </div>
                   <p className="text-[10px] xs:text-xs text-muted-foreground font-medium mt-0.5">
-                    {useTranslatedValue("dashboard.saved", "Хадгалсан")}
+                    {t("dashboard.saved", "Хадгалсан")}
                   </p>
                 </CardContent>
               </Card>
@@ -1957,13 +1956,13 @@ export default function UserDashboardContent() {
               <Card className="shadow-sm">
                 <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
                   <CardTitle className="text-base sm:text-lg md:text-xl font-bold">
-                    {useTranslatedValue("dashboard.upcoming_bookings", "Ирэх захиалгууд")}
+                    {t("dashboard.upcoming_bookings", "Ирэх захиалгууд")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
                   {bookingsLoading ? (
                     <div className="text-center py-4 text-gray-500 text-sm">
-                      {useTranslatedValue("common.loading", "Уншиж байна...")}
+                      {t("common.loading", "Уншиж байна...")}
                     </div>
                   ) : (
                     <div className="space-y-3 sm:space-y-4">
@@ -1976,7 +1975,7 @@ export default function UserDashboardContent() {
                         )
                         .length === 0 ? (
                         <p className="text-center text-gray-500 py-4">
-                          {useTranslatedValue("dashboard.no_upcoming", "Ирэх захиалга байхгүй")}
+                          {t("dashboard.no_upcoming", "Ирэх захиалга байхгүй")}
                         </p>
                       ) : (
                         allBookings
@@ -2008,19 +2007,19 @@ export default function UserDashboardContent() {
               <Card className="shadow-sm">
                 <CardHeader className="px-4 sm:px-6 py-4 sm:py-6">
                   <CardTitle className="text-base sm:text-lg md:text-xl font-bold">
-                    {useTranslatedValue("dashboard.recent_orders", "Сүүлийн захиалгууд")}
+                    {t("dashboard.recent_orders", "Сүүлийн захиалгууд")}
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="px-4 sm:px-6 pb-4 sm:pb-6">
                   {ordersLoading ? (
                     <div className="text-center py-4 text-gray-500 text-sm">
-                      {useTranslatedValue("common.loading", "Уншиж байна...")}
+                      {t("common.loading", "Уншиж байна...")}
                     </div>
                   ) : (
                     <div className="space-y-3 sm:space-y-4">
                       {orders.length === 0 ? (
                         <p className="text-center text-gray-500 py-4 text-sm">
-                          {useTranslatedValue("dashboard.no_orders", "Захиалга байхгүй")}
+                          {t("dashboard.no_orders", "Захиалга байхгүй")}
                         </p>
                       ) : (
                         orders.slice(0, 3).map((order: Order) => (
@@ -2051,12 +2050,12 @@ export default function UserDashboardContent() {
           <TabsContent value="bookings" className="space-y-4 sm:space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-4">
               <h2 className="text-lg sm:text-xl md:text-2xl font-bold">
-                {useTranslatedValue("dashboard.my_bookings", "Миний захиалгууд")}
+                {t("dashboard.my_bookings", "Миний захиалгууд")}
               </h2>
               {user?.role === "TRAVELER" && (
                 <Link href="/camps" className="w-full sm:w-auto">
                   <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold text-sm sm:text-base px-4 py-2">
-                    {useTranslatedValue("dashboard.new_booking", "Шинэ бааз захиалах")}
+                    {t("dashboard.new_booking", "Шинэ бааз захиалах")}
                   </Button>
                 </Link>
               )}
@@ -2067,12 +2066,12 @@ export default function UserDashboardContent() {
               {/* Camp Bookings */}
               {bookingsLoading ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">{useTranslatedValue("common.loading", "Захиалгуудыг уншиж байна...")}</p>
+                  <p className="text-gray-500">{t("common.loading", "Захиалгуудыг уншиж байна...")}</p>
                 </div>
               ) : bookings.length > 0 ? (
                 <div>
                   <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">
-                    {useTranslatedValue("dashboard.camp_bookings", "Амралт баазын захиалгууд")}
+                    {t("dashboard.camp_bookings", "Амралт баазын захиалгууд")}
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                     {bookings.map((booking: Booking) => (
@@ -2099,14 +2098,10 @@ export default function UserDashboardContent() {
                             >
                               <span className="text-[10px] uppercase tracking-wider">
                                 {booking.status === "confirmed"
-                                  ? useTranslatedValue("status.confirmed", "Баталгаажсан")
-                                  : booking.status === "pending"
-                                    ? useTranslatedValue("status.pending", "Хүлээгдэж буй")
-                                    : booking.status === "completed"
-                                      ? useTranslatedValue("status.completed", "Дууссан")
-                                      : booking.status === "cancelled"
-                                        ? useTranslatedValue("status.cancelled", "Цуцлагдсан")
-                                        : booking.status}
+                                  ? t("status.confirmed", "Баталгаажсан") : booking.status === "pending"
+                                    ? t("status.pending", "Хүлээгдэж буй") : booking.status === "completed"
+                                      ? t("status.completed", "Дууссан") : booking.status === "cancelled"
+                                        ? t("status.cancelled", "Цуцлагдсан") : booking.status}
                               </span>
                             </Badge>
                           </div>
@@ -2143,10 +2138,10 @@ export default function UserDashboardContent() {
                             <div className="bg-emerald-50 rounded-lg p-3 mb-4 border border-emerald-100">
                               <div className="flex items-center justify-between mb-2">
                                 <h4 className="text-xs font-bold text-emerald-900 uppercase tracking-wider">
-                                  {useTranslatedValue("owner.info", "Эзэмшигчийн мэдээлэл")}
+                                  {t("owner.info", "Эзэмшигчийн мэдээлэл")}
                                 </h4>
                                 <Badge variant="outline" className="text-[10px] bg-white border-emerald-200 text-emerald-700">
-                                  {useTranslatedValue("common.herder", "Малчин")}
+                                  {t("common.herder", "Малчин")}
                                 </Badge>
                               </div>
                               <p className="text-sm font-bold text-gray-900 mb-2">
@@ -2161,7 +2156,7 @@ export default function UserDashboardContent() {
                                     onClick={() => window.location.href = `tel:${booking.owner?.phone}`}
                                   >
                                     <Phone className="w-3 h-3 mr-1" />
-                                    {useTranslatedValue("common.call", "Залгах")}
+                                    {t("common.call", "Залгах")}
                                   </Button>
                                 )}
                                 {booking.owner.email && (
@@ -2172,7 +2167,7 @@ export default function UserDashboardContent() {
                                     onClick={() => window.location.href = `mailto:${booking.owner?.email}`}
                                   >
                                     <Mail className="w-3 h-3 mr-1" />
-                                    {useTranslatedValue("common.email_write", "Мэйл бичих")}
+                                    {t("common.email_write", "Мэйл бичих")}
                                   </Button>
                                 )}
                               </div>
@@ -2182,10 +2177,10 @@ export default function UserDashboardContent() {
                           <div className="flex items-center justify-between mt-4 pt-4 border-t border-gray-50">
                             <div>
                               <span className="text-base sm:text-lg md:text-xl font-bold text-emerald-700">
-                                {useTranslatedPrice(`booking[${booking.id}].amount`, booking.amount, "MNT")}
+                                {formatPrice(booking.amount)}
                               </span>
                               <span className="text-gray-500 ml-1 text-xs font-medium">
-                                {useTranslatedValue("common.total", "нийт")}
+                                {t("common.total", "нийт")}
                               </span>
                             </div>
                             <div className="flex gap-2">
@@ -2198,7 +2193,7 @@ export default function UserDashboardContent() {
                                   onClick={() => handleCheckBookingPayment(booking.id)}
                                 >
                                   <RefreshCcw className={`w-3 h-3 mr-1 ${checkingPayment === booking.id ? "animate-spin" : ""}`} />
-                                  {checkingPayment === booking.id ? useTranslatedValue("common.checking", "Шалгаж байна...") : useTranslatedValue("payment.check_payment", "Төлбөр шалгах")}
+                                  {checkingPayment === booking.id ? t("common.checking", "Шалгаж байна...") : t("payment.check_payment", "Төлбөр шалгах")}
                                 </Button>
                               )}
                               <Button
@@ -2207,7 +2202,7 @@ export default function UserDashboardContent() {
                                 className="text-gray-600 hover:text-emerald-700 font-bold text-xs"
                                 onClick={() => setSelectedBooking(booking)}
                               >
-                                {useTranslatedValue("common.details", "Дэлгэрэнгүй")}
+                                {t("common.details", "Дэлгэрэнгүй")}
                                 <ChevronRight className="w-3 h-3 ml-1" />
                               </Button>
                             </div>
@@ -2222,12 +2217,12 @@ export default function UserDashboardContent() {
               {/* Event Bookings */}
               {eventBookingsLoading ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">{useTranslatedValue("common.loading", "Арга хэмжээний захиалгуудыг уншиж байна...")}</p>
+                  <p className="text-gray-500">{t("common.loading", "Арга хэмжээний захиалгуудыг уншиж байна...")}</p>
                 </div>
               ) : eventBookings.length > 0 ? (
                 <div>
                   <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">
-                    {useTranslatedValue("dashboard.event_bookings", "Арга хэмжээний захиалгууд")}
+                    {t("dashboard.event_bookings", "Арга хэмжээний захиалгууд")}
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                     {eventBookings.map((booking: EventBooking) => (
@@ -2254,11 +2249,11 @@ export default function UserDashboardContent() {
               {/* Travel Bookings */}
               {travelBookingsLoading ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">{useTranslatedValue("common.loading", "Аяллын захиалгуудыг уншиж байна...")}</p>
+                  <p className="text-gray-500">{t("common.loading", "Аяллын захиалгуудыг уншиж байна...")}</p>
                 </div>
               ) : travelBookings.length > 0 ? (
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">{useTranslatedValue("dashboard.travel_bookings", "Аяллын захиалгууд")}</h3>
+                  <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">{t("dashboard.travel_bookings", "Аяллын захиалгууд")}</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
                     {travelBookings.map((booking: Booking) => (
                       <TravelBookingCard
@@ -2283,11 +2278,11 @@ export default function UserDashboardContent() {
               {/* Product Orders */}
               {ordersLoading ? (
                 <div className="text-center py-8">
-                  <p className="text-gray-500">{useTranslatedValue("status.loading_orders", "Барааны захиалгуудыг уншиж байна...")}</p>
+                  <p className="text-gray-500">{t("status.loading_orders", "Барааны захиалгуудыг уншиж байна...")}</p>
                 </div>
               ) : orders.length > 0 ? (
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">{useTranslatedValue("dashboard.product_orders", "Барааны захиалгууд")}</h3>
+                  <h3 className="text-base sm:text-lg font-bold mb-3 sm:mb-4">{t("dashboard.product_orders", "Барааны захиалгууд")}</h3>
 
                   {/* Mobile: Card Layout */}
                   <div className="sm:hidden space-y-3">
@@ -2307,9 +2302,9 @@ export default function UserDashboardContent() {
                           rejected: statusRejectedLabel,
                         }}
                         commonLabels={{
-                          checkPayment: useTranslatedValue("status.check_payment", "Төлбөр шалгах"),
-                          quantity: useTranslatedValue("common.quantity", "Тоо"),
-                          details: useTranslatedValue("common.details", "Дэлгэрэнгүй"),
+                          checkPayment: t("status.check_payment", "Төлбөр шалгах"),
+                          quantity: t("common.quantity", "Тоо"),
+                          details: t("common.details", "Дэлгэрэнгүй"),
                         }}
                         onCheckPayment={handleCheckOrderPayment}
                         onSelect={setSelectedOrder}
@@ -2325,25 +2320,25 @@ export default function UserDashboardContent() {
                           <TableHeader>
                             <TableRow>
                               <TableHead className="font-semibold text-xs md:text-sm">
-                                {useTranslatedValue("order.id", "Захиалгын №")}
+                                {t("order.id", "Захиалгын №")}
                               </TableHead>
                               <TableHead className="min-w-[150px] font-semibold text-xs md:text-sm">
-                                {useTranslatedValue("order.product", "Бараа")}
+                                {t("order.product", "Бараа")}
                               </TableHead>
                               <TableHead className="min-w-[120px] font-semibold text-xs md:text-sm">
-                                {useTranslatedValue("order.seller", "Борлуулагч")}
+                                {t("order.seller", "Борлуулагч")}
                               </TableHead>
                               <TableHead className="font-semibold text-xs md:text-sm">
-                                {useTranslatedValue("common.quantity", "Тоо")}
+                                {t("common.quantity", "Тоо")}
                               </TableHead>
                               <TableHead className="font-semibold text-xs md:text-sm">
-                                {useTranslatedValue("common.amount", "Дүн")}
+                                {t("common.amount", "Дүн")}
                               </TableHead>
                               <TableHead className="font-semibold text-xs md:text-sm">
-                                {useTranslatedValue("common.status", "Төлөв")}
+                                {t("common.status", "Төлөв")}
                               </TableHead>
                               <TableHead className="hidden md:table-cell font-semibold text-xs md:text-sm">
-                                {useTranslatedValue("common.date", "Огноо")}
+                                {t("common.date", "Огноо")}
                               </TableHead>
                             </TableRow>
                           </TableHeader>
@@ -2364,9 +2359,9 @@ export default function UserDashboardContent() {
                                   rejected: statusRejectedLabel,
                                 }}
                                 commonLabels={{
-                                  checkPayment: useTranslatedValue("status.check_payment", "Төлбөр шалгах"),
-                                  checking: useTranslatedValue("common.checking", "Шалгаж байна..."),
-                                  details: useTranslatedValue("common.details", "Дэлгэрэнгүй"),
+                                  checkPayment: t("status.check_payment", "Төлбөр шалгах"),
+                                  checking: t("common.checking", "Шалгаж байна..."),
+                                  details: t("common.details", "Дэлгэрэнгүй"),
                                 }}
                                 onCheckPayment={handleCheckOrderPayment}
                                 onSelect={setSelectedOrder}
@@ -2390,14 +2385,14 @@ export default function UserDashboardContent() {
                   <div className="text-center py-12">
                     <Calendar className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                     <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                      {useTranslatedValue("dashboard.no_orders_yet", "Захиалга байхгүй")}
+                      {t("dashboard.no_orders_yet", "Захиалга байхгүй")}
                     </h3>
                     <p className="text-gray-500 mb-4">
-                      {useTranslatedValue("dashboard.no_orders_yet_desc", "Та одоогоор ямар ч захиалга хийгээгүй байна.")}
+                      {t("dashboard.no_orders_yet_desc", "Та одоогоор ямар ч захиалга хийгээгүй байна.")}
                     </p>
                     <Link href="/listings">
                       <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
-                        {useTranslatedValue("common.start", "Эхлэх")}
+                        {t("common.start", "Эхлэх")}
                       </Button>
                     </Link>
                   </div>
@@ -2409,7 +2404,7 @@ export default function UserDashboardContent() {
           <TabsContent value="favorites" className="space-y-6">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <h2 className="text-xl sm:text-2xl font-bold">
-                {useTranslatedValue("dashboard.saved_camps", "Хадгалсан амралтууд")}
+                {t("dashboard.saved_camps", "Хадгалсан амралтууд")}
               </h2>
               <Button
                 variant="outline"
@@ -2419,7 +2414,7 @@ export default function UserDashboardContent() {
                   window.location.reload();
                 }}
               >
-                {useTranslatedValue("common.clear_all", "Бүгдийг цэвэрлэх")}
+                {t("common.clear_all", "Бүгдийг цэвэрлэх")}
               </Button>
             </div>
 
@@ -2429,25 +2424,25 @@ export default function UserDashboardContent() {
                   <FavoriteItem
                     key={item.id}
                     item={item}
-                    sellerLabel={useTranslatedValue("common.seller", "Борлуулагч")}
-                    detailsLabel={useTranslatedValue("common.details", "Дэлгэрэнгүй")}
-                    addToCartLabel={useTranslatedValue("common.add_to_cart", "Сагсанд нэмэх")}
-                    campLabel={useTranslatedValue("common.camp", "Бааз")}
-                    productLabel={useTranslatedValue("common.product", "Бараа")}
+                    sellerLabel={t("common.seller", "Борлуулагч")}
+                    detailsLabel={t("common.details", "Дэлгэрэнгүй")}
+                    addToCartLabel={t("common.add_to_cart", "Сагсанд нэмэх")}
+                    campLabel={t("common.camp", "Бааз")}
+                    productLabel={t("common.product", "Бараа")}
                   />
                 ))
               ) : (
                 <div className="col-span-full text-center py-12">
                   <Heart className="w-16 h-16 text-gray-400 mx-auto mb-4" />
                   <h3 className="text-lg font-semibold text-gray-600 mb-2">
-                    {useTranslatedValue("dashboard.no_saved", "Хадгалсан амралт байхгүй")}
+                    {t("dashboard.no_saved", "Хадгалсан амралт байхгүй")}
                   </h3>
                   <p className="text-gray-500 mb-4">
-                    {useTranslatedValue("dashboard.no_saved_desc", "Та одоогоор ямар ч амралт хадгалаагүй байна.")}
+                    {t("dashboard.no_saved_desc", "Та одоогоор ямар ч амралт хадгалаагүй байна.")}
                   </p>
                   <Link href="/camps">
                     <Button className="bg-emerald-600 hover:bg-emerald-700 font-semibold">
-                      {useTranslatedValue("dashboard.search_camps", "Амралт хайх")}
+                      {t("dashboard.search_camps", "Амралт хайх")}
                     </Button>
                   </Link>
                 </div>
@@ -2460,14 +2455,14 @@ export default function UserDashboardContent() {
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
                 <h2 className="text-xl sm:text-2xl font-bold">
-                  {useTranslatedValue("dashboard.my_routes", "Миний аяллын маршрут")}
+                  {t("dashboard.my_routes", "Миний аяллын маршрут")}
                 </h2>
                 <p className="text-gray-600 text-sm font-medium">
-                  {useTranslatedValue("dashboard.routes_desc", "Таны сонирхолд нийцсэн хувийн маршрут")}
+                  {t("dashboard.routes_desc", "Таны сонирхолд нийцсэн хувийн маршрут")}
                 </p>
               </div>
               <Button className="bg-emerald-600 hover:bg-emerald-700 w-full sm:w-auto font-semibold">
-                {useTranslatedValue("dashboard.create_route", "Шинэ маршрут үүсгэх")}
+                {t("dashboard.create_route", "Шинэ маршрут үүсгэх")}
               </Button>
             </div>
 
@@ -2480,37 +2475,37 @@ export default function UserDashboardContent() {
                     saved: statusSavedLabel,
                   }}
                   difficultyLabels={{
-                    extreme: useTranslatedValue("difficulty.extreme", "Маш хүнд"),
-                    challenging: useTranslatedValue("difficulty.challenging", "Хүнд"),
-                    moderate: useTranslatedValue("difficulty.moderate", "Дунд зэрэг"),
-                    easy: useTranslatedValue("difficulty.easy", "Хялбар"),
+                    extreme: t("difficulty.extreme", "Маш хүнд"),
+                    challenging: t("difficulty.challenging", "Хүнд"),
+                    moderate: t("difficulty.moderate", "Дунд зэрэг"),
+                    easy: t("difficulty.easy", "Хялбар"),
                   }}
                   seasonLabels={{
                     autumn: seasonAutumnLabel,
                     spring: seasonSpringLabel,
                   }}
                   commonLabels={{
-                    season: useTranslatedValue("common.season", "Улирал"),
-                    child_friendly: useTranslatedValue("common.child_friendly", "Хүүхдэд ээлтэй"),
-                    transport: useTranslatedValue("common.transport", "Тээвэр"),
+                    season: t("common.season", "Улирал"),
+                    child_friendly: t("common.child_friendly", "Хүүхдэд ээлтэй"),
+                    transport: t("common.transport", "Тээвэр"),
                     yes: yesLabel,
                     no: noLabel,
                     guidedTour: guidedTourLabel,
-                    more: useTranslatedValue("common.more", "илүү"),
-                    created: useTranslatedValue("common.created", "Үүсгэсэн"),
-                    completed: useTranslatedValue("common.completed", "Дууссан"),
+                    more: t("common.more", "илүү"),
+                    created: t("common.created", "Үүсгэсэн"),
+                    completed: t("common.completed", "Дууссан"),
                   }}
                   dashboardLabels={{
-                    route_info: useTranslatedValue("dashboard.route_info", "Аяллын мэдээлэл"),
-                    accommodation: useTranslatedValue("dashboard.accommodation", "Байрлах газар"),
-                    attractions_activities: useTranslatedValue("dashboard.attractions_activities", "Үзэх газрууд & Үйл ажиллагаа"),
-                    my_review: useTranslatedValue("dashboard.my_review", "Таны сэтгэгдэл"),
-                    reorder_route: useTranslatedValue("dashboard.reorder_route", "Ижил аялал захиалах"),
-                    confirm_booking: useTranslatedValue("dashboard.confirm_booking", "Захиалгаа баталгаажуулах"),
-                    use_route: useTranslatedValue("dashboard.use_route", "Маршрут ашиглах"),
-                    view_on_map: useTranslatedValue("dashboard.view_on_map", "Газрын зураг дээр харах"),
-                    share_route: useTranslatedValue("dashboard.share_route", "Маршрут хуваалцах"),
-                    write_review: useTranslatedValue("dashboard.write_review", "Сэтгэгдэл бичих"),
+                    route_info: t("dashboard.route_info", "Аяллын мэдээлэл"),
+                    accommodation: t("dashboard.accommodation", "Байрлах газар"),
+                    attractions_activities: t("dashboard.attractions_activities", "Үзэх газрууд & Үйл ажиллагаа"),
+                    my_review: t("dashboard.my_review", "Таны сэтгэгдэл"),
+                    reorder_route: t("dashboard.reorder_route", "Ижил аялал захиалах"),
+                    confirm_booking: t("dashboard.confirm_booking", "Захиалгаа баталгаажуулах"),
+                    use_route: t("dashboard.use_route", "Маршрут ашиглах"),
+                    view_on_map: t("dashboard.view_on_map", "Газрын зураг дээр харах"),
+                    share_route: t("dashboard.share_route", "Маршрут хуваалцах"),
+                    write_review: t("dashboard.write_review", "Сэтгэгдэл бичих"),
                   }}
                   onSelect={setSelectedRoute}
                   onReorder={(r) => console.log("Reorder", r)}
@@ -2535,7 +2530,7 @@ export default function UserDashboardContent() {
                     }
                   </div>
                   <div className="text-sm text-gray-600 font-medium">
-                    {useTranslatedValue("dashboard.completed_routes", "Дууссан маршрут")}
+                    {t("dashboard.completed_routes", "Дууссан маршрут")}
                   </div>
                 </CardContent>
               </Card>
@@ -2549,7 +2544,7 @@ export default function UserDashboardContent() {
                     }
                   </div>
                   <div className="text-sm text-gray-600 font-medium">
-                    {useTranslatedValue("dashboard.planning_routes", "Төлөвлөж буй")}
+                    {t("dashboard.planning_routes", "Төлөвлөж буй")}
                   </div>
                 </CardContent>
               </Card>
@@ -2563,7 +2558,7 @@ export default function UserDashboardContent() {
                     )}
                   </div>
                   <div className="text-sm text-gray-600 font-medium">
-                    {useTranslatedValue("dashboard.total_days", "Нийт аялсан хоног")}
+                    {t("dashboard.total_days", "Нийт аялсан хоног")}
                   </div>
                 </CardContent>
               </Card>
@@ -2577,7 +2572,7 @@ export default function UserDashboardContent() {
                     ), "MNT")}
                   </div>
                   <div className="text-sm text-gray-600 font-medium">
-                    {useTranslatedValue("dashboard.total_budget", "Нийт төсөв")}
+                    {t("dashboard.total_budget", "Нийт төсөв")}
                   </div>
                 </CardContent>
               </Card>
@@ -2586,7 +2581,7 @@ export default function UserDashboardContent() {
 
           {/* Profile Tab */}
           <TabsContent value="profile" className="space-y-6">
-            <h2 className="text-xl sm:text-2xl font-bold">{useTranslatedValue("profile.settings", "Профайл тохиргоо")}</h2>
+            <h2 className="text-xl sm:text-2xl font-bold">{t("profile.settings", "Профайл тохиргоо")}</h2>
 
             {user && (
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -2608,27 +2603,27 @@ export default function UserDashboardContent() {
                 <div>
                   <Card>
                     <CardHeader>
-                      <CardTitle className="font-bold">{useTranslatedValue("dashboard.account_overview", "Дансны тойм")}</CardTitle>
+                      <CardTitle className="font-bold">{t("dashboard.account_overview", "Дансны тойм")}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600 font-medium">
-                          {useTranslatedValue("dashboard.stats.total_bookings", "Нийт захиалга")}
+                          {t("dashboard.stats.total_bookings", "Нийт захиалга")}
                         </span>
                         <span className="font-semibold">{totalBookings}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600 font-medium">
-                          {useTranslatedValue("dashboard.stats.total_orders", "Нийт барааны захиалга")}
+                          {t("dashboard.stats.total_orders", "Нийт барааны захиалга")}
                         </span>
                         <span className="font-semibold">{totalOrders}</span>
                       </div>
                       <div className="flex items-center justify-between">
                         <span className="text-sm text-gray-600 font-medium">
-                          {useTranslatedValue("dashboard.stats.total_spent", "Нийт зарцуулсан")}
+                          {t("dashboard.stats.total_spent", "Нийт зарцуулсан")}
                         </span>
                         <span className="font-semibold">
-                          {useTranslatedPrice("dashboard.total_spent_val", totalSpent, "MNT")}
+                          {formatPrice(totalSpent)}
                         </span>
                       </div>
                     </CardContent>
@@ -2645,7 +2640,7 @@ export default function UserDashboardContent() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold font-display">
-              {useTranslatedValue("dashboard.booking_details", "Захиалгын дэлгэрэнгүй")}
+              {t("dashboard.booking_details", "Захиалгын дэлгэрэнгүй")}
             </DialogTitle>
           </DialogHeader>
 
@@ -2673,7 +2668,7 @@ export default function UserDashboardContent() {
                     {selectedBooking.status.toUpperCase()}
                   </Badge>
                   <div className="text-lg font-black text-emerald-700 mt-1">
-                    {useTranslatedPrice("common.price", selectedBooking.amount, "MNT")}
+                    {formatPrice(selectedBooking.amount)}
                   </div>
                 </div>
               </div>
@@ -2682,18 +2677,18 @@ export default function UserDashboardContent() {
 
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-xs text-gray-500 font-bold uppercase mb-1">{useTranslatedValue("common.check_in", "Ирэх өдөр")}</p>
+                  <p className="text-xs text-gray-500 font-bold uppercase mb-1">{t("common.check_in", "Ирэх өдөр")}</p>
                   <p className="font-semibold text-gray-900">{selectedBooking.checkIn}</p>
                 </div>
                 <div className="p-3 bg-gray-50 rounded-lg">
-                  <p className="text-xs text-gray-500 font-bold uppercase mb-1">{useTranslatedValue("common.check_out", "Гарах өдөр")}</p>
+                  <p className="text-xs text-gray-500 font-bold uppercase mb-1">{t("common.check_out", "Гарах өдөр")}</p>
                   <p className="font-semibold text-gray-900">{selectedBooking.checkOut}</p>
                 </div>
               </div>
 
               {selectedBooking.description && (
                 <div className="space-y-2">
-                  <h3 className="font-bold text-gray-900">{useTranslatedValue("common.description", "Тайлбар")}</h3>
+                  <h3 className="font-bold text-gray-900">{t("common.description", "Тайлбар")}</h3>
                   <p className="text-sm text-gray-600 leading-relaxed font-medium">
                     {selectedBooking.description}
                   </p>
@@ -2704,7 +2699,7 @@ export default function UserDashboardContent() {
                 const ams = parseAmenities(selectedBooking.amenities);
                 return ams.policies?.cancellation && (
                   <div className="space-y-2">
-                    <h3 className="font-bold text-gray-900">{useTranslatedValue("common.cancellation_policy", "Цуцлалтын бодлого")}</h3>
+                    <h3 className="font-bold text-gray-900">{t("common.cancellation_policy", "Цуцлалтын бодлого")}</h3>
                     <p className="text-sm text-gray-600 leading-relaxed font-medium whitespace-pre-line bg-gray-50 p-3 rounded-lg border border-gray-100">
                       {([...(policiesOptions.cancellationPolicy || [])].find(o => o.value === ams.policies.cancellation)?.label) || ams.policies.cancellation}
                     </p>
@@ -2714,7 +2709,7 @@ export default function UserDashboardContent() {
 
               {selectedBooking.amenities && (
                 <div className="space-y-4">
-                  <h3 className="font-bold text-gray-900">{useTranslatedValue("common.amenities", "Үйлчилгээ ба тав тух")}</h3>
+                  <h3 className="font-bold text-gray-900">{t("common.amenities", "Үйлчилгээ ба тав тух")}</h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {(() => {
                       const ams = parseAmenities(selectedBooking.amenities);
@@ -2731,7 +2726,7 @@ export default function UserDashboardContent() {
                           );
                         })
                       ) : (
-                        <p className="text-sm text-gray-500">{useTranslatedValue("common.no_amenities", "Үйлчилгээний мэдээлэл байхгүй")}</p>
+                        <p className="text-sm text-gray-500">{t("common.no_amenities", "Үйлчилгээний мэдээлэл байхгүй")}</p>
                       );
                     })()}
                   </div>
@@ -2742,12 +2737,12 @@ export default function UserDashboardContent() {
                 <div className="p-4 bg-emerald-50 rounded-xl border border-emerald-100">
                   <h3 className="font-bold text-emerald-900 mb-3 flex items-center gap-2">
                     <Info className="w-4 h-4" />
-                    {useTranslatedValue("owner.contact", "Эзэмшигчтэй холбогдох")}
+                    {t("owner.contact", "Эзэмшигчтэй холбогдох")}
                   </h3>
                   <div className="flex flex-col gap-3">
                     {selectedBooking.owner.phone && (
                       <div className="flex flex-col gap-1">
-                        <p className="text-xs text-emerald-800/70 font-bold uppercase ml-1">{useTranslatedValue("common.phone", "Утасны дугаар")}</p>
+                        <p className="text-xs text-emerald-800/70 font-bold uppercase ml-1">{t("common.phone", "Утасны дугаар")}</p>
                         <Button
                           className="w-full bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200 justify-start"
                           variant="outline"
@@ -2760,7 +2755,7 @@ export default function UserDashboardContent() {
                     )}
                     {selectedBooking.owner.email && (
                       <div className="flex flex-col gap-1">
-                        <p className="text-xs text-emerald-800/70 font-bold uppercase ml-1">{useTranslatedValue("common.email", "Цахим шуудан")}</p>
+                        <p className="text-xs text-emerald-800/70 font-bold uppercase ml-1">{t("common.email", "Цахим шуудан")}</p>
                         <Button
                           className="w-full bg-white hover:bg-emerald-50 text-emerald-700 border-emerald-200 justify-start"
                           variant="outline"
@@ -2811,7 +2806,7 @@ export default function UserDashboardContent() {
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold font-display">
-              {useTranslatedValue("dashboard.order_details", "Захиалгын дэлгэрэнгүй")}
+              {t("dashboard.order_details", "Захиалгын дэлгэрэнгүй")}
             </DialogTitle>
           </DialogHeader>
 
@@ -2819,8 +2814,8 @@ export default function UserDashboardContent() {
             <div className="space-y-6">
               <div className="flex flex-col sm:flex-row justify-between gap-4">
                 <div className="space-y-1">
-                  <h2 className="text-2xl font-bold text-gray-900">{useTranslatedValue("order.id", "Захиалга")} #{selectedOrder.id.substring(0, 8)}</h2>
-                  <p className="text-sm text-gray-500 font-medium">{useTranslatedValue("common.date", "Огноо")}: {selectedOrder.date}</p>
+                  <h2 className="text-2xl font-bold text-gray-900">{t("order.id", "Захиалга")} #{selectedOrder.id.substring(0, 8)}</h2>
+                  <p className="text-sm text-gray-500 font-medium">{t("common.date", "Огноо")}: {selectedOrder.date}</p>
                 </div>
                 <div className="text-left sm:text-right">
                   <Badge className={`px-3 py-1 font-bold ${selectedOrder.status === "paid" || selectedOrder.status === "delivered" ? "bg-green-500" : "bg-amber-500"
@@ -2828,7 +2823,7 @@ export default function UserDashboardContent() {
                     {selectedOrder.status.toUpperCase()}
                   </Badge>
                   <div className="text-lg font-black text-emerald-700 mt-1">
-                    {useTranslatedPrice(`order[${selectedOrder.id}].total`, selectedOrder.amount, "MNT")}
+                    {formatPrice(selectedOrder.amount)}
                   </div>
                 </div>
               </div>
@@ -2836,7 +2831,7 @@ export default function UserDashboardContent() {
               <Separator />
 
               <div className="space-y-4">
-                <h3 className="font-bold text-gray-900">{useTranslatedValue("dashboard.ordered_items", "Захиалсан бараанууд")}</h3>
+                <h3 className="font-bold text-gray-900">{t("dashboard.ordered_items", "Захиалсан бараанууд")}</h3>
                 <div className="space-y-3">
                   {selectedOrder.items?.map((item, idx) => (
                     <div key={idx} className="flex items-center gap-4 p-3 bg-gray-50 rounded-xl border border-gray-100">
@@ -2856,12 +2851,12 @@ export default function UserDashboardContent() {
                               {translateCategory(item.category)}
                             </Badge>
                           )}
-                          <span className="text-xs text-gray-500 font-medium">{useTranslatedValue("common.quantity", "Тоо")}: {item.quantity}</span>
+                          <span className="text-xs text-gray-500 font-medium">{t("common.quantity", "Тоо")}: {item.quantity}</span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="font-bold text-gray-900">{useTranslatedPrice(`item[${idx}].price`, item.price, "MNT")}</p>
-                        <p className="text-[10px] text-gray-500 font-bold uppercase">{useTranslatedValue("common.unit_price", "Нэгж үнэ")}</p>
+                        <p className="font-bold text-gray-900">{formatPrice(item.price)}</p>
+                        <p className="text-[10px] text-gray-500 font-bold uppercase">{t("common.unit_price", "Нэгж үнэ")}</p>
                       </div>
                     </div>
                   ))}

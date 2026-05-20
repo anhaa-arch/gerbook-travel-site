@@ -46,6 +46,107 @@ const CREATE_BOOKING = gql`
   }
 `;
 
+function CartItemRow({ item, removeFromCart, updateQuantity, t }: any) {
+  const itemPrice = useTranslatedPrice(`cart[${item.id}].price`, item.price, "MNT");
+  const itemTotal = useTranslatedPrice(`cart[${item.id}].total`, item.price * item.quantity, "MNT");
+  const unitLabel = useTranslatedValue("common.unit", "нэгж");
+
+  return (
+    <Card className="border-none shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-3xl overflow-hidden bg-white group transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex items-center space-x-4 sm:space-x-6">
+          <div className="w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0 bg-gray-50 rounded-2xl overflow-hidden relative">
+            <img
+              src={item.image || "/placeholder.svg"}
+              alt={item.name}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex justify-between items-start">
+              <h3 className="text-base sm:text-lg font-black text-gray-900 truncate pr-4">{item.name}</h3>
+              <button
+                onClick={() => removeFromCart(item.id)}
+                className="text-gray-300 hover:text-red-500 transition-colors p-1"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex items-center space-x-3 mt-2 text-xs font-bold text-gray-500">
+              <span className="bg-gray-100 px-2 py-1 rounded-md">{t("cart.itemLabel", "Бараа")}</span>
+              <span className="text-emerald-600">{t("cart.inStock", "Нөөцөд байгаа")}</span>
+            </div>
+            <div className="flex items-center justify-between mt-4 sm:mt-6">
+              <div className="flex items-center border border-gray-100 rounded-xl p-1 bg-gray-50">
+                <button
+                  onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
+                  className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <span className="w-10 text-center text-sm font-black text-gray-900">{item.quantity}</span>
+                <button
+                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                  className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
+              <div className="text-right">
+                <p className="text-lg sm:text-xl font-black text-gray-900">{itemTotal}</p>
+                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{itemPrice} / {unitLabel}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function BookingItemRow({ item, removeFromBookingCart, t }: any) {
+  const itemTotal = useTranslatedPrice(`book[${item.id}].total`, item.totalPrice, "MNT");
+
+  return (
+    <Card className="border-none shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-3xl overflow-hidden bg-white group transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
+      <CardContent className="p-4 sm:p-6">
+        <div className="flex items-center space-x-4 sm:space-x-6">
+          <div className="w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0 bg-gray-50 rounded-2xl overflow-hidden relative">
+            <img
+              src={item.image || "/placeholder.svg"}
+              alt={item.name}
+              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+            />
+          </div>
+          <div className="flex-1 min-w-0">
+            <div className="flex justify-between items-start">
+              <h3 className="text-base sm:text-lg font-black text-gray-900 pr-4">{item.name}</h3>
+              <button
+                onClick={() => removeFromBookingCart(item.id)}
+                className="text-gray-300 hover:text-red-500 transition-colors p-1"
+              >
+                <Trash2 className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 mb-4">
+              <div className="flex items-center text-xs font-bold text-gray-500">
+                <span className="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md mr-2 uppercase tracking-tighter">{t("cart.stayLabel", "Байрлах")}</span>
+                <span>{item.startDate} - {item.endDate}</span>
+              </div>
+            </div>
+            <div className="flex items-center justify-between pt-4 border-t border-gray-50">
+              <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t("common.total_price", "Нийт үнэ")}</p>
+              <div className="text-right">
+                <p className="text-lg sm:text-xl font-black text-gray-900">{itemTotal}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function CartPage() {
   const { cartItems, bookingCart, updateQuantity, removeFromCart, removeFromBookingCart, clearCart, totalPrice } = useCart();
   const { isAuthenticated } = useAuth();
@@ -60,6 +161,9 @@ export default function CartPage() {
   const loadingLabel = useTranslatedValue("common.loading", "Уншиж байна...");
   const errorLabel = useTranslatedValue("common.error", "Алдаа");
   const successLabel = useTranslatedValue("cart.paymentSuccessTitle", "Амжилттай");
+  const errorNameRequired = useTranslatedValue("cart.errors.name_required", "Хүлээн авах хүний нэр шаардлагатай");
+  const errorPhoneRequired = useTranslatedValue("cart.errors.phone_required", "Утасны дугаар шаардлагатай");
+  const errorAddressRequired = useTranslatedValue("cart.errors.address_required", "Хүргэлтийн хаяг шаардлагатай");
 
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [orderId, setOrderId] = useState<string | undefined>(undefined);
@@ -81,9 +185,9 @@ export default function CartPage() {
 
     if (cartItems.length > 0) {
       const errors: any = {};
-      if (!receiverName.trim()) errors.name = useTranslatedValue("cart.errors.name_required", "Хүлээн авах хүний нэр шаардлагатай");
-      if (!receiverPhone.trim()) errors.phone = useTranslatedValue("cart.errors.phone_required", "Утасны дугаар шаардлагатай");
-      if (!shippingAddress.trim()) errors.address = useTranslatedValue("cart.errors.address_required", "Хүргэлтийн хаяг шаардлагатай");
+      if (!receiverName.trim()) errors.name = errorNameRequired;
+      if (!receiverPhone.trim()) errors.phone = errorPhoneRequired;
+      if (!shippingAddress.trim()) errors.address = errorAddressRequired;
       
       if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
@@ -216,62 +320,15 @@ export default function CartPage() {
                 <div className="flex items-center justify-between px-2">
                   <h2 className="text-sm font-black uppercase tracking-widest text-gray-400">{t("product.title", "Бүтээгдэхүүнүүд")} ({cartItems.length})</h2>
                 </div>
-                {cartItems.map((item) => {
-                  const itemPrice = useTranslatedPrice(`cart[${item.id}].price`, item.price, "MNT");
-                  const itemTotal = useTranslatedPrice(`cart[${item.id}].total`, item.price * item.quantity, "MNT");
-                  
-                  return (
-                    <Card key={item.id} className="border-none shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-3xl overflow-hidden bg-white group transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
-                      <CardContent className="p-4 sm:p-6">
-                        <div className="flex items-center space-x-4 sm:space-x-6">
-                          <div className="w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0 bg-gray-50 rounded-2xl overflow-hidden relative">
-                            <img
-                              src={item.image || "/placeholder.svg"}
-                              alt={item.name}
-                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="flex justify-between items-start">
-                              <h3 className="text-base sm:text-lg font-black text-gray-900 truncate pr-4">{item.name}</h3>
-                              <button
-                                onClick={() => removeFromCart(item.id)}
-                                className="text-gray-300 hover:text-red-500 transition-colors p-1"
-                              >
-                                <Trash2 className="w-5 h-5" />
-                              </button>
-                            </div>
-                            <div className="flex items-center space-x-3 mt-2 text-xs font-bold text-gray-500">
-                              <span className="bg-gray-100 px-2 py-1 rounded-md">{t("cart.itemLabel", "Бараа")}</span>
-                              <span className="text-emerald-600">{t("cart.inStock", "Нөөцөд байгаа")}</span>
-                            </div>
-                            <div className="flex items-center justify-between mt-4 sm:mt-6">
-                              <div className="flex items-center border border-gray-100 rounded-xl p-1 bg-gray-50">
-                                <button
-                                  onClick={() => updateQuantity(item.id, Math.max(1, item.quantity - 1))}
-                                  className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600"
-                                >
-                                  <Minus className="w-4 h-4" />
-                                </button>
-                                <span className="w-10 text-center text-sm font-black text-gray-900">{item.quantity}</span>
-                                <button
-                                  onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                  className="w-8 h-8 flex items-center justify-center hover:bg-white rounded-lg transition-all text-gray-600"
-                                >
-                                  <Plus className="w-4 h-4" />
-                                </button>
-                              </div>
-                              <div className="text-right">
-                                <p className="text-lg sm:text-xl font-black text-gray-900">{itemTotal}</p>
-                                <p className="text-[10px] text-gray-400 font-bold uppercase tracking-widest mt-0.5">{itemPrice} / {useTranslatedValue("common.unit", "нэгж")}</p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
+                {cartItems.map((item) => (
+                  <CartItemRow 
+                    key={item.id} 
+                    item={item} 
+                    removeFromCart={removeFromCart} 
+                    updateQuantity={updateQuantity} 
+                    t={t} 
+                  />
+                ))}
               </div>
             )}
 
@@ -282,42 +339,12 @@ export default function CartPage() {
                   <h2 className="text-sm font-black uppercase tracking-widest text-gray-400">{t("nav.camps", "Гэр бааз")} ({bookingCart.length})</h2>
                 </div>
                 {bookingCart.map((item) => (
-                  <Card key={item.id} className="border-none shadow-[0_2px_15px_rgba(0,0,0,0.03)] rounded-3xl overflow-hidden bg-white group transition-all hover:shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
-                    <CardContent className="p-4 sm:p-6">
-                      <div className="flex items-center space-x-4 sm:space-x-6">
-                        <div className="w-20 h-20 sm:w-28 sm:h-28 flex-shrink-0 bg-gray-50 rounded-2xl overflow-hidden relative">
-                          <img
-                            src={item.image || "/placeholder.svg"}
-                            alt={item.name}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex justify-between items-start">
-                            <h3 className="text-base sm:text-lg font-black text-gray-900 pr-4">{item.name}</h3>
-                            <button
-                              onClick={() => removeFromBookingCart(item.id)}
-                              className="text-gray-300 hover:text-red-500 transition-colors p-1"
-                            >
-                              <Trash2 className="w-5 h-5" />
-                            </button>
-                          </div>
-                          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 mb-4">
-                            <div className="flex items-center text-xs font-bold text-gray-500">
-                              <span className="bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-md mr-2 uppercase tracking-tighter">{t("cart.stayLabel", "Байрлах")}</span>
-                              <span>{item.startDate} - {item.endDate}</span>
-                            </div>
-                          </div>
-                          <div className="flex items-center justify-between pt-4 border-t border-gray-50">
-                            <p className="text-xs font-bold text-gray-400 uppercase tracking-widest">{t("common.total_price", "Нийт үнэ")}</p>
-                            <div className="text-right">
-                              <p className="text-lg sm:text-xl font-black text-gray-900">{useTranslatedPrice(`book[${item.id}].total`, item.totalPrice, "MNT")}</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
+                  <BookingItemRow 
+                    key={item.id} 
+                    item={item} 
+                    removeFromBookingCart={removeFromBookingCart} 
+                    t={t} 
+                  />
                 ))}
               </div>
             )}
