@@ -456,6 +456,25 @@ export const CHECK_QPAY_EVENT_PAYMENT = gql`
   }
 `
 
+export const CHECK_QPAY_BOOKING = gql`
+  mutation CheckQPayBooking($bookingId: String!) {
+    checkQPayPaymentAndConfirmBooking(bookingId: $bookingId) {
+      id
+      status
+    }
+  }
+`
+
+export const CHECK_QPAY_ORDER = gql`
+  mutation CheckQPayOrder($orderId: String!) {
+    checkQPayPaymentAndConfirmOrder(orderId: $orderId) {
+      id
+      status
+    }
+  }
+`
+
+
 
 
 

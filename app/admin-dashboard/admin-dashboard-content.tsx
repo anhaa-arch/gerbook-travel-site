@@ -89,6 +89,8 @@ import {
   DELETE_EVENT_BOOKING,
   UPDATE_EVENT_BOOKING_STATUS,
   CHECK_QPAY_EVENT_PAYMENT,
+  CHECK_QPAY_BOOKING,
+  CHECK_QPAY_ORDER,
 } from "./queries";
 import {
   formatDate,
@@ -291,6 +293,8 @@ export default function AdminDashboardContent() {
   const [deleteEventBooking] = useMutation(DELETE_EVENT_BOOKING);
   const [updateEventBookingStatus] = useMutation(UPDATE_EVENT_BOOKING_STATUS);
   const [checkEventPayment] = useMutation(CHECK_QPAY_EVENT_PAYMENT);
+  const [checkBookingPayment] = useMutation(CHECK_QPAY_BOOKING);
+  const [checkOrderPayment] = useMutation(CHECK_QPAY_ORDER);
 
   // Transform data for display
   const stats = {
@@ -3341,6 +3345,30 @@ export default function AdminDashboardContent() {
                             {(order.status === 'CONFIRMED' || order.status === 'PAID') && order.qpayPaymentData && (
                               <PaymentDetails data={order.qpayPaymentData} />
                             )}
+                            {!order.qpayPaymentData && (order.status === 'PENDING' || order.status === 'CONFIRMED' || order.status === 'PAID') && (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-6 px-2 mt-1 text-[10px] text-emerald-600 hover:bg-emerald-50 font-bold flex items-center gap-1 w-full justify-start border border-emerald-200 rounded"
+                                onClick={async () => {
+                                  try {
+                                    toast({ title: "Шалгаж байна...", description: "Түр хүлээнэ үү" });
+                                    const result = await checkOrderPayment({ variables: { orderId: order.id } });
+                                    const updated = result.data?.checkQPayPaymentAndConfirmOrder;
+                                    if (updated?.status === 'CONFIRMED' || updated?.status === 'PAID') {
+                                      toast({ title: "Амжилттай", description: "Төлбөр баталгаажлаа" });
+                                    } else {
+                                      toast({ title: "Мэдээлэл", description: "Төлбөр хараахан төлөгдөөгүй байна" });
+                                    }
+                                    await refetchOrders();
+                                  } catch (err: any) {
+                                    toast({ title: "Алдаа", description: err.message, variant: "destructive" as any });
+                                  }
+                                }}
+                              >
+                                <Clock className="w-3 h-3" /> Төлбөр шалгах
+                              </Button>
+                            )}
                           </TableCell>
                           <TableCell className="hidden sm:table-cell font-medium text-sm">
                             {formatDate(order.createdAt)}
@@ -3416,6 +3444,37 @@ export default function AdminDashboardContent() {
                                           {translateStatus(order.status)}
                                         </Badge>
                                       </div>
+                                      {(order.status === 'CONFIRMED' || order.status === 'PAID') && order.qpayPaymentData && (
+                                        <div className="mt-2">
+                                          <PaymentDetails data={order.qpayPaymentData} />
+                                        </div>
+                                      )}
+                                      {!order.qpayPaymentData && (order.status === 'PENDING' || order.status === 'CONFIRMED' || order.status === 'PAID') && (
+                                        <div className="mt-2">
+                                          <Button
+                                            variant="outline"
+                                            size="sm"
+                                            className="text-xs text-emerald-600 border-emerald-200 hover:bg-emerald-50 font-bold flex items-center gap-1.5"
+                                            onClick={async () => {
+                                              try {
+                                                toast({ title: "Шалгаж байна...", description: "Түр хүлээнэ үү" });
+                                                const result = await checkOrderPayment({ variables: { orderId: order.id } });
+                                                const updated = result.data?.checkQPayPaymentAndConfirmOrder;
+                                                if (updated?.status === 'CONFIRMED' || updated?.status === 'PAID') {
+                                                  toast({ title: "Амжилттай", description: "Төлбөр баталгаажлаа" });
+                                                } else {
+                                                  toast({ title: "Мэдээлэл", description: "Төлбөр хараахан төлөгдөөгүй байна" });
+                                                }
+                                                await refetchOrders();
+                                              } catch (err: any) {
+                                                toast({ title: "Алдаа", description: err.message, variant: "destructive" as any });
+                                              }
+                                            }}
+                                          >
+                                            <Clock className="w-3.5 h-3.5" /> QPay төлбөр шалгах
+                                          </Button>
+                                        </div>
+                                      )}
                                     </div>
                                     <div>
                                       <label className="text-sm font-semibold text-gray-700">
@@ -3555,6 +3614,30 @@ export default function AdminDashboardContent() {
                               {(booking.status === 'CONFIRMED' || booking.status === 'PAID') && booking.qpayPaymentData && (
                                 <PaymentDetails data={booking.qpayPaymentData} />
                               )}
+                              {!booking.qpayPaymentData && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  className="h-6 px-2 mt-1 text-[10px] text-emerald-600 hover:bg-emerald-50 font-bold flex items-center gap-1 w-full justify-start border border-emerald-200 rounded"
+                                  onClick={async () => {
+                                    try {
+                                      toast({ title: "Шалгаж байна...", description: "Түр хүлээнэ үү" });
+                                      const result = await checkBookingPayment({ variables: { bookingId: booking.id } });
+                                      const updated = result.data?.checkQPayPaymentAndConfirmBooking;
+                                      if (updated?.status === 'CONFIRMED') {
+                                        toast({ title: "Амжилттай", description: "Төлбөр баталгаажлаа" });
+                                      } else {
+                                        toast({ title: "Мэдээлэл", description: "Төлбөр хараахан төлөгдөөгүй байна" });
+                                      }
+                                      await refetchBookings();
+                                    } catch (err: any) {
+                                      toast({ title: "Алдаа", description: err.message, variant: "destructive" as any });
+                                    }
+                                  }}
+                                >
+                                  <Clock className="w-3 h-3" /> Төлбөр шалгах
+                                </Button>
+                              )}
                             </TableCell>
                             <TableCell>
                               <div className="flex space-x-1">
@@ -3664,6 +3747,37 @@ export default function AdminDashboardContent() {
                                             {translateStatus(booking.status)}
                                           </Badge>
                                         </div>
+                                        {(booking.status === 'CONFIRMED' || booking.status === 'PAID') && booking.qpayPaymentData && (
+                                          <div className="mt-2">
+                                            <PaymentDetails data={booking.qpayPaymentData} />
+                                          </div>
+                                        )}
+                                        {!booking.qpayPaymentData && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
+                                          <div className="mt-2">
+                                            <Button
+                                              variant="outline"
+                                              size="sm"
+                                              className="text-xs text-emerald-600 border-emerald-200 hover:bg-emerald-50 font-bold flex items-center gap-1.5"
+                                              onClick={async () => {
+                                                try {
+                                                  toast({ title: "Шалгаж байна...", description: "Түр хүлээнэ үү" });
+                                                  const result = await checkBookingPayment({ variables: { bookingId: booking.id } });
+                                                  const updated = result.data?.checkQPayPaymentAndConfirmBooking;
+                                                  if (updated?.status === 'CONFIRMED') {
+                                                    toast({ title: "Амжилттай", description: "Төлбөр баталгаажлаа" });
+                                                  } else {
+                                                    toast({ title: "Мэдээлэл", description: "Төлбөр хараахан төлөгдөөгүй байна" });
+                                                  }
+                                                  await refetchBookings();
+                                                } catch (err: any) {
+                                                  toast({ title: "Алдаа", description: err.message, variant: "destructive" as any });
+                                                }
+                                              }}
+                                            >
+                                              <Clock className="w-3.5 h-3.5" /> QPay төлбөр шалгах
+                                            </Button>
+                                          </div>
+                                        )}
                                       </div>
                                       <div>
                                         <label className="text-sm font-semibold text-gray-700">
