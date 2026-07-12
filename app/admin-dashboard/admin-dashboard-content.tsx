@@ -139,6 +139,22 @@ const parseAmenities = (amenitiesStr?: string) => {
   }
 };
 
+const PaymentDetails = ({ data }: { data?: string }) => {
+  if (!data) return null;
+  try {
+    const parsed = JSON.parse(data);
+    return (
+      <div className="mt-2 text-[10px] sm:text-xs text-gray-600 bg-emerald-50 p-2 rounded border border-emerald-100 w-full col-span-full">
+        <p className="font-semibold text-emerald-800 mb-1">QPay Төлбөрийн мэдээлэл:</p>
+        <p><strong>Данс:</strong> {parsed.payment_wallet || parsed.payment_account || "Тодорхойгүй"}</p>
+        <p><strong>Гүйлгээний дугаар:</strong> {parsed.trx_id || parsed.payment_id || "Тодорхойгүй"}</p>
+      </div>
+    );
+  } catch (e) {
+    return null;
+  }
+};
+
 export default function AdminDashboardContent() {
   const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("overview");
@@ -361,6 +377,7 @@ export default function AdminDashboardContent() {
       amount: edge.node.totalPrice,
       status: edge.node.status,
       shippingAddress: edge.node.shippingAddress || "",
+      qpayPaymentData: edge.node.qpayPaymentData,
       date: edge.node.createdAt ? String(edge.node.createdAt).split("T")[0] : "",
       createdAt: edge.node.createdAt,
     })) || [];
@@ -393,6 +410,7 @@ export default function AdminDashboardContent() {
         yurtOwnerPhone: edge.node.yurt?.owner?.phone || "",
         amount: edge.node.totalPrice,
         status: edge.node.status,
+        qpayPaymentData: edge.node.qpayPaymentData,
         startDate: edge.node.startDate,
         endDate: edge.node.endDate,
         date: edge.node.createdAt ? String(edge.node.createdAt).split("T")[0] : "",
@@ -3320,6 +3338,9 @@ export default function AdminDashboardContent() {
                               {order.status === "CANCELLED" && <X className="w-3 h-3" />}
                               <span className="text-[11px] uppercase tracking-wider">{translateStatus(order.status)}</span>
                             </Badge>
+                            {(order.status === 'CONFIRMED' || order.status === 'PAID') && order.qpayPaymentData && (
+                              <PaymentDetails data={order.qpayPaymentData} />
+                            )}
                           </TableCell>
                           <TableCell className="hidden sm:table-cell font-medium text-sm">
                             {formatDate(order.createdAt)}
@@ -3531,6 +3552,9 @@ export default function AdminDashboardContent() {
                                 {booking.status === "CANCELLED" && <X className="w-3 h-3" />}
                                 <span className="text-[11px] uppercase tracking-wider">{translateStatus(booking.status)}</span>
                               </Badge>
+                              {(booking.status === 'CONFIRMED' || booking.status === 'PAID') && booking.qpayPaymentData && (
+                                <PaymentDetails data={booking.qpayPaymentData} />
+                              )}
                             </TableCell>
                             <TableCell>
                               <div className="flex space-x-1">
@@ -3963,6 +3987,9 @@ export default function AdminDashboardContent() {
                             >
                               <Clock className="w-3 h-3 mr-1" /> Төлбөр шалгах
                             </Button>
+                          )}
+                          {(booking.status === 'CONFIRMED' || booking.status === 'PAID') && booking.qpayPaymentData && (
+                            <PaymentDetails data={booking.qpayPaymentData} />
                           )}
                         </TableCell>
                         <TableCell className="text-xs text-gray-500">{formatDateTime(booking.createdAt)}</TableCell>

@@ -50,6 +50,7 @@ export const GET_user_BOOKINGS = gql`
           totalPrice
           status
           qpayInvoiceId
+          qpayPaymentData
           createdAt
         }
       }
@@ -78,6 +79,7 @@ export const GET_user_ORDERS = gql`
           totalPrice
           status
           qpayInvoiceId
+          qpayPaymentData
           createdAt
         }
       }
@@ -294,6 +296,7 @@ export const GET_user_EVENT_BOOKINGS = gql`
       totalPrice
       status
       qpayInvoiceId
+      qpayPaymentData
       createdAt
       event {
         id

@@ -117,6 +117,7 @@ export const GET_ALL_ORDERS = gql`
           totalPrice
           status
           shippingAddress
+          qpayPaymentData
           createdAt
         }
       }
@@ -151,6 +152,7 @@ export const GET_ALL_BOOKINGS = gql`
           endDate
           totalPrice
           status
+          qpayPaymentData
           createdAt
         }
       }
@@ -380,6 +382,7 @@ export const GET_EVENT_BOOKINGS = gql`
           totalPrice
           status
           qpayInvoiceId
+          qpayPaymentData
           createdAt
         }
         cursor

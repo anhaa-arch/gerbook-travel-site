@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useState, useEffect } from "react";
 import { useTranslation } from "react-i18next";
@@ -73,6 +73,7 @@ interface EventBooking {
   totalPrice: number;
   status: string;
   qpayInvoiceId?: string;
+  qpayPaymentData?: string;
   createdAt: string;
   event: {
     id: string;
@@ -105,6 +106,7 @@ interface Booking {
   amenities?: string;
   campId?: string;
   qpayInvoiceId?: string;
+  qpayPaymentData?: string;
 }
 
 interface Order {
@@ -117,6 +119,7 @@ interface Order {
   date: string;
   image: string;
   qpayInvoiceId?: string;
+  qpayPaymentData?: string;
   items?: Array<{
     id: string;
     name: string;
@@ -206,6 +209,22 @@ const CHECK_QPAY_EVENT_BOOKING = gql`
   }
 `;
 
+const PaymentDetails = ({ data }: { data?: string }) => {
+  if (!data) return null;
+  try {
+    const parsed = JSON.parse(data);
+    return (
+      <div className="mt-2 text-[10px] sm:text-xs text-gray-600 bg-emerald-50 p-2 rounded border border-emerald-100 w-full col-span-full">
+        <p className="font-semibold text-emerald-800 mb-1">QPay Төлбөрийн мэдээлэл:</p>
+        <p><strong>Данс:</strong> {parsed.payment_wallet || parsed.payment_account || "Тодорхойгүй"}</p>
+        <p><strong>Гүйлгээний дугаар:</strong> {parsed.trx_id || parsed.payment_id || "Тодорхойгүй"}</p>
+      </div>
+    );
+  } catch (e) {
+    return null;
+  }
+};
+
 // --- Sub-components for Hook Compliance in Loops ---
 
 interface BookingItemProps {
@@ -236,37 +255,42 @@ function BookingItem({ booking, ...statusLabels }: BookingItemProps) {
   };
 
   return (
-    <div className="flex items-center space-x-2 sm:space-x-4">
-      <img
-        src={booking.image || "/placeholder.svg"}
-        alt={booking.camp}
-        className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0"
-        onError={(e) => {
-          (e.target as HTMLImageElement).src = "/placeholder.svg";
-        }}
-      />
-      <div className="min-w-0 flex-1">
-        <p className="font-semibold text-xs sm:text-sm md:text-base truncate">
-          {booking.camp}
-        </p>
-        <p className="text-[10px] xs:text-xs sm:text-sm text-gray-600 truncate font-medium">
-          {booking.location}
-        </p>
-        <p className="text-[10px] xs:text-xs text-gray-500 font-medium hidden xs:block">
-          {booking.checkIn} - {booking.checkOut}
-        </p>
+    <div className="flex flex-col w-full">
+      <div className="flex items-center space-x-2 sm:space-x-4">
+        <img
+          src={booking.image || "/placeholder.svg"}
+          alt={booking.camp}
+          className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/placeholder.svg";
+          }}
+        />
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-xs sm:text-sm md:text-base truncate">
+            {booking.camp}
+          </p>
+          <p className="text-[10px] xs:text-xs sm:text-sm text-gray-600 truncate font-medium">
+            {booking.location}
+          </p>
+          <p className="text-[10px] xs:text-xs text-gray-500 font-medium hidden xs:block">
+            {booking.checkIn} - {booking.checkOut}
+          </p>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
+            {price}
+          </p>
+          <Badge
+            variant={booking.status === "confirmed" ? "default" : "secondary"}
+            className={`text-[10px] xs:text-xs font-medium mt-1 ${booking.status === "confirmed" ? "bg-green-100 text-green-800" : ""}`}
+          >
+            {getStatusDisplay()}
+          </Badge>
+        </div>
       </div>
-      <div className="text-right flex-shrink-0">
-        <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
-          {price}
-        </p>
-        <Badge
-          variant={booking.status === "confirmed" ? "default" : "secondary"}
-          className={`text-[10px] xs:text-xs font-medium mt-1 ${booking.status === "confirmed" ? "bg-green-100 text-green-800" : ""}`}
-        >
-          {getStatusDisplay()}
-        </Badge>
-      </div>
+      {(booking.status === 'confirmed' || booking.status === 'paid') && booking.qpayPaymentData && (
+        <PaymentDetails data={booking.qpayPaymentData} />
+      )}
     </div>
   );
 }
@@ -294,37 +318,42 @@ function OrderListItem({ order, statusLabels }: OrderListItemProps) {
   };
 
   return (
-    <div className="flex items-center space-x-2 sm:space-x-4">
-      <img
-        src={order.image || "/placeholder.svg"}
-        alt={order.product}
-        className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0"
-        onError={(e) => {
-          (e.target as HTMLImageElement).src = "/placeholder.svg";
-        }}
-      />
-      <div className="min-w-0 flex-1">
-        <p className="font-semibold text-xs sm:text-sm md:text-base truncate">
-          {order.product}
-        </p>
-        <p className="text-[10px] xs:text-xs sm:text-sm text-gray-600 truncate font-medium">
-          {order.seller}
-        </p>
-        <p className="text-[10px] xs:text-xs text-gray-500 font-medium hidden xs:block">
-          {order.date}
-        </p>
+    <div className="flex flex-col w-full">
+      <div className="flex items-center space-x-2 sm:space-x-4">
+        <img
+          src={order.image || "/placeholder.svg"}
+          alt={order.product}
+          className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover flex-shrink-0"
+          onError={(e) => {
+            (e.target as HTMLImageElement).src = "/placeholder.svg";
+          }}
+        />
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold text-xs sm:text-sm md:text-base truncate">
+            {order.product}
+          </p>
+          <p className="text-[10px] xs:text-xs sm:text-sm text-gray-600 truncate font-medium">
+            {order.seller}
+          </p>
+          <p className="text-[10px] xs:text-xs text-gray-500 font-medium hidden xs:block">
+            {order.date}
+          </p>
+        </div>
+        <div className="text-right flex-shrink-0">
+          <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
+            {price}
+          </p>
+          <Badge
+            variant={order.status === "delivered" ? "default" : "secondary"}
+            className={`text-[10px] xs:text-xs font-medium mt-1 ${order.status === "delivered" ? "bg-green-100 text-green-800" : ""}`}
+          >
+            {getStatusDisplay()}
+          </Badge>
+        </div>
       </div>
-      <div className="text-right flex-shrink-0">
-        <p className="font-bold text-xs sm:text-sm md:text-base whitespace-nowrap">
-          {price}
-        </p>
-        <Badge
-          variant={order.status === "delivered" ? "default" : "secondary"}
-          className={`text-[10px] xs:text-xs font-medium mt-1 ${order.status === "delivered" ? "bg-green-100 text-green-800" : ""}`}
-        >
-          {getStatusDisplay()}
-        </Badge>
-      </div>
+      {(order.status === 'confirmed' || order.status === 'paid') && order.qpayPaymentData && (
+        <PaymentDetails data={order.qpayPaymentData} />
+      )}
     </div>
   );
 }
@@ -528,6 +557,9 @@ function EventBookingItem({ booking, statusLabels, totalLabel, checkingPayment, 
             )}
           </div>
         </div>
+        {(booking.status === 'confirmed' || booking.status === 'PAID') && booking.qpayPaymentData && (
+          <PaymentDetails data={booking.qpayPaymentData} />
+        )}
       </div>
     </div>
   );
@@ -678,6 +710,9 @@ function CampBookingCard({ booking, statusLabels, ownerLabels, commonLabels, che
             </Button>
           </div>
         </div>
+        {(booking.status === 'confirmed' || booking.status === 'paid') && booking.qpayPaymentData && (
+          <PaymentDetails data={booking.qpayPaymentData} />
+        )}
       </CardContent>
     </Card>
   );
@@ -1189,10 +1224,10 @@ export default function UserDashboardContent() {
   const clearAllLabel = useTranslatedValue("common.clear_all", "Бүгдийг цэвэрлэх");
   const campLabel = useTranslatedValue("common.camp", "Бааз");
   const productLabel = useTranslatedValue("common.product", "Бараа");
-  const sellerLabel = sellerLabel;
+  const sellerLabel = useTranslatedValue("common.seller", "Борлуулагч");
   const sellerNameLabel = useTranslatedValue("common.seller_name", "Монгол");
-  const detailsLabel = detailsLabel;
-  const addToCartLabel = addToCartLabel;
+  const detailsLabel = useTranslatedValue("common.details", "Дэлгэрэнгүй");
+  const addToCartLabel = useTranslatedValue("common.add_to_cart", "Сагсанд нэмэх");
   const noSavedLabel = useTranslatedValue("dashboard.no_saved", "Хадгалсан амралт байхгүй");
   const noSavedDescLabel = useTranslatedValue("dashboard.no_saved_desc", "Та одоогоор ямар ч амралт хадгалаагүй байна.");
   const searchCampsLabel = useTranslatedValue("dashboard.search_camps", "Амралт хайх");
@@ -1238,7 +1273,7 @@ export default function UserDashboardContent() {
   const orderIdLabel = useTranslatedValue("order.id", "Захиалга");
   const dateLabel = useTranslatedValue("common.date", "Огноо");
   const orderedItemsLabel = useTranslatedValue("dashboard.ordered_items", "Захиалсан бараанууд");
-  const quantityLabel = quantityLabel;
+  const quantityLabel = useTranslatedValue("common.quantity", "Тоо ширхэг");
   const unitPriceLabel = useTranslatedValue("common.unit_price", "Нэгж үнэ");
   const loadingLabel = useTranslatedValue("common.loading", "Ачаалж байна...");
   const successLabel = useTranslatedValue("payment.success", "Амжилттай");
@@ -1254,45 +1289,45 @@ export default function UserDashboardContent() {
   const dashboardSubtitleLabel = useTranslatedValue("dashboard.subtitle", "Захиалга, бараа болон аяллын тохиргоогоо удирдах");
   const errorOccurredLabel = useTranslatedValue("common.error_occurred", "Алдаа гарлаа. Дахин оролдоно уу.");
   const bookingsErrorLabel = useTranslatedValue("dashboard.bookings", "Захиалга");
-  const productsErrorLabel = useTranslatedValue("dashboard.products", "Бараа");
-  const travelErrorLabel = useTranslatedValue("dashboard.travel", "Аялал");
-  const logoutLabel = useTranslatedValue("common.logout", "Гарах");
-  const overviewTabLabel = useTranslatedValue("dashboard.tab.overview", "Тойм");
-  const bookingsTabLabel = useTranslatedValue("dashboard.tab.bookings", "Захиалга");
-  const savedTabLabel = useTranslatedValue("dashboard.tab.saved", "Хадгалсан");
-  const routesTabLabel = useTranslatedValue("dashboard.tab.routes", "Маршрут");
-  const profileTabLabel = useTranslatedValue("dashboard.tab.profile", "Профайл");
-  const thisMonthLabel = useTranslatedValue("dashboard.stats.this_month", "Энэ сард");
-  const savedLabel = useTranslatedValue("dashboard.saved", "Хадгалсан");
-  const upcomingBookingsLabel = useTranslatedValue("dashboard.upcoming_bookings", "Ирэх захиалгууд");
-  const noUpcomingLabel = useTranslatedValue("dashboard.no_upcoming", "Ирэх захиалга байхгүй");
-  const recentOrdersLabel = useTranslatedValue("dashboard.recent_orders", "Сүүлийн захиалгууд");
-  const noOrdersLabel = useTranslatedValue("dashboard.no_orders", "Захиалга байхгүй");
-  const myBookingsLabel = useTranslatedValue("dashboard.my_bookings", "Миний захиалгууд");
-  const newBookingLabel = useTranslatedValue("dashboard.new_booking", "Шинэ бааз захиалах");
-  const campBookingsLabel = useTranslatedValue("dashboard.camp_bookings", "Кемпийн буудлын захиалгууд");
-  const ownerInfoLabel = useTranslatedValue("owner.info", "Эзэмшигчийн мэдээлэл");
-  const herderLabel = useTranslatedValue("common.herder", "Малчин");
-  const callLabel = useTranslatedValue("common.call", "Залгах");
-  const emailWriteLabel = useTranslatedValue("common.email_write", "Мейл бичих");
-  const totalLabel = useTranslatedValue("common.total", "Нийт");
-  const checkingLabel = checkingLabel;
-  const checkPaymentLabel = useTranslatedValue("common.check_payment", "Төлбөр шалгах");
-  const eventBookingsLabel = useTranslatedValue("dashboard.event_bookings", "Арга хэмжээний захиалгууд");
-  const travelBookingsLabel = useTranslatedValue("dashboard.travel_bookings", "Аяллын захиалгууд");
-  const peopleLabel = useTranslatedValue("common.people", "хүн");
-  const ordersLoadingLabel = useTranslatedValue("status.loading_orders", "Захиалга ачаалж байна...");
-  const productOrdersLabel = useTranslatedValue("dashboard.product_orders", "Барааны захиалга");
-  const statusSavedLabel = useTranslatedValue("status.saved", "Хадгалсан");
+  const productsErrorLabel = useTranslatedValue("dashboard.products", "Baarana");
+  const travelErrorLabel = useTranslatedValue("dashboard.travel", "Ayalal");
+  const logoutLabel = useTranslatedValue("common.logout", "Garakh");
+  const overviewTabLabel = useTranslatedValue("dashboard.tab.overview", "Toim");
+  const bookingsTabLabel = useTranslatedValue("dashboard.tab.bookings", "Zakhialga");
+  const savedTabLabel = useTranslatedValue("dashboard.tab.saved", "Khadsalsan");
+  const routesTabLabel = useTranslatedValue("dashboard.tab.routes", "Marshroot");
+  const profileTabLabel = useTranslatedValue("dashboard.tab.profile", "Profail");
+  const thisMonthLabel = useTranslatedValue("dashboard.stats.this_month", "Ene sard");
+  const savedLabel = useTranslatedValue("dashboard.saved", "Khadsalsan");
+  const upcomingBookingsLabel = useTranslatedValue("dashboard.upcoming_bookings", "Ireh zakhialgauud");
+  const noUpcomingLabel = useTranslatedValue("dashboard.no_upcoming", "Ireh zakhialga baikhgui");
+  const recentOrdersLabel = useTranslatedValue("dashboard.recent_orders", "Suuliin zakhialgauud");
+  const noOrdersLabel = useTranslatedValue("dashboard.no_orders", "Zakhialga baikhgui");
+  const myBookingsLabel = useTranslatedValue("dashboard.my_bookings", "Minii zakhialgauud");
+  const newBookingLabel = useTranslatedValue("dashboard.new_booking", "Shine baaz zakhialakh");
+  const campBookingsLabel = useTranslatedValue("dashboard.camp_bookings", "Kempiin buudlyn zakhialgauud");
+  const ownerInfoLabel = useTranslatedValue("owner.info", "Ezemshigchiin medeeelel");
+  const herderLabel = useTranslatedValue("common.herder", "Malchin");
+  const callLabel = useTranslatedValue("common.call", "Zalgakh");
+  const emailWriteLabel = useTranslatedValue("common.email_write", "Meil bichikh");
+  const totalLabel = useTranslatedValue("common.total", "Niit");
+  const checkingLabel = useTranslatedValue("common.checking", "Shalgaj baina...");
+  const checkPaymentLabel = useTranslatedValue("common.check_payment", "Tolver shalgakh");
+  const eventBookingsLabel = useTranslatedValue("dashboard.event_bookings", "Arga khemjeenii zakhialgauud");
+  const travelBookingsLabel = useTranslatedValue("dashboard.travel_bookings", "Ayalliin zakhialgauud");
+  const peopleLabel = useTranslatedValue("common.people", "khun");
+  const ordersLoadingLabel = useTranslatedValue("status.loading_orders", "Zakhialga achaalj baina...");
+  const productOrdersLabel = useTranslatedValue("dashboard.product_orders", "Baraanii zakhialga");
+  const statusSavedLabel = useTranslatedValue("status.saved", "Khadsalsan");
   const seasonAutumnLabel = useTranslatedValue("season.autumn", "Намар");
   const seasonSpringLabel = useTranslatedValue("season.spring", "Хавар");
   const yesLabel = useTranslatedValue("common.yes", "Тийм");
   const noLabel = useTranslatedValue("common.no", "Үгүй");
   const guidedTourLabel = useTranslatedValue("transport.guided", "Хөтөчтэй аялал");
-  const difficultyExtremeLabel = difficultyExtremeLabel;
-  const difficultyChallengingLabel = difficultyChallengingLabel;
-  const difficultyModerateLabel = difficultyModerateLabel;
-  const difficultyEasyLabel = difficultyEasyLabel;
+  const difficultyExtremeLabel = useTranslatedValue("difficulty.extreme", "Хүнд");
+  const difficultyChallengingLabel = useTranslatedValue("difficulty.challenging", "Дундаж");
+  const difficultyModerateLabel = useTranslatedValue("difficulty.moderate", "Хөнгөн");
+  const difficultyEasyLabel = useTranslatedValue("difficulty.easy", "Маш хөнгөн");
   const priceCommonLabel = useTranslatedValue("common.price_label", "Үнэ");
 
   // Status Labels
