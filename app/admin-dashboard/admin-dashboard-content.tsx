@@ -381,6 +381,7 @@ export default function AdminDashboardContent() {
       amount: edge.node.totalPrice,
       status: edge.node.status,
       shippingAddress: edge.node.shippingAddress || "",
+      qpayInvoiceId: edge.node.qpayInvoiceId,
       qpayPaymentData: edge.node.qpayPaymentData,
       date: edge.node.createdAt ? String(edge.node.createdAt).split("T")[0] : "",
       createdAt: edge.node.createdAt,
@@ -414,6 +415,7 @@ export default function AdminDashboardContent() {
         yurtOwnerPhone: edge.node.yurt?.owner?.phone || "",
         amount: edge.node.totalPrice,
         status: edge.node.status,
+        qpayInvoiceId: edge.node.qpayInvoiceId,
         qpayPaymentData: edge.node.qpayPaymentData,
         startDate: edge.node.startDate,
         endDate: edge.node.endDate,
@@ -3345,7 +3347,7 @@ export default function AdminDashboardContent() {
                             {(order.status === 'CONFIRMED' || order.status === 'PAID') && order.qpayPaymentData && (
                               <PaymentDetails data={order.qpayPaymentData} />
                             )}
-                            {!order.qpayPaymentData && (order.status === 'PENDING' || order.status === 'CONFIRMED' || order.status === 'PAID') && (
+                            {!order.qpayPaymentData && order.qpayInvoiceId && (order.status === 'PENDING' || order.status === 'CONFIRMED' || order.status === 'PAID') && (
                               <Button
                                 variant="ghost"
                                 size="sm"
@@ -3449,7 +3451,7 @@ export default function AdminDashboardContent() {
                                           <PaymentDetails data={order.qpayPaymentData} />
                                         </div>
                                       )}
-                                      {!order.qpayPaymentData && (order.status === 'PENDING' || order.status === 'CONFIRMED' || order.status === 'PAID') && (
+                                      {!order.qpayPaymentData && order.qpayInvoiceId && (order.status === 'PENDING' || order.status === 'CONFIRMED' || order.status === 'PAID') && (
                                         <div className="mt-2">
                                           <Button
                                             variant="outline"
@@ -3614,7 +3616,7 @@ export default function AdminDashboardContent() {
                               {(booking.status === 'CONFIRMED' || booking.status === 'PAID') && booking.qpayPaymentData && (
                                 <PaymentDetails data={booking.qpayPaymentData} />
                               )}
-                              {!booking.qpayPaymentData && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
+                              {!booking.qpayPaymentData && booking.qpayInvoiceId && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -3752,7 +3754,7 @@ export default function AdminDashboardContent() {
                                             <PaymentDetails data={booking.qpayPaymentData} />
                                           </div>
                                         )}
-                                        {!booking.qpayPaymentData && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
+                                        {!booking.qpayPaymentData && booking.qpayInvoiceId && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
                                           <div className="mt-2">
                                             <Button
                                               variant="outline"
@@ -4079,7 +4081,7 @@ export default function AdminDashboardContent() {
                             </SelectContent>
                           </Select>
                           
-                          {booking.status === "PENDING" && (
+                          {booking.status === "PENDING" && booking.qpayInvoiceId && (
                             <Button
                               variant="ghost"
                               size="sm"

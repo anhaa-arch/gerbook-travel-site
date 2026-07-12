@@ -117,6 +117,7 @@ export const GET_ALL_ORDERS = gql`
           totalPrice
           status
           shippingAddress
+          qpayInvoiceId
           qpayPaymentData
           createdAt
         }
@@ -152,6 +153,7 @@ export const GET_ALL_BOOKINGS = gql`
           endDate
           totalPrice
           status
+          qpayInvoiceId
           qpayPaymentData
           createdAt
         }
