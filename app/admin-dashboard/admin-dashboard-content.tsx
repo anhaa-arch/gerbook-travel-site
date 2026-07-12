@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useTranslation } from "react-i18next";
 import { useIdleLogout } from "@/hooks/use-idle-logout";
 import {
@@ -25,6 +25,10 @@ import {
   CheckCircle2,
   Truck,
   XCircle,
+  Phone,
+  Bell,
+  BellOff,
+  PhoneCall,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -139,6 +143,102 @@ const parseAmenities = (amenitiesStr?: string) => {
       policies: {}
     };
   }
+};
+
+// Contact Reminder Timer Component
+const ContactReminderTimer = ({ phone, customerName }: { phone: string; customerName: string }) => {
+  const [reminderActive, setReminderActive] = useState(false);
+  const [reminderMinutes, setReminderMinutes] = useState(30);
+  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (timeLeft === null) return;
+    if (timeLeft <= 0) {
+      setReminderActive(false);
+      setTimeLeft(null);
+      // Show notification
+      if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+        new Notification(`📞 Холбогдох цаг боллоо!`, {
+          body: `${customerName} — ${phone} дугаарт залгана уу`,
+          icon: '/favicon.ico'
+        });
+      }
+      alert(`📞 Холбогдох цаг боллоо!\n${customerName} — ${phone} дугаарт залгана уу`);
+      return;
+    }
+    timerRef.current = setTimeout(() => setTimeLeft(t => (t !== null ? t - 1 : null)), 1000);
+    return () => { if (timerRef.current) clearTimeout(timerRef.current); };
+  }, [timeLeft, customerName, phone]);
+
+  const startReminder = () => {
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission();
+    }
+    setTimeLeft(reminderMinutes * 60);
+    setReminderActive(true);
+  };
+
+  const cancelReminder = () => {
+    setReminderActive(false);
+    setTimeLeft(null);
+    if (timerRef.current) clearTimeout(timerRef.current);
+  };
+
+  const formatTime = (secs: number) => {
+    const m = Math.floor(secs / 60).toString().padStart(2, '0');
+    const s = (secs % 60).toString().padStart(2, '0');
+    return `${m}:${s}`;
+  };
+
+  return (
+    <div className="mt-2 space-y-2">
+      <div className="flex items-center gap-2 flex-wrap">
+        <a
+          href={`tel:${phone}`}
+          className="inline-flex items-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-full transition-colors"
+        >
+          <PhoneCall className="w-3.5 h-3.5" />
+          {phone} залгах
+        </a>
+      </div>
+      {!reminderActive ? (
+        <div className="flex items-center gap-2">
+          <select
+            className="text-xs border border-gray-200 rounded px-2 py-1 bg-white"
+            value={reminderMinutes}
+            onChange={e => setReminderMinutes(Number(e.target.value))}
+          >
+            <option value={5}>5 мин</option>
+            <option value={10}>10 мин</option>
+            <option value={15}>15 мин</option>
+            <option value={30}>30 мин</option>
+            <option value={60}>1 цаг</option>
+            <option value={120}>2 цаг</option>
+          </select>
+          <button
+            onClick={startReminder}
+            className="inline-flex items-center gap-1 text-xs text-orange-600 hover:text-orange-700 border border-orange-200 hover:bg-orange-50 px-2 py-1 rounded transition-colors"
+          >
+            <Bell className="w-3 h-3" />
+            Сануулга тавих
+          </button>
+        </div>
+      ) : (
+        <div className="flex items-center gap-2 bg-orange-50 border border-orange-200 rounded px-2 py-1">
+          <Bell className="w-3 h-3 text-orange-500 animate-pulse" />
+          <span className="text-xs font-mono font-bold text-orange-700">{timeLeft !== null ? formatTime(timeLeft) : '--:--'}</span>
+          <span className="text-xs text-orange-600">дараа сануулна</span>
+          <button
+            onClick={cancelReminder}
+            className="ml-auto text-gray-400 hover:text-gray-600"
+          >
+            <BellOff className="w-3 h-3" />
+          </button>
+        </div>
+      )}
+    </div>
+  );
 };
 
 const PaymentDetails = ({ data }: { data?: string }) => {
@@ -403,7 +503,7 @@ export default function AdminDashboardContent() {
         id: edge.node.id,
         customer: edge.node.user?.name || "Тодорхойгүй",
         customerEmail: edge.node.user?.email || "",
-        customerPhone: edge.node.user?.phone || "",
+        customerPhone: edge.node.customerPhone || edge.node.user?.phone || "",
         userId: edge.node.user?.id || "",
         type: "camp",
         item: edge.node.yurt?.name || "Тодорхойгүй бааз",
@@ -3318,9 +3418,15 @@ export default function AdminDashboardContent() {
                                 </p>
                               )}
                               {order.customerPhone && (
-                                <p className="text-xs text-gray-500">
-                                  {order.customerPhone}
-                                </p>
+                                <div className="mt-1">
+                                  <a
+                                    href={`tel:${order.customerPhone}`}
+                                    className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-full transition-colors"
+                                  >
+                                    <Phone className="w-3 h-3" />
+                                    {order.customerPhone}
+                                  </a>
+                                </div>
                               )}
                             </div>
                           </TableCell>
@@ -3411,9 +3517,13 @@ export default function AdminDashboardContent() {
                                         </p>
                                       )}
                                       {order.customerPhone && (
-                                        <p className="text-sm text-gray-900">
-                                          <span className="font-medium">Утас:</span> {order.customerPhone}
-                                        </p>
+                                        <div className="mt-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                                          <p className="text-xs font-semibold text-blue-700 mb-1.5">📞 Захиалагчийн утас</p>
+                                          <ContactReminderTimer
+                                            phone={order.customerPhone}
+                                            customerName={order.customer || 'Захиалагч'}
+                                          />
+                                        </div>
                                       )}
                                       {order.shippingAddress && (
                                         <p className="text-sm text-gray-900">
@@ -3576,9 +3686,15 @@ export default function AdminDashboardContent() {
                                   </p>
                                 )}
                                 {booking.customerPhone && (
-                                  <p className="text-xs text-gray-500">
-                                    {booking.customerPhone}
-                                  </p>
+                                  <div className="mt-1">
+                                    <a
+                                      href={`tel:${booking.customerPhone}`}
+                                      className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-full transition-colors"
+                                    >
+                                      <Phone className="w-3 h-3" />
+                                      {booking.customerPhone}
+                                    </a>
+                                  </div>
                                 )}
                               </div>
                             </TableCell>
@@ -3677,9 +3793,13 @@ export default function AdminDashboardContent() {
                                           </p>
                                         )}
                                         {booking.customerPhone && (
-                                          <p className="text-sm text-gray-900">
-                                            <span className="font-medium">Утас:</span> {booking.customerPhone}
-                                          </p>
+                                          <div className="mt-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
+                                            <p className="text-xs font-semibold text-blue-700 mb-1.5">📞 Захиалагчийн утас</p>
+                                            <ContactReminderTimer
+                                              phone={booking.customerPhone}
+                                              customerName={booking.customer || 'Захиалагч'}
+                                            />
+                                          </div>
                                         )}
                                       </div>
                                       <div className="border-t pt-3">
@@ -4041,7 +4161,16 @@ export default function AdminDashboardContent() {
                         <TableCell>
                           <div className="flex flex-col">
                             <span className="font-bold text-gray-900">{booking.user?.name}</span>
-                            <span className="text-xs text-gray-500">{booking.user?.email || booking.user?.phone}</span>
+                            <span className="text-xs text-gray-500">{booking.user?.email}</span>
+                            {booking.user?.phone && (
+                              <a
+                                href={`tel:${booking.user.phone}`}
+                                className="mt-0.5 inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-2 py-0.5 rounded-full transition-colors w-fit"
+                              >
+                                <Phone className="w-3 h-3" />
+                                {booking.user.phone}
+                              </a>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>

@@ -149,6 +149,8 @@ export const GET_ALL_BOOKINGS = gql`
               phone
             }
           }
+          customerPhone
+          customerEmail
           startDate
           endDate
           totalPrice
@@ -463,6 +465,7 @@ export const CHECK_QPAY_BOOKING = gql`
     checkQPayPaymentAndConfirmBooking(bookingId: $bookingId) {
       id
       status
+      qpayPaymentData
     }
   }
 `
@@ -472,6 +475,7 @@ export const CHECK_QPAY_ORDER = gql`
     checkQPayPaymentAndConfirmOrder(orderId: $orderId) {
       id
       status
+      qpayPaymentData
     }
   }
 `
