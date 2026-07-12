@@ -3816,10 +3816,10 @@ export default function AdminDashboardContent() {
                                 {booking.status === "CANCELLED" && <X className="w-3 h-3" />}
                                 <span className="text-[11px] uppercase tracking-wider">{translateStatus(booking.status)}</span>
                               </Badge>
-                              {(booking.status === 'CONFIRMED' || booking.status === 'PAID') && booking.qpayPaymentData && (
+                              {(booking.status === 'CONFIRMED' || booking.status === 'PAID' || booking.status === 'COMPLETED') && booking.qpayPaymentData && (
                                 <PaymentDetails data={booking.qpayPaymentData} />
                               )}
-                              {!booking.qpayPaymentData && booking.qpayInvoiceId && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
+                              {!booking.qpayPaymentData && booking.qpayInvoiceId && (
                                 <Button
                                   variant="ghost"
                                   size="sm"
@@ -3829,7 +3829,7 @@ export default function AdminDashboardContent() {
                                       toast({ title: "Шалгаж байна...", description: "Түр хүлээнэ үү" });
                                       const result = await checkBookingPayment({ variables: { bookingId: booking.id } });
                                       const updated = result.data?.checkQPayPaymentAndConfirmBooking;
-                                      if (updated?.status === 'CONFIRMED') {
+                                      if (updated?.status === 'CONFIRMED' || updated?.status === 'PAID') {
                                         toast({ title: "Амжилттай", description: "Төлбөр баталгаажлаа" });
                                       } else {
                                         toast({ title: "Мэдээлэл", description: "Төлбөр хараахан төлөгдөөгүй байна" });
@@ -3956,12 +3956,12 @@ export default function AdminDashboardContent() {
                                             {translateStatus(booking.status)}
                                           </Badge>
                                         </div>
-                                        {(booking.status === 'CONFIRMED' || booking.status === 'PAID') && booking.qpayPaymentData && (
+                                        {(booking.status === 'CONFIRMED' || booking.status === 'PAID' || booking.status === 'COMPLETED') && booking.qpayPaymentData && (
                                           <div className="mt-2">
                                             <PaymentDetails data={booking.qpayPaymentData} />
                                           </div>
                                         )}
-                                        {!booking.qpayPaymentData && booking.qpayInvoiceId && (booking.status === 'PENDING' || booking.status === 'CONFIRMED') && (
+                                        {!booking.qpayPaymentData && booking.qpayInvoiceId && (
                                           <div className="mt-2">
                                             <Button
                                               variant="outline"
@@ -3972,7 +3972,7 @@ export default function AdminDashboardContent() {
                                                   toast({ title: "Шалгаж байна...", description: "Түр хүлээнэ үү" });
                                                   const result = await checkBookingPayment({ variables: { bookingId: booking.id } });
                                                   const updated = result.data?.checkQPayPaymentAndConfirmBooking;
-                                                  if (updated?.status === 'CONFIRMED') {
+                                                  if (updated?.status === 'CONFIRMED' || updated?.status === 'PAID') {
                                                     toast({ title: "Амжилттай", description: "Төлбөр баталгаажлаа" });
                                                   } else {
                                                     toast({ title: "Мэдээлэл", description: "Төлбөр хараахан төлөгдөөгүй байна" });
