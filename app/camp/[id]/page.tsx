@@ -662,6 +662,19 @@ export default function CampDetailPage({ params }: CampDetailPageProps) {
     }
     console.log('✅ Role check passed');
 
+    // Check if user has phone number registered
+    if (!user.phone || user.phone.trim() === '') {
+      toast({
+        title: "⚠️ Утасны дугаар бүртгэгдээгүй байна",
+        description: "Захиалга хийхийн өмнө профайл дээрээ утасны дугаараа бүртгүүлнэ үү. Хамтран ажиллагч тантай холбоо барихад шаардлагатай. Профайл руу шилжиж байна...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = '/user-dashboard?tab=profile';
+      }, 2500);
+      return;
+    }
+
     // Validate dates
     const checkInDate = new Date(checkIn);
     const checkOutDate = new Date(checkOut);

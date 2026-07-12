@@ -10,6 +10,7 @@ interface user {
   id: string
   name: string
   email: string
+  phone?: string
   role: "ADMIN" | "TRAVELER" | "HERDER"
   avatar?: string
   hostBio?: string
@@ -195,7 +196,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     mutation VerifyRegistration($email: String!, $code: String!) {
       verifyRegistration(email: $email, code: $code) { 
         token 
-        user { id name email role hostBio hostExperience hostLanguages } 
+        user { id name email phone role hostBio hostExperience hostLanguages } 
       }
     }
   `
@@ -216,7 +217,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     mutation Login($email: String!, $password: String!) {
       login(email: $email, password: $password) { 
         token 
-        user { id name email role hostBio hostExperience hostLanguages } 
+        user { id name email phone role hostBio hostExperience hostLanguages } 
       }
     }
   `
@@ -225,7 +226,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
      mutation Register($input: CreateuserInput!, $code: String!) {
       register(input: $input, code: $code) { 
         token 
-        user { id name email role hostBio hostExperience hostLanguages } 
+        user { id name email phone role hostBio hostExperience hostLanguages } 
       }
     }
   `
@@ -235,18 +236,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   `
 
   const VERIFY_OTP_MUTATION = gql`
-    mutation VerifyOtp($phone: String!, $otp: String!) { verifyOtp(phone: $phone, otp: $otp) { token user { id name email role hostBio hostExperience hostLanguages } } }
+    mutation VerifyOtp($phone: String!, $otp: String!) { verifyOtp(phone: $phone, otp: $otp) { token user { id name email phone role hostBio hostExperience hostLanguages } } }
   `
 
   const RESET_PASSWORD_MUTATION = gql`
-    mutation ResetPassword($token: String!, $newPassword: String!) { resetPassword(token: $token, newPassword: $newPassword) { token user { id name email role hostBio hostExperience hostLanguages } } }
+    mutation ResetPassword($token: String!, $newPassword: String!) { resetPassword(token: $token, newPassword: $newPassword) { token user { id name email phone role hostBio hostExperience hostLanguages } } }
   `
 
   const GOOGLE_SIGN_IN_MUTATION = gql`
     mutation GoogleSignIn($input: GoogleSignInInput!) {
       googleSignIn(input: $input) {
         token
-        user { id name email role avatar hostBio hostExperience hostLanguages }
+        user { id name email phone role avatar hostBio hostExperience hostLanguages }
       }
     }
   `
