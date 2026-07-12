@@ -3772,7 +3772,7 @@ export default function AdminDashboardContent() {
                                     {booking.customerEmail}
                                   </p>
                                 )}
-                                {booking.customerPhone && (
+                                {booking.customerPhone ? (
                                   <div className="mt-1">
                                     <a
                                       href={`tel:${booking.customerPhone}`}
@@ -3782,6 +3782,8 @@ export default function AdminDashboardContent() {
                                       {booking.customerPhone}
                                     </a>
                                   </div>
+                                ) : (
+                                  <p className="text-xs text-gray-400 mt-1 italic">Утас бүртгэгдээгүй</p>
                                 )}
                               </div>
                             </TableCell>
@@ -3879,7 +3881,7 @@ export default function AdminDashboardContent() {
                                             <span className="font-medium">Имэйл:</span> {booking.customerEmail}
                                           </p>
                                         )}
-                                        {booking.customerPhone && (
+                                        {booking.customerPhone ? (
                                           <div className="mt-2 p-3 bg-blue-50 border border-blue-100 rounded-lg">
                                             <p className="text-xs font-semibold text-blue-700 mb-1.5">📞 Захиалагчийн утас</p>
                                             <ContactReminderTimer
@@ -3887,6 +3889,10 @@ export default function AdminDashboardContent() {
                                               customerName={booking.customer || 'Захиалагч'}
                                             />
                                           </div>
+                                        ) : (
+                                          <p className="text-sm text-gray-500 mt-1">
+                                            <span className="font-medium">Утас:</span> <span className="italic text-gray-400">Бүртгэгдээгүй</span>
+                                          </p>
                                         )}
                                       </div>
                                       <div className="border-t pt-3">
