@@ -245,15 +245,102 @@ const PaymentDetails = ({ data }: { data?: string }) => {
   if (!data) return null;
   try {
     const parsed = JSON.parse(data);
+    
+    // Extract variables with fallback keys matching different QPay response formats
+    const receiverWallet = parsed.payment_wallet || parsed.r_wallet_id || parsed.payment_account || "";
+    const senderWallet = parsed.s_wallet_id || parsed.sender_account || parsed.sender_wallet || "";
+    const bankName = parsed.bank_name || parsed.r_wallet_bank_name || parsed.bank || "";
+    const senderBankName = parsed.sender_bank_name || parsed.s_wallet_bank_name || "";
+    const trxId = parsed.trx_id || parsed.payment_id || parsed.transaction_id || "Тодорхойгүй";
+    const paymentDate = parsed.payment_date || parsed.date || parsed.settlement_date || "";
+    const amount = parsed.payment_amount || parsed.amount || "";
+    const transactionValue = parsed.transaction_value || parsed.description || parsed.card_number || "";
+
+    // Parse date safely
+    let formattedTime = "Тодорхойгүй";
+    if (paymentDate) {
+      try {
+        const d = new Date(paymentDate);
+        if (!isNaN(d.getTime())) {
+          // Format as YYYY-MM-DD HH:mm:ss
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, '0');
+          const date = String(d.getDate()).padStart(2, '0');
+          const hours = String(d.getHours()).padStart(2, '0');
+          const minutes = String(d.getMinutes()).padStart(2, '0');
+          const seconds = String(d.getSeconds()).padStart(2, '0');
+          formattedTime = `${year}-${month}-${date} ${hours}:${minutes}:${seconds}`;
+        } else {
+          formattedTime = paymentDate; // Fallback if string is not ISO but printable
+        }
+      } catch {
+        formattedTime = paymentDate;
+      }
+    }
+
     return (
-      <div className="mt-2 text-[10px] sm:text-xs text-gray-600 bg-emerald-50 p-2 rounded border border-emerald-100 w-full col-span-full">
-        <p className="font-semibold text-emerald-800 mb-1">QPay Төлбөрийн мэдээлэл:</p>
-        <p><strong>Данс:</strong> {parsed.payment_wallet || parsed.payment_account || "Тодорхойгүй"}</p>
-        <p><strong>Гүйлгээний дугаар:</strong> {parsed.trx_id || parsed.payment_id || "Тодорхойгүй"}</p>
+      <div className="mt-3 text-xs text-gray-700 bg-gradient-to-r from-emerald-50 to-teal-50/50 p-3 rounded-lg border border-emerald-200/60 shadow-sm w-full col-span-full space-y-2">
+        <div className="flex items-center justify-between border-b border-emerald-100 pb-1.5">
+          <p className="font-bold text-emerald-800 flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            QPay Амжилттай Гүйлгээ
+          </p>
+          <span className="text-[10px] text-emerald-600 bg-emerald-100/50 px-2 py-0.5 rounded font-medium">REAL-TIME</span>
+        </div>
+        
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] leading-relaxed">
+          <div>
+            <p className="text-gray-500">📥 Хүлээн авсан данс (Манай данс)</p>
+            <p className="font-semibold text-gray-900">
+              {bankName ? `${bankName}: ` : ""}{receiverWallet || "Үндсэн QPay данс"}
+            </p>
+          </div>
+
+          {senderWallet && (
+            <div>
+              <p className="text-gray-500">📤 Төлбөр хийсэн данс (Харилцагч)</p>
+              <p className="font-semibold text-gray-950">
+                {senderBankName ? `${senderBankName}: ` : ""}{senderWallet}
+              </p>
+            </div>
+          )}
+
+          <div>
+            <p className="text-gray-500">⏰ Гүйлгээний цаг (Минут, Секунд)</p>
+            <p className="font-mono font-bold text-gray-950">{formattedTime}</p>
+          </div>
+
+          <div>
+            <p className="text-gray-500">🔢 Гүйлгээний дугаар (Trx ID)</p>
+            <p className="font-mono text-emerald-800 font-semibold">{trxId}</p>
+          </div>
+
+          {amount && (
+            <div>
+              <p className="text-gray-500">💵 Гүйлгээний дүн</p>
+              <p className="font-bold text-emerald-700">
+                {new Intl.NumberFormat('mn-MN', { style: 'currency', currency: 'MNT', maximumFractionDigits: 0 }).format(Number(amount))}
+              </p>
+            </div>
+          )}
+
+          {transactionValue && (
+            <div className="col-span-full border-t border-emerald-100/50 pt-1.5 mt-0.5">
+              <p className="text-gray-500">✍️ Гүйлгээний утга / Бусад мэдээлэл</p>
+              <p className="font-medium text-gray-800 bg-white/70 px-2 py-1 rounded border border-emerald-50/50 mt-0.5 font-mono text-[10px]">
+                {transactionValue}
+              </p>
+            </div>
+          )}
+        </div>
       </div>
     );
   } catch (e) {
-    return null;
+    return (
+      <div className="mt-2 text-xs text-red-500 bg-red-50 p-2 rounded border border-red-100">
+        Гүйлгээний мэдээллийг задлахад алдаа гарлаа.
+      </div>
+    );
   }
 };
 
